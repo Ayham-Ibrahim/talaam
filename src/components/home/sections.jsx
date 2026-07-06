@@ -1,11 +1,67 @@
-import { Star, GraduationCap, BookOpen, Users, Quote, Search, CalendarClock, Video, BarChart3 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { TeacherCard, TeacherCardSkeleton } from '@/components/teacher/TeacherCard';
-import { Card, Button, StarRating, Avatar, ErrorState } from '@/components/ui';
-import { useFeaturedTeachers } from '@/hooks/useTeachers';
-import { useStats as useStatsHook } from '@/hooks/useMeta';
-import { formatCompact } from '@/lib/formatters';
-import { useT } from '@/hooks/useT';
+import { useState } from "react";
+import {
+  Star,
+  GraduationCap,
+  BookOpen,
+  Users,
+  Quote,
+  Search,
+  CalendarClock,
+  Video,
+  BarChart3,
+  LogIn,
+  UserCog,
+  Crown,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import {
+  TeacherCard,
+  TeacherCardSkeleton,
+} from "@/components/teacher/TeacherCard";
+import { Card, Button, StarRating, Avatar, ErrorState } from "@/components/ui";
+import { useFeaturedTeachers } from "@/hooks/useTeachers";
+import { useStats as useStatsHook } from "@/hooks/useMeta";
+import { formatCompact } from "@/lib/formatters";
+import { useT } from "@/hooks/useT";
+
+/* ---------- Education Types ---------- */
+const EDUCATION_TYPE_IMAGES = {
+  school: "/school.png",
+  university: "/uni.png",
+  courses: "/courses%20(1).png",
+};
+
+export function EducationTypes() {
+  const t = useT();
+  const types = t("home.educationTypes");
+
+  return (
+    <section className="max-w-5xl mx-auto mt-14">
+      <h2 className="text-center font-bold text-2xl text-ink">
+        {t("home.educationTypesTitle")}
+      </h2>
+      <p className="mt-2 mb-8 text-center text-sm text-ink-soft">
+        {t("home.educationTypesSubtitle")}
+      </p>
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+        {types.map((type) => (
+          <Card
+            key={type.icon}
+            className="flex flex-col items-center p-6 text-center"
+          >
+            <img
+              src={EDUCATION_TYPE_IMAGES[type.icon]}
+              alt=""
+              className="mb-4 h-20 w-20 object-contain"
+            />
+            <h3 className="mb-2 font-bold text-ink">{type.title}</h3>
+            <p className="text-sm text-ink-soft leading-relaxed">{type.desc}</p>
+          </Card>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 /* ---------- Featured Teachers ---------- */
 export function FeaturedTeachers() {
@@ -14,14 +70,20 @@ export function FeaturedTeachers() {
 
   return (
     <section className="container-app mt-14">
-      <h2 className="text-center font-bold text-2xl text-ink mb-8">{t('home.topTeachers')}</h2>
+      <h2 className="text-center font-bold text-2xl text-ink mb-8">
+        {t("home.topTeachers")}
+      </h2>
       {isError ? (
         <ErrorState onRetry={refetch} />
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {isLoading
-            ? Array.from({ length: 5 }).map((_, i) => <TeacherCardSkeleton key={i} />)
-            : data.map((teacher) => <TeacherCard key={teacher.id} teacher={teacher} />)}
+            ? Array.from({ length: 5 }).map((_, i) => (
+                <TeacherCardSkeleton key={i} />
+              ))
+            : data.map((teacher) => (
+                <TeacherCard key={teacher.id} teacher={teacher} />
+              ))}
         </div>
       )}
     </section>
@@ -29,12 +91,17 @@ export function FeaturedTeachers() {
 }
 
 /* ---------- Stats Band ---------- */
-const STAT_ICONS = { star: Star, graduation: GraduationCap, book: BookOpen, users: Users };
+const STAT_ICONS = {
+  star: Star,
+  graduation: GraduationCap,
+  book: BookOpen,
+  users: Users,
+};
 const STAT_COLORS = {
-  star: 'text-star bg-star/10',
-  graduation: 'text-ink-soft bg-line/50',
-  book: 'text-price bg-price/10',
-  users: 'text-accent-pink bg-accent-pink/10',
+  star: "text-star bg-star/10",
+  graduation: "text-ink-soft bg-line/50",
+  book: "text-price bg-price/10",
+  users: "text-accent-pink bg-accent-pink/10",
 };
 
 export function StatsBand() {
@@ -51,11 +118,15 @@ export function StatsBand() {
             const Icon = STAT_ICONS[stat.icon] || Star;
             return (
               <div key={stat.key} className="flex items-center gap-4">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${STAT_COLORS[stat.icon]}`}>
+                <div
+                  className={`w-14 h-14 rounded-2xl flex items-center justify-center ${STAT_COLORS[stat.icon]}`}
+                >
                   <Icon size={24} />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-ink">{formatCompact(stat.value)}</div>
+                  <div className="text-2xl font-bold text-ink">
+                    {formatCompact(stat.value)}
+                  </div>
                   <div className="text-sm text-ink-soft">{stat.label}</div>
                 </div>
               </div>
@@ -68,96 +139,228 @@ export function StatsBand() {
 }
 
 /* ---------- How It Works ---------- */
-const STEP_ICONS = [Search, CalendarClock, Video, BarChart3];
-const STEP_CONNECTOR_COLORS = ['#F74E28', '#6BCEEE', '#B00852'];
+const STUDENT_ICONS = [Search, CalendarClock, Video, BarChart3];
+const TEACHER_ICONS = [LogIn, UserCog, Crown, Video];
+const CONNECTOR_PATTERNS = [
+  {
+    color: "#F74E28",
+    viewBox: "0 0 199 188",
+    path: "M198.298 1H62.3706C45.1267 1 28.6816 8.26882 17.0744 21.0212C-18.73 60.3579 9.17915 123.5 62.3706 123.5H119.798C155.42 123.5 184.298 152.378 184.298 188",
+  },
+  {
+    color: "#6BCEEE",
+    viewBox: "0 0 461 249",
+    path: "M193.526 248H64.6259C47.0217 248 30.2076 240.692 18.1978 227.821C-19.6781 187.228 9.10695 121 64.6258 121H399.393C434.101 121 461.569 91.6398 459.26 57.0089C457.159 25.491 430.981 1 399.393 1H237.026",
+  },
+  {
+    color: "#B00852",
+    viewBox: "0 0 199 188",
+    path: "M0 187H135.927C153.171 187 169.616 179.731 181.223 166.979C217.028 127.642 189.119 64.5 135.927 64.5H78.5C42.8776 64.5 14 35.6224 14 0",
+  },
+];
+
+/* Card silhouette with a concave notch on one edge for the circle to nest into. */
+function NotchedCardShape({ mirrored }) {
+  return (
+    <svg
+      viewBox="0 0 517 133"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      className={`pointer-events-none absolute inset-0 h-full w-full drop-shadow-[0_4px_14px_rgba(0,0,0,0.12)] ${
+        mirrored ? "-scale-x-100" : ""
+      }`}
+    >
+      <path
+        d="M510.252 109.164C510.252 117.856 503.206 124.902 494.515 124.902H7.53066C5.96751 124.902 6.42556 123.055 7.92422 122.611C31.3626 115.661 48.5795 92.5342 48.5795 65.0735C48.5794 37.5205 31.2464 14.3301 7.68728 7.46662C6.6415 7.16196 6.44141 5.90167 7.53066 5.90161H494.515C503.206 5.90161 510.252 12.9476 510.252 21.6393V109.164Z"
+        fill="white"
+        stroke="#E4E8E7"
+        strokeWidth="1.3"
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
+  );
+}
 
 export function HowItWorks() {
   const t = useT();
-  const steps = t('home.steps');
+  const [role, setRole] = useState("teacher");
+  const tabs = t("home.howItWorksTabs");
+  const steps = role === "teacher" ? t("home.stepsTeacher") : t("home.steps");
+  const icons = role === "teacher" ? TEACHER_ICONS : STUDENT_ICONS;
 
   return (
     <section className="container-app mt-20">
-      <h2 className="text-center font-bold text-2xl text-ink">{t('home.howItWorksTitle')}</h2>
-      <p className="text-center text-ink-soft text-sm mt-2 mb-12">{t('home.howItWorksSubtitle')}</p>
+      <h2 className="text-center font-cairo text-2xl font-bold text-[#1E1E1E]">
+        {t("home.howItWorksTitle")}
+      </h2>
+      <p className="mt-2 text-center font-cairo text-lg text-[#626262]">
+        {t("home.howItWorksSubtitle")}
+      </p>
+
+      <div className="mx-auto mt-6 mb-12 flex w-full max-w-[291px] items-center gap-2 rounded-lg bg-[#F2F2F7] p-1">
+        {["teacher", "student"].map((key) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => setRole(key)}
+            className={`flex-1 rounded-lg py-2.5 font-cairo text-sm font-semibold transition-colors ${
+              role === key
+                ? "border border-[#4B6898] bg-[#4B6898] text-white"
+                : "text-[#1E1E1E]"
+            }`}
+          >
+            {tabs[key]}
+          </button>
+        ))}
+      </div>
 
       <div className="relative mx-auto max-w-5xl">
         {/* Decorative dashed connectors */}
-        <svg
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          className="pointer-events-none absolute inset-0 hidden h-full w-full lg:block"
-          fill="none"
-        >
-          {STEP_CONNECTOR_COLORS.map((color, i) => {
-            const yStart = 12.5 + i * 25;
-            const yEnd = yStart + 25;
-            const xNear = i % 2 === 0 ? 46 : 54;
-            const xFar = i % 2 === 0 ? 24 : 76;
+        <div className="pointer-events-none absolute inset-0 w-full hidden lg:block">
+          {Array.from({ length: steps.length - 1 }).map((_, i) => {
+            const pattern = CONNECTOR_PATTERNS[i % CONNECTOR_PATTERNS.length];
+            const rowHeight = 100 / steps.length;
+            const isThirdLine = i % CONNECTOR_PATTERNS.length === 2;
+            const top = rowHeight * (i + 0.4) + (isThirdLine ? 8 : 0);
             return (
-              <path
-                key={color}
-                d={`M ${xNear} ${yStart} C ${xFar} ${yStart + 8}, ${xFar} ${yEnd - 8}, ${xNear} ${yEnd}`}
-                stroke={color}
-                strokeWidth="0.25"
-                strokeDasharray="1.4 1.4"
-              />
+              <svg
+                key={i}
+                viewBox={pattern.viewBox}
+                preserveAspectRatio="none"
+                fill="none"
+                className={`absolute   left-[25%] -translate-x-[50%]  ${
+                  isThirdLine
+                    ? "w-[50%] -right-[200px]"
+                    : i % 2 === 1
+                      ? "w-[50%] -right-7"
+                      : " w-[33%] left-[35%]"
+                }`}
+                style={{ top: `${top}%`, height: `${25}%` }}
+              >
+                <path
+                  d={pattern.path}
+                  stroke={pattern.color}
+                  strokeWidth="2"
+                  strokeDasharray="8 8"
+                  vectorEffect="non-scaling-stroke"
+                />
+              </svg>
             );
           })}
-        </svg>
+        </div>
 
-        <div className="relative flex flex-col gap-10 lg:gap-14">
+        <div className="relative flex flex-col gap-10 lg:gap-36">
           {steps.map((step, i) => {
-            const Icon = STEP_ICONS[i];
+            const Icon = icons[i];
             const mirrored = i % 2 === 1;
-
-            const circle = (
-              <div className="relative z-10 flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-white shadow-[0_2px_10px_rgba(0,0,0,0.12)] lg:h-28 lg:w-28">
-                <div className="flex h-[70%] w-[70%] items-center justify-center rounded-full bg-[#4B6898]">
-                  <Icon className="text-white" size={28} />
-                </div>
+            const enumeration = (
+              <div>
                 <span
-                  className={`absolute top-1/2 -translate-y-1/2 rounded-full bg-[#4B6898] px-2.5 py-1 font-cairo text-xs font-bold text-white shadow-sm ${
-                    mirrored ? '-right-2' : '-left-2'
+                  className={`absolute top-[16%] h-[74%] w-[5%] bg-[linear-gradient(180deg,#6BCEEE_42%,#4B6898_42%)] ${
+                    mirrored
+                      ? "right-[17%] rounded-r-full"
+                      : "left-[17%] rounded-l-full"
+                  }`}
+                />
+                <span
+                  className={`absolute top-[47%] flex h-[18%] w-[25%] items-center justify-center bg-[#4B6898] font-cairo text-sm font-bold text-white ${
+                    mirrored
+                      ? "-right-[5%] rounded-r-full"
+                      : "-left-[5%] rounded-l-full"
                   }`}
                 >
                   {step.no}
                 </span>
               </div>
             );
+            const circle = (
+              <div
+                className={`relative z-10 flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-[#E4E8E7] bg-white shadow-[0_2px_10px_rgba(0,0,0,0.12)] lg:h-24 lg:w-24 
+              ${mirrored ? "mr-12" : "ml-12"}
+              `}
+              >
+                <div className="flex h-[92%] w-[92%] items-center justify-center rounded-full border border-[#E4E8E7] bg-[#EDF0F5]">
+                  <div className="flex h-[78%] w-[78%] items-center justify-center rounded-full bg-[#4B6898]">
+                    <Icon className="text-white" size={26} />
+                  </div>
+                </div>
+              </div>
+            );
 
             const title = (
-              <h3 className="text-center text-base font-bold text-[#4B6898] sm:text-xl">{step.title}</h3>
+              <h3 className="text-center text-base font-bold text-[#4B6898] sm:text-xl">
+                {step.title}
+              </h3>
             );
             const desc = (
-              <p className="max-w-[240px] text-center text-sm text-[#2D2D2D] sm:text-base">{step.desc}</p>
+              <p className="max-w-[240px] text-center text-sm text-[#2D2D2D] sm:text-base">
+                {step.desc}
+              </p>
             );
-            const divider = <span className="h-12 w-px shrink-0 bg-line sm:h-16" />;
+            const divider = (
+              <span className="h-12 w-px shrink-0 bg-line sm:h-16" />
+            );
 
             const card = (
-              <Card
-                className={`flex flex-1 items-center justify-center gap-4 px-6 py-5 font-cairo sm:gap-6 sm:px-10 ${
-                  mirrored ? '-mr-6' : '-ml-6'
-                }`}
+              <div
+                className={`relative h-24 flex-1 lg:h-28 ${mirrored ? "-mr-8" : "-ml-8"}`}
               >
-                {mirrored ? (
-                  <>
-                    {title}
-                    {divider}
-                    {desc}
-                  </>
-                ) : (
-                  <>
-                    {desc}
-                    {divider}
-                    {title}
-                  </>
-                )}
-              </Card>
+                <NotchedCardShape mirrored={mirrored} />
+                <div className="relative z-10 flex h-full items-center justify-center gap-4 px-6 font-cairo sm:gap-6 sm:px-10">
+                  {mirrored ? (
+                    <>
+                      {title}
+                      {divider}
+                      {desc}
+                      <span
+                        className={`absolute top-1 h-[90%] w-[3%]  bg-[linear-gradient(180deg,#6BCEEE_42%,#4B6898_42%)] ${
+                          mirrored
+                            ? "left-[0%] rounded-l-full"
+                            : "right-[0 %] rounded-r-full"
+                        }`}
+                      />
+                      <span
+                        className={`absolute top-[47%] flex h-[18%] w-[8%] items-center justify-center bg-[#4B6898] font-cairo text-sm font-bold text-white ${
+                          mirrored
+                            ? "left-[0%] rounded-r-full"
+                            : "right-[0%] rounded-l-full"
+                        }`}
+                      >
+                        {step.no}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      {desc}
+                      {divider}
+                      {title}
+                      <span
+                        className={`absolute top-1 h-[90%] w-[3%] bg-[linear-gradient(180deg,#6BCEEE_42%,#4B6898_42%)] ${
+                          mirrored
+                            ? " left-[0%] rounded-l-full"
+                            : "right-[0%] rounded-r-full "
+                        }`}
+                      />
+                      <span
+                        className={`absolute top-[47%] flex h-[18%] w-[8%] items-center justify-center bg-[#4B6898] font-cairo text-sm font-bold text-white ${
+                          mirrored
+                            ? "left-[0%]  rounded-r-full"
+                            : " right-[0%] rounded-l-full"
+                        }`}
+                      >
+                        {step.no}
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
             );
 
             return (
-              <div key={step.no} className="flex">
-                <div className={`flex w-full items-center lg:w-[58%] ${mirrored ? 'mr-auto' : 'ml-auto'}`}>
+              <div key={`${role}-${step.no}`} className="flex">
+                <div
+                  className={`flex flex-row-reverse w-full items-center lg:w-[58%] ${mirrored ? "mr-auto" : "ml-auto"}`}
+                >
                   {mirrored ? (
                     <>
                       {card}
@@ -184,27 +387,33 @@ export function Testimonials() {
   const t = useT();
   const testimonials = Array.from({ length: 3 }).map((_, i) => ({
     id: i,
-    name: 'عبدالله سليم',
-    role: 'طالب لغة انكليزية',
+    name: "عبدالله سليم",
+    role: "طالب لغة انكليزية",
     rating: 4.9,
-    text: 'منصة رائعة المعلم يشرح بطريقة سهلة ومبسطة والدعم والتواصل جيد انصح الجميع بتجربتها',
+    text: "منصة رائعة المعلم يشرح بطريقة سهلة ومبسطة والدعم والتواصل جيد انصح الجميع بتجربتها",
   }));
 
   return (
     <section className="container-app mt-20">
-      <h2 className="text-center font-bold text-2xl text-ink mb-10">{t('home.testimonialsTitle')}</h2>
+      <h2 className="text-center font-bold text-2xl text-ink mb-10">
+        {t("home.testimonialsTitle")}
+      </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {testimonials.map((item) => (
           <Card key={item.id} className="p-6">
             <div className="flex items-start justify-between mb-4">
               <Quote className="text-accent-purple/30" size={28} />
             </div>
-            <p className="text-sm text-ink-soft leading-relaxed mb-5">{item.text}</p>
+            <p className="text-sm text-ink-soft leading-relaxed mb-5">
+              {item.text}
+            </p>
             <div className="flex items-center justify-between">
               <StarRating value={item.rating} size={13} />
               <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <div className="text-sm font-semibold text-ink">{item.name}</div>
+                  <div className="text-sm font-semibold text-ink">
+                    {item.name}
+                  </div>
                   <div className="text-xs text-ink-soft">{item.role}</div>
                 </div>
                 <Avatar name={item.name} size="sm" />
@@ -226,10 +435,14 @@ export function CTASection() {
     <section className="container-app mt-20">
       <div className="relative bg-primary rounded-card overflow-hidden px-8 py-12 lg:px-16 text-center">
         <div className="relative z-10">
-          <h2 className="text-white font-bold text-2xl lg:text-3xl">{t('home.ctaTitle')}</h2>
-          <p className="text-white/80 text-sm mt-3 mb-6">{t('home.ctaSubtitle')}</p>
-          <Button variant="white" size="lg" onClick={() => navigate('/search')}>
-            {t('home.ctaButton')}
+          <h2 className="text-white font-bold text-2xl lg:text-3xl">
+            {t("home.ctaTitle")}
+          </h2>
+          <p className="text-white/80 text-sm mt-3 mb-6">
+            {t("home.ctaSubtitle")}
+          </p>
+          <Button variant="white" size="lg" onClick={() => navigate("/search")}>
+            {t("home.ctaButton")}
           </Button>
         </div>
         <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-10 -mt-10" />

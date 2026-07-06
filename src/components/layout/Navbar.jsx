@@ -14,6 +14,8 @@ export function Navbar() {
     { to: '/search', label: t('nav.search') },
     { to: '/how-it-works', label: t('nav.howItWorks') },
     { to: '/resources', label: t('nav.resources') },
+    { to: '/about', label: t('nav.about') },
+    { to: '/contact', label: t('nav.contact') },
   ];
 
   return (

@@ -26,7 +26,7 @@ export default {
         canvas: '#F7F8FA',
       },
       fontFamily: {
-        sans: ['"IBM Plex Sans Arabic"', 'Tajawal', 'system-ui', 'sans-serif'],
+        sans: ['Cairo', '"IBM Plex Sans Arabic"', 'Tajawal', 'system-ui', 'sans-serif'],
         cairo: ['Cairo', '"IBM Plex Sans Arabic"', 'sans-serif'],
       },
       borderRadius: {
