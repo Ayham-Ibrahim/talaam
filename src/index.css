@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-line;
+  }
+  body {
+    @apply bg-canvas text-ink font-sans antialiased;
+  }
+  ::selection {
+    @apply bg-accent-purple/20;
+  }
+}
+
+@layer components {
+  .container-app {
+    @apply max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10;
+  }
+}
+
+/* Skeleton shimmer */
+.skeleton {
+  @apply relative overflow-hidden bg-line/60 rounded-md;
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* Hide scrollbar for horizontal teacher row */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
