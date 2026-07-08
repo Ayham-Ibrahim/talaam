@@ -94,7 +94,7 @@ export function FavoriteButton({ active = false, onClick, className = '' }) {
     <button
       onClick={onClick}
       aria-label="المفضلة"
-      className={`w-8 h-8 rounded-full bg-white/90 shadow-sm flex items-center justify-center transition-transform hover:scale-110 ${className}`}
+      className={`w-11 h-11 rounded-full bg-white/90 shadow-sm flex items-center justify-center transition-transform hover:scale-110 ${className}`}
     >
       <Heart size={16} className={active ? 'fill-accent-pink text-accent-pink' : 'text-ink-soft'} />
     </button>

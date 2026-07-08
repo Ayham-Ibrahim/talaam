@@ -22,10 +22,10 @@ export function Navbar() {
     <header className="sticky top-0 z-50 bg-surface/95 backdrop-blur border-b border-line">
       <div className="container-app flex items-center justify-between h-16">
         {/* Right (RTL start): logo + mobile toggle */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1 sm:gap-3">
           <Logo />
           <button
-            className="lg:hidden w-9 h-9 flex items-center justify-center"
+            className="lg:hidden w-11 h-11 flex items-center justify-center shrink-0"
             onClick={() => setOpen((v) => !v)}
             aria-label="القائمة"
           >
@@ -52,12 +52,18 @@ export function Navbar() {
         </nav>
 
         {/* Left (RTL end): login + icons */}
-        <div className="flex items-center gap-3">
-          <Button size="sm">{t('nav.login')}</Button>
-          <button className="w-9 h-9 rounded-full hover:bg-line/50 flex items-center justify-center" aria-label="الإشعارات">
+        <div className="flex items-center gap-1 sm:gap-3">
+          <Button size="sm" className="sm:!px-5">{t('nav.login')}</Button>
+          <button
+            className="hidden sm:flex w-11 h-11 rounded-full hover:bg-line/50 items-center justify-center shrink-0"
+            aria-label="الإشعارات"
+          >
             <Bell size={18} className="text-ink-soft" />
           </button>
-          <button className="w-9 h-9 rounded-full hover:bg-line/50 flex items-center justify-center" aria-label="المفضلة">
+          <button
+            className="hidden sm:flex w-11 h-11 rounded-full hover:bg-line/50 items-center justify-center shrink-0"
+            aria-label="المفضلة"
+          >
             <Heart size={18} className="text-ink-soft" />
           </button>
         </div>

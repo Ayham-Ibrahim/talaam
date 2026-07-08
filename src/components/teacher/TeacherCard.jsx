@@ -37,7 +37,7 @@ export function TeacherCard({ teacher }) {
         <p className="text-sm text-ink-soft mt-0.5">{teacher.typeLabel}</p>
 
         {/* Meta row */}
-        <div className="flex items-center gap-2 mt-2 text-xs text-ink-soft">
+        <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 mt-2 text-xs text-ink-soft">
           <span>{teacher.stageLabel}</span>
           <span className="text-line">•</span>
           <span>{teacher.studentsCount} طالب</span>

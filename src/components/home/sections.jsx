@@ -12,6 +12,8 @@ import {
   LogIn,
   UserCog,
   Crown,
+  School,
+  Landmark,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -25,10 +27,15 @@ import { formatCompact } from "@/lib/formatters";
 import { useT } from "@/hooks/useT";
 
 /* ---------- Education Types ---------- */
-const EDUCATION_TYPE_IMAGES = {
-  school: "/school.png",
-  university: "/uni.png",
-  courses: "/courses%20(1).png",
+const EDUCATION_TYPE_ICONS = {
+  school: School,
+  university: Landmark,
+  courses: BookOpen,
+};
+const EDUCATION_TYPE_STYLES = {
+  school: { base: "#6BCEEE", shine: "#60B9D6" },
+  university: { base: "#4B6898", shine: "#445E89" },
+  courses: { base: "#B00852", shine: "#9E074A" },
 };
 
 export function EducationTypes() {
@@ -36,28 +43,46 @@ export function EducationTypes() {
   const types = t("home.educationTypes");
 
   return (
-    <section className="max-w-5xl mx-auto mt-14">
-      <h2 className="text-center font-bold text-2xl text-ink">
+    <section className="container-app mt-14">
+      <h2 className="text-center font-cairo text-2xl font-bold text-[#1E1E1E]">
         {t("home.educationTypesTitle")}
       </h2>
-      <p className="mt-2 mb-8 text-center text-sm text-ink-soft">
+      <p className="mt-2 mb-8 text-center font-cairo text-lg text-[#626262]">
         {t("home.educationTypesSubtitle")}
       </p>
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-        {types.map((type) => (
-          <Card
-            key={type.icon}
-            className="flex flex-col items-center p-6 text-center"
-          >
-            <img
-              src={EDUCATION_TYPE_IMAGES[type.icon]}
-              alt=""
-              className="mb-4 h-20 w-20 object-contain"
-            />
-            <h3 className="mb-2 font-bold text-ink">{type.title}</h3>
-            <p className="text-sm text-ink-soft leading-relaxed">{type.desc}</p>
-          </Card>
-        ))}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {types.map((type) => {
+          const Icon = EDUCATION_TYPE_ICONS[type.icon] || School;
+          const style = EDUCATION_TYPE_STYLES[type.icon];
+          return (
+            <div
+              key={type.icon}
+              className="flex flex-col items-center gap-2 rounded-2xl bg-white px-4 pb-6 pt-2 text-center shadow-[0_1px_5px_rgba(0,0,0,0.1)]"
+            >
+              <div
+                className="relative flex h-[90px] w-[90px] items-center justify-center overflow-hidden rounded-full"
+                style={{ background: style.base }}
+              >
+                <div
+                  className="absolute -left-1.5 -top-0.5 h-[110px] w-[42px] opacity-40"
+                  style={{
+                    background: style.shine,
+                    transform: "rotate(-51.46deg)",
+                  }}
+                />
+                <Icon size={36} className="relative z-10 text-white" />
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <h3 className="font-cairo text-xl font-bold text-[#1E1E1E]">
+                  {type.title}
+                </h3>
+                <p className="font-cairo text-base leading-loose text-[#626262]">
+                  {type.desc}
+                </p>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
@@ -275,8 +300,8 @@ export function HowItWorks() {
             );
             const circle = (
               <div
-                className={`relative z-10 flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-[#E4E8E7] bg-white shadow-[0_2px_10px_rgba(0,0,0,0.12)] lg:h-24 lg:w-24 
-              ${mirrored ? "mr-12" : "ml-12"}
+                className={`relative z-10 flex h-[80px] w-[80px] shrink-0 items-center justify-center rounded-full border border-[#E4E8E7] bg-white shadow-[0_2px_10px_rgba(0,0,0,0.12)] lg:h-24 lg:w-24 
+              ${mirrored ? "-mr-4 lg:mr-12" : "-ml-4 lg:ml-12"}
               `}
               >
                 <div className="flex h-[92%] w-[92%] items-center justify-center rounded-full border border-[#E4E8E7] bg-[#EDF0F5]">
@@ -398,7 +423,7 @@ export function Testimonials() {
       <h2 className="text-center font-bold text-2xl text-ink mb-10">
         {t("home.testimonialsTitle")}
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {testimonials.map((item) => (
           <Card key={item.id} className="p-6">
             <div className="flex items-start justify-between mb-4">

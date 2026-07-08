@@ -88,7 +88,7 @@ export function Footer() {
                 <a
                   key={i}
                   href="#"
-                  className="w-9 h-9 rounded-full bg-canvas flex items-center justify-center hover:bg-line/60 transition-colors"
+                  className="w-11 h-11 rounded-full bg-canvas flex items-center justify-center hover:bg-line/60 transition-colors"
                   aria-label="social"
                 >
                   <Icon size={16} className="text-ink-soft" />

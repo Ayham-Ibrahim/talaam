@@ -23,24 +23,24 @@ export function Hero() {
 
   return (
     <section className="container-app pt-6">
-      <div className="relative flex gap-8 overflow-hidden rounded-card bg-hero-gradient px-6 py-10 shadow-soft sm:px-10 lg:gap-12 lg:py-14">
+      <div className="relative flex justify-center gap-8 overflow-hidden rounded-card bg-[linear-gradient(90deg,#4B6898_14.26%,#243757_101.43%)] px-6 py-10 shadow-soft sm:px-10 lg:gap-12 lg:py-14">
         {/* Decorative teal glows behind the photo */}
-        <div className="absolute -right-16 top-1/3 hidden h-72 w-72 rounded-full bg-[#6BCEEE] opacity-10 lg:block xl:h-[28rem] xl:w-[28rem]" />
-        <div className="absolute -top-16 right-24 hidden h-72 w-72 rounded-full bg-[#6BCEEE] opacity-10 lg:block xl:h-[28rem] xl:w-[28rem]" />
+        <div className="absolute -right-20 top-56 hidden h-72 w-72 rounded-full bg-[#6BCEEE] opacity-30 lg:block xl:h-[28rem] xl:w-[28rem]" />
+        <div className="absolute top-36 right-3 hidden h-72 w-72 rounded-full bg-[#6BCEEE] opacity-30 lg:block xl:h-[28rem] xl:w-[28rem]" />
         {/* Soft white glow behind the text for contrast */}
-        <div className="absolute -left-10 -top-10 h-64 w-[85%] max-w-xl rounded-full bg-white/70 blur-[100px] lg:blur-[150px]" />
+        <div className="absolute -left-10 -top-10 h-64 w-[85%] max-w-xl rounded-full bg-white/60 blur-[150px]" />
 
         {/* Teacher photo (right side) */}
-        <div className="relative hidden w-[300px] shrink-0 lg:block xl:w-[380px]">
+        <div className="relative hidden w-[300px] shrink-0 lg:block xl:w-[430px]">
           <img
             src="/hero-teacher.png"
             alt=""
-            className="absolute  left-0 h-[calc(100%+80px)] w-full rounded-2xl object-cover object-top"
+            className="absolute -bottom-56 left-0 h-auto w-full rounded-2xl object-cover object-top"
           />
         </div>
 
         {/* Text column (left side) */}
-        <div className="relative z-10 flex max-w-xl flex-1 flex-col justify-center gap-5 font-cairo">
+        <div className="relative z-10 flex max-w-xl flex-1 flex-col justify-center gap-5 font-cairo lg:max-w-[65%]">
           <span className="inline-flex w-fit items-center gap-1.5 rounded-pill bg-white px-3 py-1.5 text-xs font-semibold text-[#34C759]">
             <CheckCircle2 size={16} /> {t("home.heroBadge")}
           </span>
@@ -54,7 +54,7 @@ export function Hero() {
             </h2>
           </div>
 
-          <p className="max-w-xl text-sm leading-relaxed text-white lg:text-base">
+          <p className="max-w-2xl text-sm leading-relaxed text-white lg:text-base">
             {t("home.heroSubtitle")}
           </p>
 
@@ -87,7 +87,7 @@ export function Hero() {
                   key={f}
                   className="inline-flex items-center gap-1.5 text-xs text-white/90"
                 >
-                  <Icon size={14} /> {f}
+                  <Icon size={14} className="text-[#6BCEEE]" /> {f}
                 </span>
               );
             })}
