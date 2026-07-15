@@ -300,7 +300,7 @@ export function HowItWorks() {
             );
             const circle = (
               <div
-                className={`relative z-10 flex h-[80px] w-[80px] shrink-0 items-center justify-center rounded-full border border-[#E4E8E7] bg-white shadow-[0_2px_10px_rgba(0,0,0,0.12)] lg:h-24 lg:w-24 
+                className={`relative z-10 flex h-[90px] w-[90px] shrink-0 items-center justify-center rounded-full border border-[#E4E8E7] bg-white shadow-[0_2px_10px_rgba(0,0,0,0.12)] lg:h-24 lg:w-24 
               ${mirrored ? "-mr-4 lg:mr-12" : "-ml-4 lg:ml-12"}
               `}
               >

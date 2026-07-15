@@ -3,11 +3,13 @@ import { NavLink } from 'react-router-dom';
 import { Bell, Heart, Menu, X } from 'lucide-react';
 import { Logo } from './Logo';
 import { Button } from '@/components/ui';
+import { useFavoritesStore } from '@/store';
 import { useT } from '@/hooks/useT';
 
 export function Navbar() {
   const t = useT();
   const [open, setOpen] = useState(false);
+  const favoritesCount = useFavoritesStore((s) => s.favorites.size);
 
   const links = [
     { to: '/', label: t('nav.home'), end: true },
@@ -60,12 +62,20 @@ export function Navbar() {
           >
             <Bell size={18} className="text-ink-soft" />
           </button>
-          <button
-            className="hidden sm:flex w-11 h-11 rounded-full hover:bg-line/50 items-center justify-center shrink-0"
+          <NavLink
+            to="/favorites"
+            className={({ isActive }) =>
+              `hidden sm:flex relative w-11 h-11 rounded-full hover:bg-line/50 items-center justify-center shrink-0 ${
+                isActive ? 'bg-line/50' : ''
+              }`
+            }
             aria-label="المفضلة"
           >
             <Heart size={18} className="text-ink-soft" />
-          </button>
+            {favoritesCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-accent-pink" />
+            )}
+          </NavLink>
         </div>
       </div>
 
