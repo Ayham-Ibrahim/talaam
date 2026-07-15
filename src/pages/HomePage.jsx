@@ -4,6 +4,7 @@ import {
   EducationTypes,
   FeaturedTeachers,
   StatsBand,
+  WhyChooseUs,
   HowItWorks,
   Testimonials,
   CTASection,
@@ -16,6 +17,7 @@ export function HomePage() {
       <EducationTypes />
       <FeaturedTeachers />
       <StatsBand />
+      <WhyChooseUs />
       <HowItWorks />
       <Testimonials />
       <CTASection />

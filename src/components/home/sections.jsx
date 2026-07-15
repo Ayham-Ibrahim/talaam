@@ -14,6 +14,9 @@ import {
   Crown,
   School,
   Landmark,
+  ShieldCheck,
+  ClipboardCheck,
+  CreditCard,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -78,6 +81,75 @@ export function EducationTypes() {
                 </h3>
                 <p className="font-cairo text-base leading-loose text-[#626262]">
                   {type.desc}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Why Choose Us ---------- */
+const WHY_CHOOSE_US_ICONS = {
+  verified: ShieldCheck,
+  packages: ClipboardCheck,
+  reschedule: CalendarClock,
+  payment: CreditCard,
+  live: Video,
+  reviews: Star,
+};
+const WHY_CHOOSE_US_COLORS = {
+  verified: "#4B6898",
+  packages: "#2E9E6B",
+  reschedule: "#7E57C2",
+  payment: "#2F80ED",
+  live: "#C2185B",
+  reviews: "#F5A623",
+};
+
+export function WhyChooseUs() {
+  const t = useT();
+  const items = t("home.whyChooseUs");
+
+  return (
+    <section className="container-app mt-14">
+      <h2 className="text-center font-cairo text-2xl font-bold text-[#1E1E1E]">
+        {t("home.whyChooseUsTitle")}
+      </h2>
+      <p className="mt-2 mb-8 text-center font-cairo text-lg text-[#626262]">
+        {t("home.whyChooseUsSubtitle")}
+      </p>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((item) => {
+          const Icon = WHY_CHOOSE_US_ICONS[item.icon] || ShieldCheck;
+          const color = WHY_CHOOSE_US_COLORS[item.icon];
+
+          return (
+            <div
+              key={item.icon}
+              className="group relative overflow-hidden rounded-2xl bg-white px-6 py-7 text-right shadow-[0_1px_5px_rgba(0,0,0,0.1)]"
+            >
+              {/* Gradient fades in via opacity — background-color and background-image can't be transitioned into each other */}
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(272.4deg,#4B6898_2.51%,#4B68aa_93.94%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+              <div className="relative z-10 flex flex-col items-end gap-3">
+                <div
+                  className="flex h-14 w-14 items-center justify-center rounded-2xl transition-colors duration-300 group-hover:!bg-white/15"
+                  style={{ background: `${color}1A` }}
+                >
+                  <Icon
+                    size={26}
+                    style={{ color }}
+                    className="transition-colors duration-300 group-hover:!text-white"
+                  />
+                </div>
+                <h3 className="font-cairo text-lg font-bold text-[#1E1E1E] transition-colors duration-300 group-hover:text-white">
+                  {item.title}
+                </h3>
+                <p className="font-cairo text-sm leading-relaxed text-[#626262] transition-colors duration-300 group-hover:text-white/85">
+                  {item.desc}
                 </p>
               </div>
             </div>
