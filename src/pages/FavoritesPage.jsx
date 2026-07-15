@@ -27,49 +27,53 @@ export function FavoritesPage() {
   return (
     <PageContainer>
       <div className="container-app py-8">
-        {/* Header */}
-        <div className="flex flex-wrap items-start justify-between gap-6">
-          <div className="flex items-start gap-4">
-            <div className="w-20 h-20 sm:w-[97px] sm:h-[97px] rounded-full bg-accent-pink/10 flex items-center justify-center shrink-0">
-              <Heart size={40} className="fill-accent-pink text-accent-pink" />
-            </div>
-            <div className="text-right">
-              <h1 className="text-2xl sm:text-[32px] font-bold text-ink">{t('favorites.title')}</h1>
-              <p className="text-ink-soft mt-2">{t('favorites.subtitle')}</p>
-            </div>
-          </div>
+        {favoriteTeachers.length > 0 && (
+          <>
+            {/* Header */}
+            <div className="flex flex-wrap items-start justify-between gap-6">
+              <div className="flex items-start gap-4">
+                <div className="w-20 h-20 sm:w-[97px] sm:h-[97px] rounded-full bg-accent-pink/10 flex items-center justify-center shrink-0">
+                  <Heart size={40} className="fill-accent-pink text-accent-pink" />
+                </div>
+                <div className="text-right">
+                  <h1 className="text-2xl sm:text-[32px] font-bold text-ink">{t('favorites.title')}</h1>
+                  <p className="text-ink-soft mt-2">{t('favorites.subtitle')}</p>
+                </div>
+              </div>
 
-          <div className="flex items-center gap-3 bg-surface shadow-soft rounded-pill pl-2 pr-5 py-2 shrink-0">
-            <span className="font-medium text-ink whitespace-nowrap">
-              {favorites.size} {t('favorites.count')}
-            </span>
-            <div className="w-[52px] h-[52px] rounded-full bg-line/40 flex items-center justify-center">
-              <Users size={22} className="text-primary" />
+              <div className="flex items-center gap-3 bg-surface shadow-soft rounded-pill pl-2 pr-5 py-2 shrink-0">
+                <span className="font-medium text-ink whitespace-nowrap">
+                  {favorites.size} {t('favorites.count')}
+                </span>
+                <div className="w-[52px] h-[52px] rounded-full bg-line/40 flex items-center justify-center">
+                  <Users size={22} className="text-primary" />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Controls */}
-        <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-bold text-primary">{t('search.sortBy')}</span>
-            <span className="inline-flex items-center gap-1 rounded-xl border border-line bg-surface px-3 py-1.5 text-sm text-ink">
-              {t('search.sortRating')} <ChevronDown size={14} className="text-ink-soft" />
-            </span>
-          </div>
+            {/* Controls */}
+            <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-primary">{t('search.sortBy')}</span>
+                <span className="inline-flex items-center gap-1 rounded-xl border border-line bg-surface px-3 py-1.5 text-sm text-ink">
+                  {t('search.sortRating')} <ChevronDown size={14} className="text-ink-soft" />
+                </span>
+              </div>
 
-          <div className="w-full max-w-sm">
-            <div className="flex items-center gap-2 rounded-2xl border border-line bg-surface px-4 py-2.5">
-              <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder={t('search.searchPlaceholder')}
-                className="flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-ink-soft"
-              />
-              <Search size={18} className="text-ink-soft" />
+              <div className="w-full max-w-sm">
+                <div className="flex items-center gap-2 rounded-2xl border border-line bg-surface px-4 py-2.5">
+                  <input
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    placeholder={t('search.searchPlaceholder')}
+                    className="flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-ink-soft"
+                  />
+                  <Search size={18} className="text-ink-soft" />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
 
         {/* List */}
         <div className="mt-6 flex flex-col gap-4">
