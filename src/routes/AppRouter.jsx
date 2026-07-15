@@ -4,7 +4,7 @@ import { SearchPage } from '@/pages/SearchPage';
 import { AboutPage } from '@/pages/AboutPage';
 import { ContactPage } from '@/pages/ContactPage';
 import { FavoritesPage } from '@/pages/FavoritesPage';
-import { TeacherProfilePage } from '@/pages/Placeholders';
+import { TeacherProfilePage } from '@/pages/TeacherProfilePage';
 
 export function AppRouter() {
   return (

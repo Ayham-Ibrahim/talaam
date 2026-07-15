@@ -178,16 +178,24 @@
     "sessionMinutes": "دقيقة",
     "perSessionLabel": "كل جلسة",
     "discount": "خصم",
-    "intro": "تعريف بالمعلم"
+    "intro": "تعريف بالمعلم",
+    "profileLabel": "ملف المعلم",
+    "packagesEmpty": "لا توجد باقات متاحة حالياً",
+    "reviewsEmpty": "لا توجد تقييمات بعد",
+    "reviewsTitle": "اراء الطلاب"
   },
   "booking": {
     "title": "احجز جلستك",
     "selectedPackage": "الباقة المختارة",
+    "subjectLabel": "المادة",
     "chooseDate": "اختر التاريخ",
     "chooseTime": "اختر الوقت المتاح",
+    "noSlots": "لا توجد مواعيد متاحة لهذا اليوم",
     "summary": "ملخص الحجز",
     "total": "المجموع",
     "proceed": "متابعة الى الدفع",
+    "submitting": "جارٍ إرسال الحجز...",
+    "success": "تم إرسال طلب الحجز بنجاح",
     "morning": "صباحاً",
     "evening": "مساءً"
   },
