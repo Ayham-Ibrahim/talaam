@@ -1,4 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence, animate } from "framer-motion";
+import {
+  fadeUp,
+  scaleIn,
+  slideIn,
+  staggerContainer,
+  viewportOnce,
+} from "@/lib/motion";
 import {
   Star,
   GraduationCap,
@@ -9,21 +17,25 @@ import {
   CalendarClock,
   Video,
   BarChart3,
-  LogIn,
-  UserCog,
-  Crown,
   School,
   Landmark,
   ShieldCheck,
   ClipboardCheck,
   CreditCard,
+   UserCheck,
+  MonitorCheck,
+  ClipboardCheck,
+  Trophy,
+  CheckCircle2,
+  MousePointerClick,
+  Target,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   TeacherCard,
   TeacherCardSkeleton,
 } from "@/components/teacher/TeacherCard";
-import { Card, Button, StarRating, Avatar, ErrorState } from "@/components/ui";
+import { Card, StarRating, Avatar, ErrorState } from "@/components/ui";
 import { useFeaturedTeachers } from "@/hooks/useTeachers";
 import { useStats as useStatsHook } from "@/hooks/useMeta";
 import { formatCompact } from "@/lib/formatters";
@@ -47,19 +59,42 @@ export function EducationTypes() {
 
   return (
     <section className="container-app mt-14">
-      <h2 className="text-center font-cairo text-2xl font-bold text-[#1E1E1E]">
+      <motion.h2
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={fadeUp}
+        className="text-center font-cairo text-2xl font-bold text-[#1E1E1E]"
+      >
         {t("home.educationTypesTitle")}
-      </h2>
-      <p className="mt-2 mb-8 text-center font-cairo text-lg text-[#626262]">
+      </motion.h2>
+      <motion.p
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={fadeUp}
+        className="mt-2 mb-8 text-center font-cairo text-lg text-[#626262]"
+      >
         {t("home.educationTypesSubtitle")}
-      </p>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      </motion.p>
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={staggerContainer(0.12)}
+        className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+      >
         {types.map((type) => {
           const Icon = EDUCATION_TYPE_ICONS[type.icon] || School;
           const style = EDUCATION_TYPE_STYLES[type.icon];
           return (
-            <div
+            <motion.div
               key={type.icon}
+              variants={fadeUp}
+              whileHover={{
+                y: -6,
+                transition: { type: "spring", stiffness: 300, damping: 22 },
+              }}
               className="flex flex-col items-center gap-2 rounded-2xl bg-white px-4 pb-6 pt-2 text-center shadow-[0_1px_5px_rgba(0,0,0,0.1)]"
             >
               <div
@@ -83,10 +118,10 @@ export function EducationTypes() {
                   {type.desc}
                 </p>
               </div>
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -167,21 +202,46 @@ export function FeaturedTeachers() {
 
   return (
     <section className="container-app mt-14">
-      <h2 className="text-center font-bold text-2xl text-ink mb-8">
+      <motion.h2
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={fadeUp}
+        className="text-center font-bold text-2xl text-ink mb-8"
+      >
         {t("home.topTeachers")}
-      </h2>
+      </motion.h2>
       {isError ? (
         <ErrorState onRetry={refetch} />
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+          variants={staggerContainer(0.08)}
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
+        >
           {isLoading
             ? Array.from({ length: 5 }).map((_, i) => (
                 <TeacherCardSkeleton key={i} />
               ))
             : data.map((teacher) => (
-                <TeacherCard key={teacher.id} teacher={teacher} />
+                <motion.div
+                  key={teacher.id}
+                  variants={fadeUp}
+                  whileHover={{
+                    y: -6,
+                    transition: {
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 22,
+                    },
+                  }}
+                >
+                  <TeacherCard teacher={teacher} />
+                </motion.div>
               ))}
-        </div>
+        </motion.div>
       )}
     </section>
   );
@@ -201,43 +261,86 @@ const STAT_COLORS = {
   users: "text-accent-pink bg-accent-pink/10",
 };
 
+function useCountUp(target, started) {
+  const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    if (!started) return;
+    const controls = animate(0, target, {
+      duration: 1.4,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: setValue,
+    });
+    return () => controls.stop();
+  }, [target, started]);
+
+  return value;
+}
+
+function StatItem({ stat, started }) {
+  const Icon = STAT_ICONS[stat.icon] || Star;
+  const value = useCountUp(stat.value, started);
+
+  return (
+    <motion.div variants={fadeUp} className="flex items-center gap-4">
+      <div
+        className={`w-14 h-14 rounded-2xl flex items-center justify-center ${STAT_COLORS[stat.icon]}`}
+      >
+        <Icon size={24} />
+      </div>
+      <div>
+        <div className="text-2xl font-bold text-ink">
+          {formatCompact(Math.round(value))}
+        </div>
+        <div className="text-sm text-ink-soft">{stat.label}</div>
+      </div>
+    </motion.div>
+  );
+}
+
 export function StatsBand() {
   const { data, isLoading } = useStatsHook();
+  const [started, setStarted] = useState(false);
 
   return (
     <section className="container-app mt-14">
-      <Card className="p-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          {(isLoading ? Array.from({ length: 4 }) : data).map((stat, i) => {
-            if (!stat) {
-              return <div key={i} className="skeleton h-16 rounded-lg" />;
-            }
-            const Icon = STAT_ICONS[stat.icon] || Star;
-            return (
-              <div key={stat.key} className="flex items-center gap-4">
-                <div
-                  className={`w-14 h-14 rounded-2xl flex items-center justify-center ${STAT_COLORS[stat.icon]}`}
-                >
-                  <Icon size={24} />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-ink">
-                    {formatCompact(stat.value)}
-                  </div>
-                  <div className="text-sm text-ink-soft">{stat.label}</div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </Card>
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={fadeUp}
+        onViewportEnter={() => setStarted(true)}
+      >
+        <Card className="p-8">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={viewportOnce}
+            variants={staggerContainer(0.1)}
+            className="grid grid-cols-2 lg:grid-cols-4 gap-6"
+          >
+            {(isLoading ? Array.from({ length: 4 }) : data).map((stat, i) => {
+              if (!stat) {
+                return <div key={i} className="skeleton h-16 rounded-lg" />;
+              }
+              return <StatItem key={stat.key} stat={stat} started={started} />;
+            })}
+          </motion.div>
+        </Card>
+      </motion.div>
     </section>
   );
 }
 
 /* ---------- How It Works ---------- */
 const STUDENT_ICONS = [Search, CalendarClock, Video, BarChart3];
-const TEACHER_ICONS = [LogIn, UserCog, Crown, Video];
+const TEACHER_ICONS = [
+  UserCheck,
+  GraduationCap,
+  MonitorCheck,
+  ClipboardCheck,
+  Trophy,
+];
 const CONNECTOR_PATTERNS = [
   {
     color: "#F74E28",
@@ -281,9 +384,15 @@ function NotchedCardShape({ mirrored }) {
 export function HowItWorks() {
   const t = useT();
   const [role, setRole] = useState("teacher");
+  const [openIndex, setOpenIndex] = useState(null);
+  const [supportsHover, setSupportsHover] = useState(true);
   const tabs = t("home.howItWorksTabs");
   const steps = role === "teacher" ? t("home.stepsTeacher") : t("home.steps");
   const icons = role === "teacher" ? TEACHER_ICONS : STUDENT_ICONS;
+
+  useEffect(() => {
+    setSupportsHover(window.matchMedia("(hover: hover)").matches);
+  }, []);
 
   return (
     <section className="container-app mt-20">
@@ -299,7 +408,10 @@ export function HowItWorks() {
           <button
             key={key}
             type="button"
-            onClick={() => setRole(key)}
+            onClick={() => {
+              setRole(key);
+              setOpenIndex(null);
+            }}
             className={`flex-1 rounded-lg py-2.5 font-cairo text-sm font-semibold transition-colors ${
               role === key
                 ? "border border-[#4B6898] bg-[#4B6898] text-white"
@@ -315,10 +427,11 @@ export function HowItWorks() {
         {/* Decorative dashed connectors */}
         <div className="pointer-events-none absolute inset-0 w-full hidden lg:block">
           {Array.from({ length: steps.length - 1 }).map((_, i) => {
-            const pattern = CONNECTOR_PATTERNS[i % CONNECTOR_PATTERNS.length];
+            const patternIndex = i % CONNECTOR_PATTERNS.length;
+            const pattern = CONNECTOR_PATTERNS[patternIndex];
             const rowHeight = 100 / steps.length;
-            const isThirdLine = i % CONNECTOR_PATTERNS.length === 2;
-            const top = rowHeight * (i + 0.4) + (isThirdLine ? 8 : 0);
+            const isThirdLine = patternIndex === 2;
+            const top = rowHeight * (i + 0.5) + (isThirdLine ? rowHeight * 0.12 : 0);
             return (
               <svg
                 key={i}
@@ -328,11 +441,11 @@ export function HowItWorks() {
                 className={`absolute   left-[25%] -translate-x-[50%]  ${
                   isThirdLine
                     ? "w-[50%] -right-[200px]"
-                    : i % 2 === 1
+                    : patternIndex === 1
                       ? "w-[50%] -right-7"
                       : " w-[33%] left-[35%]"
                 }`}
-                style={{ top: `${top}%`, height: `${25}%` }}
+                style={{ top: `${top}%`, height: `${rowHeight}%` }}
               >
                 <path
                   d={pattern.path}
@@ -397,8 +510,105 @@ export function HowItWorks() {
             const divider = (
               <span className="h-12 w-px shrink-0 bg-line sm:h-16" />
             );
+            const hasItems = Array.isArray(step.items);
+            const isOpen = openIndex === i;
+            const revealHandlers = hasItems
+              ? supportsHover
+                ? {
+                    onMouseEnter: () => setOpenIndex(i),
+                    onMouseLeave: () =>
+                      setOpenIndex((cur) => (cur === i ? null : cur)),
+                    onFocus: () => setOpenIndex(i),
+                    onBlur: () =>
+                      setOpenIndex((cur) => (cur === i ? null : cur)),
+                  }
+                : {
+                    onClick: () =>
+                      setOpenIndex((cur) => (cur === i ? null : i)),
+                  }
+              : {};
 
-            const card = (
+            const card = hasItems ? (
+              <motion.div
+                {...revealHandlers}
+                tabIndex={0}
+                role="button"
+                aria-expanded={isOpen}
+                whileHover={{ scale: 1.015 }}
+                whileTap={{ scale: 0.99 }}
+                transition={{ type: "spring", stiffness: 300, damping: 22 }}
+                className={`relative flex-1 cursor-pointer select-none outline-none ${mirrored ? "-mr-8" : "-ml-8"}`}
+              >
+                <NotchedCardShape mirrored={mirrored} />
+                <div className="relative z-10 flex min-h-24 flex-col items-center justify-center gap-2 px-8 py-5 font-cairo lg:min-h-28 sm:px-12">
+                  {title}
+                  <AnimatePresence initial={false} mode="wait">
+                    {isOpen ? (
+                      <motion.ul
+                        key="items"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.28, ease: "easeInOut" }}
+                        className="flex w-full flex-col gap-1.5 overflow-hidden"
+                      >
+                        {step.items.map((item, idx) => (
+                          <li
+                            key={idx}
+                            className="flex items-start gap-2 text-sm text-[#2D2D2D] sm:text-base"
+                          >
+                            <CheckCircle2
+                              size={16}
+                              className="mt-0.5 shrink-0 text-[#6BCEEE]"
+                            />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </motion.ul>
+                    ) : (
+                      <motion.span
+                        key="hint"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex items-center gap-1.5 text-xs font-semibold text-[#4B6898]/70"
+                      >
+                        <motion.span
+                          animate={{ x: [0, 3, 0] }}
+                          transition={{
+                            duration: 1.4,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
+                        >
+                          <MousePointerClick size={14} />
+                        </motion.span>
+                        {supportsHover
+                          ? "مرر للاطلاع على التفاصيل"
+                          : "اضغط للاطلاع على التفاصيل"}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                  <span
+                    className={`absolute top-1 h-[90%] w-[3%] bg-[linear-gradient(180deg,#6BCEEE_42%,#4B6898_42%)] ${
+                      mirrored
+                        ? "left-[0%] rounded-l-full"
+                        : "right-[0%] rounded-r-full"
+                    }`}
+                  />
+                  <span
+                    className={`absolute top-[47%] flex h-[18%] w-[8%] items-center justify-center bg-[#4B6898] font-cairo text-sm font-bold text-white ${
+                      mirrored
+                        ? "left-[0%] rounded-r-full"
+                        : "right-[0%] rounded-l-full"
+                    }`}
+                  >
+                    {step.no}
+                  </span>
+                </div>
+              </motion.div>
+            ) : (
               <div
                 className={`relative h-24 flex-1 lg:h-28 ${mirrored ? "-mr-8" : "-ml-8"}`}
               >
@@ -454,7 +664,14 @@ export function HowItWorks() {
             );
 
             return (
-              <div key={`${role}-${step.no}`} className="flex">
+              <motion.div
+                key={`${role}-${step.no}`}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.4 }}
+                variants={slideIn(mirrored, 50)}
+                className="flex"
+              >
                 <div
                   className={`flex flex-row-reverse w-full items-center lg:w-[58%] ${mirrored ? "mr-auto" : "ml-auto"}`}
                 >
@@ -470,7 +687,7 @@ export function HowItWorks() {
                     </>
                   )}
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
@@ -492,33 +709,54 @@ export function Testimonials() {
 
   return (
     <section className="container-app mt-20">
-      <h2 className="text-center font-bold text-2xl text-ink mb-10">
+      <motion.h2
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={fadeUp}
+        className="text-center font-bold text-2xl text-ink mb-10"
+      >
         {t("home.testimonialsTitle")}
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      </motion.h2>
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={staggerContainer(0.12)}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+      >
         {testimonials.map((item) => (
-          <Card key={item.id} className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <Quote className="text-accent-purple/30" size={28} />
-            </div>
-            <p className="text-sm text-ink-soft leading-relaxed mb-5">
-              {item.text}
-            </p>
-            <div className="flex items-center justify-between">
-              <StarRating value={item.rating} size={13} />
-              <div className="flex items-center gap-3">
-                <div className="text-right">
-                  <div className="text-sm font-semibold text-ink">
-                    {item.name}
-                  </div>
-                  <div className="text-xs text-ink-soft">{item.role}</div>
-                </div>
-                <Avatar name={item.name} size="sm" />
+          <motion.div
+            key={item.id}
+            variants={fadeUp}
+            whileHover={{
+              y: -6,
+              transition: { type: "spring", stiffness: 300, damping: 22 },
+            }}
+          >
+            <Card className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <Quote className="text-accent-purple/30" size={28} />
               </div>
-            </div>
-          </Card>
+              <p className="text-sm text-ink-soft leading-relaxed mb-5">
+                {item.text}
+              </p>
+              <div className="flex items-center justify-between">
+                <StarRating value={item.rating} size={13} />
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <div className="text-sm font-semibold text-ink">
+                      {item.name}
+                    </div>
+                    <div className="text-xs text-ink-soft">{item.role}</div>
+                  </div>
+                  <Avatar name={item.name} size="sm" />
+                </div>
+              </div>
+            </Card>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -530,21 +768,49 @@ export function CTASection() {
 
   return (
     <section className="container-app mt-20">
-      <div className="relative bg-primary rounded-card overflow-hidden px-8 py-12 lg:px-16 text-center">
-        <div className="relative z-10">
-          <h2 className="text-white font-bold text-2xl lg:text-3xl">
-            {t("home.ctaTitle")}
-          </h2>
-          <p className="text-white/80 text-sm mt-3 mb-6">
-            {t("home.ctaSubtitle")}
-          </p>
-          <Button variant="white" size="lg" onClick={() => navigate("/search")}>
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={scaleIn}
+        className="relative overflow-hidden rounded-[24px] bg-[#4B6898] px-6 py-10 lg:min-h-[241px] lg:px-16 lg:py-0"
+        style={{
+          boxShadow:
+            "0px 1px 5px rgba(0,0,0,0.1), inset 4px 4px 2px #5A75A2, inset -4px -4px 2px #5A75A2",
+        }}
+      >
+        <motion.img
+          variants={slideIn(false, 60)}
+          src="/ea5159b8-ad3f-4475-a944-b21119d7ce97 1.svg"
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute left-4 top-0 hidden w-[220px] lg:block lg:left-10 lg:w-[280px]"
+        />
+        <motion.div
+          variants={staggerContainer(0.12)}
+          className="relative z-10 mx-auto flex max-w-md flex-col items-center gap-6 py-4 text-center lg:mx-0 lg:ml-auto lg:mr-24 lg:max-w-[547px] lg:items-start lg:py-[25px] lg:text-right"
+        >
+          <motion.div variants={fadeUp} className="flex flex-col gap-0.5">
+            <h2 className="font-cairo text-2xl font-bold leading-snug text-white lg:text-[32px] lg:leading-[60px]">
+              {t("home.ctaTitle")}
+            </h2>
+            <p className="font-cairo text-sm font-medium text-white lg:text-lg lg:leading-[34px]">
+              {t("home.ctaSubtitle")}
+            </p>
+          </motion.div>
+          <motion.button
+            variants={fadeUp}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            type="button"
+            onClick={() => navigate("/search")}
+            className="flex items-center justify-center gap-2.5 rounded-xl border border-white bg-white px-8 py-2.5 font-cairo text-sm font-medium text-[#4B6898]"
+          >
             {t("home.ctaButton")}
-          </Button>
-        </div>
-        <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-10 -mt-10" />
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-8 -mb-8" />
-      </div>
+            <Target size={24} />
+          </motion.button>
+        </motion.div>
+      </motion.div>
     </section>
   );
 }

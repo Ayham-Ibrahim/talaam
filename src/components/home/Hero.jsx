@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import {
   Search,
   ShieldCheck,
@@ -9,6 +10,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useT } from "@/hooks/useT";
+import { fadeUp, slideIn, staggerContainer } from "@/lib/motion";
 
 export function Hero() {
   const t = useT();
@@ -31,35 +33,52 @@ export function Hero() {
         <div className="absolute -left-10 -top-10 h-64 w-[85%] max-w-xl rounded-full bg-white/60 blur-[150px]" />
 
         {/* Teacher photo (right side) */}
-        <div className="relative hidden w-[300px] shrink-0 lg:block xl:w-[430px]">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={slideIn(true, 50)}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+          className="relative hidden w-[300px] shrink-0 lg:block xl:w-[430px]"
+        >
           <img
             src="/hero-teacher.png"
             alt=""
             className="absolute -bottom-56 left-0 h-auto w-full rounded-2xl object-cover object-top"
           />
-        </div>
+        </motion.div>
 
         {/* Text column (left side) */}
-        <div className="relative z-10 flex max-w-xl flex-1 flex-col justify-center gap-5 font-cairo lg:max-w-[65%]">
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-pill bg-white px-3 py-1.5 text-xs font-semibold text-[#34C759]">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer(0.12)}
+          className="relative z-10 flex max-w-xl flex-1 flex-col justify-center gap-5 font-cairo lg:max-w-[65%]"
+        >
+          <motion.span
+            variants={fadeUp}
+            className="inline-flex w-fit items-center gap-1.5 rounded-pill bg-white px-3 py-1.5 text-xs font-semibold text-[#34C759]"
+          >
             <CheckCircle2 size={16} /> {t("home.heroBadge")}
-          </span>
+          </motion.span>
 
-          <div>
+          <motion.div variants={fadeUp}>
             <h1 className="text-3xl font-bold leading-tight text-white lg:text-[48px]">
               {t("home.heroTitle1")}
             </h1>
             <h2 className="mt-1 text-2xl font-bold leading-tight text-[#1E1E1E] lg:text-[40px]">
               {t("home.heroTitle2")}
             </h2>
-          </div>
+          </motion.div>
 
-          <p className="max-w-2xl text-sm leading-relaxed text-white lg:text-base">
+          <motion.p
+            variants={fadeUp}
+            className="max-w-2xl text-sm leading-relaxed text-white lg:text-base"
+          >
             {t("home.heroSubtitle")}
-          </p>
+          </motion.p>
 
           {/* Search */}
-          <div className="flex max-w-md">
+          <motion.div variants={fadeUp} className="flex max-w-md">
             <div className="flex flex-1 items-center overflow-hidden rounded-btn bg-white/95">
               <button
                 onClick={onSearch}
@@ -76,10 +95,10 @@ export function Hero() {
                 className="flex-1 bg-transparent py-3 pl-4 text-sm text-ink outline-none placeholder:text-ink-soft"
               />
             </div>
-          </div>
+          </motion.div>
 
           {/* Feature pills */}
-          <div className="flex flex-wrap gap-4">
+          <motion.div variants={fadeUp} className="flex flex-wrap gap-4">
             {features.map((f, i) => {
               const Icon = featureIcons[i];
               return (
@@ -91,8 +110,8 @@ export function Hero() {
                 </span>
               );
             })}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );
