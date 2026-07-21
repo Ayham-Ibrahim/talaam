@@ -1,17 +1,23 @@
 import { useState, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
-import { Bell, Heart, Menu, X } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Bell, Heart, Menu, X, LogOut, LayoutDashboard } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Logo } from './Logo';
-import { Button } from '@/components/ui';
+import { Button, Avatar } from '@/components/ui';
 import { useFavoritesStore } from '@/store';
+import { useAuth, useLogout } from '@/hooks/useAuth';
 import { useT } from '@/hooks/useT';
 
 export function Navbar() {
   const t = useT();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const favoritesCount = useFavoritesStore((s) => s.favorites.size);
+  const { user, isAuthenticated } = useAuth();
+  const logout = useLogout();
+
+  const dashboardPath = user?.role === 'teacher' ? '/dashboard/teacher' : '/dashboard/student';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -73,7 +79,37 @@ export function Navbar() {
 
         {/* Left (RTL end): login + icons */}
         <div className="flex items-center gap-1 sm:gap-3">
-          <Button size="sm" className="sm:!px-5">{t('nav.login')}</Button>
+          {isAuthenticated ? (
+            <>
+              <NavLink
+                to={dashboardPath}
+                className="hidden sm:flex items-center gap-2 rounded-pill py-1 pl-3 pr-1 hover:bg-line/50 transition-colors"
+              >
+                <Avatar name={user.name} size="sm" className="!w-8 !h-8 text-xs" />
+                <span className="text-sm font-medium text-ink max-w-[110px] truncate">{user.name}</span>
+              </NavLink>
+              <NavLink
+                to={dashboardPath}
+                className="sm:hidden w-11 h-11 rounded-full hover:bg-line/50 flex items-center justify-center shrink-0"
+                aria-label={t('dashboard.studentTitle')}
+              >
+                <LayoutDashboard size={18} className="text-ink-soft" />
+              </NavLink>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => logout.mutate()}
+                className="w-11 h-11 rounded-full hover:bg-line/50 flex items-center justify-center shrink-0"
+                aria-label={t('dashboard.logout')}
+              >
+                <LogOut size={18} className="text-ink-soft" />
+              </motion.button>
+            </>
+          ) : (
+            <Button size="sm" className="sm:!px-5" onClick={() => navigate('/login')}>
+              {t('nav.login')}
+            </Button>
+          )}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}

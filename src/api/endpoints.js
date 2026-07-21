@@ -3,6 +3,11 @@
  * When the backend routes change, this is the only file to touch.
  */
 export const endpoints = {
+  auth: {
+    login: '/auth/login',
+    logout: '/auth/logout',
+    me: '/auth/me',
+  },
   teachers: {
     list: '/teachers',
     featured: '/teachers/featured',

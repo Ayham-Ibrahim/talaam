@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { config } from '@/config/env';
+import { useAuthStore } from '@/store';
 
 /**
  * Central Axios instance.
@@ -41,10 +42,10 @@ client.interceptors.response.use(
   }
 );
 
-// Auth token accessor — swap for your auth store when ready
+// Auth token accessor
 function getAuthToken() {
   try {
-    return null; // e.g. useAuthStore.getState().token
+    return useAuthStore.getState().token;
   } catch {
     return null;
   }
