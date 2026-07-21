@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, animate } from "framer-motion";
 import {
   fadeUp,
@@ -7,6 +7,8 @@ import {
   staggerContainer,
   viewportOnce,
 } from "@/lib/motion";
+import { useRevealTimeline } from "@/motion/hooks";
+import { AnimatedCard } from "@/motion/components";
 import {
   Star,
   GraduationCap,
@@ -81,35 +83,44 @@ export function EducationTypes() {
         whileInView="visible"
         viewport={viewportOnce}
         variants={staggerContainer(0.12)}
-        className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 relative"
       >
         {types.map((type) => {
           const Icon = EDUCATION_TYPE_ICONS[type.icon] || School;
           const style = EDUCATION_TYPE_STYLES[type.icon];
           return (
-            <motion.div
+            <AnimatedCard
               key={type.icon}
-              variants={fadeUp}
-              whileHover={{
-                y: -6,
-                transition: { type: "spring", stiffness: 300, damping: 22 },
-              }}
-              className="flex flex-col items-center gap-2 rounded-2xl bg-white px-4 pb-6 pt-2 text-center shadow-[0_1px_5px_rgba(0,0,0,0.1)]"
+              variant={fadeUp}
+              tilt={true}
+              className="flex flex-col items-center gap-2 rounded-2xl bg-white px-4 pb-6 pt-2 text-center group"
             >
               <div
-                className="relative flex h-[90px] w-[90px] items-center justify-center overflow-hidden rounded-full"
+                className="relative flex h-[90px] w-[90px] items-center justify-center overflow-hidden rounded-full shadow-inner transition-transform duration-500 group-hover:scale-105"
                 style={{ background: style.base }}
               >
                 <div
-                  className="absolute -left-1.5 -top-0.5 h-[110px] w-[42px] opacity-40"
+                  className="absolute -left-1.5 -top-0.5 h-[110px] w-[42px] opacity-40 transition-transform duration-700 ease-out group-hover:translate-x-6"
                   style={{
                     background: style.shine,
                     transform: "rotate(-51.46deg)",
                   }}
                 />
-                <Icon size={36} className="relative z-10 text-white" />
+                
+                {/* Micro particle pop on hover inside the circle */}
+                <motion.div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-white/60 rounded-full animate-ping" style={{ animationDuration: '1.5s' }} />
+                  <div className="absolute bottom-3 left-3 w-1 h-1 bg-white/40 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
+                </motion.div>
+
+                <motion.div
+                  transition={{ duration: 0.3 }}
+                  className="group-hover:-translate-y-1 relative z-10"
+                >
+                  <Icon size={36} className="text-white drop-shadow-md" />
+                </motion.div>
               </div>
-              <div className="flex flex-col items-center gap-1">
+              <div className="flex flex-col items-center gap-1 group-hover:-translate-y-0.5 transition-transform duration-300">
                 <h3 className="font-cairo text-xl font-bold text-[#1E1E1E]">
                   {type.title}
                 </h3>
@@ -117,7 +128,7 @@ export function EducationTypes() {
                   {type.desc}
                 </p>
               </div>
-            </motion.div>
+            </AnimatedCard>
           );
         })}
       </motion.div>
@@ -149,47 +160,75 @@ export function WhyChooseUs() {
 
   return (
     <section className="container-app mt-14">
-      <h2 className="text-center font-cairo text-2xl font-bold text-[#1E1E1E]">
+      <motion.h2 
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={fadeUp}
+        className="text-center font-cairo text-2xl font-bold text-[#1E1E1E]"
+      >
         {t("home.whyChooseUsTitle")}
-      </h2>
-      <p className="mt-2 mb-8 text-center font-cairo text-lg text-[#626262]">
+      </motion.h2>
+      <motion.p 
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={fadeUp}
+        className="mt-2 mb-8 text-center font-cairo text-lg text-[#626262]"
+      >
         {t("home.whyChooseUsSubtitle")}
-      </p>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      </motion.p>
+      <motion.div 
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={staggerContainer(0.08)}
+        className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+      >
         {items.map((item) => {
           const Icon = WHY_CHOOSE_US_ICONS[item.icon] || ShieldCheck;
           const color = WHY_CHOOSE_US_COLORS[item.icon];
 
           return (
-            <div
+            <AnimatedCard
               key={item.icon}
-              className="group relative overflow-hidden rounded-2xl bg-white px-6 py-7 text-right shadow-[0_1px_5px_rgba(0,0,0,0.1)]"
+              variant={fadeUp}
+              tilt={true}
+              className="group relative overflow-hidden rounded-2xl bg-white px-6 py-7 text-right shadow-[0_1px_5px_rgba(0,0,0,0.1)] transition-all"
             >
               {/* Gradient fades in via opacity — background-color and background-image can't be transitioned into each other */}
               <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(272.4deg,#4B6898_2.51%,#4B68aa_93.94%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
+              {/* Parallax moving highlight inside the card */}
+              <div className="pointer-events-none absolute -inset-full opacity-0 group-hover:opacity-30 mix-blend-overlay transition-opacity duration-700 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.8)_0%,transparent_50%)] animate-pulse" />
+
               <div className="relative z-10 flex flex-col items-end gap-3">
                 <div
-                  className="flex h-14 w-14 items-center justify-center rounded-2xl transition-colors duration-300 group-hover:!bg-white/15"
+                  className="flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300 group-hover:!bg-white/15 group-hover:scale-110 shadow-sm"
                   style={{ background: `${color}1A` }}
                 >
-                  <Icon
-                    size={26}
-                    style={{ color }}
-                    className="transition-colors duration-300 group-hover:!text-white"
-                  />
+                  <motion.div
+                    whileHover={{ rotate: [-5, 5, -5, 0] }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <Icon
+                      size={26}
+                      style={{ color }}
+                      className="transition-colors duration-300 group-hover:!text-white drop-shadow-sm"
+                    />
+                  </motion.div>
                 </div>
-                <h3 className="font-cairo text-lg font-bold text-[#1E1E1E] transition-colors duration-300 group-hover:text-white">
+                <h3 className="font-cairo text-lg font-bold text-[#1E1E1E] transition-colors duration-300 group-hover:text-white group-hover:-translate-y-0.5 transform">
                   {item.title}
                 </h3>
-                <p className="font-cairo text-sm leading-relaxed text-[#626262] transition-colors duration-300 group-hover:text-white/85">
+                <p className="font-cairo text-sm leading-relaxed text-[#626262] transition-colors duration-300 group-hover:text-white/85 group-hover:-translate-y-0.5 transform">
                   {item.desc}
                 </p>
               </div>
-            </div>
+            </AnimatedCard>
           );
         })}
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -228,14 +267,6 @@ export function FeaturedTeachers() {
                 <motion.div
                   key={teacher.id}
                   variants={fadeUp}
-                  whileHover={{
-                    y: -6,
-                    transition: {
-                      type: "spring",
-                      stiffness: 300,
-                      damping: 22,
-                    },
-                  }}
                 >
                   <TeacherCard teacher={teacher} />
                 </motion.div>
@@ -260,25 +291,10 @@ const STAT_COLORS = {
   users: "text-accent-pink bg-accent-pink/10",
 };
 
-function useCountUp(target, started) {
-  const [value, setValue] = useState(0);
-
-  useEffect(() => {
-    if (!started) return;
-    const controls = animate(0, target, {
-      duration: 1.4,
-      ease: [0.16, 1, 0.3, 1],
-      onUpdate: setValue,
-    });
-    return () => controls.stop();
-  }, [target, started]);
-
-  return value;
-}
+import { Counter } from "@/components/ui";
 
 function StatItem({ stat, started }) {
   const Icon = STAT_ICONS[stat.icon] || Star;
-  const value = useCountUp(stat.value, started);
 
   return (
     <motion.div variants={fadeUp} className="flex items-center gap-4">
@@ -288,8 +304,9 @@ function StatItem({ stat, started }) {
         <Icon size={24} />
       </div>
       <div>
-        <div className="text-2xl font-bold text-ink">
-          {formatCompact(Math.round(value))}
+        <div className="text-2xl font-bold text-ink flex items-center gap-1">
+          {started && <Counter from={0} to={stat.value} duration={1.5} />}
+          {stat.value >= 1000 && <span>K</span>}
         </div>
         <div className="text-sm text-ink-soft">{stat.label}</div>
       </div>
@@ -395,14 +412,32 @@ export function HowItWorks() {
 
   return (
     <section className="container-app mt-20">
-      <h2 className="text-center font-cairo text-2xl font-bold text-[#1E1E1E]">
+      <motion.h2 
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={fadeUp}
+        className="text-center font-cairo text-2xl font-bold text-[#1E1E1E]"
+      >
         {t("home.howItWorksTitle")}
-      </h2>
-      <p className="mt-2 text-center font-cairo text-lg text-[#626262]">
+      </motion.h2>
+      <motion.p 
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={fadeUp}
+        className="mt-2 text-center font-cairo text-lg text-[#626262]"
+      >
         {t("home.howItWorksSubtitle")}
-      </p>
+      </motion.p>
 
-      <div className="mx-auto mt-6 mb-12 flex w-full max-w-[291px] items-center gap-2 rounded-lg bg-[#F2F2F7] p-1">
+      <motion.div 
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={fadeUp}
+        className="mx-auto mt-6 mb-12 flex w-full max-w-[291px] items-center gap-2 rounded-lg bg-[#F2F2F7] p-1"
+      >
         {["teacher", "student"].map((key) => (
           <button
             key={key}
@@ -411,16 +446,16 @@ export function HowItWorks() {
               setRole(key);
               setOpenIndex(null);
             }}
-            className={`flex-1 rounded-lg py-2.5 font-cairo text-sm font-semibold transition-colors ${
+            className={`flex-1 rounded-lg py-2.5 font-cairo text-sm font-semibold transition-colors duration-300 ${
               role === key
-                ? "border border-[#4B6898] bg-[#4B6898] text-white"
-                : "text-[#1E1E1E]"
+                ? "border border-[#4B6898] bg-[#4B6898] text-white shadow-sm"
+                : "text-[#1E1E1E] hover:bg-black/5"
             }`}
           >
             {tabs[key]}
           </button>
         ))}
-      </div>
+      </motion.div>
 
       <div className="relative mx-auto max-w-5xl">
         {/* Decorative dashed connectors */}
@@ -667,8 +702,8 @@ export function HowItWorks() {
                 key={`${role}-${step.no}`}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, amount: 0.4 }}
-                variants={slideIn(mirrored, 50)}
+                viewport={viewportOnce}
+                variants={slideIn(mirrored, 40)}
                 className="flex"
               >
                 <div
@@ -761,29 +796,42 @@ export function Testimonials() {
 }
 
 /* ---------- CTA ---------- */
+import { BackgroundParticles } from "@/motion/components";
+
 export function CTASection() {
   const t = useT();
   const navigate = useNavigate();
 
   return (
-    <section className="container-app mt-20">
+    <section className="container-app mt-20 relative">
       <motion.div
         initial="hidden"
         whileInView="visible"
         viewport={viewportOnce}
         variants={scaleIn}
-        className="relative overflow-hidden rounded-[24px] bg-[#4B6898] px-6 py-10 lg:min-h-[241px] lg:px-16 lg:py-0"
+        className="relative overflow-hidden rounded-[24px] bg-[#4B6898] px-6 py-10 lg:min-h-[241px] lg:px-16 lg:py-0 group"
         style={{
           boxShadow:
             "0px 1px 5px rgba(0,0,0,0.1), inset 4px 4px 2px #5A75A2, inset -4px -4px 2px #5A75A2",
         }}
       >
+        <BackgroundParticles count={15} color="bg-white/20" />
+        
+        {/* Soft scrolling breathing glow */}
+        <motion.div 
+          animate={{ x: ["-10%", "10%", "-10%"], opacity: [0.3, 0.6, 0.3] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(107,206,238,0.25)_0%,transparent_60%)] blur-2xl z-0" 
+        />
+
         <motion.img
           variants={slideIn(false, 60)}
+          animate={{ y: [-5, 5, -5] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           src="/ea5159b8-ad3f-4475-a944-b21119d7ce97 1.svg"
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute left-4 top-0 hidden w-[220px] lg:block lg:left-10 lg:w-[280px]"
+          className="pointer-events-none absolute left-4 top-0 hidden w-[220px] lg:block lg:left-10 lg:w-[280px] z-10"
         />
         <motion.div
           variants={staggerContainer(0.12)}
@@ -799,14 +847,17 @@ export function CTASection() {
           </motion.div>
           <motion.button
             variants={fadeUp}
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.97 }}
+            whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255,255,255,0.4)" }}
+            whileTap={{ scale: 0.95 }}
             type="button"
             onClick={() => navigate("/search")}
-            className="flex items-center justify-center gap-2.5 rounded-xl border border-white bg-white px-8 py-2.5 font-cairo text-sm font-medium text-[#4B6898]"
+            className="group/btn flex items-center justify-center gap-2.5 rounded-xl border border-white bg-white px-8 py-2.5 font-cairo text-sm font-medium text-[#4B6898] transition-all relative overflow-hidden"
           >
-            {t("home.ctaButton")}
-            <Target size={24} />
+            <span className="relative z-10 flex items-center gap-2.5">
+              {t("home.ctaButton")}
+              <Target size={24} className="transition-transform duration-300 group-hover/btn:scale-110" />
+            </span>
+            <div className="absolute inset-0 bg-white/20 blur-md transform -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 ease-in-out" />
           </motion.button>
         </motion.div>
       </motion.div>

@@ -1,4 +1,22 @@
 import { Star, Heart, ImageOff } from "lucide-react";
+import { motion, useMotionValue, useTransform, animate, useInView } from "framer-motion";
+import { useEffect, useRef } from "react";
+
+/* ---------- Animated Counter ---------- */
+export function Counter({ from = 0, to, duration = 1.5, className = "" }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-100px" });
+  const count = useMotionValue(from);
+  const rounded = useTransform(count, (latest) => Math.round(latest));
+
+  useEffect(() => {
+    if (inView) {
+      animate(count, to, { duration, ease: [0.16, 1, 0.3, 1] });
+    }
+  }, [inView, count, to, duration]);
+
+  return <motion.span ref={ref} className={className}>{rounded}</motion.span>;
+}
 
 /* ---------- Button ---------- */
 export function Button({
@@ -9,7 +27,7 @@ export function Button({
   ...props
 }) {
   const variants = {
-    primary: "bg-primary text-white hover:bg-primary-hover",
+    primary: "bg-primary text-white hover:bg-primary-hover shadow-[0_2px_8px_rgba(59,89,152,0.2)]",
     outline: "border border-primary text-primary hover:bg-primary/5",
     ghost: "text-ink-soft hover:bg-line/50",
     white: "bg-white text-primary hover:bg-white/90 shadow-soft",
@@ -20,24 +38,29 @@ export function Button({
     lg: "px-7 py-3 text-base",
   };
   return (
-    <button
+    <motion.button
+      whileHover={{ y: -1, scale: 1.01, boxShadow: variant === "primary" ? "0 4px 12px rgba(59,89,152,0.25)" : undefined }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
       className={`inline-flex items-center justify-center gap-2 rounded-btn font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-50 disabled:pointer-events-none ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     >
       {children}
-    </button>
+    </motion.button>
   );
 }
 
 /* ---------- Card ---------- */
 export function Card({ children, className = "", ...props }) {
   return (
-    <div
-      className={`bg-surface rounded-card shadow-card ${className}`}
+    <motion.div
+      whileHover={{ y: -6, scale: 1.01, boxShadow: "0 12px 24px rgba(0,0,0,0.06)" }}
+      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+      className={`bg-surface rounded-card shadow-card transition-shadow duration-300 ${className}`}
       {...props}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }
 

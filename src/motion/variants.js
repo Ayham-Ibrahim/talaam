@@ -1,3 +1,5 @@
+export const viewportOnce = { once: true, margin: "-10% 0px" };
+
 export const TRANSITIONS = {
   micro: { duration: 0.2, ease: [0.22, 1, 0.36, 1] },
   reveal: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
@@ -6,8 +8,6 @@ export const TRANSITIONS = {
   fastStagger: 0.05,
   spring: { type: "spring", stiffness: 300, damping: 24 }
 };
-
-export const EASE = [0.22, 1, 0.36, 1];
 
 export const fadeUp = {
   hidden: { opacity: 0, y: 30, filter: "blur(6px)" },
@@ -59,23 +59,12 @@ export const scaleIn = {
   }
 };
 
-export const fadeIn = {
-  hidden: { opacity: 0, filter: "blur(4px)" },
-  visible: { opacity: 1, filter: "blur(0px)", transition: TRANSITIONS.reveal },
-};
-
-export function slideIn(fromRight = false, distance = 40) {
-  return {
-    hidden: { opacity: 0, x: fromRight ? distance : -distance, filter: "blur(6px)" },
-    visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: TRANSITIONS.reveal },
-  };
-}
-
-export function staggerContainer(stagger = TRANSITIONS.stagger, delayChildren = 0) {
-  return {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: stagger, delayChildren } },
-  };
-}
-
-export const viewportOnce = { once: true, margin: "-10% 0px" };
+export const staggerContainer = (staggerChildren = TRANSITIONS.stagger) => ({
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren
+    }
+  }
+});

@@ -12,6 +12,16 @@
   ::selection {
     @apply bg-accent-purple/20;
   }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
 }
 
 @layer components {
@@ -20,19 +30,22 @@
   }
 }
 
-/* Skeleton shimmer */
+/* Premium Skeleton shimmer */
 .skeleton {
-  @apply relative overflow-hidden bg-line/60 rounded-md;
+  @apply relative overflow-hidden bg-[#e9ecef] rounded-md;
 }
 .skeleton::after {
   content: '';
   position: absolute;
   inset: 0;
   transform: translateX(100%);
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-  animation: shimmer 1.4s infinite;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  animation: shimmer 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 @keyframes shimmer {
+  0% {
+    transform: translateX(100%); /* RTL start from right */
+  }
   100% {
     transform: translateX(-100%);
   }
