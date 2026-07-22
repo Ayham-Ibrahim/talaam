@@ -25,4 +25,10 @@ export const endpoints = {
     filters: '/meta/filters',
     stats: '/meta/stats',
   },
+  dashboard: {
+    student: '/dashboard/student',
+    calendarSessions: '/dashboard/student/calendar-sessions',
+    packagesList: '/dashboard/student/packages',
+    packageDetails: (id) => `/dashboard/student/packages/${id}`,
+  },
 };

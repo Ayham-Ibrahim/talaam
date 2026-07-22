@@ -8,6 +8,9 @@ import { TeacherProfilePage } from '@/pages/TeacherProfilePage';
 import { LoginPage } from '@/pages/LoginPage';
 import { StudentDashboardPage } from '@/pages/StudentDashboardPage';
 import { TeacherDashboardPage } from '@/pages/TeacherDashboardPage';
+import { CalendarPage } from '@/pages/CalendarPage';
+import { PackagesPage } from '@/pages/PackagesPage';
+import { PackageDetailsPage } from '@/pages/PackageDetailsPage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 export function AppRouter() {
@@ -34,6 +37,30 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="teacher">
               <TeacherDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/student/calendar"
+          element={
+            <ProtectedRoute role="student">
+              <CalendarPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/student/packages"
+          element={
+            <ProtectedRoute role="student">
+              <PackagesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/student/packages/:id"
+          element={
+            <ProtectedRoute role="student">
+              <PackageDetailsPage />
             </ProtectedRoute>
           }
         />

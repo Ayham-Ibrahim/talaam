@@ -1,36 +1,45 @@
 import { Navigate } from 'react-router-dom';
-import { LayoutDashboard } from 'lucide-react';
-import { PageContainer } from '@/components/layout/PageContainer';
-import { Card, Button } from '@/components/ui';
-import { useAuth, useLogout } from '@/hooks/useAuth';
-import { useT } from '@/hooks/useT';
+import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
+import { WelcomeBanner } from '@/components/dashboard/WelcomeBanner';
+import { StatsGrid } from '@/components/dashboard/StatsGrid';
+import { UpcomingSessionsCard } from '@/components/dashboard/UpcomingSessionsCard';
+import { PackageWidget } from '@/components/dashboard/PackageWidget';
+import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
+import { ErrorState, Skeleton } from '@/components/ui';
+import { useAuth } from '@/hooks/useAuth';
+import { useStudentDashboard } from '@/hooks/useDashboard';
 
 export function StudentDashboardPage() {
-  const t = useT();
   const { user } = useAuth();
-  const logout = useLogout();
+  const { data, isLoading, isError, refetch } = useStudentDashboard();
 
   if (!user) return <Navigate to="/login" replace />;
 
   return (
-    <PageContainer>
-      <section className="container-app mt-10 mb-20">
-        <Card className="flex flex-col items-center gap-4 p-10 text-center lg:p-16">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-light text-primary">
-            <LayoutDashboard size={28} />
+    <DashboardLayout>
+      {isError ? (
+        <ErrorState onRetry={refetch} />
+      ) : isLoading ? (
+        <div className="space-y-6">
+          <Skeleton className="h-40 rounded-card" />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-24 rounded-2xl" />
+            ))}
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-ink">{t('dashboard.studentTitle')}</h1>
-            <p className="mt-2 text-ink-soft">
-              {t('dashboard.welcome')} {user.name} 👋
-            </p>
+          <Skeleton className="h-64 rounded-2xl" />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-6">
+          <WelcomeBanner name={user.name.split(' ')[0]} sessionsThisWeek={data.stats.upcomingSessionsCount} />
+          <StatsGrid stats={data.stats} />
+          <UpcomingSessionsCard sessions={data.upcomingSessions} />
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_3fr]">
+            <PackageWidget pkg={data.currentPackage} />
+            <ActivityFeed activities={data.activities} />
           </div>
-          <p className="max-w-md text-sm text-ink-soft">{t('dashboard.placeholder')}</p>
-          <Button variant="outline" size="sm" onClick={() => logout.mutate()} className="mt-2">
-            {t('dashboard.logout')}
-          </Button>
-        </Card>
-      </section>
-    </PageContainer>
+        </div>
+      )}
+    </DashboardLayout>
   );
 }

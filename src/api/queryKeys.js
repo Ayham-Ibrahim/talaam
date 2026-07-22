@@ -18,4 +18,10 @@ export const queryKeys = {
     filters: () => ['meta', 'filters'],
     stats: () => ['meta', 'stats'],
   },
+  dashboard: {
+    student: () => ['dashboard', 'student'],
+    calendarSessions: () => ['dashboard', 'calendar-sessions'],
+    packagesList: () => ['dashboard', 'packages-list'],
+    packageDetails: (id) => ['dashboard', 'package-details', id],
+  },
 };

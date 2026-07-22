@@ -9,6 +9,15 @@ import {
   mockFilters,
   mockStats,
 } from '@/mocks/data.mock';
+import {
+  mockDashboardStats,
+  mockUpcomingSessions,
+  mockCurrentPackage,
+  mockActivities,
+  mockCalendarSessions,
+  mockPackagesList,
+  mockPackageSessions,
+} from '@/mocks/dashboard.mock';
 
 export const packageService = {
   async getByTeacher(teacherId) {
@@ -79,6 +88,50 @@ export const metaService = {
       return mockStats;
     }
     const { data } = await client.get(endpoints.meta.stats);
+    return data;
+  },
+};
+
+export const dashboardService = {
+  async getStudentDashboard() {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return {
+        stats: mockDashboardStats,
+        upcomingSessions: mockUpcomingSessions,
+        currentPackage: mockCurrentPackage,
+        activities: mockActivities,
+      };
+    }
+    const { data } = await client.get(endpoints.dashboard.student);
+    return data;
+  },
+
+  async getCalendarSessions() {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return mockCalendarSessions;
+    }
+    const { data } = await client.get(endpoints.dashboard.calendarSessions);
+    return data;
+  },
+
+  async getPackagesList() {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return mockPackagesList;
+    }
+    const { data } = await client.get(endpoints.dashboard.packagesList);
+    return data;
+  },
+
+  async getPackageDetails(id) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      const pkg = mockPackagesList.find((p) => p.id === Number(id));
+      return { package: pkg ?? null, sessions: mockPackageSessions[Number(id)] ?? [] };
+    }
+    const { data } = await client.get(endpoints.dashboard.packageDetails(id));
     return data;
   },
 };
