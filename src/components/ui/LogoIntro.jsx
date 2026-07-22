@@ -46,15 +46,16 @@ export function LogoIntro({ onComplete }) {
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col items-center gap-4"
           >
-            <Logo className="h-16 w-auto" />
-            <motion.div
+            <img src="/logo.png" alt="TAALAM" className="h-9 w-auto lg:h-28" />
+
+            {/* <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
               className="text-xl font-bold tracking-widest text-[#3B5998]"
             >
               TAALAM
-            </motion.div>
+            </motion.div> */}
           </motion.div>
         </motion.div>
       )}

@@ -46,7 +46,7 @@ export function PackageWidget({ pkg }) {
             <defs>
               <linearGradient id="package-progress-gradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#4B6898" />
-                <stop offset="100%" stopColor="#6BCEEE" />
+                <stop offset="100%" stopColor="#C7D0DF" />
               </linearGradient>
             </defs>
             <circle cx="60" cy="60" r={radius} fill="none" stroke="#F5F5F5" strokeWidth="10" />

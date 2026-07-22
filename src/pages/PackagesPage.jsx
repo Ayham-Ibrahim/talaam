@@ -1,22 +1,22 @@
-import { useMemo, useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
-import { PackageFilterTabs } from '@/components/dashboard/PackageFilterTabs';
-import { PackageListCard } from '@/components/dashboard/PackageListCard';
-import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
-import { useAuth } from '@/hooks/useAuth';
-import { usePackagesList } from '@/hooks/useDashboard';
-import { useT } from '@/hooks/useT';
+import { useMemo, useState } from "react";
+import { Navigate } from "react-router-dom";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { PackageFilterTabs } from "@/components/dashboard/PackageFilterTabs";
+import { PackageListCard } from "@/components/dashboard/PackageListCard";
+import { EmptyState, ErrorState, Skeleton } from "@/components/ui";
+import { useAuth } from "@/hooks/useAuth";
+import { usePackagesList } from "@/hooks/useDashboard";
+import { useT } from "@/hooks/useT";
 
 export function PackagesPage() {
   const t = useT();
   const { user } = useAuth();
   const { data: packages, isLoading, isError, refetch } = usePackagesList();
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeTab, setActiveTab] = useState("all");
 
   const filteredPackages = useMemo(() => {
     if (!packages) return [];
-    if (activeTab === 'all') return packages;
+    if (activeTab === "all") return packages;
     return packages.filter((pkg) => pkg.status === activeTab);
   }, [packages, activeTab]);
 
@@ -36,7 +36,7 @@ export function PackagesPage() {
             ))}
           </div>
         ) : filteredPackages.length === 0 ? (
-          <EmptyState title={t('dashboard.myPackages.empty')} />
+          <EmptyState title={t("dashboard.myPackages.empty")} />
         ) : (
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {filteredPackages.map((pkg) => (
