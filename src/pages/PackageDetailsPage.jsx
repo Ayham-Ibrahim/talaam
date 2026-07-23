@@ -2,6 +2,8 @@ import { ArrowRight } from 'lucide-react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { PackageDetailSummary } from '@/components/dashboard/PackageDetailSummary';
+import { PackageSpecsRow } from '@/components/dashboard/PackageSpecsRow';
+import { PackageSidebarSummary } from '@/components/dashboard/PackageSidebarSummary';
 import { PackageRebookBanner } from '@/components/dashboard/PackageRebookBanner';
 import { PackageSessionsList } from '@/components/dashboard/PackageSessionsList';
 import { ErrorState, Skeleton } from '@/components/ui';
@@ -49,9 +51,18 @@ export function PackageDetailsPage() {
             </Link>
           </div>
 
-          <PackageDetailSummary pkg={data.package} />
-          {data.package.remainingSessions > 0 && data.package.remainingSessions <= 2 && <PackageRebookBanner />}
-          <PackageSessionsList sessions={data.sessions} />
+          <div className="flex flex-col gap-4 lg:flex-row">
+            <div className="flex flex-1 flex-col gap-4">
+              <PackageDetailSummary pkg={data.package} />
+              <PackageSpecsRow pkg={data.package} />
+              {data.package.remainingSessions > 0 && data.package.remainingSessions <= 2 && <PackageRebookBanner />}
+              <PackageSessionsList sessions={data.sessions} showType={false} />
+            </div>
+
+            <div className="w-full shrink-0 lg:w-[300px]">
+              <PackageSidebarSummary pkg={data.package} />
+            </div>
+          </div>
         </div>
       )}
     </DashboardLayout>

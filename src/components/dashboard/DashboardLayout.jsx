@@ -22,9 +22,9 @@ import { useT } from "@/hooks/useT";
 const NAV_ITEMS = [
   { key: "home", icon: Home, path: "/dashboard/student", end: true },
   { key: "calendar", icon: Calendar, path: "/dashboard/student/calendar" },
-  { key: "sessions", icon: FileText },
+  { key: "sessions", icon: FileText, path: "/dashboard/student/sessions" },
   { key: "packages", icon: CreditCard, path: "/dashboard/student/packages" },
-  { key: "invoices", icon: FileText },
+  { key: "invoices", icon: FileText, path: "/dashboard/student/invoices" },
   { key: "reviews", icon: Star },
   { key: "settings", icon: Settings },
 ];
@@ -49,7 +49,7 @@ export function DashboardLayout({ children }) {
 
   return (
     <div dir="rtl" className="min-h-screen bg-[#FCFCFC] lg:flex">
-      {/* Sidebar — only "الرئيسية" is a real route for now; the rest are placeholders for future phases */}
+      {/* Sidebar — reviews/settings have no route yet and render as disabled placeholders */}
       <aside className="hidden shrink-0 border-l border-line/60 bg-white lg:flex lg:w-[287px] lg:flex-col ">
         <div className="flex items-center justify-center border-b border-line/60 px-6 py-6">
           <Logo />

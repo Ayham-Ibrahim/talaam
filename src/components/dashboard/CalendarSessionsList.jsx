@@ -1,11 +1,13 @@
 import { CalendarDays } from 'lucide-react';
 import { Avatar, Button, EmptyState } from '@/components/ui';
-import { SESSION_TYPE_STYLES } from '@/mocks/dashboard.mock';
+import { SESSION_TYPE_STYLES, SESSION_STATUS_STYLES, SESSION_STATUS_LABEL_KEYS } from '@/mocks/dashboard.mock';
 import { useT } from '@/hooks/useT';
 
 function DaySessionRow({ session }) {
   const t = useT();
   const typeStyle = SESSION_TYPE_STYLES[session.type];
+  const status = session.status ?? 'upcoming';
+  const statusStyle = SESSION_STATUS_STYLES[status];
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 py-4">
@@ -52,8 +54,11 @@ function DaySessionRow({ session }) {
 
         <span className="h-8 w-px bg-line" />
 
-        <span className="rounded-pill bg-[#E3F1FD] px-3 py-1 text-xs font-bold text-primary">
-          {t('dashboard.statusUpcoming')}
+        <span
+          className="rounded-pill px-3 py-1 text-xs font-bold"
+          style={{ backgroundColor: statusStyle.bg, color: statusStyle.color }}
+        >
+          {t(SESSION_STATUS_LABEL_KEYS[status])}
         </span>
 
         <span className="h-8 w-px bg-line" />

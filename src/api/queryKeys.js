@@ -21,6 +21,8 @@ export const queryKeys = {
   dashboard: {
     student: () => ['dashboard', 'student'],
     calendarSessions: () => ['dashboard', 'calendar-sessions'],
+    sessions: () => ['dashboard', 'sessions'],
+    invoices: () => ['dashboard', 'invoices'],
     packagesList: () => ['dashboard', 'packages-list'],
     packageDetails: (id) => ['dashboard', 'package-details', id],
   },
