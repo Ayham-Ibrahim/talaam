@@ -16,6 +16,20 @@ export function useCalendarSessions() {
   });
 }
 
+export function useSessions() {
+  return useQuery({
+    queryKey: queryKeys.dashboard.sessions(),
+    queryFn: () => dashboardService.getSessions(),
+  });
+}
+
+export function useInvoices() {
+  return useQuery({
+    queryKey: queryKeys.dashboard.invoices(),
+    queryFn: () => dashboardService.getInvoices(),
+  });
+}
+
 export function usePackagesList() {
   return useQuery({
     queryKey: queryKeys.dashboard.packagesList(),

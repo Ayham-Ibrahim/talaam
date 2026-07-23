@@ -197,14 +197,15 @@ export function EmptyState({
   title = "لا توجد نتائج",
   hint = "",
   action = null,
+  icon: Icon = ImageOff,
 }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center animate-fade-in">
       <div className="w-16 h-16 rounded-full bg-line/40 flex items-center justify-center mb-4">
-        <ImageOff className="text-ink-soft" size={28} />
+        <Icon className="text-ink-soft" size={28} />
       </div>
       <p className="text-lg font-semibold text-ink">{title}</p>
-      {hint && <p className="text-sm text-ink-soft mt-1">{hint}</p>}
+      {hint && <p className="text-sm text-ink-soft mt-1 max-w-sm">{hint}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
   );

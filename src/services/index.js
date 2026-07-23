@@ -15,8 +15,10 @@ import {
   mockCurrentPackage,
   mockActivities,
   mockCalendarSessions,
+  mockAllSessions,
   mockPackagesList,
   mockPackageSessions,
+  mockInvoices,
 } from '@/mocks/dashboard.mock';
 
 export const packageService = {
@@ -113,6 +115,24 @@ export const dashboardService = {
       return mockCalendarSessions;
     }
     const { data } = await client.get(endpoints.dashboard.calendarSessions);
+    return data;
+  },
+
+  async getSessions() {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return mockAllSessions;
+    }
+    const { data } = await client.get(endpoints.dashboard.sessions);
+    return data;
+  },
+
+  async getInvoices() {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return mockInvoices;
+    }
+    const { data } = await client.get(endpoints.dashboard.invoices);
     return data;
   },
 

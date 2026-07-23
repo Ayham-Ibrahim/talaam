@@ -1,5 +1,6 @@
 import { CalendarDays } from 'lucide-react';
 import { Avatar, Button, EmptyState } from '@/components/ui';
+import { getSessionTypeColor } from '@/mocks/dashboard.mock';
 import { useT } from '@/hooks/useT';
 
 function SessionRow({ session }) {
@@ -47,7 +48,9 @@ function SessionRow({ session }) {
 
         <span className="h-8 w-px bg-line" />
 
-        <div className="font-semibold text-ink">{session.sessionType}</div>
+        <div className="font-semibold" style={{ color: getSessionTypeColor(session.sessionType) }}>
+          {session.sessionType}
+        </div>
       </div>
 
       <div className="flex items-center gap-2">

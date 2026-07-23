@@ -9,8 +9,10 @@ import { LoginPage } from '@/pages/LoginPage';
 import { StudentDashboardPage } from '@/pages/StudentDashboardPage';
 import { TeacherDashboardPage } from '@/pages/TeacherDashboardPage';
 import { CalendarPage } from '@/pages/CalendarPage';
+import { SessionsPage } from '@/pages/SessionsPage';
 import { PackagesPage } from '@/pages/PackagesPage';
 import { PackageDetailsPage } from '@/pages/PackageDetailsPage';
+import { InvoicesPage } from '@/pages/InvoicesPage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 export function AppRouter() {
@@ -49,6 +51,14 @@ export function AppRouter() {
           }
         />
         <Route
+          path="/dashboard/student/sessions"
+          element={
+            <ProtectedRoute role="student">
+              <SessionsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/dashboard/student/packages"
           element={
             <ProtectedRoute role="student">
@@ -61,6 +71,14 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="student">
               <PackageDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/student/invoices"
+          element={
+            <ProtectedRoute role="student">
+              <InvoicesPage />
             </ProtectedRoute>
           }
         />

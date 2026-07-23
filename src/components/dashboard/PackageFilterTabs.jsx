@@ -1,10 +1,10 @@
 import { useT } from '@/hooks/useT';
 
 const TABS = [
+  { key: 'training', labelKey: 'filterTraining' },
+  { key: 'group', labelKey: 'filterGroup' },
+  { key: 'individual', labelKey: 'filterIndividual' },
   { key: 'all', labelKey: 'filterAll' },
-  { key: 'active', labelKey: 'filterActive' },
-  { key: 'course', labelKey: 'filterCourses' },
-  { key: 'expired', labelKey: 'filterExpired' },
 ];
 
 export function PackageFilterTabs({ active, onChange }) {
@@ -23,7 +23,7 @@ export function PackageFilterTabs({ active, onChange }) {
               : 'border border-line bg-white text-ink hover:bg-line/30'
           }`}
         >
-          {t(`dashboard.myPackages.${tab.labelKey}`)}
+          {t(`dashboard.categoryFilters.${tab.labelKey}`)}
         </button>
       ))}
     </div>

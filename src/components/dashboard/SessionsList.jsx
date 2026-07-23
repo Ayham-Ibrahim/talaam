@@ -1,19 +1,14 @@
-import { CalendarDays } from 'lucide-react';
 import { Avatar, EmptyState } from '@/components/ui';
-import {
-  getSessionTypeColor,
-  SESSION_STATUS_STYLES,
-  SESSION_STATUS_LABEL_KEYS,
-} from '@/mocks/dashboard.mock';
+import { getSessionTypeColor, SESSION_STATUS_STYLES, SESSION_STATUS_LABEL_KEYS } from '@/mocks/dashboard.mock';
 import { useT } from '@/hooks/useT';
 
-function SessionRow({ session, showType }) {
+function SessionCard({ session }) {
   const t = useT();
   const status = session.status ?? 'upcoming';
   const statusStyle = SESSION_STATUS_STYLES[status];
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 py-4">
+    <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-white p-4 shadow-card">
       <div className="flex items-center gap-2">
         {session.canCancel && (
           <button
@@ -87,14 +82,11 @@ function SessionRow({ session, showType }) {
           {t(SESSION_STATUS_LABEL_KEYS[status])}
         </span>
 
-        {showType && (
-          <>
-            <span className="h-8 w-px bg-line" />
-            <span className="font-semibold" style={{ color: getSessionTypeColor(session.sessionType) }}>
-              {session.sessionType}
-            </span>
-          </>
-        )}
+        <span className="h-8 w-px bg-line" />
+
+        <span className="font-semibold" style={{ color: getSessionTypeColor(session.sessionType) }}>
+          {session.sessionType}
+        </span>
       </div>
 
       <div className="flex items-center gap-2">
@@ -108,27 +100,18 @@ function SessionRow({ session, showType }) {
   );
 }
 
-export function PackageSessionsList({ sessions, showType = true }) {
+export function SessionsList({ sessions }) {
   const t = useT();
 
-  return (
-    <div className="rounded-2xl bg-white p-6 shadow-card">
-      <div className="flex items-center justify-between border-b border-line pb-4">
-        <h3 className="flex items-center gap-2 font-bold text-ink">
-          {t('dashboard.myPackages.sessionsTitle')}
-          <CalendarDays size={20} className="text-primary" />
-        </h3>
-      </div>
+  if (sessions.length === 0) {
+    return <EmptyState title={t('dashboard.sessionsPage.empty')} />;
+  }
 
-      {sessions.length === 0 ? (
-        <EmptyState title={t('dashboard.myPackages.noSessions')} />
-      ) : (
-        <div className="divide-y divide-line">
-          {sessions.map((session) => (
-            <SessionRow key={session.id} session={session} showType={showType} />
-          ))}
-        </div>
-      )}
+  return (
+    <div className="flex flex-col gap-3">
+      {sessions.map((session) => (
+        <SessionCard key={session.id} session={session} />
+      ))}
     </div>
   );
 }

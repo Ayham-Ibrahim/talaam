@@ -28,6 +28,8 @@ export const endpoints = {
   dashboard: {
     student: '/dashboard/student',
     calendarSessions: '/dashboard/student/calendar-sessions',
+    sessions: '/dashboard/student/sessions',
+    invoices: '/dashboard/student/invoices',
     packagesList: '/dashboard/student/packages',
     packageDetails: (id) => `/dashboard/student/packages/${id}`,
   },
