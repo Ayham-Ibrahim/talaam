@@ -30,6 +30,9 @@ import {
   CheckCircle2,
   MousePointerClick,
   Target,
+  BadgeCheck,
+  FileText,
+  Share2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -106,11 +109,17 @@ export function EducationTypes() {
                     transform: "rotate(-51.46deg)",
                   }}
                 />
-                
+
                 {/* Micro particle pop on hover inside the circle */}
                 <motion.div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-white/60 rounded-full animate-ping" style={{ animationDuration: '1.5s' }} />
-                  <div className="absolute bottom-3 left-3 w-1 h-1 bg-white/40 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
+                  <div
+                    className="absolute top-2 right-2 w-1.5 h-1.5 bg-white/60 rounded-full animate-ping"
+                    style={{ animationDuration: "1.5s" }}
+                  />
+                  <div
+                    className="absolute bottom-3 left-3 w-1 h-1 bg-white/40 rounded-full animate-ping"
+                    style={{ animationDuration: "2s" }}
+                  />
                 </motion.div>
 
                 <motion.div
@@ -137,21 +146,29 @@ export function EducationTypes() {
 }
 
 /* ---------- Why Choose Us ---------- */
-const WHY_CHOOSE_US_ICONS = {
-  verified: ShieldCheck,
-  packages: ClipboardCheck,
-  reschedule: CalendarClock,
-  payment: CreditCard,
-  live: Video,
-  reviews: Star,
+const WHY_CHOOSE_US_IMAGES = {
+  certified: "/why_choose_us/3.png",
+  quality: "/why_choose_us/2.png",
+  support: "/why_choose_us/1.png",
+  reports: "/why_choose_us/4.png",
+  network: "/why_choose_us/5.png",
+  reviews: "/why_choose_us/6.png",
+};
+const WHY_CHOOSE_US_BADGE_ICONS = {
+  certified: UserCheck,
+  quality: ShieldCheck,
+  support: GraduationCap,
+  reports: FileText,
+  network: Share2,
+  reviews: Users,
 };
 const WHY_CHOOSE_US_COLORS = {
-  verified: "#4B6898",
-  packages: "#2E9E6B",
-  reschedule: "#7E57C2",
-  payment: "#2F80ED",
-  live: "#C2185B",
-  reviews: "#F5A623",
+  certified: "#8B7FD1",
+  quality: "#2E9E6B",
+  support: "#4A90E2",
+  reports: "#F5A623",
+  network: "#EC4899",
+  reviews: "#FBBF24",
 };
 
 export function WhyChooseUs() {
@@ -160,7 +177,7 @@ export function WhyChooseUs() {
 
   return (
     <section className="container-app mt-14">
-      <motion.h2 
+      <motion.h2
         initial="hidden"
         whileInView="visible"
         viewport={viewportOnce}
@@ -169,16 +186,16 @@ export function WhyChooseUs() {
       >
         {t("home.whyChooseUsTitle")}
       </motion.h2>
-      <motion.p 
+      <motion.p
         initial="hidden"
         whileInView="visible"
         viewport={viewportOnce}
         variants={fadeUp}
-        className="mt-2 mb-8 text-center font-cairo text-lg text-[#626262]"
+        className="mt-2 mb-8 text-center font-cairo text-lg text-[#626262] max-w-2xl mx-auto"
       >
         {t("home.whyChooseUsSubtitle")}
       </motion.p>
-      <motion.div 
+      <motion.div
         initial="hidden"
         whileInView="visible"
         viewport={viewportOnce}
@@ -186,44 +203,45 @@ export function WhyChooseUs() {
         className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
       >
         {items.map((item) => {
-          const Icon = WHY_CHOOSE_US_ICONS[item.icon] || ShieldCheck;
+          const BadgeIcon = WHY_CHOOSE_US_BADGE_ICONS[item.icon] || ShieldCheck;
           const color = WHY_CHOOSE_US_COLORS[item.icon];
+          const image = WHY_CHOOSE_US_IMAGES[item.icon];
 
           return (
             <AnimatedCard
               key={item.icon}
               variant={fadeUp}
               tilt={true}
-              className="group relative overflow-hidden rounded-2xl bg-white px-6 py-7 text-right shadow-[0_1px_5px_rgba(0,0,0,0.1)] transition-all"
+              className="group relative flex items-center gap-5 overflow-hidden rounded-3xl p-7 shadow-[0_4px_18px_rgba(0,0,0,0.05)] transition-shadow duration-300 hover:shadow-[0_8px_28px_rgba(0,0,0,0.09)]"
+              style={{
+                background: `linear-gradient(135deg, ${color}14, ${color}05 60%, ${color}05)`,
+              }}
             >
-              {/* Gradient fades in via opacity — background-color and background-image can't be transitioned into each other */}
-              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(272.4deg,#4B6898_2.51%,#4B68aa_93.94%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              {/* Badge — top-right corner */}
+              <span
+                className="absolute -top-2 -right-2 flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_2px_10px_rgba(0,0,0,0.12)]"
+                style={{ color }}
+              >
+                <BadgeIcon size={18} />
+              </span>
 
-              {/* Parallax moving highlight inside the card */}
-              <div className="pointer-events-none absolute -inset-full opacity-0 group-hover:opacity-30 mix-blend-overlay transition-opacity duration-700 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.8)_0%,transparent_50%)] animate-pulse" />
-
-              <div className="relative z-10 flex flex-col items-end gap-3">
-                <div
-                  className="flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300 group-hover:!bg-white/15 group-hover:scale-110 shadow-sm"
-                  style={{ background: `${color}1A` }}
-                >
-                  <motion.div
-                    whileHover={{ rotate: [-5, 5, -5, 0] }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <Icon
-                      size={26}
-                      style={{ color }}
-                      className="transition-colors duration-300 group-hover:!text-white drop-shadow-sm"
-                    />
-                  </motion.div>
-                </div>
-                <h3 className="font-cairo text-lg font-bold text-[#1E1E1E] transition-colors duration-300 group-hover:text-white group-hover:-translate-y-0.5 transform">
+              {/* Text (first in DOM → renders on the right in RTL) */}
+              <div className="flex-1 text-right">
+                <h3 className="mb-2 font-cairo text-lg font-bold text-[#1E1E1E] sm:text-xl">
                   {item.title}
                 </h3>
-                <p className="font-cairo text-sm leading-relaxed text-[#626262] transition-colors duration-300 group-hover:text-white/85 group-hover:-translate-y-0.5 transform">
+                <p className="font-cairo text-sm leading-relaxed text-[#626262]">
                   {item.desc}
                 </p>
+              </div>
+
+              {/* Illustration (second in DOM → renders on the left in RTL) */}
+              <div className="flex h-28 w-28 shrink-0 items-center justify-center transition-transform duration-300 group-hover:scale-105 sm:h-32 sm:w-32">
+                <img
+                  src={image}
+                  alt=""
+                  className="h-full w-full object-contain mix-blend-screen"
+                />
               </div>
             </AnimatedCard>
           );
@@ -264,10 +282,7 @@ export function FeaturedTeachers() {
                 <TeacherCardSkeleton key={i} />
               ))
             : data.map((teacher) => (
-                <motion.div
-                  key={teacher.id}
-                  variants={fadeUp}
-                >
+                <motion.div key={teacher.id} variants={fadeUp}>
                   <TeacherCard teacher={teacher} />
                 </motion.div>
               ))}
@@ -412,7 +427,7 @@ export function HowItWorks() {
 
   return (
     <section className="container-app mt-20">
-      <motion.h2 
+      <motion.h2
         initial="hidden"
         whileInView="visible"
         viewport={viewportOnce}
@@ -421,7 +436,7 @@ export function HowItWorks() {
       >
         {t("home.howItWorksTitle")}
       </motion.h2>
-      <motion.p 
+      <motion.p
         initial="hidden"
         whileInView="visible"
         viewport={viewportOnce}
@@ -431,7 +446,7 @@ export function HowItWorks() {
         {t("home.howItWorksSubtitle")}
       </motion.p>
 
-      <motion.div 
+      <motion.div
         initial="hidden"
         whileInView="visible"
         viewport={viewportOnce}
@@ -465,7 +480,8 @@ export function HowItWorks() {
             const pattern = CONNECTOR_PATTERNS[patternIndex];
             const rowHeight = 100 / steps.length;
             const isThirdLine = patternIndex === 2;
-            const top = rowHeight * (i + 0.5) + (isThirdLine ? rowHeight * 0.12 : 0);
+            const top =
+              rowHeight * (i + 0.5) + (isThirdLine ? rowHeight * 0.12 : 0);
             return (
               <svg
                 key={i}
@@ -816,12 +832,12 @@ export function CTASection() {
         }}
       >
         <BackgroundParticles count={15} color="bg-white/20" />
-        
+
         {/* Soft scrolling breathing glow */}
-        <motion.div 
+        <motion.div
           animate={{ x: ["-10%", "10%", "-10%"], opacity: [0.3, 0.6, 0.3] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(107,206,238,0.25)_0%,transparent_60%)] blur-2xl z-0" 
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(107,206,238,0.25)_0%,transparent_60%)] blur-2xl z-0"
         />
 
         <motion.img
@@ -847,7 +863,10 @@ export function CTASection() {
           </motion.div>
           <motion.button
             variants={fadeUp}
-            whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255,255,255,0.4)" }}
+            whileHover={{
+              scale: 1.05,
+              boxShadow: "0 0 20px rgba(255,255,255,0.4)",
+            }}
             whileTap={{ scale: 0.95 }}
             type="button"
             onClick={() => navigate("/search")}
@@ -855,7 +874,10 @@ export function CTASection() {
           >
             <span className="relative z-10 flex items-center gap-2.5">
               {t("home.ctaButton")}
-              <Target size={24} className="transition-transform duration-300 group-hover/btn:scale-110" />
+              <Target
+                size={24}
+                className="transition-transform duration-300 group-hover/btn:scale-110"
+              />
             </span>
             <div className="absolute inset-0 bg-white/20 blur-md transform -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 ease-in-out" />
           </motion.button>
