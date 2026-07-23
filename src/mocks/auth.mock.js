@@ -27,6 +27,17 @@ export const mockAccounts = [
       avatar: null,
     },
   },
+  {
+    email: 'admin@taalam.com',
+    password: 'Admin@123',
+    user: {
+      id: 1,
+      name: 'مدير المنصة',
+      email: 'admin@taalam.com',
+      role: 'admin',
+      avatar: null,
+    },
+  },
 ];
 
 export function findMockAccount(email, password) {

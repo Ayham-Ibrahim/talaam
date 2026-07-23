@@ -32,3 +32,19 @@ export function formatDate(iso) {
     return iso;
   }
 }
+
+/** Formats an ISO datetime string to Arabic date + time */
+export function formatDateTime(iso) {
+  if (!iso) return '';
+  try {
+    return new Intl.DateTimeFormat(config.locale, {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(new Date(iso));
+  } catch {
+    return iso;
+  }
+}

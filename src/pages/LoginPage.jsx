@@ -12,7 +12,9 @@ import { mockAccounts } from '@/mocks/auth.mock';
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function roleHome(role) {
-  return role === 'teacher' ? '/dashboard/teacher' : '/dashboard/student';
+  if (role === 'teacher') return '/dashboard/teacher';
+  if (role === 'admin') return '/dashboard/admin';
+  return '/dashboard/student';
 }
 
 export function LoginPage() {
@@ -115,6 +117,13 @@ export function LoginPage() {
                   className="rounded-pill bg-white px-3 py-1.5 text-xs font-medium text-accent-purple shadow-sm transition-colors hover:bg-accent-purple hover:text-white"
                 >
                   {t('auth.demoTeacher')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fillDemo(mockAccounts[2].email, mockAccounts[2].password)}
+                  className="rounded-pill bg-white px-3 py-1.5 text-xs font-medium text-success shadow-sm transition-colors hover:bg-success hover:text-white"
+                >
+                  {t('auth.demoAdmin')}
                 </button>
               </div>
             </div>

@@ -1,0 +1,146 @@
+import { useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import {
+  Bell,
+  ChevronRight,
+  FileSpreadsheet,
+  GraduationCap,
+  Home,
+  ListTree,
+  LogOut,
+  MessageSquareWarning,
+  Package,
+  Settings,
+  Wallet,
+} from 'lucide-react';
+import { Logo } from '@/components/layout/Logo';
+import { Avatar } from '@/components/ui';
+import { useAuth, useLogout } from '@/hooks/useAuth';
+import { useT } from '@/hooks/useT';
+
+const NAV_ITEMS = [
+  { key: 'home', icon: Home, path: '/dashboard/admin', end: true },
+  { key: 'teachers', icon: GraduationCap, path: '/dashboard/admin/teachers' },
+  { key: 'packages', icon: Package, path: '/dashboard/admin/listings' },
+  { key: 'complaints', icon: MessageSquareWarning, path: '/dashboard/admin/complaints' },
+  { key: 'taxonomy', icon: ListTree, path: '/dashboard/admin/taxonomy' },
+  { key: 'payouts', icon: Wallet, path: '/dashboard/admin/payouts' },
+  { key: 'studentImport', icon: FileSpreadsheet, path: '/dashboard/admin/student-import' },
+  { key: 'settings', icon: Settings, path: '/dashboard/admin/settings' },
+];
+
+export function AdminDashboardLayout({ children }) {
+  const t = useT();
+  const { user } = useAuth();
+  const logout = useLogout();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const activeNavItem =
+    NAV_ITEMS.find((item) =>
+      item.path
+        ? item.end
+          ? location.pathname === item.path
+          : location.pathname.startsWith(item.path)
+        : false
+    ) ?? NAV_ITEMS[0];
+  const ActivePageIcon = activeNavItem.icon;
+
+  return (
+    <div dir="rtl" className="min-h-screen bg-[#FCFCFC] lg:flex">
+      <aside className="hidden shrink-0 border-l border-line/60 bg-white lg:flex lg:w-[287px] lg:flex-col">
+        <div className="flex items-center justify-center border-b border-line/60 px-6 py-6">
+          <Logo />
+        </div>
+        <nav dir="ltr" className="flex flex-1 w-full flex-col gap-1 py-4">
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            if (!item.path) {
+              return (
+                <div
+                  key={item.key}
+                  className="flex cursor-not-allowed items-center justify-end gap-3.5 px-8 py-4 text-base font-medium text-[#2D2D2D]/60"
+                >
+                  {t(`dashboard.adminNav.${item.key}`)}
+                  <Icon size={22} />
+                </div>
+              );
+            }
+            return (
+              <NavLink
+                key={item.key}
+                to={item.path}
+                end={item.end}
+                className={({ isActive }) =>
+                  `flex items-center justify-end gap-3.5 rounded-l-2xl px-8 py-4 text-base font-medium transition-colors ${
+                    isActive ? 'bg-primary text-white' : 'text-[#2D2D2D] hover:bg-line/40'
+                  }`
+                }
+              >
+                {t(`dashboard.adminNav.${item.key}`)}
+                <Icon size={22} />
+              </NavLink>
+            );
+          })}
+        </nav>
+      </aside>
+
+      <div className="flex flex-1 flex-col">
+        <header
+          dir="ltr"
+          className="flex items-center justify-between gap-4 border-b border-line/60 bg-white px-6 py-3 lg:px-10"
+        >
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setMenuOpen((v) => !v)}
+                className="flex items-center gap-2 rounded-pill py-1 pl-1 pr-2 hover:bg-line/40"
+              >
+                <div className="text-right">
+                  <div className="text-sm text-[#2D2D2D]">{user?.name}</div>
+                  <div className="text-xs text-[#777777]">{t('dashboard.roleAdmin')}</div>
+                </div>
+                <Avatar name={user?.name} src={user?.avatar} size="sm" />
+                <ChevronRight size={14} className={`text-[#2D2D2D] transition-transform ${menuOpen ? '-rotate-90' : ''}`} />
+              </button>
+
+              {menuOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+                  <div className="absolute left-0 top-full z-20 mt-2 w-44 rounded-2xl border border-line bg-white py-2 shadow-lift">
+                    <button
+                      type="button"
+                      onClick={() => logout.mutate()}
+                      className="flex w-full items-center justify-end gap-2 px-4 py-2.5 text-sm font-medium text-accent-pink hover:bg-line/30"
+                    >
+                      {t('dashboard.logout')}
+                      <LogOut size={16} />
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <button
+              type="button"
+              className="hidden h-10 w-10 items-center justify-center rounded-full hover:bg-line/40 sm:flex"
+              aria-label="الاشعارات"
+            >
+              <Bell size={18} className="text-[#2D2D2D]" />
+            </button>
+          </div>
+
+          <span className="flex items-center gap-2 rounded-pill border border-line px-4 py-2 text-sm font-bold text-ink">
+            {t(`dashboard.adminNav.${activeNavItem.key}`)}
+            <ActivePageIcon size={16} className="text-primary" />
+          </span>
+        </header>
+
+        <main dir="rtl" className="flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}

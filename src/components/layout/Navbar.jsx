@@ -17,7 +17,12 @@ export function Navbar() {
   const { user, isAuthenticated } = useAuth();
   const logout = useLogout();
 
-  const dashboardPath = user?.role === 'teacher' ? '/dashboard/teacher' : '/dashboard/student';
+  const dashboardPath =
+    user?.role === 'teacher'
+      ? '/dashboard/teacher'
+      : user?.role === 'admin'
+        ? '/dashboard/admin'
+        : '/dashboard/student';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -91,7 +96,13 @@ export function Navbar() {
               <NavLink
                 to={dashboardPath}
                 className="sm:hidden w-11 h-11 rounded-full hover:bg-line/50 flex items-center justify-center shrink-0"
-                aria-label={t('dashboard.studentTitle')}
+                aria-label={t(
+                  user?.role === 'teacher'
+                    ? 'dashboard.teacherTitle'
+                    : user?.role === 'admin'
+                      ? 'dashboard.adminTitle'
+                      : 'dashboard.studentTitle'
+                )}
               >
                 <LayoutDashboard size={18} className="text-ink-soft" />
               </NavLink>

@@ -9,6 +9,16 @@ import { TeacherProfilePage } from '@/pages/TeacherProfilePage';
 import { LoginPage } from '@/pages/LoginPage';
 import { StudentDashboardPage } from '@/pages/StudentDashboardPage';
 import { TeacherDashboardPage } from '@/pages/TeacherDashboardPage';
+import { AdminDashboardPage } from '@/pages/AdminDashboardPage';
+import { AdminTeachersPage } from '@/pages/AdminTeachersPage';
+import { AdminTeacherDetailPage } from '@/pages/AdminTeacherDetailPage';
+import { AdminListingsPage } from '@/pages/AdminListingsPage';
+import { AdminListingDetailPage } from '@/pages/AdminListingDetailPage';
+import { AdminComplaintsPage } from '@/pages/AdminComplaintsPage';
+import { AdminTaxonomyPage } from '@/pages/AdminTaxonomyPage';
+import { AdminPayoutsPage } from '@/pages/AdminPayoutsPage';
+import { AdminStudentImportPage } from '@/pages/AdminStudentImportPage';
+import { AdminSettingsPage } from '@/pages/AdminSettingsPage';
 import { CalendarPage } from '@/pages/CalendarPage';
 import { SessionsPage } from '@/pages/SessionsPage';
 import { PackagesPage } from '@/pages/PackagesPage';
@@ -41,6 +51,86 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="teacher">
               <TeacherDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/teachers"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminTeachersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/teachers/:id"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminTeacherDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/listings"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminListingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/listings/:id"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminListingDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/complaints"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminComplaintsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/taxonomy"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminTaxonomyPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/payouts"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminPayoutsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/student-import"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminStudentImportPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/settings"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminSettingsPage />
             </ProtectedRoute>
           }
         />
