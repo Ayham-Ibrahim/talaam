@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { HomePage } from '@/pages/HomePage';
 import { SearchPage } from '@/pages/SearchPage';
 import { AboutPage } from '@/pages/AboutPage';
+import { HowItWorksPage } from '@/pages/HowItWorksPage';
 import { ContactPage } from '@/pages/ContactPage';
 import { FavoritesPage } from '@/pages/FavoritesPage';
 import { TeacherProfilePage } from '@/pages/TeacherProfilePage';
@@ -20,6 +21,7 @@ export function AppRouter() {
         <Route path="/" element={<HomePage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/how-it-works" element={<HowItWorksPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/teacher/:id" element={<TeacherProfilePage />} />
