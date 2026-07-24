@@ -323,6 +323,90 @@
       "upcomingSessions": "الجلسات القادمة",
       "upcomingSessionsHint": "جلسات في هذا الاسبوع"
     },
+    "teacherStats": {
+      "averageRating": "متوسط التقييم",
+      "averageRatingHint": "من 5",
+      "teachingHours": "ساعات التدريس",
+      "teachingHoursHint": "ساعة",
+      "activePackages": "الباقات النشطة",
+      "activePackagesHint": "باقة",
+      "totalStudents": "اجمالي الطلاب",
+      "totalStudentsHint": "طالب مشترك لديك"
+    },
+    "activePackagesTitle": "الباقات النشطة",
+    "activePackages": {
+      "package": "الباقة",
+      "type": "نوع الباقة",
+      "subject": "المادة",
+      "curriculum": "المنهج",
+      "sessionsCount": "عدد الجلسات",
+      "action": "الاجراء",
+      "details": "تفاصيل"
+    },
+    "teacherPackages": {
+      "sessionsCount": "عدد الجلسات",
+      "sessionsCountHint": "جلسة",
+      "pendingReview": "قيد المراجعة",
+      "pendingReviewHint": "باقة",
+      "activePackages": "الباقات النشطة",
+      "activePackagesHint": "باقة",
+      "totalPackages": "اجمالي الباقات",
+      "totalPackagesHint": "جميع الباقات",
+      "createPackage": "انشاء باقة",
+      "statusLabel": "الحالة",
+      "statusActive": "نشطة",
+      "typeLabel": "النوع",
+      "typeIndividual": "فردية",
+      "typeGroup": "جماعية",
+      "typeTraining": "دورة",
+      "searchPlaceholder": "بحث",
+      "package": "الباقة",
+      "type": "النوع",
+      "subject": "المادة",
+      "seats": "عدد المقاعد",
+      "status": "الحالة",
+      "price": "السعر",
+      "action": "الاجراء",
+      "edit": "تعديل",
+      "view": "عرض",
+      "showingPrefix": "عرض",
+      "showingOf": "من",
+      "unit": "باقة",
+      "empty": "لا توجد باقات",
+      "close": "اغلاق"
+    },
+    "addPackage": {
+      "steps": {
+        "basicInfo": "المعلومات الاساسية",
+        "scheduling": "الجدولة",
+        "pricing": "السعر",
+        "review": "المراجعة والارسال"
+      },
+      "sessionTypeLabel": "نوع الجلسة",
+      "sessionTypes": {
+        "training": {
+          "title": "دورة تدريبية",
+          "desc": "دورة تدريبية يقدمها مركز تدريب",
+          "badge": "جدول صارم وغير قابل للتعديل"
+        },
+        "group": {
+          "title": "باقة جماعية",
+          "desc": "جلسات جماعية مع مجموعة من الطلاب",
+          "badge": "جدول ثابت مشترك"
+        },
+        "individual": {
+          "title": "باقة فردية",
+          "desc": "جلسات فردية مع طالب واحد",
+          "badge": "جدول مرن"
+        }
+      },
+      "subjectLabel": "المادة",
+      "curriculumLabel": "المنهج",
+      "selectPlaceholder": "يرجى الاختيار",
+      "descriptionLabel": "الوصف",
+      "descriptionPlaceholder": "اكتب وصفا للباقة",
+      "next": "التالي"
+    },
     "upcomingSessionsTitle": "جلساتي القادمة",
     "viewAll": "عرض الكل",
     "join": "انضمام",

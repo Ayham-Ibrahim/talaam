@@ -27,11 +27,13 @@ export const endpoints = {
   },
   dashboard: {
     student: '/dashboard/student',
+    teacher: '/dashboard/teacher',
     calendarSessions: '/dashboard/student/calendar-sessions',
     sessions: '/dashboard/student/sessions',
     invoices: '/dashboard/student/invoices',
     packagesList: '/dashboard/student/packages',
     packageDetails: (id) => `/dashboard/student/packages/${id}`,
+    teacherPackagesList: '/dashboard/teacher/packages',
     admin: '/dashboard/admin',
   },
   admin: {

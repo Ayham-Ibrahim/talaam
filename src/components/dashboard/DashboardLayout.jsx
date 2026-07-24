@@ -19,13 +19,22 @@ import { useAuth, useLogout } from "@/hooks/useAuth";
 import { useFavoritesStore } from "@/store";
 import { useT } from "@/hooks/useT";
 
-const NAV_ITEMS = [
+const STUDENT_NAV_ITEMS = [
   { key: "home", icon: Home, path: "/dashboard/student", end: true },
   { key: "calendar", icon: Calendar, path: "/dashboard/student/calendar" },
   { key: "sessions", icon: FileText, path: "/dashboard/student/sessions" },
   { key: "packages", icon: CreditCard, path: "/dashboard/student/packages" },
   { key: "invoices", icon: FileText, path: "/dashboard/student/invoices" },
   { key: "reviews", icon: Star },
+  { key: "settings", icon: Settings },
+];
+
+const TEACHER_NAV_ITEMS = [
+  { key: "home", icon: Home, path: "/dashboard/teacher", end: true },
+  { key: "calendar", icon: Calendar },
+  { key: "packages", icon: CreditCard, path: "/dashboard/teacher/packages" },
+  { key: "sessions", icon: FileText },
+  { key: "invoices", icon: FileText },
   { key: "settings", icon: Settings },
 ];
 
@@ -36,6 +45,8 @@ export function DashboardLayout({ children }) {
   const favoritesCount = useFavoritesStore((s) => s.favorites.size);
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
+
+  const NAV_ITEMS = user?.role === "teacher" ? TEACHER_NAV_ITEMS : STUDENT_NAV_ITEMS;
 
   const activeNavItem =
     NAV_ITEMS.find((item) =>

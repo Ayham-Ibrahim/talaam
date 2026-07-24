@@ -20,10 +20,12 @@ export const queryKeys = {
   },
   dashboard: {
     student: () => ['dashboard', 'student'],
+    teacher: () => ['dashboard', 'teacher'],
     calendarSessions: () => ['dashboard', 'calendar-sessions'],
     sessions: () => ['dashboard', 'sessions'],
     invoices: () => ['dashboard', 'invoices'],
     packagesList: () => ['dashboard', 'packages-list'],
+    teacherPackagesList: () => ['dashboard', 'teacher-packages-list'],
     packageDetails: (id) => ['dashboard', 'package-details', id],
   },
   admin: {

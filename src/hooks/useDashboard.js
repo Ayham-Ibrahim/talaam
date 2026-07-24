@@ -9,6 +9,20 @@ export function useStudentDashboard() {
   });
 }
 
+export function useTeacherDashboard() {
+  return useQuery({
+    queryKey: queryKeys.dashboard.teacher(),
+    queryFn: () => dashboardService.getTeacherDashboard(),
+  });
+}
+
+export function useTeacherPackagesList() {
+  return useQuery({
+    queryKey: queryKeys.dashboard.teacherPackagesList(),
+    queryFn: () => dashboardService.getTeacherPackagesList(),
+  });
+}
+
 export function useCalendarSessions() {
   return useQuery({
     queryKey: queryKeys.dashboard.calendarSessions(),

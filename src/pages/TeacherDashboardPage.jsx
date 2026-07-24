@@ -1,36 +1,48 @@
-import { Navigate } from 'react-router-dom';
-import { LayoutDashboard } from 'lucide-react';
-import { PageContainer } from '@/components/layout/PageContainer';
-import { Card, Button } from '@/components/ui';
-import { useAuth, useLogout } from '@/hooks/useAuth';
-import { useT } from '@/hooks/useT';
+import { Navigate } from "react-router-dom";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { WelcomeBanner } from "@/components/dashboard/WelcomeBanner";
+import { TeacherStatsGrid } from "@/components/dashboard/TeacherStatsGrid";
+import { UpcomingSessionsCard } from "@/components/dashboard/UpcomingSessionsCard";
+import { ActivePackagesTable } from "@/components/dashboard/ActivePackagesTable";
+import { ErrorState, Skeleton } from "@/components/ui";
+import { useAuth } from "@/hooks/useAuth";
+import { useTeacherDashboard } from "@/hooks/useDashboard";
 
 export function TeacherDashboardPage() {
-  const t = useT();
   const { user } = useAuth();
-  const logout = useLogout();
+  const { data, isLoading, isError, refetch } = useTeacherDashboard();
 
   if (!user) return <Navigate to="/login" replace />;
 
+  const firstName = user.name.replace(/^[أا]\.\s*/, "").split(" ")[0];
+
   return (
-    <PageContainer>
-      <section className="container-app mt-10 mb-20">
-        <Card className="flex flex-col items-center gap-4 p-10 text-center lg:p-16">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent-purple/10 text-accent-purple">
-            <LayoutDashboard size={28} />
+    <DashboardLayout>
+      {isError ? (
+        <ErrorState onRetry={refetch} />
+      ) : isLoading ? (
+        <div className="space-y-6" dir="rtl">
+          <Skeleton className="h-40 rounded-card" />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-24 rounded-2xl" />
+            ))}
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-ink">{t('dashboard.teacherTitle')}</h1>
-            <p className="mt-2 text-ink-soft">
-              {t('dashboard.welcome')} {user.name} 👋
-            </p>
-          </div>
-          <p className="max-w-md text-sm text-ink-soft">{t('dashboard.placeholder')}</p>
-          <Button variant="outline" size="sm" onClick={() => logout.mutate()} className="mt-2">
-            {t('dashboard.logout')}
-          </Button>
-        </Card>
-      </section>
-    </PageContainer>
+          <Skeleton className="h-64 rounded-2xl" />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-6">
+          <WelcomeBanner
+            name={firstName}
+            sessionsThisWeek={data.upcomingSessions.length}
+            imageSrc="/hero-teacher.png"
+            teal
+          />
+          <TeacherStatsGrid stats={data.stats} />
+          <UpcomingSessionsCard sessions={data.upcomingSessions} />
+          <ActivePackagesTable packages={data.activePackages} />
+        </div>
+      )}
+    </DashboardLayout>
   );
 }

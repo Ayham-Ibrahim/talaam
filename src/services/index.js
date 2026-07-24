@@ -20,6 +20,13 @@ import {
   mockPackageSessions,
   mockInvoices,
 } from '@/mocks/dashboard.mock';
+import {
+  mockTeacherStats,
+  mockTeacherUpcomingSessions,
+  mockTeacherActivePackages,
+  mockTeacherPackageStats,
+  mockTeacherPackagesList,
+} from '@/mocks/teacherDashboard.mock';
 
 export const packageService = {
   async getByTeacher(teacherId) {
@@ -106,6 +113,28 @@ export const dashboardService = {
       };
     }
     const { data } = await client.get(endpoints.dashboard.student);
+    return data;
+  },
+
+  async getTeacherDashboard() {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return {
+        stats: mockTeacherStats,
+        upcomingSessions: mockTeacherUpcomingSessions,
+        activePackages: mockTeacherActivePackages,
+      };
+    }
+    const { data } = await client.get(endpoints.dashboard.teacher);
+    return data;
+  },
+
+  async getTeacherPackagesList() {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return { stats: mockTeacherPackageStats, packages: mockTeacherPackagesList };
+    }
+    const { data } = await client.get(endpoints.dashboard.teacherPackagesList);
     return data;
   },
 

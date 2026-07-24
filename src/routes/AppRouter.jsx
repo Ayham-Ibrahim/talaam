@@ -24,6 +24,7 @@ import { SessionsPage } from '@/pages/SessionsPage';
 import { PackagesPage } from '@/pages/PackagesPage';
 import { PackageDetailsPage } from '@/pages/PackageDetailsPage';
 import { InvoicesPage } from '@/pages/InvoicesPage';
+import { TeacherPackagesPage } from '@/pages/TeacherPackagesPage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 export function AppRouter() {
@@ -171,6 +172,14 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="student">
               <InvoicesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/teacher/packages"
+          element={
+            <ProtectedRoute role="teacher">
+              <TeacherPackagesPage />
             </ProtectedRoute>
           }
         />
