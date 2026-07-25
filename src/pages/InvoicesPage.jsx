@@ -13,12 +13,7 @@ import { INVOICE_STATUS_STYLES } from '@/mocks/dashboard.mock';
 import { useT } from '@/hooks/useT';
 
 const PAGE_SIZE = 10;
-const DEFAULT_FILTERS = { status: '', date: '', search: '' };
-
-function toIsoDate(ddmmyyyy) {
-  const [d, m, y] = ddmmyyyy.split('/');
-  return `${y}-${m}-${d}`;
-}
+const DEFAULT_FILTERS = { status: '', subject: '', search: '' };
 
 export function InvoicesPage() {
   const t = useT();
@@ -33,12 +28,14 @@ export function InvoicesPage() {
     [],
   );
 
+  const subjects = useMemo(() => [...new Set((invoices ?? []).map((invoice) => invoice.subject))], [invoices]);
+
   const filteredInvoices = useMemo(() => {
     if (!invoices) return [];
     const search = filters.search.trim().toLowerCase();
     return invoices.filter((invoice) => {
       if (filters.status && invoice.paymentStatus !== filters.status) return false;
-      if (filters.date && toIsoDate(invoice.issueDate) !== filters.date) return false;
+      if (filters.subject && invoice.subject !== filters.subject) return false;
       if (search && !`${invoice.id} ${invoice.teacherName} ${invoice.packageTitle}`.toLowerCase().includes(search)) {
         return false;
       }
@@ -60,7 +57,7 @@ export function InvoicesPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-6">
-        <InvoicesFilterBar statuses={statusOptions} filters={filters} onChange={handleFilterChange} />
+        <InvoicesFilterBar statuses={statusOptions} subjects={subjects} filters={filters} onChange={handleFilterChange} />
 
         {isError ? (
           <ErrorState onRetry={refetch} />
@@ -74,8 +71,11 @@ export function InvoicesPage() {
           <EmptyState
             icon={Receipt}
             image="/fallback_images/no_billings.png"
+            imageClassName="mb-2 h-[300px] w-auto object-contain"
             title={t('dashboard.invoices.emptyTitle')}
+            titleClassName="font-cairo text-[32px] font-medium leading-[60px] text-ink"
             hint={t('dashboard.invoices.emptyHint')}
+            hintClassName="mt-1 max-w-2xl font-cairo text-xl font-medium leading-[37px] text-[#626262]"
           />
         ) : filteredInvoices.length === 0 ? (
           <EmptyState title={t('dashboard.invoices.empty')} />

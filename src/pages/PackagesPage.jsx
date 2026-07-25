@@ -40,12 +40,15 @@ export function PackagesPage() {
           <EmptyState
             icon={PackageOpen}
             image="/fallback_images/no_packages.png"
+            imageClassName="mb-2 h-[275px] w-auto object-contain"
             title={t("dashboard.myPackages.emptyTitle")}
+            titleClassName="font-cairo text-[32px] font-medium leading-[60px] text-ink"
             hint={t("dashboard.myPackages.emptyHint")}
+            hintClassName="mt-1 max-w-2xl text-center font-cairo text-xl font-medium leading-[37px] text-[#626262]"
             action={
               <Link
                 to="/search"
-                className="inline-flex items-center justify-center gap-2 rounded-btn bg-primary px-7 py-3 text-base font-medium text-white transition-colors hover:bg-primary-hover"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 text-sm font-normal text-white transition-colors hover:bg-primary-hover"
               >
                 {t("dashboard.myPackages.exploreTeachers")}
               </Link>

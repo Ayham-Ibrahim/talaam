@@ -1,7 +1,7 @@
 import { ChevronLeft, Search } from 'lucide-react';
 import { useT } from '@/hooks/useT';
 
-export function InvoicesFilterBar({ statuses, filters, onChange }) {
+export function InvoicesFilterBar({ statuses, subjects, filters, onChange }) {
   const t = useT();
 
   return (
@@ -23,13 +23,19 @@ export function InvoicesFilterBar({ statuses, filters, onChange }) {
       </div>
 
       <div className="flex min-w-[200px] flex-1 items-center gap-2 rounded-xl border border-line bg-white px-4 py-3">
-        <input
-          type="date"
-          value={filters.date}
-          onChange={(e) => onChange('date', e.target.value)}
-          aria-label={t('dashboard.invoices.dateLabel')}
-          className="w-full bg-transparent text-sm font-semibold text-ink outline-none"
-        />
+        <ChevronLeft size={16} className="shrink-0 text-ink-soft" />
+        <select
+          value={filters.subject}
+          onChange={(e) => onChange('subject', e.target.value)}
+          className="w-full appearance-none bg-transparent text-sm font-semibold text-ink outline-none"
+        >
+          <option value="">{t('dashboard.invoices.allSubjects')}</option>
+          {subjects.map((subject) => (
+            <option key={subject} value={subject}>
+              {subject}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="flex min-w-[220px] flex-1 items-center gap-2 rounded-xl border border-line bg-white px-4 py-3">

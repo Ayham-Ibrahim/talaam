@@ -199,18 +199,21 @@ export function EmptyState({
   action = null,
   icon: Icon = ImageOff,
   image = null,
+  imageClassName = "mb-2 h-56 w-auto object-contain",
+  titleClassName = "text-lg font-semibold text-ink",
+  hintClassName = "text-sm text-ink-soft mt-1 max-w-sm",
 }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center animate-fade-in">
       {image ? (
-        <img src={image} alt="" className="mb-2 h-56 w-auto object-contain" />
+        <img src={image} alt="" className={imageClassName} />
       ) : (
         <div className="w-16 h-16 rounded-full bg-line/40 flex items-center justify-center mb-4">
           <Icon className="text-ink-soft" size={28} />
         </div>
       )}
-      <p className="text-lg font-semibold text-ink">{title}</p>
-      {hint && <p className="text-sm text-ink-soft mt-1 max-w-sm">{hint}</p>}
+      <p className={titleClassName}>{title}</p>
+      {hint && <p className={hintClassName}>{hint}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
   );

@@ -481,6 +481,7 @@
     "invoices": {
       "dateLabel": "التاريخ",
       "allStatuses": "جميع الحالات",
+      "allSubjects": "جميع المواد",
       "searchPlaceholder": "بحث",
       "invoiceNumber": "رقم الفاتورة",
       "issueDate": "تاريخ الاصدار",

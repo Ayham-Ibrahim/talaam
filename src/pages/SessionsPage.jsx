@@ -56,21 +56,6 @@ export function SessionsPage() {
               <Skeleton key={i} className="h-24 rounded-2xl" />
             ))}
           </div>
-        ) : sessions.length === 0 ? (
-          <EmptyState
-            icon={CalendarX2}
-            image="/fallback_images/no_sessions.png"
-            title={t('dashboard.sessionsPage.emptyTitle')}
-            hint={t('dashboard.sessionsPage.emptyHint')}
-            action={
-              <Link
-                to="/search"
-                className="inline-flex items-center justify-center gap-2 rounded-btn bg-primary px-7 py-3 text-base font-medium text-white transition-colors hover:bg-primary-hover"
-              >
-                {t('dashboard.myPackages.exploreTeachers')}
-              </Link>
-            }
-          />
         ) : (
           <>
             <SessionsFilterBar
@@ -79,7 +64,28 @@ export function SessionsPage() {
               filters={filters}
               onChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
             />
-            <SessionsList sessions={filteredSessions} />
+
+            {sessions.length === 0 ? (
+              <EmptyState
+                icon={CalendarX2}
+                image="/fallback_images/no_sessions.png"
+                imageClassName="mb-2 h-[300px] w-auto object-contain"
+                title={t('dashboard.sessionsPage.emptyTitle')}
+                titleClassName="font-cairo text-[32px] font-medium leading-[60px] text-ink"
+                hint={t('dashboard.sessionsPage.emptyHint')}
+                hintClassName="mt-1 max-w-2xl text-center font-cairo text-xl font-medium leading-[37px] text-[#626262]"
+                action={
+                  <Link
+                    to="/search"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 text-sm font-normal text-white transition-colors hover:bg-primary-hover"
+                  >
+                    {t('dashboard.myPackages.exploreTeachers')}
+                  </Link>
+                }
+              />
+            ) : (
+              <SessionsList sessions={filteredSessions} />
+            )}
           </>
         )}
       </div>
