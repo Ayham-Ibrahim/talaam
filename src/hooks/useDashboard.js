@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { dashboardService } from '@/services';
 
@@ -20,6 +20,14 @@ export function useTeacherPackagesList() {
   return useQuery({
     queryKey: queryKeys.dashboard.teacherPackagesList(),
     queryFn: () => dashboardService.getTeacherPackagesList(),
+  });
+}
+
+export function useCreateTeacherPackage() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => dashboardService.createTeacherPackage(payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.teacherPackagesList() }),
   });
 }
 

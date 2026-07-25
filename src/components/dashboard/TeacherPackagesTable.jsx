@@ -1,5 +1,5 @@
 import { Eye, Pencil } from 'lucide-react';
-import { TEACHER_PACKAGE_TYPE_STYLES } from '@/mocks/teacherDashboard.mock';
+import { TEACHER_PACKAGE_TYPE_STYLES, TEACHER_PACKAGE_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { useT } from '@/hooks/useT';
 
 function SeatsCell({ seats, type }) {
@@ -39,6 +39,7 @@ export function TeacherPackagesTable({ packages, onEdit, onView }) {
         <tbody className="divide-y divide-line">
           {packages.map((pkg, i) => {
             const typeStyle = TEACHER_PACKAGE_TYPE_STYLES[pkg.type];
+            const statusStyle = TEACHER_PACKAGE_STATUS_STYLES[pkg.status] ?? TEACHER_PACKAGE_STATUS_STYLES.active;
             return (
               <tr key={pkg.id} className={i % 2 === 1 ? 'bg-[#FAFBFD]' : ''}>
                 <td className="px-4 py-4 text-right font-semibold text-ink">{pkg.packageTitle}</td>
@@ -50,8 +51,11 @@ export function TeacherPackagesTable({ packages, onEdit, onView }) {
                   <SeatsCell seats={pkg.seats} type={pkg.type} />
                 </td>
                 <td className="px-4 py-4 text-center">
-                  <span className="rounded-pill bg-[#EAFEEF] px-4 py-1.5 text-xs font-bold text-[#34C759]">
-                    {t('dashboard.teacherPackages.statusActive')}
+                  <span
+                    className="rounded-pill px-4 py-1.5 text-xs font-bold"
+                    style={{ backgroundColor: statusStyle.bg, color: statusStyle.color }}
+                  >
+                    {statusStyle.label}
                   </span>
                 </td>
                 <td className="px-4 py-4 text-center font-semibold text-ink">{pkg.price}$</td>

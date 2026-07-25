@@ -21,6 +21,9 @@ export const endpoints = {
     create: '/bookings',
     checkout: (id) => `/bookings/${id}/checkout`,
   },
+  packages: {
+    create: '/packages',
+  },
   meta: {
     filters: '/meta/filters',
     stats: '/meta/stats',

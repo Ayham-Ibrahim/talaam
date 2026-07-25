@@ -26,6 +26,7 @@ import {
   mockTeacherActivePackages,
   mockTeacherPackageStats,
   mockTeacherPackagesList,
+  createMockTeacherPackage,
 } from '@/mocks/teacherDashboard.mock';
 
 export const packageService = {
@@ -135,6 +136,15 @@ export const dashboardService = {
       return { stats: mockTeacherPackageStats, packages: mockTeacherPackagesList };
     }
     const { data } = await client.get(endpoints.dashboard.teacherPackagesList);
+    return data;
+  },
+
+  async createTeacherPackage(payload) {
+    if (config.useMocks) {
+      await mockDelay(500);
+      return createMockTeacherPackage(payload);
+    }
+    const { data } = await client.post(endpoints.packages.create, payload);
     return data;
   },
 

@@ -49,7 +49,7 @@ export const mockTeacherUpcomingSessions = [
 ];
 
 /** "باقاتي" (teacher packages management) page */
-export const mockTeacherPackageStats = {
+export let mockTeacherPackageStats = {
   sessionsCount: 5,
   pendingReview: 5,
   activePackagesCount: 5,
@@ -63,6 +63,13 @@ export const TEACHER_PACKAGE_TYPE_STYLES = {
   training: { label: 'دورة', color: '#B00852' },
 };
 
+/** Package-status badge colors — mirrors the backend's submitted → active/rejected workflow */
+export const TEACHER_PACKAGE_STATUS_STYLES = {
+  submitted: { label: 'قيد المراجعة', bg: '#FDF8F0', color: '#FF8D28' },
+  active: { label: 'نشطة', bg: '#EAFEEF', color: '#34C759' },
+  rejected: { label: 'مرفوضة', bg: '#FDEFF2', color: '#B00852' },
+};
+
 const TEACHER_PACKAGE_VARIANTS = [
   { type: 'individual', packageTitle: 'باقة 5 جلسات', seats: { filled: 1, total: 1 } },
   { type: 'group', packageTitle: 'باقة 5 جلسات', seats: { filled: 3, total: 5 } },
@@ -70,7 +77,7 @@ const TEACHER_PACKAGE_VARIANTS = [
   { type: 'training', packageTitle: 'دورة تدريبية', seats: null },
 ];
 
-export const mockTeacherPackagesList = Array.from({ length: 42 }, (_, i) => {
+export let mockTeacherPackagesList = Array.from({ length: 42 }, (_, i) => {
   const variant = TEACHER_PACKAGE_VARIANTS[i % TEACHER_PACKAGE_VARIANTS.length];
   return {
     id: 3001 + i,
@@ -82,6 +89,33 @@ export const mockTeacherPackagesList = Array.from({ length: 42 }, (_, i) => {
     price: 250,
   };
 });
+
+/** Slots already booked by one of the teacher's other packages — shown as disabled cells in the scheduling grid */
+export const mockTeacherBookedSlots = [{ day: 'monday', hour: 11 }];
+
+export const SESSION_DURATION_MINUTES = 60;
+
+let nextTeacherPackageId = 5000;
+
+/** Pushes a new draft package (status "submitted") — mirrors PackageService::createDraft */
+export function createMockTeacherPackage({ packageTitle, type, subject, sessionsCount, price }) {
+  const created = {
+    id: nextTeacherPackageId++,
+    packageTitle,
+    type,
+    subject,
+    seats: type === 'group' ? { filled: 0, total: 5 } : null,
+    status: 'submitted',
+    price,
+  };
+  mockTeacherPackagesList = [created, ...mockTeacherPackagesList];
+  mockTeacherPackageStats = {
+    ...mockTeacherPackageStats,
+    pendingReview: mockTeacherPackageStats.pendingReview + 1,
+    totalPackages: mockTeacherPackageStats.totalPackages + 1,
+  };
+  return created;
+}
 
 /** "الباقات النشطة" table on the teacher home page — sessionType key colors reuse SESSION_TYPE_STYLES */
 export const mockTeacherActivePackages = [

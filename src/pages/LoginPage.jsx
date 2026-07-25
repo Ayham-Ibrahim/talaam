@@ -11,6 +11,12 @@ import { mockAccounts } from '@/mocks/auth.mock';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+function findDemo(kind) {
+  if (kind === 'center') return mockAccounts.find((a) => a.user.teacherType === 'training_center');
+  if (kind === 'teacher') return mockAccounts.find((a) => a.user.role === 'teacher' && a.user.teacherType !== 'training_center');
+  return mockAccounts.find((a) => a.user.role === kind);
+}
+
 function roleHome(role) {
   if (role === 'teacher') return '/dashboard/teacher';
   if (role === 'admin') return '/dashboard/admin';
@@ -106,21 +112,28 @@ export function LoginPage() {
               <div className="mt-3 flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => fillDemo(mockAccounts[0].email, mockAccounts[0].password)}
+                  onClick={() => fillDemo(findDemo('student').email, findDemo('student').password)}
                   className="rounded-pill bg-white px-3 py-1.5 text-xs font-medium text-primary shadow-sm transition-colors hover:bg-primary hover:text-white"
                 >
                   {t('auth.demoStudent')}
                 </button>
                 <button
                   type="button"
-                  onClick={() => fillDemo(mockAccounts[1].email, mockAccounts[1].password)}
+                  onClick={() => fillDemo(findDemo('teacher').email, findDemo('teacher').password)}
                   className="rounded-pill bg-white px-3 py-1.5 text-xs font-medium text-accent-purple shadow-sm transition-colors hover:bg-accent-purple hover:text-white"
                 >
                   {t('auth.demoTeacher')}
                 </button>
                 <button
                   type="button"
-                  onClick={() => fillDemo(mockAccounts[2].email, mockAccounts[2].password)}
+                  onClick={() => fillDemo(findDemo('center').email, findDemo('center').password)}
+                  className="rounded-pill bg-white px-3 py-1.5 text-xs font-medium text-price shadow-sm transition-colors hover:bg-price hover:text-white"
+                >
+                  {t('auth.demoCenter')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fillDemo(findDemo('admin').email, findDemo('admin').password)}
                   className="rounded-pill bg-white px-3 py-1.5 text-xs font-medium text-success shadow-sm transition-colors hover:bg-success hover:text-white"
                 >
                   {t('auth.demoAdmin')}
