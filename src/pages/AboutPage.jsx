@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import {
   Star,
   ShieldCheck,
@@ -44,7 +45,17 @@ export function AboutPage() {
     <PageContainer>
       {/* Hero */}
       <section className="container-app mt-8">
-        <div className="relative overflow-hidden rounded-[24px] bg-[linear-gradient(89.95deg,#4B6898_3.11%,#243757_98.69%)] px-8 py-14 shadow-[0_1px_5px_rgba(0,0,0,0.1)] lg:px-16 lg:py-16">
+        <div className="relative overflow-hidden rounded-[24px] px-8 py-14 shadow-[0_1px_5px_rgba(0,0,0,0.1)] lg:px-16 lg:py-16">
+          <motion.div
+            className="absolute inset-0 z-0"
+            style={{
+              backgroundImage:
+                "linear-gradient(120deg, #4B6898, #243757, #35507D, #4B6898)",
+              backgroundSize: "300% 300%",
+            }}
+            animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          />
           <div className="pointer-events-none absolute -top-4 left-1/4 h-64 w-3/5 rounded-full bg-white/60 blur-[120px]" />
 
           <div className="relative z-10 flex items-center w-full justify-between gap-8">

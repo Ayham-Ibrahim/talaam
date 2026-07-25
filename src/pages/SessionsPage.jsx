@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
+import { CalendarX2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { SessionsFilterTabs } from '@/components/dashboard/SessionsFilterTabs';
 import { SessionsFilterBar } from '@/components/dashboard/SessionsFilterBar';
 import { SessionsList } from '@/components/dashboard/SessionsList';
-import { ErrorState, Skeleton } from '@/components/ui';
+import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useSessions } from '@/hooks/useDashboard';
 import { SESSION_STATUS_LABEL_KEYS } from '@/mocks/dashboard.mock';
@@ -55,6 +56,21 @@ export function SessionsPage() {
               <Skeleton key={i} className="h-24 rounded-2xl" />
             ))}
           </div>
+        ) : sessions.length === 0 ? (
+          <EmptyState
+            icon={CalendarX2}
+            image="/fallback_images/no_sessions.png"
+            title={t('dashboard.sessionsPage.emptyTitle')}
+            hint={t('dashboard.sessionsPage.emptyHint')}
+            action={
+              <Link
+                to="/search"
+                className="inline-flex items-center justify-center gap-2 rounded-btn bg-primary px-7 py-3 text-base font-medium text-white transition-colors hover:bg-primary-hover"
+              >
+                {t('dashboard.myPackages.exploreTeachers')}
+              </Link>
+            }
+          />
         ) : (
           <>
             <SessionsFilterBar

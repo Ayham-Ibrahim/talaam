@@ -10,64 +10,59 @@ export const TRANSITIONS = {
 export const EASE = [0.22, 1, 0.36, 1];
 
 export const fadeUp = {
-  hidden: { opacity: 0, y: 30, filter: "blur(6px)" },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    filter: "blur(0px)",
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
     transition: TRANSITIONS.reveal
   }
 };
 
 export const fadeDown = {
-  hidden: { opacity: 0, y: -30, filter: "blur(6px)" },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    filter: "blur(0px)",
+  hidden: { opacity: 0, y: -30 },
+  visible: {
+    opacity: 1,
+    y: 0,
     transition: TRANSITIONS.reveal
   }
 };
 
 export const fadeLeft = {
-  hidden: { opacity: 0, x: -30, filter: "blur(6px)" },
-  visible: { 
-    opacity: 1, 
-    x: 0, 
-    filter: "blur(0px)",
+  hidden: { opacity: 0, x: -30 },
+  visible: {
+    opacity: 1,
+    x: 0,
     transition: TRANSITIONS.reveal
   }
 };
 
 export const fadeRight = {
-  hidden: { opacity: 0, x: 30, filter: "blur(6px)" },
-  visible: { 
-    opacity: 1, 
-    x: 0, 
-    filter: "blur(0px)",
+  hidden: { opacity: 0, x: 30 },
+  visible: {
+    opacity: 1,
+    x: 0,
     transition: TRANSITIONS.reveal
   }
 };
 
 export const scaleIn = {
-  hidden: { opacity: 0, scale: 0.95, filter: "blur(6px)" },
-  visible: { 
-    opacity: 1, 
-    scale: 1, 
-    filter: "blur(0px)",
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    scale: 1,
     transition: TRANSITIONS.hero
   }
 };
 
 export const fadeIn = {
-  hidden: { opacity: 0, filter: "blur(4px)" },
-  visible: { opacity: 1, filter: "blur(0px)", transition: TRANSITIONS.reveal },
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: TRANSITIONS.reveal },
 };
 
 export function slideIn(fromRight = false, distance = 40) {
   return {
-    hidden: { opacity: 0, x: fromRight ? distance : -distance, filter: "blur(6px)" },
-    visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: TRANSITIONS.reveal },
+    hidden: { opacity: 0, x: fromRight ? distance : -distance },
+    visible: { opacity: 1, x: 0, transition: TRANSITIONS.reveal },
   };
 }
 

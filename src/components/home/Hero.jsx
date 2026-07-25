@@ -20,7 +20,7 @@ export function Hero() {
   const [q, setQ] = useState("");
   const [focused, setFocused] = useState(false);
   const heroRef = useRef(null);
-  
+
   // Parallax
   const { x: px1, y: py1 } = useParallax(15);
   const { x: px2, y: py2 } = useParallax(-10);
@@ -34,31 +34,42 @@ export function Hero() {
 
   return (
     <section className="container-app pt-6" ref={heroRef}>
-      <div className="relative flex justify-center gap-8 overflow-hidden rounded-card bg-[linear-gradient(90deg,#4B6898_14.26%,#243757_101.43%)] px-6 py-10 shadow-soft sm:px-10 lg:gap-12 lg:py-14">
-        
+      <div className="relative flex justify-center gap-8 overflow-hidden rounded-card px-6 py-10 shadow-soft sm:px-10 lg:gap-12 lg:py-14">
+        {/* Animated gradient background — same brand blues, slowly drifting */}
+        <motion.div
+          className="absolute inset-0 z-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(120deg, #4B6898, #243757, #35507D, #4B6898)",
+            backgroundSize: "300% 300%",
+          }}
+          animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        />
+
         {/* Animated breathing background gradients */}
-        <motion.div 
+        <motion.div
           animate={{ scale: [1, 1.05, 1], opacity: [0.8, 1, 0.8] }}
           transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,rgba(107,206,238,0.15)_0%,transparent_70%)] blur-2xl" 
+          className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,rgba(107,206,238,0.15)_0%,transparent_70%)] blur-2xl"
         />
-        
+
         {/* Premium ambient particles */}
         <BackgroundParticles count={25} color="bg-white/30" />
 
         {/* Parallax teal glows behind the photo */}
-        <motion.div 
+        <motion.div
           style={{ x: px1, y: py1 }}
-          className="absolute -right-20 top-56 hidden h-72 w-72 rounded-full bg-[#6BCEEE] opacity-30 lg:block xl:h-[28rem] xl:w-[28rem] blur-[80px]" 
+          className="absolute -right-20 top-56 hidden h-72 w-72 rounded-full bg-[#6BCEEE] opacity-30 lg:block xl:h-[28rem] xl:w-[28rem] blur-[80px]"
         />
-        <motion.div 
+        <motion.div
           style={{ x: px2, y: py2 }}
-          className="absolute top-36 right-3 hidden h-72 w-72 rounded-full bg-[#6BCEEE] opacity-20 lg:block xl:h-[28rem] xl:w-[28rem] blur-[100px]" 
+          className="absolute top-36 right-3 hidden h-72 w-72 rounded-full bg-[#6BCEEE] opacity-20 lg:block xl:h-[28rem] xl:w-[28rem] blur-[100px]"
         />
         {/* Soft white glow behind the text for contrast */}
-        <motion.div 
+        <motion.div
           style={{ x: px3, y: py3 }}
-          className="absolute -left-10 -top-10 h-64 w-[85%] max-w-xl rounded-full bg-white/60 blur-[150px]" 
+          className="absolute -left-10 -top-10 h-64 w-[85%] max-w-xl rounded-full bg-white/60 blur-[150px]"
         />
 
         {/* Teacher photo (right side) with gentle float + parallax */}
@@ -69,7 +80,7 @@ export function Hero() {
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
           className="relative hidden w-[300px] shrink-0 lg:block xl:w-[430px] z-10"
         >
-          <motion.div 
+          <motion.div
             style={{ x: px1, y: py1 }}
             animate={{ y: [0, -10, 0] }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
@@ -116,11 +127,11 @@ export function Hero() {
 
           {/* Interactive Search */}
           <motion.div variants={fadeUp} className="flex max-w-md mt-2">
-            <motion.div 
-              animate={{ 
-                boxShadow: focused 
-                  ? "0 0 0 4px rgba(255,255,255,0.2), 0 10px 30px rgba(0,0,0,0.15)" 
-                  : "0 4px 14px rgba(0,0,0,0.08)"
+            <motion.div
+              animate={{
+                boxShadow: focused
+                  ? "0 0 0 4px rgba(255,255,255,0.2), 0 10px 30px rgba(0,0,0,0.15)"
+                  : "0 4px 14px rgba(0,0,0,0.08)",
               }}
               className="flex flex-1 items-center overflow-hidden rounded-btn bg-white/95 transition-all duration-300 relative group"
             >

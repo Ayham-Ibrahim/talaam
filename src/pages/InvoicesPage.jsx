@@ -71,7 +71,12 @@ export function InvoicesPage() {
             ))}
           </div>
         ) : invoices.length === 0 ? (
-          <EmptyState icon={Receipt} title={t('dashboard.invoices.emptyTitle')} hint={t('dashboard.invoices.emptyHint')} />
+          <EmptyState
+            icon={Receipt}
+            image="/fallback_images/no_billings.png"
+            title={t('dashboard.invoices.emptyTitle')}
+            hint={t('dashboard.invoices.emptyHint')}
+          />
         ) : filteredInvoices.length === 0 ? (
           <EmptyState title={t('dashboard.invoices.empty')} />
         ) : (

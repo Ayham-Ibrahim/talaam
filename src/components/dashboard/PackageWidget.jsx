@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { Crown, Medal } from 'lucide-react';
 import { Avatar } from '@/components/ui';
 import { useT } from '@/hooks/useT';
@@ -46,11 +47,11 @@ export function PackageWidget({ pkg }) {
             <defs>
               <linearGradient id="package-progress-gradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#4B6898" />
-                <stop offset="100%" stopColor="#C7D0DF" />
+                <stop offset="100%" stopColor="#6BCEEE" />
               </linearGradient>
             </defs>
             <circle cx="60" cy="60" r={radius} fill="none" stroke="#F5F5F5" strokeWidth="10" />
-            <circle
+            <motion.circle
               cx="60"
               cy="60"
               r={radius}
@@ -59,7 +60,10 @@ export function PackageWidget({ pkg }) {
               strokeWidth="10"
               strokeLinecap="round"
               strokeDasharray={circumference}
-              strokeDashoffset={offset}
+              initial={{ strokeDashoffset: circumference }}
+              whileInView={{ strokeDashoffset: offset }}
+              viewport={{ once: true, margin: '-10% 0px' }}
+              transition={{ duration: 1.2, ease: 'easeOut' }}
             />
           </svg>
           <div className="absolute flex flex-col items-center gap-1">

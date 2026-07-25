@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { useT } from "@/hooks/useT";
 
 export function WelcomeBanner({
@@ -9,7 +10,16 @@ export function WelcomeBanner({
   const t = useT();
 
   return (
-    <div className="relative overflow-hidden rounded-card bg-[linear-gradient(272.4deg,#243757_2.51%,#4B6898_93.94%)] px-6 py-16 shadow-soft sm:px-10">
+    <div className="relative overflow-hidden rounded-card px-6 py-16 shadow-soft sm:px-10">
+      <motion.div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: "linear-gradient(120deg, #243757, #4B6898, #35507D, #243757)",
+          backgroundSize: "300% 300%",
+        }}
+        animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+      />
       <div className="pointer-events-none absolute left-24 -top-8 h-64 w-[60%] max-w-md rounded-full bg-white/30 blur-[120px]" />
       {teal && (
         <>

@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { useT } from '@/hooks/useT';
 
 function StatRow({ label, value }) {
@@ -22,11 +23,11 @@ export function PackageSidebarSummary({ pkg }) {
           <defs>
             <linearGradient id={`package-sidebar-progress-gradient-${pkg.id}`} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#4B6898" />
-              <stop offset="100%" stopColor="#C7D0DF" />
+              <stop offset="100%" stopColor="#6BCEEE" />
             </linearGradient>
           </defs>
           <circle cx="70" cy="70" r={radius} fill="none" stroke="#F5F5F5" strokeWidth="12" />
-          <circle
+          <motion.circle
             cx="70"
             cy="70"
             r={radius}
@@ -35,7 +36,10 @@ export function PackageSidebarSummary({ pkg }) {
             strokeWidth="12"
             strokeLinecap="round"
             strokeDasharray={circumference}
-            strokeDashoffset={offset}
+            initial={{ strokeDashoffset: circumference }}
+            whileInView={{ strokeDashoffset: offset }}
+            viewport={{ once: true, margin: '-10% 0px' }}
+            transition={{ duration: 1.2, ease: 'easeOut' }}
           />
         </svg>
         <span className="absolute text-3xl font-bold text-ink">{pkg.usagePercent}%</span>

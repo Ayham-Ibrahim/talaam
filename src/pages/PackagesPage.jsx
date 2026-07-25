@@ -39,6 +39,7 @@ export function PackagesPage() {
         ) : packages.length === 0 ? (
           <EmptyState
             icon={PackageOpen}
+            image="/fallback_images/no_packages.png"
             title={t("dashboard.myPackages.emptyTitle")}
             hint={t("dashboard.myPackages.emptyHint")}
             action={

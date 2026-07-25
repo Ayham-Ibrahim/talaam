@@ -52,9 +52,9 @@ const EDUCATION_TYPE_ICONS = {
   courses: BookOpen,
 };
 const EDUCATION_TYPE_STYLES = {
-  school: { base: "#6BCEEE", shine: "#60B9D6" },
-  university: { base: "#4B6898", shine: "#445E89" },
-  courses: { base: "#B00852", shine: "#9E074A" },
+  school: { from: "#8FE6F7", to: "#39A5C9" },
+  university: { from: "#7C9CD6", to: "#2F4A78" },
+  courses: { from: "#E96FA6", to: "#8C0642" },
 };
 
 export function EducationTypes() {
@@ -98,35 +98,24 @@ export function EducationTypes() {
               tilt={true}
               className="flex flex-col items-center gap-2 rounded-2xl bg-white px-4 pb-6 pt-2 text-center group"
             >
-              <div
-                className="relative flex h-[90px] w-[90px] items-center justify-center overflow-hidden rounded-full shadow-inner transition-transform duration-500 group-hover:scale-105"
-                style={{ background: style.base }}
-              >
+              <div className="relative h-[100px] w-[100px]">
+                {/* Back squircle — solid gradient, peeking out top-right */}
                 <div
-                  className="absolute -left-1.5 -top-0.5 h-[110px] w-[42px] opacity-40 transition-transform duration-700 ease-out group-hover:translate-x-6"
+                  className="absolute right-0 top-1 h-[78%] w-[78%] rounded-[22%] shadow-md transition-transform duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                   style={{
-                    background: style.shine,
-                    transform: "rotate(-51.46deg)",
+                    background: `linear-gradient(135deg, ${style.from}, ${style.to})`,
                   }}
                 />
 
-                {/* Micro particle pop on hover inside the circle */}
-                <motion.div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div
-                    className="absolute top-2 right-2 w-1.5 h-1.5 bg-white/60 rounded-full animate-ping"
-                    style={{ animationDuration: "1.5s" }}
-                  />
-                  <div
-                    className="absolute bottom-3 left-3 w-1 h-1 bg-white/40 rounded-full animate-ping"
-                    style={{ animationDuration: "2s" }}
-                  />
-                </motion.div>
-
+                {/* Front squircle — frosted glass, holding the glyph */}
                 <motion.div
                   transition={{ duration: 0.3 }}
-                  className="group-hover:-translate-y-1 relative z-10"
+                  className="absolute bottom-2 left-3 flex h-[78%] w-[78%] items-center justify-center rounded-[22%] border border-[2px] border-white/50 shadow-lg backdrop-blur-sm transition-transform duration-300 group-hover:-translate-y-1"
+                  style={{
+                    background: `linear-gradient(135deg, ${style.from}CC 0%, ${style.to}55 50%)`,
+                  }}
                 >
-                  <Icon size={36} className="text-white drop-shadow-md" />
+                  <Icon size={34} className="text-white drop-shadow" />
                 </motion.div>
               </div>
               <div className="flex flex-col items-center gap-1 group-hover:-translate-y-0.5 transition-transform duration-300">

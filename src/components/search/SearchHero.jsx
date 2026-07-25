@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { School, GraduationCap, BookOpen } from "lucide-react";
 import { useT } from "@/hooks/useT";
 
@@ -9,7 +10,16 @@ export function SearchHero({ activeType, onSelectType }) {
   const categories = t("search.categories");
 
   return (
-    <div className="relative overflow-hidden rounded-card bg-[#7B70EE] px-8 py-10 shadow-soft sm:px-10">
+    <div className="relative overflow-hidden rounded-card px-8 py-10 shadow-soft sm:px-10">
+      <motion.div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: "linear-gradient(120deg, #8B5CF6, #7E57C2, #A78BDA, #8B5CF6)",
+          backgroundSize: "300% 300%",
+        }}
+        animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+      />
       {/* Soft white glow behind the text */}
       <div className="absolute -left-16 top-2 h-64 w-[75%] max-w-md rounded-full bg-white/70 blur-[120px]" />
 

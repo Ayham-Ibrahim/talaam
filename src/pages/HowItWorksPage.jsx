@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { Video, BarChart3, Bell, CalendarClock } from "lucide-react";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { HowItWorks } from "@/components/home/sections";
@@ -13,7 +14,17 @@ export function HowItWorksPage() {
     <PageContainer>
       {/* Hero */}
       <section className="container-app mt-8">
-        <div className="relative overflow-hidden rounded-[24px] bg-hero-gradient px-8 py-6 shadow-[0_1px_5px_rgba(0,0,0,0.1)] lg:px-16 ">
+        <div className="relative overflow-hidden rounded-[24px] px-8 py-6 shadow-[0_1px_5px_rgba(0,0,0,0.1)] lg:px-16 ">
+          <motion.div
+            className="absolute inset-0 z-0"
+            style={{
+              backgroundImage:
+                "linear-gradient(120deg, #4B6898, #9E074A, #7A3560, #4B6898)",
+              backgroundSize: "300% 300%",
+            }}
+            animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          />
           <div className="pointer-events-none absolute -top-8 left-1/4 h-64 w-3/5 rounded-full bg-white/40 blur-[150px]" />
 
           <div className="relative z-10 flex items-center justify-between gap-8">
