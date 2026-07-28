@@ -1,9 +1,27 @@
 import { CalendarDays } from 'lucide-react';
-import { Avatar, Button, EmptyState } from '@/components/ui';
-import { SESSION_TYPE_STYLES, SESSION_STATUS_STYLES, SESSION_STATUS_LABEL_KEYS } from '@/mocks/dashboard.mock';
+import { EmptyState } from '@/components/ui';
+import { SESSION_TYPE_STYLES, SESSION_STATUS_STYLES } from '@/mocks/dashboard.mock';
 import { useT } from '@/hooks/useT';
 
-function DaySessionRow({ session }) {
+/** Wording for this list's status pill differs from the shared "تم الحضور" label used elsewhere */
+const STATUS_LABELS = {
+  upcoming: 'قادمة',
+  attended: 'مكتملة',
+  cancelled: 'ملغاة',
+};
+
+function formatDayName(iso) {
+  return new Intl.DateTimeFormat('ar', { weekday: 'long' }).format(new Date(iso));
+}
+
+function formatShortDate(iso) {
+  const d = new Date(iso);
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  return `${dd}/${mm}/${d.getFullYear()}`;
+}
+
+function DaySessionRow({ session, onDetails }) {
   const t = useT();
   const typeStyle = SESSION_TYPE_STYLES[session.type];
   const status = session.status ?? 'upcoming';
@@ -11,75 +29,54 @@ function DaySessionRow({ session }) {
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 py-4">
-      <div className="flex items-center gap-2">
-        {session.canReschedule && (
-          <button
-            type="button"
-            className="rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-ink-soft hover:bg-line/30"
-          >
-            {t('dashboard.changeAppointment')}
-          </button>
-        )}
-        <Button size="sm" className="!rounded-xl">
-          {t('dashboard.join')}
-        </Button>
+      <div className="text-right">
+        <div className="font-semibold text-ink">{session.packageTitle}</div>
       </div>
 
-      <div className="flex flex-1 flex-wrap items-center justify-end gap-4 text-sm">
-        <div className="flex items-center gap-3">
-          <div className="text-center">
-            <div className="font-bold text-[#B00852]">{String(session.countdown.days).padStart(2, '0')}</div>
-            <div className="text-ink-soft">{t('dashboard.day')}</div>
-          </div>
-          <div className="text-center">
-            <div className="font-bold text-[#B00852]">{String(session.countdown.hours).padStart(2, '0')}</div>
-            <div className="text-ink-soft">{t('dashboard.hour')}</div>
-          </div>
-          <div className="text-center">
-            <div className="font-bold text-[#B00852]">{String(session.countdown.minutes).padStart(2, '0')}</div>
-            <div className="text-ink-soft">{t('dashboard.minute')}</div>
-          </div>
+      <span className="font-bold" style={{ color: typeStyle.color }}>
+        {typeStyle.label}
+      </span>
+
+      <span className="text-ink-soft">{session.subject}</span>
+
+      <div className="text-right">
+        <div className="font-semibold text-ink">{formatDayName(session.date)}</div>
+        <div className="text-ink-soft">{formatShortDate(session.date)}</div>
+      </div>
+
+      <div className="text-right">
+        <div className="font-semibold text-ink">
+          {session.time} {session.period}
         </div>
+      </div>
 
-        <span className="h-8 w-px bg-line" />
+      <span
+        className="rounded-pill px-3 py-1 text-xs font-bold"
+        style={{ backgroundColor: statusStyle.bg, color: statusStyle.color }}
+      >
+        {STATUS_LABELS[status]}
+      </span>
 
-        <div className="text-right">
-          <div className="font-semibold text-ink">
-            {session.time} {session.period}
-          </div>
-          <div className="text-ink-soft">
-            {session.durationMinutes} {t('teacher.sessionMinutes')}
-          </div>
-        </div>
-
-        <span className="h-8 w-px bg-line" />
-
-        <span
-          className="rounded-pill px-3 py-1 text-xs font-bold"
-          style={{ backgroundColor: statusStyle.bg, color: statusStyle.color }}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onDetails?.(session)}
+          className="rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-ink-soft hover:bg-line/30"
         >
-          {t(SESSION_STATUS_LABEL_KEYS[status])}
-        </span>
-
-        <span className="h-8 w-px bg-line" />
-
-        <span className="font-bold" style={{ color: typeStyle.color }}>
-          {typeStyle.label}
-        </span>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <div className="text-right">
-          <div className="font-semibold text-ink">{session.teacherName}</div>
-          <div className="text-sm text-ink-soft">{session.subject}</div>
-        </div>
-        <Avatar name={session.teacherName} src={session.teacherAvatar} size="md" />
+          {t('dashboard.details')}
+        </button>
+        <button
+          type="button"
+          className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-hover"
+        >
+          {t('dashboard.join')}
+        </button>
       </div>
     </div>
   );
 }
 
-export function CalendarSessionsList({ dateLabel, sessions }) {
+export function CalendarSessionsList({ dateLabel, sessions, onDetails }) {
   const t = useT();
 
   return (
@@ -96,7 +93,7 @@ export function CalendarSessionsList({ dateLabel, sessions }) {
       ) : (
         <div className="divide-y divide-line">
           {sessions.map((session) => (
-            <DaySessionRow key={session.id} session={session} />
+            <DaySessionRow key={session.id} session={session} onDetails={onDetails} />
           ))}
         </div>
       )}

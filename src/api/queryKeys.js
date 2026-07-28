@@ -26,6 +26,10 @@ export const queryKeys = {
     invoices: () => ['dashboard', 'invoices'],
     packagesList: () => ['dashboard', 'packages-list'],
     teacherPackagesList: () => ['dashboard', 'teacher-packages-list'],
+    teacherSessions: () => ['dashboard', 'teacher-sessions'],
+    teacherSessionDetails: (id) => ['dashboard', 'teacher-session-details', id],
+    teacherStudents: () => ['dashboard', 'teacher-students'],
+    teacherStudentDetails: (id) => ['dashboard', 'teacher-student-details', id],
     packageDetails: (id) => ['dashboard', 'package-details', id],
   },
   admin: {

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { EDUCATION_TYPE_LABELS } from '@/mocks/adminTaxonomy.mock';
 import { useT } from '@/hooks/useT';
 
@@ -69,20 +70,14 @@ export function TaxonomyFormModal({ typeConfig, item, isPending, onSave, onClose
           )}
 
           {typeConfig.hasEducationType && (
-            <label className="flex flex-col gap-1.5 text-right">
+            <div className="flex flex-col gap-1.5 text-right">
               <span className="text-sm font-semibold text-ink">{t('dashboard.adminTaxonomy.educationTypeLabel')}</span>
-              <select
+              <SmoothSelect
                 value={educationType}
-                onChange={(e) => setEducationType(e.target.value)}
-                className="w-full appearance-none rounded-btn border border-line bg-surface p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                {Object.entries(EDUCATION_TYPE_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </label>
+                onChange={setEducationType}
+                options={Object.entries(EDUCATION_TYPE_LABELS).map(([value, label]) => ({ value, label }))}
+              />
+            </div>
           )}
         </div>
 

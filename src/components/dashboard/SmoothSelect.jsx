@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 /** Custom dropdown — native <select> can't be restyled, so this renders its own smooth, brand-colored option panel. */
-export function SmoothSelect({ label, value, onChange, options, placeholder }) {
+export function SmoothSelect({ label, value, onChange, options, placeholder, className = '' }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
 
@@ -18,8 +18,8 @@ export function SmoothSelect({ label, value, onChange, options, placeholder }) {
   const selected = options.find((o) => o.value === value);
 
   return (
-    <div ref={rootRef} className="flex flex-col items-start gap-1.5">
-      <label className="text-sm font-semibold text-primary">{label}</label>
+    <div ref={rootRef} className={`flex flex-col items-start gap-1.5 ${className}`}>
+      {label && <label className="text-sm font-semibold text-primary">{label}</label>}
       <div className="relative w-full">
         <button
           type="button"

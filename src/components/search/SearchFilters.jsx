@@ -1,5 +1,6 @@
-import { SlidersHorizontal, Layers, Bookmark, BookOpen, GraduationCap, Globe, Clock3, ChevronLeft, RotateCcw, Star } from 'lucide-react';
+import { SlidersHorizontal, Layers, Bookmark, BookOpen, GraduationCap, Globe, Clock3, RotateCcw, Star } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { useT } from '@/hooks/useT';
 
 const RATING_VALUES = [4.5, 4.0, 3.0, 2.0];
@@ -10,21 +11,12 @@ function FilterSelect({ icon: Icon, label, options = [], value, onChange, placeh
       <label className="mb-2 flex items-center gap-1.5 text-sm font-bold text-ink">
         <Icon size={15} className="text-ink-soft" /> {label}
       </label>
-      <div className="relative">
-        <select
-          value={value ?? ''}
-          onChange={(e) => onChange(e.target.value || null)}
-          className="w-full appearance-none rounded-xl border border-line bg-surface py-2.5 pl-9 pr-3 text-sm text-ink-soft outline-none focus:border-primary"
-        >
-          <option value="">{placeholder}</option>
-          {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-        <ChevronLeft size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
-      </div>
+      <SmoothSelect
+        value={value ?? ''}
+        onChange={(v) => onChange(v || null)}
+        placeholder={placeholder}
+        options={options}
+      />
     </div>
   );
 }

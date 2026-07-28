@@ -31,6 +31,36 @@ export function useCreateTeacherPackage() {
   });
 }
 
+export function useTeacherSessions() {
+  return useQuery({
+    queryKey: queryKeys.dashboard.teacherSessions(),
+    queryFn: () => dashboardService.getTeacherSessions(),
+  });
+}
+
+export function useTeacherSessionDetails(id) {
+  return useQuery({
+    queryKey: queryKeys.dashboard.teacherSessionDetails(id),
+    queryFn: () => dashboardService.getTeacherSessionDetails(id),
+    enabled: !!id,
+  });
+}
+
+export function useTeacherStudents() {
+  return useQuery({
+    queryKey: queryKeys.dashboard.teacherStudents(),
+    queryFn: () => dashboardService.getTeacherStudents(),
+  });
+}
+
+export function useTeacherStudentDetails(id) {
+  return useQuery({
+    queryKey: queryKeys.dashboard.teacherStudentDetails(id),
+    queryFn: () => dashboardService.getTeacherStudentDetails(id),
+    enabled: !!id,
+  });
+}
+
 export function useCalendarSessions() {
   return useQuery({
     queryKey: queryKeys.dashboard.calendarSessions(),

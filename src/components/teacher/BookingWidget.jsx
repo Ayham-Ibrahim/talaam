@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { useAvailability } from '@/hooks/useMeta';
 import { useCreateBooking } from '@/hooks/useBooking';
 import { useT } from '@/hooks/useT';
@@ -94,22 +95,13 @@ export function BookingWidget({ teacher, selectedPackage }) {
           </div>
         )}
 
-        <div className="relative mt-3">
-          <select
+        <div className="mt-3">
+          <SmoothSelect
             value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            className="w-full appearance-none rounded-xl border border-line bg-surface py-2.5 pl-9 pr-3 text-right text-sm text-ink outline-none focus:border-primary"
-          >
-            <option value="">
-              {t('booking.subjectLabel')} — {t('search.select')}
-            </option>
-            {teacher.subjects.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-          <ChevronLeft size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
+            onChange={setSubject}
+            placeholder={`${t('booking.subjectLabel')} — ${t('search.select')}`}
+            options={teacher.subjects.map((s) => ({ value: s, label: s }))}
+          />
         </div>
       </div>
 

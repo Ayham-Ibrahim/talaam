@@ -12,6 +12,7 @@ import {
   LogOut,
   Settings,
   Star,
+  UserRound,
 } from "lucide-react";
 import { Logo } from "@/components/layout/Logo";
 import { Avatar } from "@/components/ui";
@@ -33,8 +34,8 @@ const TEACHER_NAV_ITEMS = [
   { key: "home", icon: Home, path: "/dashboard/teacher", end: true },
   { key: "calendar", icon: Calendar },
   { key: "packages", icon: CreditCard, path: "/dashboard/teacher/packages" },
-  { key: "sessions", icon: FileText },
-  { key: "invoices", icon: FileText },
+  { key: "sessions", icon: FileText, path: "/dashboard/teacher/sessions" },
+  { key: "students", icon: UserRound, path: "/dashboard/teacher/students" },
   { key: "settings", icon: Settings },
 ];
 

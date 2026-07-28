@@ -1,4 +1,5 @@
-import { ChevronLeft, Plus, Search } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
+import { SmoothSelect } from './SmoothSelect';
 import { useT } from '@/hooks/useT';
 
 export function TeacherPackagesFilterBar({ filters, onChange, onCreate }) {
@@ -16,31 +17,25 @@ export function TeacherPackagesFilterBar({ filters, onChange, onCreate }) {
       </button>
 
       <div className="flex flex-wrap items-center gap-4">
-        <div className="flex w-40 items-center gap-2 rounded-lg border border-[#E3E3E3] px-2 py-2.5">
-          <ChevronLeft size={14} className="shrink-0 text-ink" />
-          <select
-            value={filters.status}
-            onChange={(e) => onChange('status', e.target.value)}
-            className="w-full appearance-none bg-transparent text-sm text-ink outline-none"
-          >
-            <option value="">{t('dashboard.teacherPackages.statusLabel')}</option>
-            <option value="active">{t('dashboard.teacherPackages.statusActive')}</option>
-          </select>
-        </div>
+        <SmoothSelect
+          className="w-40"
+          value={filters.status}
+          onChange={(v) => onChange('status', v)}
+          placeholder={t('dashboard.teacherPackages.statusLabel')}
+          options={[{ value: 'active', label: t('dashboard.teacherPackages.statusActive') }]}
+        />
 
-        <div className="flex w-40 items-center gap-2 rounded-lg border border-[#E3E3E3] px-2 py-2.5">
-          <ChevronLeft size={14} className="shrink-0 text-ink" />
-          <select
-            value={filters.type}
-            onChange={(e) => onChange('type', e.target.value)}
-            className="w-full appearance-none bg-transparent text-sm text-ink outline-none"
-          >
-            <option value="">{t('dashboard.teacherPackages.typeLabel')}</option>
-            <option value="individual">{t('dashboard.teacherPackages.typeIndividual')}</option>
-            <option value="group">{t('dashboard.teacherPackages.typeGroup')}</option>
-            <option value="training">{t('dashboard.teacherPackages.typeTraining')}</option>
-          </select>
-        </div>
+        <SmoothSelect
+          className="w-40"
+          value={filters.type}
+          onChange={(v) => onChange('type', v)}
+          placeholder={t('dashboard.teacherPackages.typeLabel')}
+          options={[
+            { value: 'individual', label: t('dashboard.teacherPackages.typeIndividual') },
+            { value: 'group', label: t('dashboard.teacherPackages.typeGroup') },
+            { value: 'training', label: t('dashboard.teacherPackages.typeTraining') },
+          ]}
+        />
 
         <div className="flex w-[380px] items-center gap-2 rounded-lg border border-[#F2F2F7] bg-white px-3.5 py-3">
           <Search size={18} className="shrink-0 text-[#8E8E93]" />

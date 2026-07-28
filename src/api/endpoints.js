@@ -37,6 +37,10 @@ export const endpoints = {
     packagesList: '/dashboard/student/packages',
     packageDetails: (id) => `/dashboard/student/packages/${id}`,
     teacherPackagesList: '/dashboard/teacher/packages',
+    teacherSessions: '/dashboard/teacher/sessions',
+    teacherSessionDetails: (id) => `/dashboard/teacher/sessions/${id}`,
+    teacherStudents: '/dashboard/teacher/students',
+    teacherStudentDetails: (id) => `/dashboard/teacher/students/${id}`,
     admin: '/dashboard/admin',
   },
   admin: {

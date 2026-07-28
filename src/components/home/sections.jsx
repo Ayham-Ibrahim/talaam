@@ -152,12 +152,12 @@ const WHY_CHOOSE_US_BADGE_ICONS = {
   reviews: Users,
 };
 const WHY_CHOOSE_US_COLORS = {
-  certified: "#8B7FD1",
-  quality: "#2E9E6B",
+  certified: "#4A90E2",
+  quality: "#4A90E2",
   support: "#4A90E2",
-  reports: "#F5A623",
-  network: "#EC4899",
-  reviews: "#FBBF24",
+  reports: "#4A90E2",
+  network: "#4A90E2",
+  reviews: "#4A90E2",
 };
 
 export function WhyChooseUs() {
@@ -201,7 +201,7 @@ export function WhyChooseUs() {
               key={item.icon}
               variant={fadeUp}
               tilt={true}
-              className="group relative flex items-center gap-5 overflow-hidden rounded-3xl p-7 shadow-[0_4px_18px_rgba(0,0,0,0.05)] transition-shadow duration-300 hover:shadow-[0_8px_28px_rgba(0,0,0,0.09)]"
+              className="group relative flex items-center gap-5 overflow-visible rounded-3xl p-7 shadow-[0_4px_18px_rgba(0,0,0,0.05)] transition-shadow duration-300 hover:shadow-[0_8px_28px_rgba(0,0,0,0.09)]"
               style={{
                 background: `linear-gradient(135deg, ${color}14, ${color}05 60%, ${color}05)`,
               }}

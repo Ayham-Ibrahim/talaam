@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { formatDate } from '@/lib/formatters';
 import { useT } from '@/hooks/useT';
 
@@ -61,18 +62,13 @@ export function TeacherBadgesPanel({ awards, catalog, onGrant, onRevoke, isActin
           >
             {t('dashboard.adminTeacherDetail.grantBadge')}
           </button>
-          <select
+          <SmoothSelect
+            className="flex-1"
             value={selectedBadgeId}
-            onChange={(e) => setSelectedBadgeId(e.target.value)}
-            className="flex-1 appearance-none rounded-xl border border-line bg-white px-4 py-2.5 text-sm text-ink outline-none"
-          >
-            <option value="">—</option>
-            {grantable.map((badge) => (
-              <option key={badge.id} value={badge.id}>
-                {badge.icon} {badge.name}
-              </option>
-            ))}
-          </select>
+            onChange={setSelectedBadgeId}
+            placeholder="—"
+            options={grantable.map((badge) => ({ value: String(badge.id), label: `${badge.icon} ${badge.name}` }))}
+          />
         </div>
       )}
     </div>

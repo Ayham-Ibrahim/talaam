@@ -1,4 +1,5 @@
-import { ChevronLeft, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
+import { SmoothSelect } from './SmoothSelect';
 import { useT } from '@/hooks/useT';
 
 export function InvoicesFilterBar({ statuses, subjects, filters, onChange }) {
@@ -6,37 +7,21 @@ export function InvoicesFilterBar({ statuses, subjects, filters, onChange }) {
 
   return (
     <div className="flex flex-wrap items-center gap-4">
-      <div className="flex min-w-[200px] flex-1 items-center gap-2 rounded-xl border border-line bg-white px-4 py-3">
-        <ChevronLeft size={16} className="shrink-0 text-ink-soft" />
-        <select
-          value={filters.status}
-          onChange={(e) => onChange('status', e.target.value)}
-          className="w-full appearance-none bg-transparent text-sm font-semibold text-ink outline-none"
-        >
-          <option value="">{t('dashboard.invoices.allStatuses')}</option>
-          {statuses.map((status) => (
-            <option key={status.value} value={status.value}>
-              {status.label}
-            </option>
-          ))}
-        </select>
-      </div>
+      <SmoothSelect
+        className="min-w-[200px] flex-1"
+        value={filters.status}
+        onChange={(v) => onChange('status', v)}
+        placeholder={t('dashboard.invoices.allStatuses')}
+        options={statuses}
+      />
 
-      <div className="flex min-w-[200px] flex-1 items-center gap-2 rounded-xl border border-line bg-white px-4 py-3">
-        <ChevronLeft size={16} className="shrink-0 text-ink-soft" />
-        <select
-          value={filters.subject}
-          onChange={(e) => onChange('subject', e.target.value)}
-          className="w-full appearance-none bg-transparent text-sm font-semibold text-ink outline-none"
-        >
-          <option value="">{t('dashboard.invoices.allSubjects')}</option>
-          {subjects.map((subject) => (
-            <option key={subject} value={subject}>
-              {subject}
-            </option>
-          ))}
-        </select>
-      </div>
+      <SmoothSelect
+        className="min-w-[200px] flex-1"
+        value={filters.subject}
+        onChange={(v) => onChange('subject', v)}
+        placeholder={t('dashboard.invoices.allSubjects')}
+        options={subjects.map((subject) => ({ value: subject, label: subject }))}
+      />
 
       <div className="flex min-w-[220px] flex-1 items-center gap-2 rounded-xl border border-line bg-white px-4 py-3">
         <Search size={16} className="shrink-0 text-ink-soft" />

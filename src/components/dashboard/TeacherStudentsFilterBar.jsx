@@ -2,24 +2,28 @@ import { Search } from 'lucide-react';
 import { SmoothSelect } from './SmoothSelect';
 import { useT } from '@/hooks/useT';
 
-export function SessionsFilterBar({ statuses, subjects, filters, onChange }) {
+export function TeacherStudentsFilterBar({ subjects, filters, onChange }) {
   const t = useT();
 
   return (
     <div className="flex flex-wrap items-center gap-4">
       <SmoothSelect
         className="min-w-[200px] flex-1"
-        value={filters.status}
-        onChange={(v) => onChange('status', v)}
-        placeholder={t('dashboard.sessionsPage.allStatuses')}
-        options={statuses}
+        value={filters.type}
+        onChange={(v) => onChange('type', v)}
+        placeholder={t('dashboard.teacherStudents.packageTypeLabel')}
+        options={[
+          { value: 'individual', label: t('dashboard.teacherPackages.typeIndividual') },
+          { value: 'group', label: t('dashboard.teacherPackages.typeGroup') },
+          { value: 'training', label: t('dashboard.teacherPackages.typeTraining') },
+        ]}
       />
 
       <SmoothSelect
         className="min-w-[200px] flex-1"
         value={filters.subject}
         onChange={(v) => onChange('subject', v)}
-        placeholder={t('dashboard.sessionsPage.allSubjects')}
+        placeholder={t('dashboard.teacherStudents.allSubjects')}
         options={subjects.map((subject) => ({ value: subject, label: subject }))}
       />
 
@@ -29,7 +33,7 @@ export function SessionsFilterBar({ statuses, subjects, filters, onChange }) {
           type="text"
           value={filters.search}
           onChange={(e) => onChange('search', e.target.value)}
-          placeholder={t('dashboard.sessionsPage.searchPlaceholder')}
+          placeholder={t('dashboard.teacherStudents.searchPlaceholder')}
           className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-ink-soft"
         />
       </div>

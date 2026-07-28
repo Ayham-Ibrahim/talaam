@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { RESOLUTION_TYPE_LABELS } from '@/mocks/adminComplaints.mock';
 import { useT } from '@/hooks/useT';
 
@@ -33,24 +34,16 @@ export function ResolveComplaintModal({ isPending, onConfirm, onClose }) {
           <span className="w-8" />
         </div>
 
-        <label className="flex flex-col gap-1.5 text-right">
+        <div className="flex flex-col gap-1.5 text-right">
           <span className="text-sm font-semibold text-ink">{t('dashboard.adminComplaints.resolutionTypeLabel')}</span>
-          <select
+          <SmoothSelect
             value={resolutionType}
-            onChange={(e) => setResolutionType(e.target.value)}
-            className={`w-full appearance-none rounded-btn border bg-surface p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
-              touched && !isValid ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
-            }`}
-          >
-            <option value="">—</option>
-            {Object.entries(RESOLUTION_TYPE_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
+            onChange={setResolutionType}
+            placeholder="—"
+            options={Object.entries(RESOLUTION_TYPE_LABELS).map(([value, label]) => ({ value, label }))}
+          />
           {touched && !isValid && <span className="text-xs text-accent-pink">{t('dashboard.adminComplaints.resolutionTypeRequired')}</span>}
-        </label>
+        </div>
 
         <label className="mt-4 flex flex-col gap-1.5 text-right">
           <span className="text-sm font-semibold text-ink">{t('dashboard.adminComplaints.noteLabel')}</span>

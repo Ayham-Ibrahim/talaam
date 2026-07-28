@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { ELIGIBLE_PAYOUT_PROVIDERS } from '@/mocks/adminPayouts.mock';
 import { PROVIDER_TYPE_LABELS } from '@/mocks/adminListings.mock';
 import { formatPrice } from '@/lib/formatters';
@@ -35,24 +36,19 @@ export function GeneratePayoutModal({ isPending, onConfirm, onClose }) {
           <span className="w-8" />
         </div>
 
-        <label className="flex flex-col gap-1.5 text-right">
+        <div className="flex flex-col gap-1.5 text-right">
           <span className="text-sm font-semibold text-ink">{t('dashboard.adminPayouts.providerLabel')}</span>
-          <select
+          <SmoothSelect
             value={providerId}
-            onChange={(e) => setProviderId(e.target.value)}
-            className={`w-full appearance-none rounded-btn border bg-surface p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
-              touched && !isValid ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
-            }`}
-          >
-            <option value="">—</option>
-            {ELIGIBLE_PAYOUT_PROVIDERS.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name} · {PROVIDER_TYPE_LABELS[p.type]}
-              </option>
-            ))}
-          </select>
+            onChange={setProviderId}
+            placeholder="—"
+            options={ELIGIBLE_PAYOUT_PROVIDERS.map((p) => ({
+              value: String(p.id),
+              label: `${p.name} · ${PROVIDER_TYPE_LABELS[p.type]}`,
+            }))}
+          />
           {touched && !isValid && <span className="text-xs text-accent-pink">{t('dashboard.adminPayouts.providerRequired')}</span>}
-        </label>
+        </div>
 
         {provider && (
           <div className="mt-4 flex flex-col gap-2 rounded-xl bg-[#FAFBFD] p-4">

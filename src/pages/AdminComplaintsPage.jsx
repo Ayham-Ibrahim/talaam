@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
+import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { ComplaintsTable } from '@/components/dashboard/admin/ComplaintsTable';
 import { ResolveComplaintModal } from '@/components/dashboard/admin/ResolveComplaintModal';
 import { RescheduleRequestsTable } from '@/components/dashboard/admin/RescheduleRequestsTable';
@@ -72,20 +73,13 @@ export function AdminComplaintsPage() {
 
         {tab === 'complaints' ? (
           <div className="flex flex-col gap-4">
-            <div className="flex min-w-[200px] max-w-xs items-center gap-2 rounded-xl border border-line bg-white px-4 py-3">
-              <select
-                value={complaintStatus}
-                onChange={(e) => setComplaintStatus(e.target.value)}
-                className="w-full appearance-none bg-transparent text-sm font-semibold text-ink outline-none"
-              >
-                <option value="">{t('dashboard.adminComplaints.allStatuses')}</option>
-                {Object.entries(COMPLAINT_STATUS_STYLES).map(([value, style]) => (
-                  <option key={value} value={value}>
-                    {style.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <SmoothSelect
+              className="max-w-xs"
+              value={complaintStatus}
+              onChange={setComplaintStatus}
+              placeholder={t('dashboard.adminComplaints.allStatuses')}
+              options={Object.entries(COMPLAINT_STATUS_STYLES).map(([value, style]) => ({ value, label: style.label }))}
+            />
 
             {complaintsQuery.isError ? (
               <ErrorState onRetry={complaintsQuery.refetch} />
@@ -108,20 +102,13 @@ export function AdminComplaintsPage() {
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            <div className="flex min-w-[200px] max-w-xs items-center gap-2 rounded-xl border border-line bg-white px-4 py-3">
-              <select
-                value={rescheduleStatus}
-                onChange={(e) => setRescheduleStatus(e.target.value)}
-                className="w-full appearance-none bg-transparent text-sm font-semibold text-ink outline-none"
-              >
-                <option value="">{t('dashboard.adminComplaints.allStatuses')}</option>
-                {Object.entries(RESCHEDULE_STATUS_STYLES).map(([value, style]) => (
-                  <option key={value} value={value}>
-                    {style.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <SmoothSelect
+              className="max-w-xs"
+              value={rescheduleStatus}
+              onChange={setRescheduleStatus}
+              placeholder={t('dashboard.adminComplaints.allStatuses')}
+              options={Object.entries(RESCHEDULE_STATUS_STYLES).map(([value, style]) => ({ value, label: style.label }))}
+            />
 
             {rescheduleQuery.isError ? (
               <ErrorState onRetry={rescheduleQuery.refetch} />

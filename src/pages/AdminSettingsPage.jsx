@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
+import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { SettingsCategorySection } from '@/components/dashboard/admin/SettingsCategorySection';
 import { AuditLogTable } from '@/components/dashboard/admin/AuditLogTable';
 import { AdminReviewsTable } from '@/components/dashboard/admin/AdminReviewsTable';
@@ -99,20 +100,13 @@ export function AdminSettingsPage() {
 
         {tab === 'auditLog' && (
           <div className="flex flex-col gap-4">
-            <div className="flex min-w-[220px] max-w-xs items-center gap-2 rounded-xl border border-line bg-white px-4 py-3">
-              <select
-                value={auditAction}
-                onChange={(e) => setAuditAction(e.target.value)}
-                className="w-full appearance-none bg-transparent text-sm font-semibold text-ink outline-none"
-              >
-                <option value="">{t('dashboard.adminAuditLog.allActions')}</option>
-                {Object.entries(AUDIT_ACTION_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <SmoothSelect
+              className="min-w-[220px] max-w-xs"
+              value={auditAction}
+              onChange={setAuditAction}
+              placeholder={t('dashboard.adminAuditLog.allActions')}
+              options={Object.entries(AUDIT_ACTION_LABELS).map(([value, label]) => ({ value, label }))}
+            />
 
             {auditLogQuery.isError ? (
               <ErrorState onRetry={auditLogQuery.refetch} />
@@ -132,17 +126,16 @@ export function AdminSettingsPage() {
 
         {tab === 'reviews' && (
           <div className="flex flex-col gap-4">
-            <div className="flex min-w-[220px] max-w-xs items-center gap-2 rounded-xl border border-line bg-white px-4 py-3">
-              <select
-                value={reviewsVisibility}
-                onChange={(e) => setReviewsVisibility(e.target.value)}
-                className="w-full appearance-none bg-transparent text-sm font-semibold text-ink outline-none"
-              >
-                <option value="">{t('dashboard.adminReviews.allReviews')}</option>
-                <option value="visible">{t('dashboard.adminReviews.visibleOnly')}</option>
-                <option value="hidden">{t('dashboard.adminReviews.hiddenOnly')}</option>
-              </select>
-            </div>
+            <SmoothSelect
+              className="min-w-[220px] max-w-xs"
+              value={reviewsVisibility}
+              onChange={setReviewsVisibility}
+              placeholder={t('dashboard.adminReviews.allReviews')}
+              options={[
+                { value: 'visible', label: t('dashboard.adminReviews.visibleOnly') },
+                { value: 'hidden', label: t('dashboard.adminReviews.hiddenOnly') },
+              ]}
+            />
 
             {reviewsQuery.isError ? (
               <ErrorState onRetry={reviewsQuery.refetch} />

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
+import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { PayoutsTable } from '@/components/dashboard/admin/PayoutsTable';
 import { GeneratePayoutModal } from '@/components/dashboard/admin/GeneratePayoutModal';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
@@ -45,20 +46,13 @@ export function AdminPayoutsPage() {
           </button>
         </div>
 
-        <div className="flex min-w-[200px] max-w-xs items-center gap-2 rounded-xl border border-line bg-white px-4 py-3">
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="w-full appearance-none bg-transparent text-sm font-semibold text-ink outline-none"
-          >
-            <option value="">{t('dashboard.adminPayouts.allStatuses')}</option>
-            {Object.entries(PAYOUT_STATUS_STYLES).map(([value, style]) => (
-              <option key={value} value={value}>
-                {style.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <SmoothSelect
+          className="max-w-xs"
+          value={status}
+          onChange={setStatus}
+          placeholder={t('dashboard.adminPayouts.allStatuses')}
+          options={Object.entries(PAYOUT_STATUS_STYLES).map(([value, style]) => ({ value, label: style.label }))}
+        />
 
         {isError ? (
           <ErrorState onRetry={refetch} />

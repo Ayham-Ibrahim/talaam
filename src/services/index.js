@@ -27,6 +27,9 @@ import {
   mockTeacherPackageStats,
   mockTeacherPackagesList,
   createMockTeacherPackage,
+  mockTeacherSessions,
+  mockTeacherStudentStats,
+  mockTeacherStudents,
 } from '@/mocks/teacherDashboard.mock';
 
 export const packageService = {
@@ -145,6 +148,42 @@ export const dashboardService = {
       return createMockTeacherPackage(payload);
     }
     const { data } = await client.post(endpoints.packages.create, payload);
+    return data;
+  },
+
+  async getTeacherSessions() {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return mockTeacherSessions;
+    }
+    const { data } = await client.get(endpoints.dashboard.teacherSessions);
+    return data;
+  },
+
+  async getTeacherSessionDetails(id) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return mockTeacherSessions.find((s) => s.id === Number(id)) ?? null;
+    }
+    const { data } = await client.get(endpoints.dashboard.teacherSessionDetails(id));
+    return data;
+  },
+
+  async getTeacherStudents() {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return { stats: mockTeacherStudentStats, students: mockTeacherStudents };
+    }
+    const { data } = await client.get(endpoints.dashboard.teacherStudents);
+    return data;
+  },
+
+  async getTeacherStudentDetails(id) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return mockTeacherStudents.find((s) => s.id === Number(id)) ?? null;
+    }
+    const { data } = await client.get(endpoints.dashboard.teacherStudentDetails(id));
     return data;
   },
 
