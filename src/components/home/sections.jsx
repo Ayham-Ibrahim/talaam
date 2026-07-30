@@ -215,7 +215,7 @@ export function WhyChooseUs() {
               </span>
 
               {/* Text (first in DOM → renders on the right in RTL) */}
-              <div className="flex-1 text-right">
+              <div className="flex-1 text-start">
                 <h3 className="mb-2 font-cairo text-lg font-bold text-[#1E1E1E] sm:text-xl">
                   {item.title}
                 </h3>
@@ -461,7 +461,7 @@ export function HowItWorks() {
         ))}
       </motion.div>
 
-      <div className="relative mx-auto max-w-5xl">
+      <div dir="rtl" className="relative mx-auto max-w-5xl">
         {/* Decorative dashed connectors */}
         <div className="pointer-events-none absolute inset-0 w-full hidden lg:block">
           {Array.from({ length: steps.length - 1 }).map((_, i) => {
@@ -624,8 +624,8 @@ export function HowItWorks() {
                           <MousePointerClick size={14} />
                         </motion.span>
                         {supportsHover
-                          ? "مرر للاطلاع على التفاصيل"
-                          : "اضغط للاطلاع على التفاصيل"}
+                          ? t("home.hoverHint")
+                          : t("home.tapHint")}
                       </motion.span>
                     )}
                   </AnimatePresence>
@@ -738,12 +738,13 @@ export function HowItWorks() {
 /* ---------- Testimonials ---------- */
 export function Testimonials() {
   const t = useT();
+  const sample = t("home.testimonialSample");
   const testimonials = Array.from({ length: 3 }).map((_, i) => ({
     id: i,
-    name: "عبدالله سليم",
-    role: "طالب لغة انكليزية",
+    name: sample.name,
+    role: sample.role,
     rating: 4.9,
-    text: "منصة رائعة المعلم يشرح بطريقة سهلة ومبسطة والدعم والتواصل جيد انصح الجميع بتجربتها",
+    text: sample.text,
   }));
 
   return (
@@ -783,7 +784,7 @@ export function Testimonials() {
               <div className="flex items-center justify-between">
                 <StarRating value={item.rating} size={13} />
                 <div className="flex items-center gap-3">
-                  <div className="text-right">
+                  <div className="text-start">
                     <div className="text-sm font-semibold text-ink">
                       {item.name}
                     </div>
@@ -840,7 +841,7 @@ export function CTASection() {
         />
         <motion.div
           variants={staggerContainer(0.12)}
-          className="relative z-10 mx-auto flex max-w-md flex-col items-center gap-6 py-4 text-center lg:mx-0 lg:ml-auto lg:mr-24 lg:max-w-[547px] lg:items-start lg:py-[25px] lg:text-right"
+          className="relative z-10 mx-auto flex max-w-md flex-col items-center gap-6 py-4 text-center lg:mx-0 lg:ml-auto lg:mr-24 lg:max-w-[547px] lg:items-start lg:py-[25px] lg:text-start"
         >
           <motion.div variants={fadeUp} className="flex flex-col gap-0.5">
             <h2 className="font-cairo text-2xl font-bold leading-snug text-white lg:text-[32px] lg:leading-[60px]">

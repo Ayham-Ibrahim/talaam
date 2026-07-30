@@ -40,6 +40,21 @@ export const useAuthStore = create((set) => {
   };
 });
 
+const CURRENCY_STORAGE_KEY = 'taalam-currency';
+
+/**
+ * Site-wide currency toggle for the public website (Navbar → CurrencySwitcher).
+ * All prices in mock/package data are stored in USD; components convert via
+ * formatPrice() from '@/lib/currency' using this store's active code.
+ */
+export const useCurrencyStore = create((set) => ({
+  currency: localStorage.getItem(CURRENCY_STORAGE_KEY) || 'USD',
+  setCurrency: (currency) => {
+    localStorage.setItem(CURRENCY_STORAGE_KEY, currency);
+    set({ currency });
+  },
+}));
+
 /** Search filters — kept in sync with the URL by the SearchPage */
 export const useFilterStore = create((set) => ({
   filters: {
@@ -57,6 +72,22 @@ export const useFilterStore = create((set) => ({
     set({
       filters: { type: '', q: '', minPrice: null, maxPrice: null, minRating: null, sort: 'rating' },
     }),
+}));
+
+const LOCALE_STORAGE_KEY = 'taalam-locale';
+
+/**
+ * Site-wide language toggle for the public website (Navbar → LanguageSwitcher).
+ * Dashboard pages are unaffected: useT() falls back to Arabic for any key
+ * missing from the active dictionary, and DashboardLayout hardcodes its own
+ * dir="rtl" regardless of this value.
+ */
+export const useLocaleStore = create((set) => ({
+  locale: localStorage.getItem(LOCALE_STORAGE_KEY) || 'ar',
+  setLocale: (locale) => {
+    localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+    set({ locale });
+  },
 }));
 
 /** Favorites — in-memory now; add persistence later without touching components */

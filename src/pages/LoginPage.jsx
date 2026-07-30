@@ -143,7 +143,7 @@ export function LoginPage() {
 
             <form className="mt-6 flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)} noValidate>
               {/* Email */}
-              <label className="flex flex-col gap-1.5 text-right">
+              <label className="flex flex-col gap-1.5 text-start">
                 <span className="text-sm font-semibold text-ink">{t('auth.emailLabel')}</span>
                 <div className="relative">
                   <Mail size={17} className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-soft" />
@@ -164,7 +164,7 @@ export function LoginPage() {
               </label>
 
               {/* Password */}
-              <label className="flex flex-col gap-1.5 text-right">
+              <label className="flex flex-col gap-1.5 text-start">
                 <span className="text-sm font-semibold text-ink">{t('auth.passwordLabel')}</span>
                 <div className="relative">
                   <Lock size={17} className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-soft" />

@@ -1,6 +1,8 @@
 import { Medal } from 'lucide-react';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useT } from '@/hooks/useT';
+import { useCurrencyStore } from '@/store';
+import { formatPrice } from '@/lib/currency';
 
 // Rotating per-card accent (icon badge + price + outline button) drawn from the app's identity palette
 const PACKAGE_ACCENTS = [
@@ -13,6 +15,7 @@ const PACKAGE_ACCENTS = [
 
 function PackageCard({ pkg, index, selected, onSelect }) {
   const t = useT();
+  const currency = useCurrencyStore((s) => s.currency);
   const accent = PACKAGE_ACCENTS[index % PACKAGE_ACCENTS.length];
   const hasDiscount = !!pkg.discountPercent;
   const originalPrice = hasDiscount ? Math.round(pkg.price / (1 - pkg.discountPercent / 100)) : null;
@@ -37,7 +40,7 @@ function PackageCard({ pkg, index, selected, onSelect }) {
         )}
       </div>
 
-      <div className="text-right">
+      <div className="text-start">
         <h4 className="font-bold text-ink">{pkg.title}</h4>
         <p className="mt-0.5 text-xs text-ink-soft">
           {pkg.note ?? `${pkg.durationPerSession} ${t('teacher.sessionMinutes')}`}
@@ -45,8 +48,10 @@ function PackageCard({ pkg, index, selected, onSelect }) {
       </div>
 
       <div className="flex items-baseline justify-end gap-2">
-        {hasDiscount && <span className="text-sm text-ink-soft line-through">${originalPrice}</span>}
-        <span className="text-2xl font-bold text-[var(--accent)]">${pkg.price}</span>
+        {hasDiscount && (
+          <span className="text-sm text-ink-soft line-through">{formatPrice(originalPrice, currency)}</span>
+        )}
+        <span className="text-2xl font-bold text-[var(--accent)]">{formatPrice(pkg.price, currency)}</span>
       </div>
 
       <button
@@ -69,7 +74,7 @@ export function PackagesSection({ packages, isLoading, isError, refetch, selecte
 
   return (
     <div className="mt-8">
-      <h3 className="mb-3 text-right font-bold text-ink">{t('teacher.packages')}</h3>
+      <h3 className="mb-3 text-start font-bold text-ink">{t('teacher.packages')}</h3>
       {isError ? (
         <ErrorState onRetry={refetch} />
       ) : isLoading ? (

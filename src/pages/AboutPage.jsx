@@ -59,7 +59,7 @@ export function AboutPage() {
           <div className="pointer-events-none absolute -top-4 left-1/4 h-64 w-3/5 rounded-full bg-white/60 blur-[120px]" />
 
           <div className="relative z-10 flex items-center w-full justify-between gap-8">
-            <div className="max-w-2xl text-right ">
+            <div className="max-w-2xl text-start ">
               <h1 className="font-cairo text-3xl font-bold text-white lg:text-4xl">
                 {t("about.heroTitle")}
               </h1>
@@ -82,13 +82,13 @@ export function AboutPage() {
       {/* Story */}
       <section className="container-app mt-14">
         <Card className="p-6 lg:p-8">
-          <h2 className="mb-4 text-right font-cairo text-2xl font-bold text-ink">
+          <h2 className="mb-4 text-start font-cairo text-2xl font-bold text-ink">
             {t("about.storyTitle")}
           </h2>
-          <p className="text-right font-cairo text-base leading-loose text-ink-soft">
+          <p className="text-start font-cairo text-base leading-loose text-ink-soft">
             {t("about.storyP1")}
           </p>
-          <p className="mt-4 text-right font-cairo text-base leading-loose text-ink-soft">
+          <p className="mt-4 text-start font-cairo text-base leading-loose text-ink-soft">
             {t("about.storyP2")}
           </p>
         </Card>
@@ -99,7 +99,7 @@ export function AboutPage() {
             <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[#F7E6EE]">
               <img src="/eye.png" alt="" className="h-9 w-9 object-contain" />
             </div>
-            <div className="text-right">
+            <div className="text-start">
               <h3 className="mb-2 font-cairo text-2xl font-bold text-ink">
                 {t("about.visionTitle")}
               </h3>
@@ -112,7 +112,7 @@ export function AboutPage() {
             <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[#EDF0F5]">
               <img src="/goal.png" alt="" className="h-9 w-9 object-contain" />
             </div>
-            <div className="text-right">
+            <div className="text-start">
               <h3 className="mb-2 font-cairo text-2xl font-bold text-ink">
                 {t("about.missionTitle")}
               </h3>

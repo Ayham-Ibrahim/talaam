@@ -28,7 +28,7 @@ export function HowItWorksPage() {
           <div className="pointer-events-none absolute -top-8 left-1/4 h-64 w-3/5 rounded-full bg-white/40 blur-[150px]" />
 
           <div className="relative z-10 flex items-center justify-between gap-8">
-            <div className="max-w-2xl text-right">
+            <div className="max-w-2xl ">
               <h1 className="font-cairo text-3xl font-bold text-white lg:text-4xl">
                 {t("howItWorksPage.heroTitle")}
               </h1>
@@ -54,16 +54,16 @@ export function HowItWorksPage() {
       <HowItWorks />
 
       {/* All learning tools in one place */}
-      <section dir="rtl" className="container-app mt-24 mb-16">
+      <section className="container-app mt-24 mb-16">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
-          <div className="text-right">
+          <div className="text-start">
             <h2 className="font-cairo text-2xl font-bold text-ink lg:text-3xl">
               {t("howItWorksPage.toolsTitle")}
             </h2>
             <p className="mt-4  font-cairo text-base leading-loose text-ink-soft lg:mr-0 lg:ml-auto">
               {t("howItWorksPage.toolsDesc")}
             </p>
-            <ul className="mt-8 flex flex-col gap-7">
+            <ul className="mt-8 flex flex-col gap-7 ">
               {tools.map((tool, i) => {
                 const Icon = TOOL_ICONS[tool.icon] || Video;
                 const alignClass =

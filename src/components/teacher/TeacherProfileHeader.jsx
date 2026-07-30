@@ -52,7 +52,7 @@ export function TeacherProfileHeader({ teacher }) {
         </div>
 
         {/* Text column */}
-        <div className="flex-1 px-6 py-8 text-right sm:px-10 sm:py-10">
+        <div className="flex-1 px-6 py-8 text-start sm:px-10 sm:py-10">
           {teacher.isVerified && (
             <span className="inline-flex items-center gap-1 rounded-pill bg-white px-2 py-1 text-xs font-semibold text-[#34C759]">
               {t("teacher.verified")}

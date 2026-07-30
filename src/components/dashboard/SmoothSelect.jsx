@@ -44,7 +44,7 @@ export function SmoothSelect({ label, value, onChange, options, placeholder, cla
                     onChange(opt.value);
                     setOpen(false);
                   }}
-                  className={`w-full rounded-xl px-4 py-3 text-right text-sm transition-colors duration-150 ${
+                  className={`w-full rounded-xl px-4 py-3 text-start text-sm transition-colors duration-150 ${
                     isSelected ? 'bg-primary/10 font-semibold text-primary' : 'text-ink hover:bg-primary/10 hover:text-primary'
                   }`}
                 >

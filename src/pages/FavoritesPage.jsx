@@ -35,7 +35,7 @@ export function FavoritesPage() {
                 <div className="w-20 h-20 sm:w-[97px] sm:h-[97px] rounded-full bg-accent-pink/10 flex items-center justify-center shrink-0">
                   <Heart size={40} className="fill-accent-pink text-accent-pink" />
                 </div>
-                <div className="text-right">
+                <div className="text-start">
                   <h1 className="text-2xl sm:text-[32px] font-bold text-ink">{t('favorites.title')}</h1>
                   <p className="text-ink-soft mt-2">{t('favorites.subtitle')}</p>
                 </div>

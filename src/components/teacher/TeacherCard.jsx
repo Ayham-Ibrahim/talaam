@@ -1,11 +1,9 @@
 import { Link } from 'react-router-dom';
-import { Card, VerifiedBadge, FavoriteButton, StarRating, Avatar, PriceTag, Skeleton } from '@/components/ui';
+import { Card, VerifiedBadge, FavoriteButton, StarRating, Avatar, Skeleton } from '@/components/ui';
 import { useFavoritesStore } from '@/store';
-import { useT } from '@/hooks/useT';
 import { motion } from 'framer-motion';
 
 export function TeacherCard({ teacher }) {
-  const t = useT();
   const isFavorite = useFavoritesStore((s) => s.isFavorite(teacher.id));
   const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
 
@@ -53,14 +51,7 @@ export function TeacherCard({ teacher }) {
           <StarRating value={teacher.rating} size={12} />
         </div>
 
-        {/* Spacer to push price to bottom if cards are different heights */}
         <div className="flex-1" />
-
-        {/* Price */}
-        <div className="mt-3 pt-3 w-full relative">
-          <div className="absolute top-0 left-4 right-4 h-px bg-line/60" />
-          <PriceTag amount={teacher.minPrice} suffix={`/ ${t('teacher.perSession')}`} currency={teacher.currency} />
-        </div>
       </Link>
     </Card>
   );
@@ -75,8 +66,7 @@ export function TeacherCardSkeleton() {
       </div>
       <Skeleton className="w-full aspect-[4/5] rounded-xl mb-3" />
       <Skeleton className="w-2/3 h-4 mx-auto mb-2" />
-      <Skeleton className="w-1/2 h-3 mx-auto mb-3" />
-      <Skeleton className="w-1/3 h-5 mx-auto" />
+      <Skeleton className="w-1/2 h-3 mx-auto" />
     </Card>
   );
 }

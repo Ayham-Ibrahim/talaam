@@ -1,0 +1,428 @@
+{
+  "brand": {
+    "name": "TAALAM",
+    "tagline": "An educational platform connecting students with the best certified teachers across every field of study"
+  },
+  "nav": {
+    "home": "Home",
+    "search": "Find a Teacher",
+    "howItWorks": "How It Works",
+    "resources": "Learning Resources",
+    "about": "About Us",
+    "contact": "Contact Us",
+    "login": "Log In",
+    "menu": "Menu",
+    "notifications": "Notifications",
+    "language": "Language",
+    "currency": "Currency"
+  },
+  "home": {
+    "heroBadge": "A Verified Learning Platform",
+    "heroTitle1": "Learn From the Best Teachers",
+    "heroTitle2": "Achieve Your Learning Goals",
+    "heroSubtitle": "Discover certified teachers and experts across every field of education, and book your sessions easily and flexibly with the best teachers",
+    "heroSearchPlaceholder": "Search for a teacher",
+    "features": [
+      "Certified Teachers",
+      "Live Sessions",
+      "Flexible Scheduling",
+      "24/7 Support"
+    ],
+    "topTeachers": "Top Teachers",
+    "educationTypesTitle": "Types of Education on the Platform",
+    "educationTypesSubtitle": "We offer diverse learning options that fit different academic stages and other skills",
+    "educationTypes": [
+      {
+        "icon": "school",
+        "title": "School Education",
+        "desc": "Private lessons for all school stages with certified teachers to help students excel"
+      },
+      {
+        "icon": "university",
+        "title": "University Education",
+        "desc": "Specialized learning sessions for various university majors, supervised by top academics and experts"
+      },
+      {
+        "icon": "courses",
+        "title": "Training Courses",
+        "desc": "Develop your professional and technical skills through training courses supervised by top experts and specialists"
+      }
+    ],
+    "howItWorksTitle": "How the Platform Works",
+    "howItWorksSubtitle": "Simple steps to get the best learning experience",
+    "howItWorksTabs": {
+      "teacher": "Teacher",
+      "student": "Student"
+    },
+    "steps": [
+      {
+        "no": "01",
+        "title": "Find a Teacher",
+        "desc": "Search for teachers by the subject or skill you want to learn"
+      },
+      {
+        "no": "02",
+        "title": "Book Your Session",
+        "desc": "Choose the time that suits you and book your session easily"
+      },
+      {
+        "no": "03",
+        "title": "Learn and Interact",
+        "desc": "Join live sessions and interact with your teacher"
+      },
+      {
+        "no": "04",
+        "title": "Achieve Your Goals",
+        "desc": "Track your progress and achieve your learning goals step by step"
+      }
+    ],
+    "stepsTeacher": [
+      {
+        "no": "01",
+        "title": "Expert Sourcing and Hiring Process",
+        "items": [
+          "Comprehensive profiles showcasing academic background, certifications, and experience",
+          "A video assessment showcasing teaching style, communication skills, and technical readiness",
+          "An independent, thorough review of every application by the quality assurance team",
+          "Approval and verification: a verified badge for successful applicants only, with official public profiles"
+        ]
+      },
+      {
+        "no": "02",
+        "title": "Initial Training and Onboarding for Teachers",
+        "items": [
+          "A dedicated onboarding program covering platform policies and professional performance expectations",
+          "Mastering the interactive tools to use every platform feature with full effectiveness"
+        ]
+      },
+      {
+        "no": "03",
+        "title": "Continuous Monitoring of Classrooms",
+        "items": [
+          "Educational excellence: clear goals for every session, excellent time management, and academic accuracy",
+          "Active engagement: modern methods that keep students involved and avoid passive lecturing",
+          "Technical reliability: high audio and video quality with smooth, uninterrupted sessions",
+          "Professionalism and conduct: punctuality and a safe, supportive learning environment"
+        ]
+      },
+      {
+        "no": "04",
+        "title": "Mutual Evaluation and Follow-up System",
+        "items": [
+          "Students rate the content and the teacher, and write transparent reviews",
+          "Periodic performance reports from teacher to student to improve academic level",
+          "Effective intervention from the quality team to resolve complaints and issues quickly"
+        ]
+      },
+      {
+        "no": "05",
+        "title": "Performance Levels and Continuous Development",
+        "items": [
+          "A \"Top Rated\" badge for outstanding performers",
+          "Personalized development plans and constructive guidance to raise proficiency"
+        ]
+      }
+    ],
+    "whyChooseUsTitle": "Why Choose Ta'alam?",
+    "whyChooseUsSubtitle": "We choose quality at every step — from certifying teachers and training centers to tracking student progress and measuring results — to deliver a trustworthy learning experience worthy of your trust.",
+    "whyChooseUs": [
+      {
+        "icon": "certified",
+        "title": "Certified Teachers and Training Centers",
+        "desc": "We certify teachers and training centers according to strict standards to ensure competence, professionalism, and quality educational content."
+      },
+      {
+        "icon": "quality",
+        "title": "Continuous Quality Assurance",
+        "desc": "Our quality team periodically reviews sessions and performance to ensure the highest educational standards and continuously improve the experience."
+      },
+      {
+        "icon": "support",
+        "title": "Academic Support for All Stages and Specialties",
+        "desc": "We provide educational support for school and university students across all stages and specialties, through a select group of expert teachers and academics."
+      },
+      {
+        "icon": "reports",
+        "title": "Performance Reports and Development Plans",
+        "desc": "We track student progress through periodic reports, prepare a monthly development plan, and provide a final report showing achievement level and recommendations for the next stage."
+      },
+      {
+        "icon": "network",
+        "title": "A Network of Trusted Training Centers",
+        "desc": "We partner with certified training centers to offer professional programs and courses to the highest quality standards."
+      },
+      {
+        "icon": "reviews",
+        "title": "Trusted Reviews and Continuous Improvement",
+        "desc": "We rely on reviews from students and parents, alongside quality team assessments, to ensure continuous development and maintain the highest quality standards."
+      }
+    ],
+    "testimonialsTitle": "What Our Students Say",
+    "ctaTitle": "Ready to Start and Achieve Your Learning Goals?",
+    "ctaSubtitle": "Join thousands of students who trust our platform to achieve success",
+    "ctaButton": "Start Your Journey Now",
+    "hoverHint": "Hover to see details",
+    "tapHint": "Tap to see details",
+    "testimonialSample": {
+      "name": "Abdullah Saleem",
+      "role": "English Language Student",
+      "text": "A great platform — the teacher explains things in a simple, easy way, and the support and communication are excellent. I recommend it to everyone."
+    }
+  },
+  "howItWorksPage": {
+    "heroTitle": "How the Platform Works",
+    "heroSubtitle": "Simple steps to get the best learning experience",
+    "heroDesc": "We designed the platform to be easy to use and effective at connecting you with the best teachers, so you get the most out of your learning journey",
+    "toolsTitle": "All Your Learning Tools in One Place",
+    "toolsDesc": "From booking and choosing the right package to live sessions, communicating with your teacher, and tracking your progress... all through a smart, easy-to-use dashboard",
+    "tools": [
+      {
+        "icon": "video",
+        "label": "High-quality live sessions"
+      },
+      {
+        "icon": "chart",
+        "label": "Progress tracking and reports"
+      },
+      {
+        "icon": "bell",
+        "label": "Smart notifications and alerts"
+      }
+    ]
+  },
+  "about": {
+    "heroTitle": "About Us",
+    "heroSubtitle1": "Ta'alam believes that good education should be accessible to everyone",
+    "heroSubtitle2": "That's why we created a platform that brings the best teachers and trainers together in one place",
+    "storyTitle": "Our Story",
+    "storyP1": "Our journey began with our belief in the importance of education in building a better future. We noticed how difficult it was to reach qualified teachers in an easy and safe way, so we worked on creating a platform that connects students with the best teachers across various academic and training fields.",
+    "storyP2": "Every day, we work on improving your learning experience and providing an interactive, effective learning environment that achieves your goals and helps you grow.",
+    "visionTitle": "Our Vision",
+    "visionText": "To become the leading destination for e-learning in the region",
+    "missionTitle": "Our Mission",
+    "missionText": "Empowering students to easily reach qualified teachers while providing a professional and safe learning experience",
+    "valuesTitle": "Our Values",
+    "values": [
+      {
+        "key": "quality",
+        "title": "Quality",
+        "desc": "We are committed to delivering high-quality education that achieves your goals"
+      },
+      {
+        "key": "trust",
+        "title": "Trust",
+        "desc": "All teachers are trusted, and we guarantee a safe learning environment"
+      },
+      {
+        "key": "growth",
+        "title": "Growth",
+        "desc": "We always strive to improve and develop to deliver the best"
+      },
+      {
+        "key": "community",
+        "title": "Community",
+        "desc": "We build a collaborative learning community that supports learning and participation"
+      }
+    ],
+    "whyTitle": "Why Ta'alam",
+    "why": [
+      {
+        "key": "teachers",
+        "title": "Verified Teachers",
+        "desc": "We carefully select teachers and verify their qualifications and experience"
+      },
+      {
+        "key": "sessions",
+        "title": "Live Sessions",
+        "desc": "Interactive live sessions through a secure platform"
+      },
+      {
+        "key": "payment",
+        "title": "Secure Payment",
+        "desc": "Secure payment methods that protect your data"
+      },
+      {
+        "key": "reviews",
+        "title": "Genuine Reviews",
+        "desc": "Real reviews and opinions from past students"
+      },
+      {
+        "key": "support",
+        "title": "Ongoing Support",
+        "desc": "A support team ready to help you anytime"
+      },
+      {
+        "key": "booking",
+        "title": "Fast Booking",
+        "desc": "Book sessions easily in simple steps"
+      }
+    ]
+  },
+  "contact": {
+    "heroTitle": "Contact Us",
+    "heroSubtitle": "Our team is ready to answer your questions and help you anytime to ensure the best possible learning experience",
+    "info": [
+      {
+        "key": "email",
+        "label": "Email",
+        "value": "info@talam.ms"
+      },
+      {
+        "key": "phone",
+        "label": "Phone Number",
+        "value": "+969555555555"
+      },
+      {
+        "key": "address",
+        "label": "Address",
+        "value": "Jordan / Amman / Al-Jumeiliyeh"
+      }
+    ],
+    "formTitle": "How Can We Help You",
+    "formSubtitle": "Send a message to the Ta'alam team and we'll get back to you as soon as possible",
+    "fields": {
+      "email": "Email",
+      "emailPlaceholder": "Please enter your email",
+      "name": "Full Name",
+      "namePlaceholder": "Please enter your full name",
+      "subject": "Subject",
+      "subjectPlaceholder": "Please enter the subject",
+      "message": "Message",
+      "messagePlaceholder": "Please enter your message"
+    },
+    "submit": "Send"
+  },
+  "search": {
+    "heroTitle": "Find the Right Teacher for You",
+    "heroSubtitle": "Learn from the best certified teachers and achieve your learning goals",
+    "categories": [
+      "School Education",
+      "University Education",
+      "Training Courses"
+    ],
+    "filterTitle": "Filter Results",
+    "level": "Level",
+    "grade": "Grade",
+    "subject": "Subject",
+    "stage": "Stage",
+    "language": "Teaching Language",
+    "availability": "Availability",
+    "price": "Price",
+    "rating": "Rating",
+    "select": "Please select",
+    "apply": "Apply Filters",
+    "reset": "Reset",
+    "sortBy": "Sort By",
+    "sortRating": "Highest Rated",
+    "fromPrefix": "From",
+    "searchPlaceholder": "Search",
+    "ratingOptions": [
+      "4.5 and above",
+      "4.0 and above",
+      "3.0 and above",
+      "2.0 and above"
+    ]
+  },
+  "teacher": {
+    "verified": "Certified Teacher",
+    "perSession": "per session",
+    "reviews": "reviews",
+    "yearsExp": "years of experience",
+    "moreThan": "More than",
+    "qualifications": "Academic Qualifications",
+    "subjects": "Subjects Taught",
+    "languages": "Languages",
+    "teachingMethods": "Teaching Method",
+    "sessionTypes": "Session Type",
+    "packages": "Packages & Pricing",
+    "choosePackage": "Choose a Package",
+    "rating": "Rating",
+    "sessionMinutes": "minutes",
+    "perSessionLabel": "per session",
+    "discount": "Discount",
+    "intro": "About the Teacher",
+    "profileLabel": "Teacher Profile",
+    "packagesEmpty": "No packages available at the moment",
+    "reviewsEmpty": "No reviews yet",
+    "reviewsTitle": "Student Reviews"
+  },
+  "booking": {
+    "title": "Book Your Session",
+    "selectedPackage": "Selected Package",
+    "subjectLabel": "Subject",
+    "chooseDate": "Choose a Date",
+    "chooseTime": "Choose an Available Time",
+    "noSlots": "No available time slots for this day",
+    "summary": "Booking Summary",
+    "total": "Total",
+    "proceed": "Proceed to Payment",
+    "submitting": "Submitting your booking...",
+    "success": "Your booking request was submitted successfully",
+    "morning": "AM",
+    "evening": "PM",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+  },
+  "favorites": {
+    "title": "Favorites",
+    "subtitle": "Keep your favorite teachers close for quick access",
+    "count": "teachers",
+    "remove": "Remove",
+    "profile": "Profile",
+    "bookNow": "Book Now",
+    "emptyTitle": "No teachers in favorites",
+    "emptyHint": "Start adding teachers for quick access",
+    "exploreTeachers": "Explore Teachers"
+  },
+  "auth": {
+    "title": "Log In",
+    "subtitle": "Log in to access your dashboard",
+    "emailLabel": "Email",
+    "emailPlaceholder": "example@email.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "comingSoon": "Coming soon",
+    "submit": "Log In",
+    "submitting": "Logging in...",
+    "invalidCredentials": "Incorrect email or password",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Invalid email format",
+    "passwordRequired": "Password is required",
+    "passwordMin": "Password must be at least 6 characters",
+    "demoTitle": "Demo Login Credentials",
+    "demoHint": "The backend isn't connected to a real server yet — use one of the demo accounts below to log in",
+    "demoStudent": "Fill Student Credentials",
+    "demoTeacher": "Fill Teacher Credentials",
+    "demoAdmin": "Fill Admin Credentials",
+    "demoCenter": "Fill Training Center Credentials",
+    "heroTitle": "Your Gateway to Learning",
+    "heroSubtitle": "Log in and keep track of your sessions, packages, and teachers all in one place",
+    "backHome": "Back to Home",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
+  },
+  "footer": {
+    "contact": "Contact Us",
+    "company": "Company",
+    "quickLinks": "Quick Links",
+    "about": "About Us",
+    "privacy": "Privacy Policy",
+    "terms": "Terms & Conditions",
+    "contactUs": "Contact Us",
+    "copyright": "All rights reserved 2026"
+  },
+  "states": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "empty": "No results found",
+    "emptyHint": "Try adjusting your search criteria"
+  },
+  "session": {
+    "session": "session",
+    "sessions": "sessions"
+  }
+}

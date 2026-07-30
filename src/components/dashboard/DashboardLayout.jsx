@@ -19,6 +19,7 @@ import { Avatar } from "@/components/ui";
 import { useAuth, useLogout } from "@/hooks/useAuth";
 import { useFavoritesStore } from "@/store";
 import { useT } from "@/hooks/useT";
+import { LocaleOverrideContext } from "@/context/LocaleOverrideContext";
 
 const STUDENT_NAV_ITEMS = [
   { key: "home", icon: Home, path: "/dashboard/student", end: true },
@@ -40,6 +41,14 @@ const TEACHER_NAV_ITEMS = [
 ];
 
 export function DashboardLayout({ children }) {
+  return (
+    <LocaleOverrideContext.Provider value="ar">
+      <DashboardLayoutInner>{children}</DashboardLayoutInner>
+    </LocaleOverrideContext.Provider>
+  );
+}
+
+function DashboardLayoutInner({ children }) {
   const t = useT();
   const { user } = useAuth();
   const logout = useLogout();

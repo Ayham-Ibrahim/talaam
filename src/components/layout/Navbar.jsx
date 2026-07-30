@@ -3,6 +3,8 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { Bell, Heart, Menu, X, LogOut, LayoutDashboard } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Logo } from './Logo';
+import { LanguageSwitcher } from './LanguageSwitcher';
+import { CurrencySwitcher } from './CurrencySwitcher';
 import { Button, Avatar } from '@/components/ui';
 import { useFavoritesStore } from '@/store';
 import { useAuth, useLogout } from '@/hooks/useAuth';
@@ -56,7 +58,7 @@ export function Navbar() {
           <button
             className="lg:hidden w-11 h-11 flex items-center justify-center shrink-0 disabled:opacity-50"
             onClick={() => setOpen((v) => !v)}
-            aria-label="القائمة"
+            aria-label={t('nav.menu')}
           >
             <motion.div initial={false} animate={{ rotate: open ? 90 : 0 }}>
               {open ? <X size={22} /> : <Menu size={22} />}
@@ -125,7 +127,7 @@ export function Navbar() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="hidden sm:flex w-11 h-11 rounded-full hover:bg-line/50 items-center justify-center shrink-0"
-            aria-label="الإشعارات"
+            aria-label={t('nav.notifications')}
           >
             <Bell size={18} className="text-ink-soft" />
           </motion.button>
@@ -136,7 +138,7 @@ export function Navbar() {
                 isActive ? 'bg-line/50' : ''
               }`
             }
-            aria-label="المفضلة"
+            aria-label={t('favorites.title')}
           >
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Heart size={18} className="text-ink-soft" />
@@ -149,6 +151,8 @@ export function Navbar() {
               />
             )}
           </NavLink>
+          <LanguageSwitcher />
+          <CurrencySwitcher />
         </div>
       </div>
 

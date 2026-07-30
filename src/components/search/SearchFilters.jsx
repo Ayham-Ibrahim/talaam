@@ -2,6 +2,8 @@ import { SlidersHorizontal, Layers, Bookmark, BookOpen, GraduationCap, Globe, Cl
 import { Button } from '@/components/ui';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { useT } from '@/hooks/useT';
+import { useCurrencyStore } from '@/store';
+import { formatPrice } from '@/lib/currency';
 
 const RATING_VALUES = [4.5, 4.0, 3.0, 2.0];
 
@@ -23,6 +25,7 @@ function FilterSelect({ icon: Icon, label, options = [], value, onChange, placeh
 
 export function SearchFilters({ meta, draft, onChange, onApply, onReset }) {
   const t = useT();
+  const currency = useCurrencyStore((s) => s.currency);
   const priceMin = meta?.priceRange?.min ?? 50;
   const priceMax = meta?.priceRange?.max ?? 550;
   const ratingOptions = t('search.ratingOptions');
@@ -87,7 +90,7 @@ export function SearchFilters({ meta, draft, onChange, onApply, onReset }) {
         <div>
           <div className="mb-2 flex items-center justify-between text-sm font-bold text-ink">
             <span>{t('search.price')}</span>
-            <span className="text-xs font-medium text-ink-soft">${priceMax}</span>
+            <span className="text-xs font-medium text-ink-soft">{formatPrice(priceMax, currency)}</span>
           </div>
           <input
             type="range"
@@ -98,7 +101,9 @@ export function SearchFilters({ meta, draft, onChange, onApply, onReset }) {
             onChange={(e) => onChange('minPrice', Number(e.target.value))}
             className="w-full accent-primary"
           />
-          <div className="mt-1 text-xs font-medium text-ink-soft">من ${draft.minPrice ?? priceMin}</div>
+          <div className="mt-1 text-xs font-medium text-ink-soft">
+            {t('search.fromPrefix')} {formatPrice(draft.minPrice ?? priceMin, currency)}
+          </div>
         </div>
 
         {/* Rating */}

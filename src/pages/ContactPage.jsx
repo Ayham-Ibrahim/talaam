@@ -36,7 +36,7 @@ export function ContactPage() {
           <div className="pointer-events-none absolute -top-4 left-1/4 h-64 w-3/5 rounded-full bg-white/60 blur-[120px]" />
 
           <div className="relative z-10 flex items-center w-full justify-between gap-8">
-            <div className="max-w-2xl text-right ">
+            <div className="max-w-2xl text-start ">
               <h1 className="font-cairo text-3xl font-bold text-white lg:text-4xl">
                 {t("contact.heroTitle")}
               </h1>
@@ -66,7 +66,7 @@ export function ContactPage() {
                 key={item.key}
                 className="flex items-center justify-between gap-4"
               >
-                <div className="text-right">
+                <div className="text-start">
                   <h3 className="mb-1 font-cairo text-xl font-bold text-[#4B6898]">
                     {item.label}
                   </h3>
@@ -98,14 +98,14 @@ export function ContactPage() {
             onSubmit={(e) => e.preventDefault()}
           >
             {FIELDS.map((field) => (
-              <label key={field.key} className="flex flex-col gap-1 text-right">
+              <label key={field.key} className="flex flex-col gap-1 text-start">
                 <span className="font-cairo text-sm font-semibold text-[#4B6898]">
                   {fields[field.key]}
                 </span>
                 <input
                   type={field.type}
                   placeholder={fields[`${field.key}Placeholder`]}
-                  className="rounded-lg border border-[#E3E3E3] px-3 py-3 text-right font-cairo text-sm text-ink placeholder:text-[#AEAEB2] focus:border-[#4B6898] focus:outline-none"
+                  className="rounded-lg border border-[#E3E3E3] px-3 py-3 text-start font-cairo text-sm text-ink placeholder:text-[#AEAEB2] focus:border-[#4B6898] focus:outline-none"
                 />
               </label>
             ))}

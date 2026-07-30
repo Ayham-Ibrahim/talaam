@@ -5,8 +5,8 @@ import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { useAvailability } from '@/hooks/useMeta';
 import { useCreateBooking } from '@/hooks/useBooking';
 import { useT } from '@/hooks/useT';
-
-const WEEKDAYS = ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
+import { useLocaleStore, useCurrencyStore } from '@/store';
+import { formatPrice } from '@/lib/currency';
 
 function startOfDay(date) {
   const d = new Date(date);
@@ -35,6 +35,10 @@ function buildMonthGrid(viewDate) {
 
 export function BookingWidget({ teacher, selectedPackage }) {
   const t = useT();
+  const locale = useLocaleStore((s) => s.locale);
+  const currency = useCurrencyStore((s) => s.currency);
+  const intlLocale = locale === 'en' ? 'en-US' : 'ar';
+  const weekdays = t('booking.weekdays');
   const today = useMemo(() => startOfDay(new Date()), []);
 
   const [viewDate, setViewDate] = useState(today);
@@ -46,7 +50,7 @@ export function BookingWidget({ teacher, selectedPackage }) {
   const { data: availability, isLoading: slotsLoading } = useAvailability(teacher.id, selectedDateISO);
   const createBooking = useCreateBooking();
 
-  const monthLabel = new Intl.DateTimeFormat('ar', { month: 'long', year: 'numeric' }).format(viewDate);
+  const monthLabel = new Intl.DateTimeFormat(intlLocale, { month: 'long', year: 'numeric' }).format(viewDate);
   const cells = useMemo(() => buildMonthGrid(viewDate), [viewDate]);
 
   const canSubmit = Boolean(selectedPackage && subject && selectedDate && selectedTime);
@@ -74,15 +78,15 @@ export function BookingWidget({ teacher, selectedPackage }) {
 
   return (
     <div className="flex h-fit flex-col gap-5 rounded-card bg-white p-5 shadow-card lg:sticky lg:top-24">
-      <h2 className="text-right font-bold text-ink">{t('booking.title')}</h2>
+      <h2 className="text-start font-bold text-ink">{t('booking.title')}</h2>
 
       {/* Selected package + subject */}
       <div>
-        <h3 className="mb-2 text-right text-sm font-bold text-ink">{t('booking.selectedPackage')}</h3>
+        <h3 className="mb-2 text-start text-sm font-bold text-ink">{t('booking.selectedPackage')}</h3>
         {selectedPackage ? (
           <div className="flex items-center justify-between rounded-2xl border border-line p-3">
-            <span className="text-xl font-bold text-primary">${selectedPackage.price}</span>
-            <div className="text-right">
+            <span className="text-xl font-bold text-primary">{formatPrice(selectedPackage.price, currency)}</span>
+            <div className="text-start">
               <div className="text-sm font-semibold text-ink">{selectedPackage.title}</div>
               <div className="text-xs text-ink-soft">
                 {selectedPackage.note ?? `${selectedPackage.durationPerSession} ${t('teacher.sessionMinutes')}`}
@@ -107,12 +111,12 @@ export function BookingWidget({ teacher, selectedPackage }) {
 
       {/* Date picker */}
       <div>
-        <h3 className="mb-2 text-right text-sm font-bold text-ink">{t('booking.chooseDate')}</h3>
+        <h3 className="mb-2 text-start text-sm font-bold text-ink">{t('booking.chooseDate')}</h3>
         <div className="flex items-center justify-between">
           <button
             type="button"
             onClick={handleNextMonth}
-            aria-label="الشهر التالي"
+            aria-label={t('booking.nextMonth')}
             className="rounded-full p-1.5 hover:bg-line/50"
           >
             <ChevronLeft size={16} className="text-ink-soft" />
@@ -121,7 +125,7 @@ export function BookingWidget({ teacher, selectedPackage }) {
           <button
             type="button"
             onClick={handlePrevMonth}
-            aria-label="الشهر السابق"
+            aria-label={t('booking.prevMonth')}
             className="rounded-full p-1.5 hover:bg-line/50"
           >
             <ChevronRight size={16} className="text-ink-soft" />
@@ -129,7 +133,7 @@ export function BookingWidget({ teacher, selectedPackage }) {
         </div>
 
         <div className="mt-3 grid grid-cols-7 gap-1 text-center text-xs text-ink-soft">
-          {WEEKDAYS.map((d) => (
+          {weekdays.map((d) => (
             <span key={d}>{d}</span>
           ))}
         </div>
@@ -164,7 +168,7 @@ export function BookingWidget({ teacher, selectedPackage }) {
 
       {/* Time slots */}
       <div>
-        <h3 className="mb-2 text-right text-sm font-bold text-ink">{t('booking.chooseTime')}</h3>
+        <h3 className="mb-2 text-start text-sm font-bold text-ink">{t('booking.chooseTime')}</h3>
         {!selectedDate ? (
           <p className="py-2 text-center text-sm text-ink-soft">{t('booking.chooseDate')}</p>
         ) : slotsLoading ? (
@@ -201,13 +205,16 @@ export function BookingWidget({ teacher, selectedPackage }) {
       {/* Summary */}
       {(selectedDate || selectedTime) && (
         <div className="rounded-2xl bg-canvas p-3">
-          <h3 className="mb-2 text-right text-sm font-bold text-ink">{t('booking.summary')}</h3>
+          <h3 className="mb-2 text-start text-sm font-bold text-ink">{t('booking.summary')}</h3>
           <div className="flex flex-col gap-1.5 text-sm text-ink-soft">
             {selectedDate && (
               <span className="flex items-center justify-end gap-2">
-                {new Intl.DateTimeFormat('ar', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(
-                  selectedDate
-                )}
+                {new Intl.DateTimeFormat(intlLocale, {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                }).format(selectedDate)}
                 <CalendarDays size={14} />
               </span>
             )}
@@ -223,7 +230,7 @@ export function BookingWidget({ teacher, selectedPackage }) {
 
       {/* Total + CTA */}
       <div className="flex items-center justify-between border-t border-line pt-4">
-        <span className="text-xl font-bold text-primary">${selectedPackage?.price ?? 0}</span>
+        <span className="text-xl font-bold text-primary">{formatPrice(selectedPackage?.price ?? 0, currency)}</span>
         <span className="text-sm font-bold text-ink">{t('booking.total')}</span>
       </div>
 

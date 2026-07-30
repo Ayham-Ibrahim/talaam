@@ -21,7 +21,7 @@ export function RatingReviews({ summary, reviews, isLoading, isError, refetch })
   if (isError) {
     return (
       <div className="mt-8">
-        <h3 className="mb-4 text-right font-bold text-ink">{t('teacher.rating')}</h3>
+        <h3 className="mb-4 text-start font-bold text-ink">{t('teacher.rating')}</h3>
         <ErrorState onRetry={refetch} />
       </div>
     );
@@ -30,7 +30,7 @@ export function RatingReviews({ summary, reviews, isLoading, isError, refetch })
   if (isLoading) {
     return (
       <div className="mt-8">
-        <h3 className="mb-4 text-right font-bold text-ink">{t('teacher.rating')}</h3>
+        <h3 className="mb-4 text-start font-bold text-ink">{t('teacher.rating')}</h3>
         <Skeleton className="h-40 rounded-2xl" />
       </div>
     );
@@ -38,7 +38,7 @@ export function RatingReviews({ summary, reviews, isLoading, isError, refetch })
 
   return (
     <div className="mt-8">
-      <h3 className="mb-4 text-right font-bold text-ink">{t('teacher.rating')}</h3>
+      <h3 className="mb-4 text-start font-bold text-ink">{t('teacher.rating')}</h3>
 
       <div className="flex flex-col-reverse items-center gap-6 rounded-2xl bg-white p-5 shadow-card sm:flex-row">
         <div className="w-full flex-1 space-y-1.5">
@@ -68,7 +68,7 @@ export function RatingReviews({ summary, reviews, isLoading, isError, refetch })
                   <Avatar name={review.studentName} src={review.studentAvatar} size="sm" />
                 </div>
               </div>
-              <p className="mt-2 text-right text-sm text-ink-soft">{review.comment}</p>
+              <p className="mt-2 text-start text-sm text-ink-soft">{review.comment}</p>
             </div>
           ))
         )}

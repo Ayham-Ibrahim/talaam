@@ -8,7 +8,7 @@ export function InfoSection({ title, items = [], colorfulDots = false }) {
 
   return (
     <div className="mt-6 rounded-2xl bg-white p-5 shadow-card">
-      <h3 className="mb-3 text-right font-bold text-ink">{title}</h3>
+      <h3 className="mb-3 text-start font-bold text-ink">{title}</h3>
       <div className="flex flex-wrap justify-start gap-2">
         {items.map((item, i) => {
           const isObject = typeof item === "object" && item !== null;

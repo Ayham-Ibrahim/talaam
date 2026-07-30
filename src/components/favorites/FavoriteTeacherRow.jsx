@@ -31,7 +31,7 @@ export function FavoriteTeacherRow({ teacher, onRemove }) {
             />
           )}
         </div>
-        <div className="text-right">
+        <div className="text-start">
           <h3 className="font-bold text-ink text-lg">{teacher.name}</h3>
           <p className="text-ink-soft mt-0.5">{teacher.typeLabel}</p>
           <div className="flex items-center gap-3 mt-1.5 text-sm text-ink-soft">
