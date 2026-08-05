@@ -73,11 +73,12 @@ export function TeacherProfileHeader({ teacher }) {
               {teacher.rating} ({teacher.reviewsCount}
               {t("teacher.reviews")})
             </span>
-            <span className="h-3.5 w-px bg-white/60" />
-            <span className="text-sm font-medium text-white">
-              {t("teacher.moreThan")} {teacher.experienceYears}{" "}
-              {t("teacher.yearsExp")}
-            </span>
+            {teacher.experienceLabel && (
+              <>
+                <span className="h-3.5 w-px bg-white/60" />
+                <span className="text-sm font-medium text-white">{teacher.experienceLabel}</span>
+              </>
+            )}
           </div>
 
           <div className="mt-3 flex flex-wrap justify-start gap-2">

@@ -23,7 +23,7 @@ export const adminComplaintsService = {
       return { data, total: data.length };
     }
     const { data } = await client.get(endpoints.admin.complaints, { params: filters });
-    return data;
+    return { data: data.data, total: data.meta?.total ?? data.data.length };
   },
 
   async getComplaintDetail(id) {
@@ -32,7 +32,7 @@ export const adminComplaintsService = {
       return findMockComplaint(id);
     }
     const { data } = await client.get(endpoints.admin.complaintDetail(id));
-    return data;
+    return data.data;
   },
 
   async resolveComplaint(id, resolutionType, note) {
@@ -44,7 +44,7 @@ export const adminComplaintsService = {
       resolution_type: resolutionType,
       note,
     });
-    return data;
+    return data.data;
   },
 
   async escalateComplaint(id, note) {
@@ -53,7 +53,7 @@ export const adminComplaintsService = {
       return updateMockComplaint(id, { status: 'escalated', resolutionNote: note });
     }
     const { data } = await client.post(endpoints.admin.escalateComplaint(id), { note });
-    return data;
+    return data.data;
   },
 
   async getRescheduleRequests(filters = {}) {
@@ -63,7 +63,7 @@ export const adminComplaintsService = {
       return { data, total: data.length };
     }
     const { data } = await client.get(endpoints.admin.rescheduleRequests, { params: filters });
-    return data;
+    return { data: data.data, total: data.meta?.total ?? data.data.length };
   },
 
   async approveReschedule(id, alternativeScheduledAt) {
@@ -77,7 +77,7 @@ export const adminComplaintsService = {
     const { data } = await client.post(endpoints.admin.approveReschedule(id), {
       alternative_scheduled_at: alternativeScheduledAt ?? undefined,
     });
-    return data;
+    return data.data;
   },
 
   async rejectReschedule(id, reason) {
@@ -86,6 +86,6 @@ export const adminComplaintsService = {
       return updateMockRescheduleRequest(id, { status: 'rejected', rejectionReason: reason });
     }
     const { data } = await client.post(endpoints.admin.rejectReschedule(id), { reason });
-    return data;
+    return data.data;
   },
 };

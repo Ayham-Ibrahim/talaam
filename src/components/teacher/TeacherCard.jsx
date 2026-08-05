@@ -1,11 +1,25 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Card, VerifiedBadge, FavoriteButton, StarRating, Avatar, Skeleton } from '@/components/ui';
-import { useFavoritesStore } from '@/store';
+import { useAuth } from '@/hooks/useAuth';
+import { useFavorites, useToggleFavoriteTeacher } from '@/hooks/useFavorites';
 import { motion } from 'framer-motion';
 
 export function TeacherCard({ teacher }) {
-  const isFavorite = useFavoritesStore((s) => s.isFavorite(teacher.id));
-  const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuth();
+  const { data: favorites } = useFavorites();
+  const toggleFavoriteTeacher = useToggleFavoriteTeacher();
+  const isFavorite = (favorites ?? []).some((f) => f.kind === 'teacher' && f.id === teacher.id);
+
+  const handleToggleFavorite = (e) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
+    toggleFavoriteTeacher.mutate(teacher.id);
+  };
 
   return (
     <Card className="group p-3 transition-all duration-300 flex flex-col relative overflow-hidden h-full">
@@ -15,10 +29,7 @@ export function TeacherCard({ teacher }) {
         <FavoriteButton
           active={isFavorite}
           className="opacity-0 lg:opacity-100 lg:group-hover:opacity-100 transition-opacity"
-          onClick={(e) => {
-            e.preventDefault();
-            toggleFavorite(teacher.id);
-          }}
+          onClick={handleToggleFavorite}
         />
       </div>
 
@@ -44,10 +55,12 @@ export function TeacherCard({ teacher }) {
 
         {/* Meta row */}
         <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 mt-2 text-[11px] text-ink-soft">
-          <span>{teacher.stageLabel}</span>
-          <span className="text-line">•</span>
-          <span>{teacher.studentsCount} طالب</span>
-          <span className="text-line">•</span>
+          {teacher.city && (
+            <>
+              <span>{teacher.city}</span>
+              <span className="text-line">•</span>
+            </>
+          )}
           <StarRating value={teacher.rating} size={12} />
         </div>
 

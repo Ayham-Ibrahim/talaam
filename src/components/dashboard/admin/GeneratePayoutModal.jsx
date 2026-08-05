@@ -1,24 +1,34 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
-import { ELIGIBLE_PAYOUT_PROVIDERS } from '@/mocks/adminPayouts.mock';
-import { PROVIDER_TYPE_LABELS } from '@/mocks/adminListings.mock';
-import { formatPrice } from '@/lib/formatters';
+import { useAdminTeachers } from '@/hooks/useAdmin';
+import { TEACHER_TYPE_LABELS } from '@/services/teacherService';
 import { useT } from '@/hooks/useT';
 
-export function GeneratePayoutModal({ isPending, onConfirm, onClose }) {
+/**
+ * لا يوجد endpoint لمعاينة الجلسات/المبلغ قبل التوليد — الباك يحسبها ويُنشئ
+ * كشف المستحقات مباشرة عند الإرسال (أو يرفض بخطأ إن لم توجد جلسات مكتملة
+ * غير مدفوعة ضمن الفترة)، لذا لا معاينة هنا، فقط عرض رسالة الخطأ إن فشل.
+ */
+export function GeneratePayoutModal({ isPending, error, onConfirm, onClose }) {
   const t = useT();
-  const [providerId, setProviderId] = useState('');
+  const [teacherId, setTeacherId] = useState('');
+  const [periodStart, setPeriodStart] = useState('');
+  const [periodEnd, setPeriodEnd] = useState('');
   const [touched, setTouched] = useState(false);
 
-  const provider = ELIGIBLE_PAYOUT_PROVIDERS.find((p) => p.id === Number(providerId));
-  const isValid = providerId !== '';
+  const { data: teachersData } = useAdminTeachers({ status: 'verified' });
+  const teachers = teachersData?.data ?? [];
+
+  const isValid = teacherId !== '' && periodStart && periodEnd && periodEnd >= periodStart;
 
   const handleConfirm = () => {
     setTouched(true);
     if (!isValid) return;
-    onConfirm(Number(providerId));
+    onConfirm({ teacherId: Number(teacherId), periodStart, periodEnd });
   };
+
+  const errorMessage = error?.errors?.period?.[0] ?? error?.message;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
@@ -36,31 +46,46 @@ export function GeneratePayoutModal({ isPending, onConfirm, onClose }) {
           <span className="w-8" />
         </div>
 
+        {errorMessage && (
+          <div className="mb-4 rounded-btn bg-accent-pink/10 px-4 py-3 text-sm text-accent-pink">{errorMessage}</div>
+        )}
+
         <div className="flex flex-col gap-1.5 text-right">
           <span className="text-sm font-semibold text-ink">{t('dashboard.adminPayouts.providerLabel')}</span>
           <SmoothSelect
-            value={providerId}
-            onChange={setProviderId}
+            value={teacherId}
+            onChange={setTeacherId}
             placeholder="—"
-            options={ELIGIBLE_PAYOUT_PROVIDERS.map((p) => ({
-              value: String(p.id),
-              label: `${p.name} · ${PROVIDER_TYPE_LABELS[p.type]}`,
+            options={teachers.map((teacher) => ({
+              value: String(teacher.id),
+              label: `${teacher.name} · ${TEACHER_TYPE_LABELS[teacher.type] ?? teacher.type}`,
             }))}
           />
-          {touched && !isValid && <span className="text-xs text-accent-pink">{t('dashboard.adminPayouts.providerRequired')}</span>}
+          {touched && teacherId === '' && <span className="text-xs text-accent-pink">{t('dashboard.adminPayouts.providerRequired')}</span>}
         </div>
 
-        {provider && (
-          <div className="mt-4 flex flex-col gap-2 rounded-xl bg-[#FAFBFD] p-4">
-            <div className="flex items-center justify-between">
-              <span className="font-semibold text-ink">{provider.sessionsCount}</span>
-              <span className="text-sm text-ink-soft">{t('dashboard.adminPayouts.colSessions')}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="font-semibold text-price">{formatPrice(provider.sessionsCount * provider.amountPerSession)}</span>
-              <span className="text-sm text-ink-soft">{t('dashboard.adminPayouts.colAmount')}</span>
-            </div>
-          </div>
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <label className="flex flex-col gap-1.5 text-right">
+            <span className="text-sm font-semibold text-ink">{t('dashboard.adminPayouts.periodStartLabel')}</span>
+            <input
+              type="date"
+              value={periodStart}
+              onChange={(e) => setPeriodStart(e.target.value)}
+              className="w-full rounded-btn border border-line bg-surface p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-right">
+            <span className="text-sm font-semibold text-ink">{t('dashboard.adminPayouts.periodEndLabel')}</span>
+            <input
+              type="date"
+              value={periodEnd}
+              onChange={(e) => setPeriodEnd(e.target.value)}
+              className="w-full rounded-btn border border-line bg-surface p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </label>
+        </div>
+        {touched && !(periodStart && periodEnd && periodEnd >= periodStart) && (
+          <span className="mt-1.5 block text-xs text-accent-pink">{t('dashboard.adminPayouts.periodRequired')}</span>
         )}
 
         <div className="mt-6 flex gap-3">
@@ -77,7 +102,7 @@ export function GeneratePayoutModal({ isPending, onConfirm, onClose }) {
             onClick={handleConfirm}
             className="flex-1 rounded-xl bg-primary py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {t('dashboard.adminPayouts.generate')}
+            {t('dashboard.adminPayouts.confirmGenerate')}
           </button>
         </div>
       </div>

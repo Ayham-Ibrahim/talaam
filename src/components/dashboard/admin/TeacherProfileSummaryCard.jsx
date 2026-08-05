@@ -1,7 +1,8 @@
-import { Mail, Phone, CalendarDays, GraduationCap, AlertTriangle } from 'lucide-react';
+import { Mail, Phone, CalendarDays, GraduationCap, MapPin, Globe, AlertTriangle } from 'lucide-react';
 import { Avatar } from '@/components/ui';
 import { TeacherStatusBadge } from './TeacherStatusBadge';
 import { TEACHER_TYPE_LABELS } from '@/mocks/admin.mock';
+import { QUALIFICATION_LABELS, EXPERIENCE_LABELS } from '@/services/teacherService';
 import { formatDate } from '@/lib/formatters';
 import { useT } from '@/hooks/useT';
 
@@ -20,8 +21,25 @@ function InfoRow({ icon: Icon, label, value, dir }) {
   );
 }
 
+function ChipsRow({ label, items }) {
+  if (!items || items.length === 0) return null;
+  return (
+    <div className="border-b border-line/60 pb-3">
+      <div className="mb-2 text-sm text-ink-soft">{label}</div>
+      <div className="flex flex-wrap justify-end gap-2">
+        {items.map((item) => (
+          <span key={item.id} className="rounded-pill bg-primary-light px-3 py-1 text-xs font-medium text-primary">
+            {item.name}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function TeacherProfileSummaryCard({ teacher, actions, isActing }) {
   const t = useT();
+  const isTrainingCenter = teacher.type === 'training_center';
 
   return (
     <div className="rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card sm:p-6">
@@ -41,10 +59,46 @@ export function TeacherProfileSummaryCard({ teacher, actions, isActing }) {
         <InfoRow icon={Mail} label={t('dashboard.adminTeacherDetail.email')} value={teacher.email} dir="ltr" />
         <InfoRow icon={Phone} label={t('dashboard.adminTeacherDetail.phone')} value={teacher.phone} dir="ltr" />
         <InfoRow icon={GraduationCap} label={t('dashboard.adminTeacherDetail.type')} value={TEACHER_TYPE_LABELS[teacher.type]} />
+        <InfoRow icon={MapPin} label={t('dashboard.adminTeacherDetail.cityLabel')} value={teacher.city} />
+        <InfoRow icon={MapPin} label={t('dashboard.adminTeacherDetail.addressLabel')} value={teacher.address} />
+        <InfoRow icon={Globe} label={t('dashboard.adminTeacherDetail.websiteLabel')} value={teacher.website} dir="ltr" />
+
+        {isTrainingCenter && (
+          <>
+            <InfoRow
+              icon={GraduationCap}
+              label={t('dashboard.adminTeacherDetail.displayNameEnLabel')}
+              value={teacher.displayNameEn}
+              dir="ltr"
+            />
+            <InfoRow
+              icon={GraduationCap}
+              label={t('dashboard.adminTeacherDetail.commercialRegisterLabel')}
+              value={teacher.commercialRegister}
+              dir="ltr"
+            />
+          </>
+        )}
+
+        <InfoRow
+          icon={GraduationCap}
+          label={t('dashboard.adminTeacherDetail.qualificationLabel')}
+          value={QUALIFICATION_LABELS[teacher.qualification]}
+        />
+        <InfoRow
+          icon={GraduationCap}
+          label={t('dashboard.adminTeacherDetail.experienceLabel')}
+          value={EXPERIENCE_LABELS[teacher.experienceYears]}
+        />
+
         <InfoRow icon={CalendarDays} label={t('dashboard.adminTeacherDetail.submittedAt')} value={formatDate(teacher.submittedAt)} />
         {teacher.verifiedAt && (
           <InfoRow icon={CalendarDays} label={t('dashboard.adminTeacherDetail.verifiedAt')} value={formatDate(teacher.verifiedAt)} />
         )}
+
+        <ChipsRow label={t('dashboard.adminTeacherDetail.subjectsLabel')} items={teacher.subjects} />
+        <ChipsRow label={t('dashboard.adminTeacherDetail.curriculaLabel')} items={teacher.curricula} />
+        <ChipsRow label={t('dashboard.adminTeacherDetail.languagesLabel')} items={teacher.languages} />
       </div>
 
       {teacher.bio && <p className="mt-4 text-right text-sm leading-relaxed text-ink-soft">{teacher.bio}</p>}

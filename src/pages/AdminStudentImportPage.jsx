@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Download } from 'lucide-react';
+import { Download, Plus } from 'lucide-react';
 import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
 import { StudentImportDropzone } from '@/components/dashboard/admin/StudentImportDropzone';
 import { StudentImportResults } from '@/components/dashboard/admin/StudentImportResults';
+import { AddStudentAccountModal } from '@/components/dashboard/admin/AddStudentAccountModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useImportStudents } from '@/hooks/useAdminStudentImport';
 import { downloadStudentImportTemplate } from '@/lib/csvTemplate';
@@ -13,6 +14,7 @@ export function AdminStudentImportPage() {
   const t = useT();
   const { user } = useAuth();
   const [file, setFile] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
   const importStudents = useImportStudents();
 
   if (!user) return <Navigate to="/login" replace />;
@@ -35,14 +37,24 @@ export function AdminStudentImportPage() {
             <h1 className="text-xl font-bold text-ink">{t('dashboard.adminStudentImport.title')}</h1>
             <p className="mt-1 text-sm text-ink-soft">{t('dashboard.adminStudentImport.subtitle')}</p>
           </div>
-          <button
-            type="button"
-            onClick={downloadStudentImportTemplate}
-            className="flex items-center gap-1.5 rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-ink hover:bg-line/30"
-          >
-            {t('dashboard.adminStudentImport.downloadTemplate')}
-            <Download size={16} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-hover"
+            >
+              <Plus size={16} />
+              {t('dashboard.adminStudentImport.addStudent')}
+            </button>
+            <button
+              type="button"
+              onClick={downloadStudentImportTemplate}
+              className="flex items-center gap-1.5 rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-ink hover:bg-line/30"
+            >
+              {t('dashboard.adminStudentImport.downloadTemplate')}
+              <Download size={16} />
+            </button>
+          </div>
         </div>
 
         <StudentImportDropzone file={file} onFileChange={handleFileChange} />
@@ -64,6 +76,8 @@ export function AdminStudentImportPage() {
 
         {importStudents.isSuccess && <StudentImportResults result={importStudents.data} />}
       </div>
+
+      {showAddModal && <AddStudentAccountModal onClose={() => setShowAddModal(false)} />}
     </AdminDashboardLayout>
   );
 }

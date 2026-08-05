@@ -1,4 +1,5 @@
 import { CalendarDays } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button, EmptyState } from "@/components/ui";
 import { getSessionTypeColor } from "@/mocks/dashboard.mock";
 import { useT } from "@/hooks/useT";
@@ -57,9 +58,16 @@ function SessionRow({ session }) {
             <div className="text-ink-soft">{t("dashboard.minute")}</div>
           </div>
         </div>
-        <Button variant="outline" size="sm" className="!rounded-xl !border-2">
-          {t("dashboard.join")}
-        </Button>
+        {session.joinUrl && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="!rounded-xl !border-2"
+            onClick={() => window.open(session.joinUrl, "_blank", "noopener,noreferrer")}
+          >
+            {t("dashboard.join")}
+          </Button>
+        )}
       </div>
     </div>
   );
@@ -67,6 +75,7 @@ function SessionRow({ session }) {
 
 export function UpcomingSessionsCard({ sessions }) {
   const t = useT();
+  const navigate = useNavigate();
 
   return (
     <div className="rounded-2xl bg-white p-6 shadow-card">
@@ -77,6 +86,7 @@ export function UpcomingSessionsCard({ sessions }) {
         </h3>
         <button
           type="button"
+          onClick={() => navigate("/dashboard/student/sessions")}
           className="text-sm font-bold text-primary hover:underline"
         >
           {t("dashboard.viewAll")}

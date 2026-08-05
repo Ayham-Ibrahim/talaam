@@ -10,13 +10,25 @@ export const queryKeys = {
     featured: () => ['teachers', 'featured'],
     detail: (id) => ['teachers', 'detail', id],
     packages: (id) => ['teachers', id, 'packages'],
+    courses: (id) => ['teachers', id, 'courses'],
     reviews: (id) => ['teachers', id, 'reviews'],
-    availability: (id, date) => ['teachers', id, 'availability', date],
+    availabilitySlots: (id) => ['teachers', id, 'availability-slots'],
     ratingSummary: (id) => ['teachers', id, 'rating-summary'],
   },
   meta: {
     filters: () => ['meta', 'filters'],
     stats: () => ['meta', 'stats'],
+  },
+  taxonomy: (type) => ['taxonomy', type],
+  bookings: {
+    list: (filters) => ['bookings', 'list', filters],
+  },
+  favorites: {
+    list: () => ['favorites', 'list'],
+  },
+  notifications: {
+    list: () => ['notifications', 'list'],
+    unreadCount: () => ['notifications', 'unread-count'],
   },
   dashboard: {
     student: () => ['dashboard', 'student'],
@@ -26,6 +38,8 @@ export const queryKeys = {
     invoices: () => ['dashboard', 'invoices'],
     packagesList: () => ['dashboard', 'packages-list'],
     teacherPackagesList: () => ['dashboard', 'teacher-packages-list'],
+    teacherPackageDetail: (id) => ['dashboard', 'teacher-package-detail', id],
+    teacherCoursesList: () => ['dashboard', 'teacher-courses-list'],
     teacherSessions: () => ['dashboard', 'teacher-sessions'],
     teacherSessionDetails: (id) => ['dashboard', 'teacher-session-details', id],
     teacherStudents: () => ['dashboard', 'teacher-students'],

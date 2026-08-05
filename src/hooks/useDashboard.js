@@ -31,6 +31,59 @@ export function useCreateTeacherPackage() {
   });
 }
 
+/** يجلب الباقة كاملة (منهج/مرحلة/جدول) — سطر القائمة لا يحمل هذه العلاقات */
+export function useTeacherPackage(id) {
+  return useQuery({
+    queryKey: queryKeys.dashboard.teacherPackageDetail(id),
+    queryFn: () => dashboardService.getTeacherPackage(id),
+    enabled: !!id,
+  });
+}
+
+/** الباك يرفض التعديل خارج حالة المسودة (PackageService::updateDraft) */
+export function useUpdateTeacherPackage() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }) => dashboardService.updateTeacherPackage(id, payload),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.teacherPackagesList() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.teacherPackageDetail(id) });
+    },
+  });
+}
+
+/** draft → pending_approval — a separate, explicit action from creating the draft (mirrors POST /packages/{id}/submit) */
+export function useSubmitTeacherPackage() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => dashboardService.submitTeacherPackage(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.teacherPackagesList() }),
+  });
+}
+
+export function useTeacherCoursesList() {
+  return useQuery({
+    queryKey: queryKeys.dashboard.teacherCoursesList(),
+    queryFn: () => dashboardService.getTeacherCoursesList(),
+  });
+}
+
+export function useCreateTeacherCourse() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => dashboardService.createTeacherCourse(payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.teacherCoursesList() }),
+  });
+}
+
+export function useSubmitTeacherCourse() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => dashboardService.submitTeacherCourse(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.teacherCoursesList() }),
+  });
+}
+
 export function useTeacherSessions() {
   return useQuery({
     queryKey: queryKeys.dashboard.teacherSessions(),

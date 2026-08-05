@@ -2,25 +2,17 @@ import { CalendarDays, Search } from 'lucide-react';
 import { SmoothSelect } from './SmoothSelect';
 import { useT } from '@/hooks/useT';
 
-export function TeacherSessionsFilterBar({ statuses, subjects, filters, onChange }) {
+export function TeacherSessionsFilterBar({ statuses, filters, onChange }) {
   const t = useT();
 
   return (
     <div className="flex flex-wrap items-center gap-4">
       <SmoothSelect
-        className="min-w-[200px] flex-1"
+        className="min-w-[220px] flex-1"
         value={filters.status}
         onChange={(v) => onChange('status', v)}
         placeholder={t('dashboard.teacherSessions.allStatuses')}
         options={statuses}
-      />
-
-      <SmoothSelect
-        className="min-w-[200px] flex-1"
-        value={filters.subject}
-        onChange={(v) => onChange('subject', v)}
-        placeholder={t('dashboard.teacherSessions.allSubjects')}
-        options={subjects.map((subject) => ({ value: subject, label: subject }))}
       />
 
       <div className="flex min-w-[200px] flex-1 items-center gap-2 rounded-lg border border-[#E3E3E3] bg-white px-3 py-3">

@@ -320,6 +320,7 @@ function StatItem({ stat, started }) {
 
 export function StatsBand() {
   const { data, isLoading } = useStatsHook();
+  const items = data ?? [];
   const [started, setStarted] = useState(false);
 
   return (
@@ -339,7 +340,7 @@ export function StatsBand() {
             variants={staggerContainer(0.1)}
             className="grid grid-cols-2 lg:grid-cols-4 gap-6"
           >
-            {(isLoading ? Array.from({ length: 4 }) : data).map((stat, i) => {
+            {(isLoading ? Array.from({ length: 4 }) : items).map((stat, i) => {
               if (!stat) {
                 return <div key={i} className="skeleton h-16 rounded-lg" />;
               }

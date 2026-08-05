@@ -37,6 +37,25 @@ export const useAuthStore = create((set) => {
       sessionStorage.removeItem(AUTH_STORAGE_KEY);
       set({ user: null, token: null, isAuthenticated: false });
     },
+
+    /**
+     * دمج تعديل جزئي على user المخزَّن (مثلاً teacher.status بعد submitForVerification،
+     * أو student.education_type بعد إكمال الملف) دون تسجيل خروج/دخول جديد. يحافظ على
+     * نفس مكان التخزين (local/session) الذي كانت الجلسة فيه أصلاً.
+     */
+    updateUser: (patch) => {
+      set((state) => {
+        if (!state.user) return state;
+        const user = { ...state.user };
+        for (const [key, value] of Object.entries(patch)) {
+          const isMergeableObject = value && typeof value === 'object' && !Array.isArray(value);
+          user[key] = isMergeableObject && typeof user[key] === 'object' ? { ...user[key], ...value } : value;
+        }
+        const storageKey = localStorage.getItem(AUTH_STORAGE_KEY) ? localStorage : sessionStorage;
+        storageKey.setItem(AUTH_STORAGE_KEY, JSON.stringify({ user, token: state.token }));
+        return { user };
+      });
+    },
   };
 });
 
@@ -88,16 +107,4 @@ export const useLocaleStore = create((set) => ({
     localStorage.setItem(LOCALE_STORAGE_KEY, locale);
     set({ locale });
   },
-}));
-
-/** Favorites — in-memory now; add persistence later without touching components */
-export const useFavoritesStore = create((set, get) => ({
-  favorites: new Set(),
-  toggleFavorite: (id) =>
-    set(() => {
-      const next = new Set(get().favorites);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return { favorites: next };
-    }),
-  isFavorite: (id) => get().favorites.has(id),
 }));

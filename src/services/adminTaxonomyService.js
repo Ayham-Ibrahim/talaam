@@ -16,7 +16,7 @@ export const adminTaxonomyService = {
       return getMockTaxonomyItems(type);
     }
     const { data } = await client.get(endpoints.admin.taxonomy(type));
-    return data;
+    return data.data;
   },
 
   async createItem(type, payload) {
@@ -25,7 +25,7 @@ export const adminTaxonomyService = {
       return createMockTaxonomyItem(type, payload);
     }
     const { data } = await client.post(endpoints.admin.taxonomy(type), payload);
-    return data;
+    return data.data;
   },
 
   async updateItem(type, id, payload) {
@@ -34,7 +34,7 @@ export const adminTaxonomyService = {
       return updateMockTaxonomyItem(type, id, payload);
     }
     const { data } = await client.put(endpoints.admin.taxonomyItem(type, id), payload);
-    return data;
+    return data.data;
   },
 
   async deleteItem(type, id) {
@@ -44,6 +44,6 @@ export const adminTaxonomyService = {
       return true;
     }
     const { data } = await client.delete(endpoints.admin.taxonomyItem(type, id));
-    return data;
+    return data.data;
   },
 };

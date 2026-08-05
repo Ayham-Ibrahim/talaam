@@ -11,6 +11,6 @@ export const adminAuditLogService = {
       return { data, total: data.length };
     }
     const { data } = await client.get(endpoints.admin.auditLog, { params: filters });
-    return data;
+    return { data: data.data, total: data.meta?.total ?? data.data.length };
   },
 };

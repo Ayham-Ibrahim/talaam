@@ -27,57 +27,62 @@ export function ListingApprovalPanel({ listing, actions, isActing }) {
         <span className="text-sm text-ink-soft">{t('dashboard.adminListingDetail.teacherPrice')}</span>
       </div>
 
-      <label className="mt-4 flex flex-col gap-1.5 text-right">
-        <span className="text-sm font-semibold text-ink">{t('dashboard.adminListingDetail.marginLabel')}</span>
-        <input
-          type="number"
-          min="0"
-          step="0.5"
-          dir="ltr"
-          value={margin}
-          onChange={(e) => setMargin(e.target.value)}
-          className={`w-full rounded-btn border bg-surface p-3 text-left text-sm text-ink focus:outline-none focus:ring-2 ${
-            touched && !isValidMargin ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
-          }`}
-        />
-        {touched && !isValidMargin && <span className="text-xs text-accent-pink">{t('dashboard.adminListingDetail.marginRequired')}</span>}
-      </label>
+      {listing.status === 'pending_approval' && (
+        <>
+          <label className="mt-4 flex flex-col gap-1.5 text-right">
+            <span className="text-sm font-semibold text-ink">{t('dashboard.adminListingDetail.marginLabel')}</span>
+            <input
+              type="number"
+              min="0"
+              step="0.5"
+              dir="ltr"
+              value={margin}
+              onChange={(e) => setMargin(e.target.value)}
+              className={`w-full rounded-btn border bg-surface p-3 text-left text-sm text-ink focus:outline-none focus:ring-2 ${
+                touched && !isValidMargin ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
+              }`}
+            />
+            {touched && !isValidMargin && <span className="text-xs text-accent-pink">{t('dashboard.adminListingDetail.marginRequired')}</span>}
+          </label>
 
-      {preview && (
-        <div className="mt-4 flex flex-col gap-2 rounded-xl bg-[#FAFBFD] p-4">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-price">{formatPrice(preview.studentPrice)}</span>
-            <span className="text-sm text-ink-soft">{t('dashboard.adminListingDetail.studentPrice')}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-success">{formatPrice(preview.platformRevenue)}</span>
-            <span className="text-sm text-ink-soft">{t('dashboard.adminListingDetail.platformRevenue')}</span>
-          </div>
-        </div>
+          {preview && (
+            <div className="mt-4 flex flex-col gap-2 rounded-xl bg-[#FAFBFD] p-4">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-price">{formatPrice(preview.studentPrice)}</span>
+                <span className="text-sm text-ink-soft">{t('dashboard.adminListingDetail.studentPrice')}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-success">{formatPrice(preview.platformRevenue)}</span>
+                <span className="text-sm text-ink-soft">{t('dashboard.adminListingDetail.platformRevenue')}</span>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       <div className="mt-5 flex flex-wrap gap-3">
-        <button
-          type="button"
-          disabled={isActing}
-          onClick={handleApprove}
-          className="flex-1 rounded-xl bg-success py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-        >
-          {t('dashboard.adminListingDetail.approve')}
-        </button>
-
-        {listing.status === 'submitted' && (
-          <button
-            type="button"
-            disabled={isActing}
-            onClick={actions.onReject}
-            className="flex-1 rounded-xl border border-accent-pink py-3 text-sm font-medium text-accent-pink transition-colors hover:bg-accent-pink/5 disabled:opacity-50"
-          >
-            {t('dashboard.adminListingDetail.reject')}
-          </button>
+        {listing.status === 'pending_approval' && (
+          <>
+            <button
+              type="button"
+              disabled={isActing}
+              onClick={handleApprove}
+              className="flex-1 rounded-xl bg-success py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            >
+              {t('dashboard.adminListingDetail.approve')}
+            </button>
+            <button
+              type="button"
+              disabled={isActing}
+              onClick={actions.onReject}
+              className="flex-1 rounded-xl border border-accent-pink py-3 text-sm font-medium text-accent-pink transition-colors hover:bg-accent-pink/5 disabled:opacity-50"
+            >
+              {t('dashboard.adminListingDetail.reject')}
+            </button>
+          </>
         )}
 
-        {listing.status === 'active' && (
+        {(listing.status === 'active' || listing.status === 'full') && (
           <button
             type="button"
             disabled={isActing}
@@ -86,6 +91,10 @@ export function ListingApprovalPanel({ listing, actions, isActing }) {
           >
             {t('dashboard.adminListingDetail.disable')}
           </button>
+        )}
+
+        {listing.status !== 'pending_approval' && listing.status !== 'active' && listing.status !== 'full' && (
+          <p className="w-full text-center text-sm text-ink-soft">{t('dashboard.adminListingDetail.noActionsAvailable')}</p>
         )}
       </div>
     </div>

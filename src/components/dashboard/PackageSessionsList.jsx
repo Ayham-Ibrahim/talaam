@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CalendarDays } from 'lucide-react';
 import { Avatar, EmptyState } from '@/components/ui';
 import {
@@ -5,10 +7,13 @@ import {
   SESSION_STATUS_STYLES,
   SESSION_STATUS_LABEL_KEYS,
 } from '@/mocks/dashboard.mock';
+import { RescheduleRequestModal } from './RescheduleRequestModal';
+import { useCreateRescheduleRequest } from '@/hooks/useReschedule';
 import { useT } from '@/hooks/useT';
 
-function SessionRow({ session, showType }) {
+function SessionRow({ session, showType, onReschedule }) {
   const t = useT();
+  const navigate = useNavigate();
   const status = session.status ?? 'upcoming';
   const statusStyle = SESSION_STATUS_STYLES[status];
 
@@ -18,6 +23,8 @@ function SessionRow({ session, showType }) {
         {session.canCancel && (
           <button
             type="button"
+            onClick={() => navigate('/contact')}
+            title={t('dashboard.rescheduleModal.sessionNotice')}
             className="rounded-xl border border-[#FF383C] bg-[#FDF0F0] px-4 py-2.5 text-sm text-[#FF383C] hover:bg-[#FF383C]/10"
           >
             {t('dashboard.myPackages.cancel')}
@@ -26,6 +33,7 @@ function SessionRow({ session, showType }) {
         {session.canReschedule && (
           <button
             type="button"
+            onClick={() => onReschedule(session.id)}
             className="rounded-xl border border-primary bg-[#EDF0F5] px-4 py-2.5 text-sm text-primary hover:bg-primary/10"
           >
             {t('dashboard.changeAppointment')}
@@ -34,6 +42,7 @@ function SessionRow({ session, showType }) {
         {session.canJoin && (
           <button
             type="button"
+            onClick={() => window.open(session.joinUrl, '_blank', 'noopener,noreferrer')}
             className="rounded-xl border-2 border-primary bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-hover"
           >
             {t('dashboard.join')}
@@ -110,6 +119,22 @@ function SessionRow({ session, showType }) {
 
 export function PackageSessionsList({ sessions, showType = true }) {
   const t = useT();
+  const [reschedulingSessionId, setReschedulingSessionId] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+  const createRescheduleRequest = useCreateRescheduleRequest();
+
+  const handleConfirmReschedule = ({ proposedScheduledAt, reason }) => {
+    createRescheduleRequest.mutate(
+      { sessionId: reschedulingSessionId, proposedScheduledAt, reason },
+      {
+        onSuccess: () => {
+          setReschedulingSessionId(null);
+          setSuccessMessage(t('dashboard.rescheduleModal.success'));
+          setTimeout(() => setSuccessMessage(''), 4000);
+        },
+      }
+    );
+  };
 
   return (
     <div className="rounded-2xl bg-white p-6 shadow-card">
@@ -120,14 +145,35 @@ export function PackageSessionsList({ sessions, showType = true }) {
         </h3>
       </div>
 
+      {successMessage && (
+        <div className="mt-4 rounded-2xl bg-success-light px-4 py-3 text-sm font-medium text-success">{successMessage}</div>
+      )}
+
       {sessions.length === 0 ? (
         <EmptyState title={t('dashboard.myPackages.noSessions')} />
       ) : (
         <div className="divide-y divide-line">
           {sessions.map((session) => (
-            <SessionRow key={session.id} session={session} showType={showType} />
+            <SessionRow
+              key={session.id}
+              session={session}
+              showType={showType}
+              onReschedule={(id) => {
+                createRescheduleRequest.reset();
+                setReschedulingSessionId(id);
+              }}
+            />
           ))}
         </div>
+      )}
+
+      {reschedulingSessionId && (
+        <RescheduleRequestModal
+          isPending={createRescheduleRequest.isPending}
+          error={createRescheduleRequest.error?.message}
+          onConfirm={handleConfirmReschedule}
+          onClose={() => setReschedulingSessionId(null)}
+        />
       )}
     </div>
   );

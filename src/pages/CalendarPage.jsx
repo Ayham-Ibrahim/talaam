@@ -15,10 +15,12 @@ function formatArabicDate(iso) {
   return new Intl.DateTimeFormat('ar', { day: 'numeric', month: 'long' }).format(new Date(iso));
 }
 
+const todayIso = () => new Date().toISOString().slice(0, 10);
+
 export function CalendarPage() {
   const { user } = useAuth();
   const { data: sessions, isLoading, isError, refetch } = useCalendarSessions();
-  const [selectedDate, setSelectedDate] = useState('2026-05-01');
+  const [selectedDate, setSelectedDate] = useState(todayIso);
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
 
   const sessionsByDate = useMemo(() => {

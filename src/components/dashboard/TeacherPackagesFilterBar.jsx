@@ -1,5 +1,6 @@
 import { Plus, Search } from 'lucide-react';
 import { SmoothSelect } from './SmoothSelect';
+import { TEACHER_PACKAGE_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { useT } from '@/hooks/useT';
 
 export function TeacherPackagesFilterBar({ filters, onChange, onCreate }) {
@@ -18,11 +19,11 @@ export function TeacherPackagesFilterBar({ filters, onChange, onCreate }) {
 
       <div className="flex flex-wrap items-center gap-4">
         <SmoothSelect
-          className="w-40"
+          className="w-44"
           value={filters.status}
           onChange={(v) => onChange('status', v)}
           placeholder={t('dashboard.teacherPackages.statusLabel')}
-          options={[{ value: 'active', label: t('dashboard.teacherPackages.statusActive') }]}
+          options={Object.entries(TEACHER_PACKAGE_STATUS_STYLES).map(([value, style]) => ({ value, label: style.label }))}
         />
 
         <SmoothSelect
@@ -33,7 +34,6 @@ export function TeacherPackagesFilterBar({ filters, onChange, onCreate }) {
           options={[
             { value: 'individual', label: t('dashboard.teacherPackages.typeIndividual') },
             { value: 'group', label: t('dashboard.teacherPackages.typeGroup') },
-            { value: 'training', label: t('dashboard.teacherPackages.typeTraining') },
           ]}
         />
 

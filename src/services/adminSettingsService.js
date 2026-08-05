@@ -10,7 +10,7 @@ export const adminSettingsService = {
       return getMockSettings();
     }
     const { data } = await client.get(endpoints.admin.settings);
-    return data;
+    return data.data;
   },
 
   async updateSetting(key, value) {
@@ -19,6 +19,6 @@ export const adminSettingsService = {
       return updateMockSetting(key, value);
     }
     const { data } = await client.put(endpoints.admin.updateSetting(key), { value });
-    return data;
+    return data.data;
   },
 };

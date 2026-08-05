@@ -4,6 +4,11 @@ import { PROVIDER_TYPE_LABELS } from '@/mocks/adminListings.mock';
 import { formatDate, formatPrice } from '@/lib/formatters';
 import { useT } from '@/hooks/useT';
 
+function formatPeriod(periodStart, periodEnd) {
+  if (!periodStart || !periodEnd) return '';
+  return `${formatDate(periodStart)} - ${formatDate(periodEnd)}`;
+}
+
 export function PayoutsTable({ payouts, onApprove, onMarkPaid, isActing }) {
   const t = useT();
 
@@ -27,7 +32,7 @@ export function PayoutsTable({ payouts, onApprove, onMarkPaid, isActing }) {
                 <div className="font-semibold text-ink">{p.providerName}</div>
                 <div className="text-xs text-ink-soft">{PROVIDER_TYPE_LABELS[p.providerType]}</div>
               </td>
-              <td className="px-4 py-4 text-right text-ink-soft">{p.periodLabel}</td>
+              <td className="px-4 py-4 text-right text-ink-soft">{formatPeriod(p.periodStart, p.periodEnd)}</td>
               <td className="px-4 py-4 text-right text-ink-soft">{p.sessionsCount}</td>
               <td className="px-4 py-4 text-right font-semibold text-price">{formatPrice(p.totalAmount)}</td>
               <td className="px-4 py-4 text-right">

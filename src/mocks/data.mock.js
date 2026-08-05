@@ -2,12 +2,17 @@
  * Package prices are ALREADY the student-facing price
  * (teacher price × 1.60 per platform policy). Backend must return the same.
  */
+const INDIVIDUAL_SCHEDULE = [
+  { id: 1001, day_of_week: 0, start_time: '10:00', end_time: '11:00' },
+  { id: 1002, day_of_week: 2, start_time: '16:00', end_time: '17:00' },
+];
+
 export const mockPackages = [
-  { id: 101, teacherId: 1, title: 'جلسة وحدة', sessionsCount: 1, durationPerSession: 60, price: 50, discountPercent: null, currency: 'USD' },
-  { id: 102, teacherId: 1, title: 'باقة 5 جلسات', sessionsCount: 5, durationPerSession: 60, price: 150, discountPercent: null, currency: 'USD' },
-  { id: 103, teacherId: 1, title: 'باقة 10 جلسات', sessionsCount: 10, durationPerSession: 60, price: 250, discountPercent: null, currency: 'USD' },
-  { id: 104, teacherId: 1, title: 'باقة 20 جلسة', sessionsCount: 20, durationPerSession: 60, price: 350, discountPercent: 15, currency: 'USD' },
-  { id: 105, teacherId: 1, title: 'دورة كاملة', sessionsCount: null, durationPerSession: 60, price: 450, discountPercent: null, currency: 'USD', note: 'ثلاثة اشهر' },
+  { id: 101, teacherId: 1, title: 'جلسة وحدة', sessionFormat: 'individual', sessionsCount: 1, durationPerSession: 60, price: 50, discountPercent: null, currency: 'USD', schedules: INDIVIDUAL_SCHEDULE },
+  { id: 102, teacherId: 1, title: 'باقة 5 جلسات', sessionFormat: 'individual', sessionsCount: 5, durationPerSession: 60, price: 150, discountPercent: null, currency: 'USD', schedules: INDIVIDUAL_SCHEDULE },
+  { id: 103, teacherId: 1, title: 'باقة 10 جلسات', sessionFormat: 'individual', sessionsCount: 10, durationPerSession: 60, price: 250, discountPercent: null, currency: 'USD', schedules: INDIVIDUAL_SCHEDULE },
+  { id: 104, teacherId: 1, title: 'باقة 20 جلسة', sessionFormat: 'individual', sessionsCount: 20, durationPerSession: 60, price: 350, discountPercent: 15, currency: 'USD', schedules: INDIVIDUAL_SCHEDULE },
+  { id: 105, teacherId: 1, title: 'مجموعة تحضير الامتحانات', sessionFormat: 'group', sessionsCount: 8, durationPerSession: 60, price: 450, discountPercent: null, currency: 'USD', schedules: [{ id: 1003, day_of_week: 4, start_time: '18:00', end_time: '19:00' }] },
 ];
 
 export const mockReviews = [
@@ -22,20 +27,6 @@ export const mockRatingSummary = {
   total: 2256896,
   distribution: { 5: 60, 4: 25, 3: 8, 2: 4, 1: 3 },
 };
-
-/** Generates availability slots for a given date */
-export function buildMockAvailability(teacherId, date) {
-  const slots = [];
-  const hours = ['09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
-  hours.forEach((time, i) => {
-    slots.push({
-      time,
-      period: Number(time.split(':')[0]) < 12 ? 'صباحاً' : 'مساءً',
-      available: i % 3 !== 0, // some unavailable
-    });
-  });
-  return { teacherId, date, slots };
-}
 
 export const mockFilters = {
   levels: [

@@ -16,6 +16,7 @@ import {
   useReactivateTeacher,
   useApproveDocument,
   useRejectDocument,
+  useDocumentDownloadUrl,
   useGrantBadge,
   useRevokeBadge,
 } from '@/hooks/useAdmin';
@@ -34,8 +35,25 @@ export function AdminTeacherDetailPage() {
   const reactivateTeacher = useReactivateTeacher(id);
   const approveDocument = useApproveDocument(id);
   const rejectDocument = useRejectDocument(id);
+  const documentDownloadUrl = useDocumentDownloadUrl();
   const grantBadge = useGrantBadge(id);
   const revokeBadge = useRevokeBadge(id);
+
+  /**
+   * يفتح تبويباً فارغاً فوراً ضمن نفس نداء المستخدم (قبل انتظار الشبكة) كي لا
+   * يحجبه المتصفح كنافذة منبثقة، ثم يوجّهه للرابط الموقَّع بعد وصوله. بلا
+   * noopener عمداً — تلك الخاصية تجعل المتصفح يُعيد null دائماً فلا نملك
+   * مرجعاً لإعادة التوجيه لاحقاً؛ الوجهة رابط موقَّع من الباك نفسه لا محتوى خارجي.
+   */
+  const handleViewFile = (documentId) => {
+    const newTab = window.open('', '_blank');
+    documentDownloadUrl.mutate(documentId, {
+      onSuccess: (url) => {
+        if (newTab) newTab.location.href = url;
+      },
+      onError: () => newTab?.close(),
+    });
+  };
 
   const isActing =
     approveTeacher.isPending ||
@@ -114,8 +132,10 @@ export function AdminTeacherDetailPage() {
             <VerificationDocumentsList
               documents={data.documents}
               isActing={isActing}
+              isLoadingFile={documentDownloadUrl.isPending}
               onApprove={(documentId) => approveDocument.mutate(documentId)}
               onReject={(documentId) => setModal({ type: 'rejectDocument', documentId })}
+              onViewFile={handleViewFile}
             />
           </div>
         </div>

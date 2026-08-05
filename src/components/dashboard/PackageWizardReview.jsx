@@ -1,7 +1,8 @@
-import { SESSION_TYPE_LABELS, CURRICULUM_OPTIONS, SUBJECT_OPTIONS } from '@/lib/packageWizardOptions';
-import { calculateStudentPrice, DEFAULT_MARGIN_PERCENT } from '@/lib/pricing';
-import { SESSION_DURATION_MINUTES } from '@/mocks/teacherDashboard.mock';
+import { useTaxonomyList } from '@/hooks/useTaxonomy';
 import { useT } from '@/hooks/useT';
+
+const SESSION_FORMAT_LABELS = { individual: 'فردية', group: 'جماعية' };
+const WEEKDAY_LABELS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 
 function SummaryField({ label, value }) {
   return (
@@ -12,51 +13,89 @@ function SummaryField({ label, value }) {
   );
 }
 
-export function PackageWizardReview({ data, isPending, onSubmit, onBack }) {
+export function PackageWizardReview({ data, isPending, onSubmit, onBack, readOnly, onClose }) {
   const t = useT();
-  const curriculumLabel = CURRICULUM_OPTIONS.find((o) => o.value === data.curriculum)?.label ?? '—';
-  const subjectLabel = SUBJECT_OPTIONS.find((o) => o.value === data.subject)?.label ?? '—';
-  const teacherPrice = Number(data.teacherPrice);
-  const { studentPrice, platformRevenue } = calculateStudentPrice(teacherPrice, DEFAULT_MARGIN_PERCENT);
+  const { data: subjects = [] } = useTaxonomyList('subjects');
+  const { data: curricula = [] } = useTaxonomyList('curricula');
+
+  const subjectLabel = subjects.find((s) => s.id === Number(data.subject_id))?.name_ar ?? '—';
+  const curriculumLabels = curricula.filter((c) => data.curriculum_ids.includes(c.id)).map((c) => c.name_ar);
 
   return (
     <div className="mt-8 flex flex-col gap-6">
-      <div className="grid grid-cols-2 gap-4 rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card sm:grid-cols-5">
-        <SummaryField label={t('dashboard.addPackage.review.typeLabel')} value={SESSION_TYPE_LABELS[data.sessionType]} />
-        <SummaryField label={t('dashboard.addPackage.review.curriculumLabel')} value={curriculumLabel} />
+      <div className="grid grid-cols-1 gap-4 rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card sm:grid-cols-3">
+        <SummaryField label={t('dashboard.addPackage.review.typeLabel')} value={SESSION_FORMAT_LABELS[data.session_format]} />
         <SummaryField label={t('dashboard.addPackage.review.subjectLabel')} value={subjectLabel} />
         <SummaryField
           label={t('dashboard.addPackage.review.sessionsCountLabel')}
-          value={`${data.sessionsCount} ${t('dashboard.addPackage.review.sessionsUnit')}`}
-        />
-        <SummaryField
-          label={t('dashboard.addPackage.review.durationLabel')}
-          value={`${SESSION_DURATION_MINUTES} ${t('dashboard.addPackage.review.durationUnit')}`}
+          value={`${data.sessions_count} ${t('dashboard.addPackage.review.sessionsUnit')}`}
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card sm:grid-cols-3">
-        <SummaryField label={t('dashboard.addPackage.review.teacherPriceLabel')} value={`$${teacherPrice}`} />
-        <SummaryField label={t('dashboard.addPackage.review.platformMarginLabel')} value={`$${platformRevenue}`} />
-        <SummaryField label={t('dashboard.addPackage.review.finalPriceLabel')} value={`$${studentPrice}`} />
+      {curriculumLabels.length > 0 && (
+        <div className="rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card">
+          <div className="text-sm text-ink-soft">{t('dashboard.addPackage.review.curriculumLabel')}</div>
+          <div className="mt-2 flex flex-wrap justify-center gap-2">
+            {curriculumLabels.map((label) => (
+              <span key={label} className="rounded-pill bg-primary-light px-3 py-1 text-xs font-medium text-primary">
+                {label}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {data.schedules.length > 0 && (
+        <div className="rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card">
+          <div className="text-center text-sm text-ink-soft">{t('dashboard.addPackage.review.scheduleLabel')}</div>
+          <div className="mt-2 flex flex-col items-center gap-1">
+            {data.schedules.map((s, i) =>
+              data.session_format === 'individual' ? (
+                <span key={i} className="text-sm font-semibold text-ink">
+                  {WEEKDAY_LABELS[s.day_of_week]}
+                </span>
+              ) : (
+                <span key={i} className="text-sm font-semibold text-ink" dir="ltr">
+                  {s.date} — {s.start_time}
+                </span>
+              )
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card">
+        <SummaryField label={t('dashboard.addPackage.review.teacherPriceLabel')} value={`$${data.teacher_price}`} />
       </div>
 
       <div className="flex w-full items-center justify-between">
-        <button
-          type="button"
-          onClick={onBack}
-          className="rounded-xl border border-line px-8 py-3 text-sm font-medium text-ink-soft hover:bg-line/30"
-        >
-          {t('dashboard.addPackage.back')}
-        </button>
-        <button
-          type="button"
-          disabled={isPending}
-          onClick={onSubmit}
-          className="rounded-xl border-2 border-primary bg-primary px-8 py-3 text-sm font-medium text-white transition-opacity hover:bg-primary-hover disabled:opacity-50"
-        >
-          {isPending ? t('dashboard.addPackage.submitting') : t('dashboard.addPackage.submit')}
-        </button>
+        {readOnly ? (
+          <button
+            type="button"
+            onClick={onClose}
+            className="mr-auto rounded-xl border border-line px-8 py-3 text-sm font-medium text-ink-soft hover:bg-line/30"
+          >
+            {t('dashboard.teacherPackages.close')}
+          </button>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={onBack}
+              className="rounded-xl border border-line px-8 py-3 text-sm font-medium text-ink-soft hover:bg-line/30"
+            >
+              {t('dashboard.addPackage.back')}
+            </button>
+            <button
+              type="button"
+              disabled={isPending}
+              onClick={onSubmit}
+              className="rounded-xl border-2 border-primary bg-primary px-8 py-3 text-sm font-medium text-white transition-opacity hover:bg-primary-hover disabled:opacity-50"
+            >
+              {isPending ? t('dashboard.addPackage.saving') : t('dashboard.addPackage.saveDraft')}
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

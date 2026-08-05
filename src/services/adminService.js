@@ -34,7 +34,7 @@ export const adminService = {
       };
     }
     const { data } = await client.get(endpoints.dashboard.admin);
-    return data;
+    return data.data;
   },
 
   async getTeachers(filters = {}) {
@@ -44,7 +44,26 @@ export const adminService = {
       return { data, total: data.length };
     }
     const { data } = await client.get(endpoints.admin.teachers, { params: filters });
-    return data;
+    return { data: data.data, total: data.meta?.total ?? data.data.length };
+  },
+
+  /** الأدمن يضع كلمة مرور مباشرة — لا رابط دعوة، الحساب فعّال فوراً (انظر TeacherService::createByAdmin) */
+  async createTeacherAccount(payload) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return { id: Date.now(), ...payload };
+    }
+    const { data } = await client.post(endpoints.admin.createTeacherAccount, payload);
+    return data.data;
+  },
+
+  async createStudentAccount(payload) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return { id: Date.now(), ...payload };
+    }
+    const { data } = await client.post(endpoints.admin.createStudentAccount, payload);
+    return data.data;
   },
 
   async getTeacherDetail(id) {
@@ -60,7 +79,7 @@ export const adminService = {
       };
     }
     const { data } = await client.get(endpoints.admin.teacherDetail(id));
-    return data;
+    return data.data;
   },
 
   async approveTeacher(id) {
@@ -74,7 +93,7 @@ export const adminService = {
       });
     }
     const { data } = await client.post(endpoints.admin.approveTeacher(id));
-    return data;
+    return data.data;
   },
 
   async rejectTeacher(id, reason) {
@@ -83,7 +102,7 @@ export const adminService = {
       return updateMockTeacher(id, { status: 'rejected', rejectionReason: reason });
     }
     const { data } = await client.post(endpoints.admin.rejectTeacher(id), { reason });
-    return data;
+    return data.data;
   },
 
   async suspendTeacher(id, reason) {
@@ -92,7 +111,7 @@ export const adminService = {
       return updateMockTeacher(id, { status: 'suspended', suspensionReason: reason });
     }
     const { data } = await client.post(endpoints.admin.suspendTeacher(id), { reason });
-    return data;
+    return data.data;
   },
 
   async reactivateTeacher(id) {
@@ -101,7 +120,17 @@ export const adminService = {
       return updateMockTeacher(id, { status: 'verified', suspensionReason: null });
     }
     const { data } = await client.post(endpoints.admin.approveTeacher(id));
-    return data;
+    return data.data;
+  },
+
+  /** رابط موقَّع صالح 15 دقيقة (VerificationDocumentController::downloadUrl) — لا مقابل مباشر في وضع المحاكاة */
+  async getDocumentDownloadUrl(documentId) {
+    if (config.useMocks) {
+      await mockDelay(200);
+      return null;
+    }
+    const { data } = await client.post(endpoints.admin.documentDownloadUrl(documentId));
+    return data.data.url;
   },
 
   async approveDocument(documentId) {
@@ -110,7 +139,7 @@ export const adminService = {
       return updateMockDocument(documentId, { status: 'approved', rejectionReason: null });
     }
     const { data } = await client.post(endpoints.admin.approveDocument(documentId));
-    return data;
+    return data.data;
   },
 
   async rejectDocument(documentId, reason) {
@@ -119,7 +148,7 @@ export const adminService = {
       return updateMockDocument(documentId, { status: 'rejected', rejectionReason: reason });
     }
     const { data } = await client.post(endpoints.admin.rejectDocument(documentId), { reason });
-    return data;
+    return data.data;
   },
 
   async grantBadge(teacherId, badgeId) {
@@ -128,7 +157,7 @@ export const adminService = {
       return addMockBadgeAward(teacherId, badgeId);
     }
     const { data } = await client.post(endpoints.admin.grantBadge(teacherId), { badge_id: badgeId });
-    return data;
+    return data.data;
   },
 
   async revokeBadge(awardId) {
@@ -138,6 +167,6 @@ export const adminService = {
       return true;
     }
     const { data } = await client.post(endpoints.admin.revokeBadge(awardId));
-    return data;
+    return data.data;
   },
 };

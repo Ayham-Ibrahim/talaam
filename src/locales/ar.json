@@ -1,5 +1,8 @@
 {
-  "brand": { "name": "TAALAM", "tagline": "منصة تعليمية تربط الطلاب بأفضل المعلمين المعتمدين في مختلف المجالات التعليمية" },
+  "brand": {
+    "name": "TAALAM",
+    "tagline": "منصة تعليمية تربط الطلاب بأفضل المعلمين المعتمدين في مختلف المجالات التعليمية"
+  },
   "nav": {
     "home": "الرئيسية",
     "search": "ابحث عن معلم",
@@ -19,7 +22,12 @@
     "heroTitle2": "حقق أهدافك التعليمية",
     "heroSubtitle": "اكتشف معلمين معتمدين وخبراء في مختلف المجالات التعليمية، واحجز جلساتك بسهولة ومرونة وتعلم من أفضل المعلمين",
     "heroSearchPlaceholder": "ابحث عن معلم",
-    "features": ["معلمون معتمدون", "جلسات مباشرة", "مرونة في الوقت", "دعم على مدار الساعة"],
+    "features": [
+      "معلمون معتمدون",
+      "جلسات مباشرة",
+      "مرونة في الوقت",
+      "دعم على مدار الساعة"
+    ],
     "topTeachers": "أفضل المعلمين",
     "educationTypesTitle": "أنواع التعليم في المنصة",
     "educationTypesSubtitle": "نوفر خيارات تعليمية متنوعة تناسب مختلف المراحل الدراسية والمهارات الأخرى",
@@ -42,12 +50,31 @@
     ],
     "howItWorksTitle": "كيف تعمل المنصة",
     "howItWorksSubtitle": "خطوات بسيطة للحصول على افضل تجربة تعلم",
-    "howItWorksTabs": { "teacher": "المعلم", "student": "الطالب" },
+    "howItWorksTabs": {
+      "teacher": "المعلم",
+      "student": "الطالب"
+    },
     "steps": [
-      { "no": "01", "title": "ابحث عن معلم", "desc": "ابحث عن المعلمين حسب المادة أو المهارة التي تريد تعلمها" },
-      { "no": "02", "title": "أحجز جلستك", "desc": "اختر الوقت المناسب لك واحجز جلستك بسهولة" },
-      { "no": "03", "title": "تعلم وتفاعل", "desc": "انضم الى جلسات مباشرة وتفاعل مع معلمك" },
-      { "no": "04", "title": "حقق اهدافك", "desc": "تابع تقدمك وحقق أهدافك التعليمية خطوة بخطوة" }
+      {
+        "no": "01",
+        "title": "ابحث عن معلم",
+        "desc": "ابحث عن المعلمين حسب المادة أو المهارة التي تريد تعلمها"
+      },
+      {
+        "no": "02",
+        "title": "أحجز جلستك",
+        "desc": "اختر الوقت المناسب لك واحجز جلستك بسهولة"
+      },
+      {
+        "no": "03",
+        "title": "تعلم وتفاعل",
+        "desc": "انضم الى جلسات مباشرة وتفاعل مع معلمك"
+      },
+      {
+        "no": "04",
+        "title": "حقق اهدافك",
+        "desc": "تابع تقدمك وحقق أهدافك التعليمية خطوة بخطوة"
+      }
     ],
     "stepsTeacher": [
       {
@@ -149,9 +176,18 @@
     "toolsTitle": "كل أدوات التعلم في مكان واحد",
     "toolsDesc": "من الحجز واختيار الباقة المناسبة الى الجلسات المباشرة والتواصل مع المعلم ومتابعة التقدم..كل ذلك من خلال لوحة تحكم ذكية وسهلة الاستخدام",
     "tools": [
-      { "icon": "video", "label": "جلسات مباشرة بجودة عالية" },
-      { "icon": "chart", "label": "متابعة التقدم والتقارير" },
-      { "icon": "bell", "label": "اشعارات وتنبيهات ذكية" }
+      {
+        "icon": "video",
+        "label": "جلسات مباشرة بجودة عالية"
+      },
+      {
+        "icon": "chart",
+        "label": "متابعة التقدم والتقارير"
+      },
+      {
+        "icon": "bell",
+        "label": "اشعارات وتنبيهات ذكية"
+      }
     ]
   },
   "about": {
@@ -167,28 +203,80 @@
     "missionText": "تمكين الطلاب من الوصول الى معلمين مؤهلين بسهولة مع توفير تجربة تعليمية احترافية وآمنة",
     "valuesTitle": "قيمنا",
     "values": [
-      { "key": "quality", "title": "الجودة", "desc": "نلتزم بتقديم تعليم عالي الجودة يحقق اهدافك" },
-      { "key": "trust", "title": "الثقة", "desc": "جميع المعلمين موثوقين ونضمن بيئة تعليمية آمنة" },
-      { "key": "growth", "title": "التطور", "desc": "نسعى دائماً للتحسين والتطوير لتقديم الأفضل" },
-      { "key": "community", "title": "المجتمع", "desc": "نبني مجتمع تعليمي متعاون يدعم التعلم والمشاركة" }
+      {
+        "key": "quality",
+        "title": "الجودة",
+        "desc": "نلتزم بتقديم تعليم عالي الجودة يحقق اهدافك"
+      },
+      {
+        "key": "trust",
+        "title": "الثقة",
+        "desc": "جميع المعلمين موثوقين ونضمن بيئة تعليمية آمنة"
+      },
+      {
+        "key": "growth",
+        "title": "التطور",
+        "desc": "نسعى دائماً للتحسين والتطوير لتقديم الأفضل"
+      },
+      {
+        "key": "community",
+        "title": "المجتمع",
+        "desc": "نبني مجتمع تعليمي متعاون يدعم التعلم والمشاركة"
+      }
     ],
     "whyTitle": "لماذا منصة تعلم",
     "why": [
-      { "key": "teachers", "title": "معلمون موثقون", "desc": "نختار المعلمين بعناية ونتحقق من مؤهلاتهم وخبراتهم" },
-      { "key": "sessions", "title": "جلسات مباشرة", "desc": "جلسات تفاعلية مباشرة عبر منصة آمنة" },
-      { "key": "payment", "title": "دفع آمن", "desc": "وسائل دفع آمنة تحمي بياناتك" },
-      { "key": "reviews", "title": "تقييمات حقيقية", "desc": "تقييمات وأراء حقيقية من طلاب سابقين" },
-      { "key": "support", "title": "دعم مستمر", "desc": "فريق دعم جاهز لمساعدتك في أي وقت" },
-      { "key": "booking", "title": "حجز سريع", "desc": "حجز الجلسات بسهولة وفي خطوات بسيطة" }
+      {
+        "key": "teachers",
+        "title": "معلمون موثقون",
+        "desc": "نختار المعلمين بعناية ونتحقق من مؤهلاتهم وخبراتهم"
+      },
+      {
+        "key": "sessions",
+        "title": "جلسات مباشرة",
+        "desc": "جلسات تفاعلية مباشرة عبر منصة آمنة"
+      },
+      {
+        "key": "payment",
+        "title": "دفع آمن",
+        "desc": "وسائل دفع آمنة تحمي بياناتك"
+      },
+      {
+        "key": "reviews",
+        "title": "تقييمات حقيقية",
+        "desc": "تقييمات وأراء حقيقية من طلاب سابقين"
+      },
+      {
+        "key": "support",
+        "title": "دعم مستمر",
+        "desc": "فريق دعم جاهز لمساعدتك في أي وقت"
+      },
+      {
+        "key": "booking",
+        "title": "حجز سريع",
+        "desc": "حجز الجلسات بسهولة وفي خطوات بسيطة"
+      }
     ]
   },
   "contact": {
     "heroTitle": "تواصل معنا",
     "heroSubtitle": "فريقنا جاهز للاجابة على استفساراتك ومساعدتك في أي وقت لضمان افضل تجربة تعليمية ممكنة",
     "info": [
-      { "key": "email", "label": "البريد الالكتروني", "value": "info@talam.ms" },
-      { "key": "phone", "label": "رقم الهاتف", "value": "+969555555555" },
-      { "key": "address", "label": "العنوان", "value": "الاردن / عمان / حي الجميلية" }
+      {
+        "key": "email",
+        "label": "البريد الالكتروني",
+        "value": "info@talam.ms"
+      },
+      {
+        "key": "phone",
+        "label": "رقم الهاتف",
+        "value": "+969555555555"
+      },
+      {
+        "key": "address",
+        "label": "العنوان",
+        "value": "الاردن / عمان / حي الجميلية"
+      }
     ],
     "formTitle": "كيف يمكننا مساعدتك",
     "formSubtitle": "ارسل رسالة لفريق تعلم وسنقوم بالرد عليك في اقرب وقت",
@@ -207,7 +295,11 @@
   "search": {
     "heroTitle": "اعثر على المعلم المناسب لك",
     "heroSubtitle": "تعلم من افضل المعلمين المعتمدين وحقق اهدافك التعليمية",
-    "categories": ["تعليم مدرسي", "تعليم جامعي", "دورات تدريبية"],
+    "categories": [
+      "تعليم مدرسي",
+      "تعليم جامعي",
+      "دورات تدريبية"
+    ],
     "filterTitle": "تصفية النتائج",
     "level": "المستوى",
     "grade": "الصف",
@@ -224,7 +316,12 @@
     "sortRating": "الاعلى تقييما",
     "fromPrefix": "من",
     "searchPlaceholder": "بحث",
-    "ratingOptions": ["4.5 او اكثر", "4.0 او اكثر", "3.0 او اكثر", "2.0 او اكثر"]
+    "ratingOptions": [
+      "4.5 او اكثر",
+      "4.0 او اكثر",
+      "3.0 او اكثر",
+      "2.0 او اكثر"
+    ]
   },
   "teacher": {
     "verified": "معلم معتمد",
@@ -247,7 +344,24 @@
     "profileLabel": "ملف المعلم",
     "packagesEmpty": "لا توجد باقات متاحة حالياً",
     "reviewsEmpty": "لا توجد تقييمات بعد",
-    "reviewsTitle": "اراء الطلاب"
+    "reviewsTitle": "اراء الطلاب",
+    "course": {
+      "sectionTitle": "الدورات التدريبية",
+      "empty": "لا توجد دورات متاحة حالياً",
+      "chooseCourse": "اختر الدورة",
+      "chooseCoursePlaceholder": "اختر دورة من القائمة",
+      "enrollTitle": "سجّل في الدورة",
+      "selectedCourse": "الدورة المختارة",
+      "factsTitle": "معلومات مهمة",
+      "scheduleTitle": "مواعيد الدورة",
+      "noSchedule": "لم يحدد المركز مواعيد لهذه الدورة بعد",
+      "enrollNow": "سجّل الآن",
+      "hasCertificate": "تمنح شهادة",
+      "requiresLaptop": "يتطلب جهاز كمبيوتر",
+      "materialsIncluded": "المواد متوفرة ضمن السعر",
+      "hasPracticalExercises": "تطبيقات عملية",
+      "sessionsRecorded": "الجلسات مسجلة"
+    }
   },
   "booking": {
     "title": "احجز جلستك",
@@ -265,7 +379,25 @@
     "evening": "مساءً",
     "prevMonth": "الشهر السابق",
     "nextMonth": "الشهر التالي",
-    "weekdays": ["أحد", "إثنين", "ثلاثاء", "أربعاء", "خميس", "جمعة", "سبت"]
+    "weekdays": [
+      "أحد",
+      "إثنين",
+      "ثلاثاء",
+      "أربعاء",
+      "خميس",
+      "جمعة",
+      "سبت"
+    ],
+    "chooseSlot": "اختر الموعد الأسبوعي",
+    "noSlotsAvailable": "لا توجد مواعيد توفر لهذا المعلم حالياً",
+    "groupScheduleTitle": "مواعيد المجموعة",
+    "fixedScheduleTitle": "موعد الجلسات",
+    "noGroupSchedule": "لم يحدد المعلم مواعيد لهذه المجموعة بعد",
+    "joinGroup": "انضم الآن",
+    "loginToBook": "سجّل الدخول لإتمام الحجز",
+    "availableDaysTitle": "الأيام المتاحة",
+    "sendRequest": "أرسل طلب الحجز",
+    "requestSuccess": "تم إرسال طلبك، بانتظار موافقة المعلم على الموعد"
   },
   "favorites": {
     "title": "المفضلة",
@@ -277,6 +409,74 @@
     "emptyTitle": "لا يوجد معلمون في المفضلة",
     "emptyHint": "ابدأ باضافة معلمين للوصول إليهم بسرعة",
     "exploreTeachers": "استكشف المعلمين"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "empty": "لا توجد إشعارات",
+    "markAllRead": "تحديد الكل كمقروء",
+    "teacherApproved": "تمت الموافقة على توثيق حسابك",
+    "teacherRejected": "تم رفض طلب التوثيق",
+    "teacherInvited": "تمت دعوتك للانضمام كمعلم على منصة تعلّم",
+    "studentImported": "تم إنشاء حسابك كطالب على منصة تعلّم",
+    "sessionReminder": "لديك جلسة قادمة"
+  },
+  "completeProfile": {
+    "studentTitle": "أكمل ملفك الشخصي",
+    "studentHint": "خطوة أخيرة قبل استخدام حسابك — اختر نوع التعليم وأكمل بياناته",
+    "teacherTitle": "أكمل ملفك الشخصي وارفع وثائق التوثيق",
+    "teacherHint": "أكمل نبذتك وصورتك الشخصية والوثائق المطلوبة، ثم أرسل الطلب للمراجعة",
+    "pendingTitle": "طلبك قيد المراجعة",
+    "pendingBody": "أرسلنا بياناتك ووثائقك للمراجعة، سيصلك إشعار فور اتخاذ القرار — لا يمكن الوصول إلى لوحة التحكم قبل ذلك.",
+    "rejectedTitle": "تم رفض طلب التوثيق",
+    "rejectedBody": "تم رفض طلب توثيق حسابك. تواصل مع الإدارة لمعرفة التفاصيل.",
+    "suspendedTitle": "حسابك موقوف",
+    "suspendedBody": "تم إيقاف حسابك مؤقتاً. تواصل مع الإدارة لمزيد من التفاصيل.",
+    "documentsRequiredHint": "الوثائق الثلاث التالية إلزامية ولا يمكن إتمام التسجيل بدونها",
+    "documentMissing": "لم تُرفع بعد",
+    "educationTypeLabel": "نوع التعليم",
+    "educationTypes": {
+      "school": "مدرسي",
+      "university": "جامعي",
+      "training": "تدريبي"
+    },
+    "curriculumLabel": "المنهج",
+    "stageLabel": "المرحلة",
+    "gradeLabel": "الصف الدراسي",
+    "universityLabel": "الجامعة",
+    "majorLabel": "التخصص",
+    "academicLevelLabel": "المستوى الأكاديمي",
+    "academicLevels": {
+      "diploma": "دبلوم",
+      "bachelor": "بكالوريوس",
+      "master": "ماجستير"
+    },
+    "courseFieldLabel": "مجال الدورة",
+    "trainingLevelLabel": "المستوى",
+    "trainingLevels": {
+      "beginner": "مبتدئ",
+      "intermediate": "متوسط",
+      "advanced": "متقدم"
+    },
+    "requiredHint": "أكمل الحقول المطلوبة لهذا النوع",
+    "bioLabel": "نبذة عنك",
+    "qualificationLabel": "المؤهل العلمي",
+    "experienceLabel": "سنوات الخبرة",
+    "subjectsLabel": "المواد",
+    "languagesLabel": "اللغات",
+    "displayNameEnLabel": "اسم المركز بالإنجليزية",
+    "commercialRegisterLabel": "رقم السجل التجاري",
+    "saveProfile": "حفظ الملف الشخصي",
+    "documentsTitle": "وثائق التوثيق",
+    "documentsHint": "ارفع وثيقة واحدة على الأقل قبل إرسال طلب المراجعة",
+    "documentTypeLabel": "نوع الوثيقة",
+    "documentFileLabel": "الملف",
+    "uploading": "جارٍ الرفع...",
+    "upload": "رفع",
+    "submitForReview": "إرسال للمراجعة",
+    "submitting": "جارٍ الإرسال...",
+    "submitHint": "أكمل النبذة وارفع وثيقة واحدة على الأقل لتفعيل هذا الزر",
+    "saving": "جارٍ الحفظ...",
+    "save": "حفظ ومتابعة"
   },
   "auth": {
     "title": "تسجيل الدخول",
@@ -316,6 +516,7 @@
     "placeholder": "سيتم بناء هذه اللوحة بالكامل في المرحلة القادمة وفق تصميم Figma",
     "roleStudent": "طالب",
     "roleTeacher": "معلم",
+    "roleCenter": "مركز تدريبي",
     "roleAdmin": "مدير",
     "nav": {
       "home": "الرئيسية",
@@ -325,14 +526,28 @@
       "invoices": "الفواتير",
       "students": "الطلاب",
       "reviews": "التقييمات",
-      "settings": "الاعدادات"
+      "settings": "الاعدادات",
+      "bookingRequests": "طلبات الحجز"
+    },
+    "availability": {
+      "title": "أيام التوفر",
+      "hint": "حدّد الأيام التي تكون متاحاً فيها بشكل عام — بلا أوقات محددة. عند إنشاء باقة فردية، تختار مجموعة فرعية من هذه الأيام لها، والطالب يحدد الوقت ويقدّم طلباً توافق عليه أنت."
+    },
+    "bookingRequests": {
+      "title": "طلبات حجز الباقات الفردية",
+      "empty": "لا توجد طلبات حجز بانتظار المراجعة حالياً",
+      "approve": "موافقة",
+      "reject": "رفض",
+      "reasonPlaceholder": "سبب الرفض (اختياري)",
+      "confirmReject": "تأكيد الرفض"
     },
     "teacherSessions": {
-      "package": "الباقة",
+      "package": "الباقة/الدورة",
       "type": "النوع",
       "subject": "المادة",
-      "date": "التاريخ",
+      "date": "الموعد",
       "time": "الوقت",
+      "duration": "المدة",
       "status": "الحالة",
       "action": "الاجراء",
       "details": "تفاصيل",
@@ -340,12 +555,14 @@
       "allStatuses": "جميع الحالات",
       "allSubjects": "جميع المواد",
       "datePlaceholder": "YY/MMDD",
-      "searchPlaceholder": "بحث",
+      "searchPlaceholder": "بحث بعنوان الباقة أو الدورة",
       "showingPrefix": "عرض",
       "showingOf": "من",
       "unit": "جلسة",
       "empty": "لا توجد جلسات",
-      "detailsTitle": "تفاصيل الجلسة"
+      "detailsTitle": "تفاصيل الجلسة",
+      "attendeesCount": "عدد الحضور",
+      "attendeesTitle": "الحضور المسجَّلون"
     },
     "teacherStudents": {
       "training": "طلاب الباقات التدريبية",
@@ -439,22 +656,18 @@
       "showingOf": "من",
       "unit": "باقة",
       "empty": "لا توجد باقات",
-      "close": "اغلاق"
+      "close": "اغلاق",
+      "submitForReview": "إرسال للمراجعة"
     },
     "addPackage": {
       "steps": {
         "basicInfo": "المعلومات الاساسية",
         "scheduling": "الجدولة",
         "pricing": "السعر",
-        "review": "المراجعة والارسال"
+        "review": "المراجعة والحفظ"
       },
       "sessionTypeLabel": "نوع الجلسة",
       "sessionTypes": {
-        "training": {
-          "title": "دورة تدريبية",
-          "desc": "دورة تدريبية يقدمها مركز تدريب",
-          "badge": "جدول صارم وغير قابل للتعديل"
-        },
         "group": {
           "title": "باقة جماعية",
           "desc": "جلسات جماعية مع مجموعة من الطلاب",
@@ -466,34 +679,41 @@
           "badge": "جدول مرن"
         }
       },
+      "titleLabel": "عنوان الباقة",
+      "titlePlaceholder": "اكتب عنوان الباقة",
       "subjectLabel": "المادة",
-      "curriculumLabel": "المنهج",
+      "curriculumLabel": "المناهج",
+      "stageLabel": "المرحلة الدراسية",
       "selectPlaceholder": "يرجى الاختيار",
+      "capacityLabel": "السعة (عدد الطلاب)",
       "sessionsCountLabel": "عدد الجلسات",
       "sessionsCountPlaceholder": "يرجى ادخال عدد الجلسات",
+      "durationLabel": "مدة الجلسة (دقيقة)",
+      "validityDaysLabel": "صلاحية الباقة (يوم)",
+      "optionalPlaceholder": "اختياري",
       "descriptionLabel": "الوصف",
       "descriptionPlaceholder": "اكتب وصفا للباقة",
       "next": "التالي",
       "back": "رجوع",
-      "schedulingHintClick": "انقر على اي خانة فارغة لاضافة وقت متاح",
-      "schedulingHintRecurring": "عند تحديد يوم و وقت متاح سيقوم النظام بجدولته تلقائيا ليكون هذا الوقت متاح اسبوعيا",
-      "bookedByOtherPackage": "محجوز لدى باقة اخرى",
-      "schedulingRequired": "يرجى اختيار وقت متاح واحد على الأقل",
-      "days": {
-        "sat": "سبت",
-        "sun": "احد",
-        "mon": "اثنين",
-        "tue": "ثلاثاء",
-        "wed": "اربعاء",
-        "thu": "خميس",
-        "fri": "جمعة"
-      },
-      "priceLabel": "سعر الباقة",
-      "pricePlaceholder": "ادخل سعر الباقة",
-      "finalPriceLabel": "السعر النهائي للطالب",
-      "finalPriceHint": "هذا هو السعر الذي سيظهر للطالب عند الحجز",
-      "submit": "ارسال للمراجعة",
-      "submitting": "جارٍ الارسال...",
+      "groupScheduleHint": "اختر من الروزنامة تاريخ كل جلسة من جلسات الباقة بنفسك — بلا تكرار أسبوعي تلقائي، ومدة كل جلسة ساعة واحدة ثابتة",
+      "individualScheduleHint": "اختر أياماً من أيام توفّرك العامة تكون متاحة لهذه الباقة — الطالب يحدد التاريخ والوقت لاحقاً ويقدّم طلب حجز توافق عليه أنت",
+      "noAvailabilityDays": "لم تحدد أياماً لتوفّرك العام بعد.",
+      "goToSettings": "أضِفها من الإعدادات",
+      "datesSelectedPrefix": "تم اختيار",
+      "datesSelectedOf": "من",
+      "scheduleRequired": "يرجى إضافة موعد واحد على الأقل",
+      "scheduleDay": "اليوم",
+      "scheduleDate": "تاريخ أول جلسة",
+      "scheduleStart": "من الساعة",
+      "scheduleEnd": "إلى الساعة",
+      "scheduleAdd": "إضافة موعد",
+      "scheduleRemove": "حذف الموعد",
+      "priceLabel": "سعر الساعة الواحدة (المعلم)",
+      "pricePlaceholder": "ادخل سعر الساعة الواحدة",
+      "priceHourlyHint": "كل جلسة تُحتسب كساعة واحدة — السعر الكلي للباقة = سعر الساعة × عدد الجلسات، بعد إضافة هامش المنصة.",
+      "pricingPolicyHint": "سيحدد الأدمن نسبة هامش المنصة والسعر النهائي للطالب عند مراجعة الباقة واعتمادها — لن تظهر هذه القيم هنا لأنها غير محتسبة بعد.",
+      "saveDraft": "حفظ كمسودة",
+      "saving": "جارٍ الحفظ...",
       "review": {
         "typeLabel": "نوع الباقة",
         "curriculumLabel": "المناهج",
@@ -502,10 +722,53 @@
         "sessionsUnit": "جلسات",
         "durationLabel": "مدة الجلسة",
         "durationUnit": "دقيقة",
-        "teacherPriceLabel": "سعر المدرس",
-        "platformMarginLabel": "هامش المنصة",
-        "finalPriceLabel": "السعر النهائي للطالب"
-      }
+        "teacherPriceLabel": "سعرك (المعلم)",
+        "scheduleLabel": "مواعيد الجلسات"
+      },
+      "scheduleEndsAt": "تنتهي الساعة"
+    },
+    "addCourse": {
+      "steps": {
+        "basicInfo": "المعلومات الاساسية",
+        "scheduleCapacity": "الجدولة والسعة",
+        "pricing": "السعر",
+        "review": "المراجعة والحفظ"
+      },
+      "createCourse": "انشاء دورة",
+      "titleLabel": "عنوان الدورة",
+      "titlePlaceholder": "اكتب عنوان الدورة",
+      "courseFieldLabel": "مجال الدورة",
+      "subjectLabel": "المادة (اختياري)",
+      "levelLabel": "المستوى",
+      "deliveryModeLabel": "نمط التقديم",
+      "locationLabel": "الموقع",
+      "locationPlaceholder": "اكتب موقع الدورة الحضورية",
+      "startDateLabel": "تاريخ البداية",
+      "endDateLabel": "تاريخ النهاية",
+      "datesLabel": "التواريخ",
+      "totalSessionsLabel": "عدد الجلسات الكلي",
+      "maxSeatsLabel": "الحد الأقصى للمقاعد",
+      "scheduleTitle": "الجدول الأسبوعي الثابت للدورة",
+      "pricingModeLabel": "طريقة التسعير",
+      "pricingModeTotal": "سعر إجمالي للدورة كاملة",
+      "pricingModeHourly": "سعر بحسب الساعة",
+      "priceLabel": "سعرك الإجمالي للدورة (المركز)",
+      "priceLabelHourly": "سعرك لكل ساعة (المركز)",
+      "totalHoursLabel": "إجمالي ساعات الدورة",
+      "totalHoursHint": "السعر الكلي للدورة = سعر الساعة × إجمالي الساعات، بعد إضافة هامش المنصة.",
+      "hasCertificateLabel": "تمنح الدورة شهادة",
+      "certificateTypeLabel": "نوع الشهادة",
+      "certificateIssuerLabel": "جهة إصدار الشهادة",
+      "courseFactsTitle": "معلومات مهمة للمتدرب",
+      "courseFactsHint": "هذه الإجابات تظهر للطالب دائماً بشكل موحّد، حتى لو لم يكن الوصف كافياً",
+      "requiresLaptopLabel": "يحتاج الطالب لإحضار جهاز كمبيوتر خاص",
+      "materialsIncludedLabel": "المواد التدريبية متوفرة ضمن السعر",
+      "hasPracticalExercisesLabel": "تتضمن الدورة تطبيقات عملية",
+      "sessionsRecordedLabel": "الجلسات مسجلة ومتاحة للمراجعة لاحقاً",
+      "yes": "نعم",
+      "no": "لا",
+      "prerequisitesLabel": "المتطلبات المسبقة",
+      "cancellationPolicyLabel": "سياسة الإلغاء"
     },
     "upcomingSessionsTitle": "جلساتي القادمة",
     "viewAll": "عرض الكل",
@@ -577,7 +840,11 @@
       "sessionsCount": "عدد الجلسات",
       "sessionDuration": "مدة الجلسة",
       "sessionTypeLabel": "نوع الجلسة",
-      "curriculumLabel": "المناهج"
+      "curriculumLabel": "المناهج",
+      "pendingTeacherConfirmation": "طلبك قيد المراجعة — بانتظار موافقة المعلم على الموعد",
+      "approvedAwaitingPayment": "وافق المعلم على طلبك — أكمل الدفع لتأكيد الحجز",
+      "payNow": "أكمل الدفع",
+      "processingPayment": "جارٍ التحويل للدفع..."
     },
     "invoices": {
       "dateLabel": "التاريخ",
@@ -652,7 +919,17 @@
       "statusVerified": "معتمد",
       "statusRejected": "مرفوض",
       "statusSuspended": "موقوف",
-      "documentsOf": "من"
+      "documentsOf": "من",
+      "addTeacher": "إضافة معلم",
+      "addModalTitle": "إضافة حساب معلم",
+      "nameLabel": "الاسم",
+      "emailLabel": "البريد الإلكتروني",
+      "phoneLabel": "رقم الهاتف",
+      "typeLabel": "نوع الحساب",
+      "passwordLabel": "كلمة المرور",
+      "passwordHint": "8 أحرف على الأقل — سترسَل للمعلم عبر البريد الإلكتروني",
+      "addSubmit": "إنشاء الحساب",
+      "close": "إغلاق"
     },
     "adminTeacherDetail": {
       "back": "العودة لقائمة المعلمين",
@@ -664,6 +941,16 @@
       "verifiedAt": "تاريخ الاعتماد",
       "rejectionReason": "سبب الرفض",
       "suspensionReason": "سبب الإيقاف",
+      "cityLabel": "المدينة",
+      "addressLabel": "العنوان",
+      "websiteLabel": "الموقع الإلكتروني",
+      "qualificationLabel": "المؤهل العلمي",
+      "experienceLabel": "سنوات الخبرة",
+      "subjectsLabel": "المواد",
+      "curriculaLabel": "المناهج",
+      "languagesLabel": "اللغات",
+      "displayNameEnLabel": "اسم المركز بالإنجليزية",
+      "commercialRegisterLabel": "السجل التجاري",
       "approveTeacher": "اعتماد المعلم",
       "rejectTeacher": "رفض الطلب",
       "suspendTeacher": "إيقاف المعلم",
@@ -695,6 +982,20 @@
       "reasonRequired": "السبب مطلوب",
       "confirm": "تأكيد",
       "cancel": "إلغاء"
+    },
+    "rescheduleModal": {
+      "title": "طلب تغيير الموعد",
+      "hint": "سيُرسل طلبك للأدمن للمراجعة — لا يتغير الموعد تلقائياً إلا بعد الموافقة",
+      "dateLabel": "التاريخ المقترح",
+      "timeLabel": "الوقت المقترح",
+      "dateTimeRequired": "يرجى تحديد التاريخ والوقت",
+      "reasonLabel": "السبب (اختياري إن كان الموعد بعيداً كفاية)",
+      "reasonPlaceholder": "اذكر سبب طلب التغيير...",
+      "confirm": "إرسال الطلب",
+      "submitting": "جارٍ الإرسال...",
+      "cancel": "إلغاء",
+      "success": "تم إرسال طلب تغيير الموعد بنجاح، بانتظار مراجعة الإدارة",
+      "sessionNotice": "لإلغاء الحجز أو الجلسة، يرجى التواصل مع الإدارة"
     },
     "adminListings": {
       "title": "مراجعة الباقات والدورات",
@@ -736,7 +1037,8 @@
       "reject": "رفض",
       "disable": "تعطيل",
       "currentMargin": "الهامش المعتمد حالياً",
-      "notFound": "لم يتم العثور على العرض"
+      "notFound": "لم يتم العثور على العرض",
+      "noActionsAvailable": "لا توجد إجراءات متاحة على هذا العنصر في حالته الحالية"
     },
     "adminComplaints": {
       "title": "الشكاوى وطلبات تغيير الموعد",
@@ -806,6 +1108,14 @@
       "generateModalTitle": "توليد مستحقات جديدة",
       "providerLabel": "المعلم / المركز",
       "providerRequired": "الرجاء اختيار المعلم أو المركز",
+      "periodStartLabel": "بداية الفترة",
+      "periodEndLabel": "نهاية الفترة",
+      "periodRequired": "الرجاء اختيار فترة صحيحة",
+      "confirmGenerate": "توليد",
+      "markPaidModalTitle": "تحديد المستحقات كمدفوعة",
+      "transferReferenceLabel": "مرجع التحويل",
+      "transferReferenceRequired": "الرجاء إدخال مرجع التحويل",
+      "confirm": "تأكيد",
       "colProvider": "المعلم / المركز",
       "colPeriod": "الفترة",
       "colSessions": "عدد الجلسات",
@@ -833,7 +1143,16 @@
       "importedLabel": "تم استيراده بنجاح",
       "failedLabel": "فشل الاستيراد",
       "colRow": "رقم الصف",
-      "colError": "الخطأ"
+      "colError": "الخطأ",
+      "addStudent": "إضافة طالب",
+      "addModalTitle": "إضافة حساب طالب",
+      "nameLabel": "الاسم",
+      "emailLabel": "البريد الإلكتروني",
+      "phoneLabel": "رقم الهاتف",
+      "passwordLabel": "كلمة المرور",
+      "passwordHint": "8 أحرف على الأقل — سترسَل للطالب عبر البريد الإلكتروني",
+      "addSubmit": "إنشاء الحساب",
+      "close": "إغلاق"
     },
     "adminSettings": {
       "title": "الإعدادات وسجل التدقيق",
@@ -860,6 +1179,21 @@
       "visibleOnly": "الظاهرة فقط",
       "hiddenOnly": "المخفية فقط",
       "empty": "لا توجد تقييمات مطابقة"
+    },
+    "adminManualBooking": {
+      "button": "حجز يدوي لطالب",
+      "title": "حجز يدوي",
+      "studentLabel": "الطالب",
+      "studentSearchPlaceholder": "ابحث بالاسم أو البريد الإلكتروني",
+      "studentRequired": "يرجى اختيار طالب",
+      "scheduledAtLabel": "موعد الجلسة",
+      "reasonLabel": "السبب (إلزامي)",
+      "reasonPlaceholder": "مثال: تعويض عن مشكلة تقنية، تسوية شكوى رقم...",
+      "reasonRequired": "السبب مطلوب — يُسجَّل في سجل التدقيق",
+      "cancel": "إلغاء",
+      "confirm": "تأكيد الحجز",
+      "saving": "جارٍ الحجز...",
+      "success": "تم إنشاء الحجز اليدوي بنجاح"
     }
   },
   "footer": {
@@ -879,5 +1213,16 @@
     "empty": "لا توجد نتائج",
     "emptyHint": "جرّب تعديل معايير البحث"
   },
-  "session": { "session": "جلسة", "sessions": "جلسات" }
+  "session": {
+    "session": "جلسة",
+    "sessions": "جلسات"
+  },
+  "payments": {
+    "successTitle": "تم الدفع بنجاح",
+    "successHint": "سيتم تأكيد حجزك خلال لحظات. يمكنك متابعة حالته من لوحة تحكمك.",
+    "backHome": "العودة للرئيسية",
+    "cancelTitle": "تم إلغاء الدفع",
+    "cancelHint": "لم تكتمل عملية الدفع، ولم يُخصم أي مبلغ. يمكنك المحاولة مرة أخرى في أي وقت.",
+    "backSearch": "العودة للبحث"
+  }
 }

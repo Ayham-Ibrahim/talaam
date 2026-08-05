@@ -4,25 +4,22 @@ import { Heart, Search, ChevronDown, Users } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { FavoriteTeacherRow } from '@/components/favorites/FavoriteTeacherRow';
 import { ErrorState, Skeleton } from '@/components/ui';
-import { useTeachers } from '@/hooks/useTeachers';
-import { useFavoritesStore } from '@/store';
+import { useFavorites, useToggleFavoriteTeacher } from '@/hooks/useFavorites';
 import { useT } from '@/hooks/useT';
 
 export function FavoritesPage() {
   const t = useT();
   const [q, setQ] = useState('');
 
-  const favorites = useFavoritesStore((s) => s.favorites);
-  const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
-
-  const { data, isLoading, isError, refetch } = useTeachers({});
+  const { data, isLoading, isError, refetch } = useFavorites();
+  const toggleFavoriteTeacher = useToggleFavoriteTeacher();
 
   const favoriteTeachers = useMemo(() => {
-    const list = (data?.data ?? []).filter((teacher) => favorites.has(teacher.id));
+    const list = (data ?? []).filter((f) => f.kind === 'teacher');
     const query = q.trim();
     if (!query) return list;
-    return list.filter((teacher) => teacher.name.includes(query) || teacher.subjects.some((s) => s.includes(query)));
-  }, [data, favorites, q]);
+    return list.filter((teacher) => teacher.name?.includes(query) || teacher.subjects.some((s) => s.includes(query)));
+  }, [data, q]);
 
   return (
     <PageContainer>
@@ -43,7 +40,7 @@ export function FavoritesPage() {
 
               <div className="flex items-center gap-3 bg-surface shadow-soft rounded-pill pl-2 pr-5 py-2 shrink-0">
                 <span className="font-medium text-ink whitespace-nowrap">
-                  {favorites.size} {t('favorites.count')}
+                  {favoriteTeachers.length} {t('favorites.count')}
                 </span>
                 <div className="w-[52px] h-[52px] rounded-full bg-line/40 flex items-center justify-center">
                   <Users size={22} className="text-primary" />
@@ -103,7 +100,7 @@ export function FavoritesPage() {
             </div>
           ) : (
             favoriteTeachers.map((teacher) => (
-              <FavoriteTeacherRow key={teacher.id} teacher={teacher} onRemove={toggleFavorite} />
+              <FavoriteTeacherRow key={teacher.id} teacher={teacher} onRemove={() => toggleFavoriteTeacher.mutate(teacher.id)} />
             ))
           )}
         </div>

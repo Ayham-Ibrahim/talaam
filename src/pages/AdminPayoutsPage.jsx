@@ -5,6 +5,7 @@ import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboar
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { PayoutsTable } from '@/components/dashboard/admin/PayoutsTable';
 import { GeneratePayoutModal } from '@/components/dashboard/admin/GeneratePayoutModal';
+import { MarkPayoutPaidModal } from '@/components/dashboard/admin/MarkPayoutPaidModal';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminPayouts, useGeneratePayout, useApprovePayout, useMarkPayoutPaid } from '@/hooks/useAdminPayouts';
@@ -16,6 +17,7 @@ export function AdminPayoutsPage() {
   const { user } = useAuth();
   const [status, setStatus] = useState('');
   const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [markPaidPayoutId, setMarkPaidPayoutId] = useState(null);
 
   const { data, isLoading, isError, refetch } = useAdminPayouts({ status });
   const generatePayout = useGeneratePayout();
@@ -69,7 +71,7 @@ export function AdminPayoutsPage() {
             payouts={payouts}
             isActing={isActing}
             onApprove={(id) => approvePayout.mutate(id)}
-            onMarkPaid={(id) => markPayoutPaid.mutate(id)}
+            onMarkPaid={(id) => setMarkPaidPayoutId(id)}
           />
         )}
       </div>
@@ -77,8 +79,29 @@ export function AdminPayoutsPage() {
       {showGenerateModal && (
         <GeneratePayoutModal
           isPending={generatePayout.isPending}
-          onClose={() => setShowGenerateModal(false)}
-          onConfirm={(providerId) => generatePayout.mutate(providerId, { onSuccess: () => setShowGenerateModal(false) })}
+          error={generatePayout.error}
+          onClose={() => {
+            setShowGenerateModal(false);
+            generatePayout.reset();
+          }}
+          onConfirm={(payload) => generatePayout.mutate(payload, { onSuccess: () => setShowGenerateModal(false) })}
+        />
+      )}
+
+      {markPaidPayoutId != null && (
+        <MarkPayoutPaidModal
+          isPending={markPayoutPaid.isPending}
+          error={markPayoutPaid.error}
+          onClose={() => {
+            setMarkPaidPayoutId(null);
+            markPayoutPaid.reset();
+          }}
+          onConfirm={(transferReference) =>
+            markPayoutPaid.mutate(
+              { id: markPaidPayoutId, transferReference },
+              { onSuccess: () => setMarkPaidPayoutId(null) },
+            )
+          }
         />
       )}
     </AdminDashboardLayout>

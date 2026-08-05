@@ -4,11 +4,13 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { TeacherProfileHeader } from '@/components/teacher/TeacherProfileHeader';
 import { InfoSection } from '@/components/teacher/TeacherInfoSections';
 import { PackagesSection } from '@/components/teacher/PackagesSection';
+import { CoursesSection } from '@/components/teacher/CoursesSection';
 import { RatingReviews } from '@/components/teacher/RatingReviews';
 import { BookingWidget } from '@/components/teacher/BookingWidget';
+import { CourseEnrollWidget } from '@/components/teacher/CourseEnrollWidget';
 import { ErrorState, Skeleton } from '@/components/ui';
 import { useTeacher } from '@/hooks/useTeachers';
-import { usePackages, useRatingSummary, useReviews } from '@/hooks/useMeta';
+import { usePackages, useCourses, useRatingSummary, useReviews } from '@/hooks/useMeta';
 import { useT } from '@/hooks/useT';
 
 const LANGUAGE_FLAGS = { ar: '/ar.png', en: '/en.png' };
@@ -18,18 +20,27 @@ export function TeacherProfilePage() {
   const { id } = useParams();
 
   const { data: teacher, isLoading: teacherLoading, isError: teacherError, refetch: refetchTeacher } = useTeacher(id);
+  const isCenter = teacher?.type === 'training_center';
   const {
     data: packages,
     isLoading: packagesLoading,
     isError: packagesError,
     refetch: refetchPackages,
-  } = usePackages(id);
+  } = usePackages(isCenter ? undefined : id);
+  const {
+    data: courses,
+    isLoading: coursesLoading,
+    isError: coursesError,
+    refetch: refetchCourses,
+  } = useCourses(isCenter ? id : undefined);
   const { data: reviews, isLoading: reviewsLoading, isError: reviewsError, refetch: refetchReviews } = useReviews(id);
   const { data: ratingSummary, isLoading: summaryLoading } = useRatingSummary(id);
 
   const [selectedPackageId, setSelectedPackageId] = useState(null);
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
 
   const selectedPackage = packages?.find((p) => p.id === selectedPackageId) ?? null;
+  const selectedCourse = courses?.find((c) => c.id === selectedCourseId) ?? null;
 
   if (teacherLoading) {
     return (
@@ -80,16 +91,26 @@ export function TeacherProfilePage() {
             }))}
           />
           <InfoSection title={t('teacher.teachingMethods')} items={teacher.teachingMethods} />
-          <InfoSection title={t('teacher.sessionTypes')} items={teacher.sessionTypes} />
 
-          <PackagesSection
-            packages={packages ?? []}
-            isLoading={packagesLoading}
-            isError={packagesError}
-            refetch={refetchPackages}
-            selectedPackageId={selectedPackageId}
-            onSelect={(pkg) => setSelectedPackageId(pkg.id)}
-          />
+          {isCenter ? (
+            <CoursesSection
+              courses={courses ?? []}
+              isLoading={coursesLoading}
+              isError={coursesError}
+              refetch={refetchCourses}
+              selectedCourseId={selectedCourseId}
+              onSelect={(course) => setSelectedCourseId(course.id)}
+            />
+          ) : (
+            <PackagesSection
+              packages={packages ?? []}
+              isLoading={packagesLoading}
+              isError={packagesError}
+              refetch={refetchPackages}
+              selectedPackageId={selectedPackageId}
+              onSelect={(pkg) => setSelectedPackageId(pkg.id)}
+            />
+          )}
 
           <RatingReviews
             summary={ratingSummary}
@@ -100,8 +121,8 @@ export function TeacherProfilePage() {
           />
         </div>
 
-        {/* Booking widget */}
-        <BookingWidget teacher={teacher} selectedPackage={selectedPackage} />
+        {/* Booking / enrollment widget */}
+        {isCenter ? <CourseEnrollWidget selectedCourse={selectedCourse} /> : <BookingWidget selectedPackage={selectedPackage} />}
       </div>
     </PageContainer>
   );

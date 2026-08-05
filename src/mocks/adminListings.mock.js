@@ -5,9 +5,16 @@
  * margin at approval time, student price + platform revenue are derived).
  */
 
+/**
+ * `submitted` kept for the mock branch's own legacy status value; real listings
+ * use `pending_approval` (+ `draft`/`full`, per Package/Course status enum).
+ */
 export const LISTING_STATUS_STYLES = {
+  draft: { label: 'مسودة', bg: '#F2F2F7', color: '#6B7280' },
   submitted: { label: 'بانتظار المراجعة', bg: '#FEF3E2', color: '#B7791F' },
+  pending_approval: { label: 'بانتظار المراجعة', bg: '#FEF3E2', color: '#B7791F' },
   active: { label: 'نشطة', bg: '#E3F5EC', color: '#2E9E6B' },
+  full: { label: 'مكتملة العدد', bg: '#E3F1FD', color: '#2F80ED' },
   rejected: { label: 'مرفوضة', bg: '#FDEFF2', color: '#B00852' },
   disabled: { label: 'معطّلة', bg: '#F2F2F7', color: '#6B7280' },
 };

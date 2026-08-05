@@ -1,14 +1,18 @@
 import { useState } from 'react';
-import { calculateStudentPrice, DEFAULT_MARGIN_PERCENT } from '@/lib/pricing';
+import { Info } from 'lucide-react';
 import { useT } from '@/hooks/useT';
 
+/**
+ * The teacher only ever sets their own price. Platform margin, student price,
+ * and platform revenue are computed by the admin at approval time — showing
+ * any of them here would leak a figure that doesn't exist yet and violates the
+ * backend's explicit policy (TeacherPackageResource excludes them entirely).
+ */
 export function PackageWizardPricing({ data, onChange, onNext, onBack }) {
   const t = useT();
   const [touched, setTouched] = useState(false);
 
-  const priceNumber = Number(data.teacherPrice);
-  const isValid = data.teacherPrice !== '' && priceNumber > 0;
-  const preview = isValid ? calculateStudentPrice(priceNumber, DEFAULT_MARGIN_PERCENT) : null;
+  const isValid = data.teacher_price !== '' && Number(data.teacher_price) > 0;
 
   const handleNext = () => {
     setTouched(true);
@@ -24,23 +28,24 @@ export function PackageWizardPricing({ data, onChange, onNext, onBack }) {
           type="number"
           min="0"
           dir="ltr"
-          value={data.teacherPrice}
-          onChange={(e) => onChange({ teacherPrice: e.target.value })}
+          value={data.teacher_price}
+          onChange={(e) => onChange({ teacher_price: e.target.value })}
           placeholder={t('dashboard.addPackage.pricePlaceholder')}
           className={`w-full rounded-lg border bg-white px-3 py-3 text-left text-sm text-ink placeholder:text-[#AEAEB2] focus:outline-none ${
             touched && !isValid ? 'border-accent-pink' : 'border-[#E3E3E3] focus:border-primary'
           }`}
         />
+        {isValid && Number(data.sessions_count) > 0 && (
+          <span className="text-xs text-ink-soft" dir="ltr">
+            {data.teacher_price} × {data.sessions_count} = {(Number(data.teacher_price) * Number(data.sessions_count)).toFixed(2)}
+          </span>
+        )}
       </div>
 
-      <div className="flex w-full flex-col items-start gap-1.5">
-        <label className="text-sm font-semibold text-ink">
-          {t('dashboard.addPackage.finalPriceLabel')}{' '}
-          <span className="font-normal text-ink-soft">({t('dashboard.addPackage.finalPriceHint')})</span>
-        </label>
-        <div className="w-full rounded-lg border border-[#E3E3E3] bg-[#F7F8FA] px-3 py-3 text-right text-lg font-bold text-ink" dir="ltr">
-          {preview ? `$${preview.studentPrice}` : '—'}
-        </div>
+      <div className="flex items-start gap-3 rounded-2xl border border-dashed border-primary/30 bg-primary-light/40 p-5">
+        <Info size={20} className="mt-0.5 shrink-0 text-primary" />
+        <p className="text-sm text-ink">{t('dashboard.addPackage.priceHourlyHint')}</p>
+        <p className="text-sm text-ink">{t('dashboard.addPackage.pricingPolicyHint')}</p>
       </div>
 
       <div className="flex w-full items-center justify-between">

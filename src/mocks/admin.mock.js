@@ -25,11 +25,14 @@ export const DOCUMENT_STATUS_STYLES = {
   rejected: { label: 'مرفوضة', bg: '#FDEFF2', color: '#B00852' },
 };
 
+/** يطابق enum عمود type في جدول verification_documents على الباك حرفياً */
 export const DOCUMENT_TYPE_LABELS = {
-  national_id: 'الهوية الوطنية',
-  degree_certificate: 'الشهادة العلمية',
-  teaching_license: 'رخصة تدريس',
-  cv: 'السيرة الذاتية',
+  identity: 'إثبات هوية',
+  academic: 'شهادة أكاديمية',
+  experience: 'إثبات خبرة',
+  professional: 'شهادة مهنية',
+  security: 'فحص أمني',
+  commercial: 'سجل تجاري',
 };
 
 export const BADGE_CATALOG = [
@@ -169,36 +172,36 @@ let mockAdminTeachers = [
 ];
 
 let mockVerificationDocuments = [
-  { id: 1, teacherId: 301, type: 'national_id', fileName: 'national_id_301.pdf', status: 'pending', uploadedAt: '2026-07-18', rejectionReason: null },
-  { id: 2, teacherId: 301, type: 'degree_certificate', fileName: 'degree_301.pdf', status: 'pending', uploadedAt: '2026-07-18', rejectionReason: null },
-  { id: 3, teacherId: 301, type: 'cv', fileName: 'cv_301.pdf', status: 'pending', uploadedAt: '2026-07-18', rejectionReason: null },
+  { id: 1, teacherId: 301, type: 'identity', fileName: 'national_id_301.pdf', status: 'pending', uploadedAt: '2026-07-18', rejectionReason: null },
+  { id: 2, teacherId: 301, type: 'academic', fileName: 'degree_301.pdf', status: 'pending', uploadedAt: '2026-07-18', rejectionReason: null },
+  { id: 3, teacherId: 301, type: 'experience', fileName: 'cv_301.pdf', status: 'pending', uploadedAt: '2026-07-18', rejectionReason: null },
 
-  { id: 4, teacherId: 302, type: 'national_id', fileName: 'national_id_302.pdf', status: 'pending', uploadedAt: '2026-07-20', rejectionReason: null },
-  { id: 5, teacherId: 302, type: 'degree_certificate', fileName: 'degree_302.pdf', status: 'pending', uploadedAt: '2026-07-20', rejectionReason: null },
+  { id: 4, teacherId: 302, type: 'identity', fileName: 'national_id_302.pdf', status: 'pending', uploadedAt: '2026-07-20', rejectionReason: null },
+  { id: 5, teacherId: 302, type: 'academic', fileName: 'degree_302.pdf', status: 'pending', uploadedAt: '2026-07-20', rejectionReason: null },
 
-  { id: 6, teacherId: 303, type: 'national_id', fileName: 'national_id_303.pdf', status: 'rejected', uploadedAt: '2026-07-19', rejectionReason: 'الصورة غير واضحة' },
-  { id: 7, teacherId: 303, type: 'degree_certificate', fileName: 'degree_303.pdf', status: 'pending', uploadedAt: '2026-07-21', rejectionReason: null },
-  { id: 8, teacherId: 303, type: 'teaching_license', fileName: 'license_303.pdf', status: 'pending', uploadedAt: '2026-07-21', rejectionReason: null },
-  { id: 9, teacherId: 303, type: 'cv', fileName: 'cv_303.pdf', status: 'pending', uploadedAt: '2026-07-21', rejectionReason: null },
+  { id: 6, teacherId: 303, type: 'identity', fileName: 'national_id_303.pdf', status: 'rejected', uploadedAt: '2026-07-19', rejectionReason: 'الصورة غير واضحة' },
+  { id: 7, teacherId: 303, type: 'academic', fileName: 'degree_303.pdf', status: 'pending', uploadedAt: '2026-07-21', rejectionReason: null },
+  { id: 8, teacherId: 303, type: 'professional', fileName: 'license_303.pdf', status: 'pending', uploadedAt: '2026-07-21', rejectionReason: null },
+  { id: 9, teacherId: 303, type: 'experience', fileName: 'cv_303.pdf', status: 'pending', uploadedAt: '2026-07-21', rejectionReason: null },
 
-  { id: 10, teacherId: 304, type: 'national_id', fileName: 'national_id_304.pdf', status: 'approved', uploadedAt: '2026-06-05', rejectionReason: null },
-  { id: 11, teacherId: 304, type: 'degree_certificate', fileName: 'degree_304.pdf', status: 'approved', uploadedAt: '2026-06-05', rejectionReason: null },
-  { id: 12, teacherId: 304, type: 'cv', fileName: 'cv_304.pdf', status: 'approved', uploadedAt: '2026-06-05', rejectionReason: null },
+  { id: 10, teacherId: 304, type: 'identity', fileName: 'national_id_304.pdf', status: 'approved', uploadedAt: '2026-06-05', rejectionReason: null },
+  { id: 11, teacherId: 304, type: 'academic', fileName: 'degree_304.pdf', status: 'approved', uploadedAt: '2026-06-05', rejectionReason: null },
+  { id: 12, teacherId: 304, type: 'experience', fileName: 'cv_304.pdf', status: 'approved', uploadedAt: '2026-06-05', rejectionReason: null },
 
-  { id: 13, teacherId: 305, type: 'national_id', fileName: 'national_id_305.pdf', status: 'approved', uploadedAt: '2026-05-15', rejectionReason: null },
-  { id: 14, teacherId: 305, type: 'degree_certificate', fileName: 'degree_305.pdf', status: 'approved', uploadedAt: '2026-05-15', rejectionReason: null },
+  { id: 13, teacherId: 305, type: 'identity', fileName: 'national_id_305.pdf', status: 'approved', uploadedAt: '2026-05-15', rejectionReason: null },
+  { id: 14, teacherId: 305, type: 'academic', fileName: 'degree_305.pdf', status: 'approved', uploadedAt: '2026-05-15', rejectionReason: null },
 
-  { id: 15, teacherId: 306, type: 'national_id', fileName: 'national_id_306.pdf', status: 'approved', uploadedAt: '2026-04-08', rejectionReason: null },
-  { id: 16, teacherId: 306, type: 'teaching_license', fileName: 'license_306.pdf', status: 'approved', uploadedAt: '2026-04-08', rejectionReason: null },
+  { id: 15, teacherId: 306, type: 'identity', fileName: 'national_id_306.pdf', status: 'approved', uploadedAt: '2026-04-08', rejectionReason: null },
+  { id: 16, teacherId: 306, type: 'professional', fileName: 'license_306.pdf', status: 'approved', uploadedAt: '2026-04-08', rejectionReason: null },
 
-  { id: 17, teacherId: 307, type: 'national_id', fileName: 'national_id_307.pdf', status: 'rejected', uploadedAt: '2026-07-10', rejectionReason: 'صورة الهوية غير واضحة' },
-  { id: 18, teacherId: 307, type: 'degree_certificate', fileName: 'degree_307.pdf', status: 'rejected', uploadedAt: '2026-07-10', rejectionReason: 'الشهادة منتهية الصلاحية' },
+  { id: 17, teacherId: 307, type: 'identity', fileName: 'national_id_307.pdf', status: 'rejected', uploadedAt: '2026-07-10', rejectionReason: 'صورة الهوية غير واضحة' },
+  { id: 18, teacherId: 307, type: 'academic', fileName: 'degree_307.pdf', status: 'rejected', uploadedAt: '2026-07-10', rejectionReason: 'الشهادة منتهية الصلاحية' },
 
-  { id: 19, teacherId: 308, type: 'national_id', fileName: 'national_id_308.pdf', status: 'approved', uploadedAt: '2026-01-20', rejectionReason: null },
-  { id: 20, teacherId: 308, type: 'degree_certificate', fileName: 'degree_308.pdf', status: 'approved', uploadedAt: '2026-01-20', rejectionReason: null },
+  { id: 19, teacherId: 308, type: 'identity', fileName: 'national_id_308.pdf', status: 'approved', uploadedAt: '2026-01-20', rejectionReason: null },
+  { id: 20, teacherId: 308, type: 'academic', fileName: 'degree_308.pdf', status: 'approved', uploadedAt: '2026-01-20', rejectionReason: null },
 
-  { id: 21, teacherId: 309, type: 'national_id', fileName: 'national_id_309.pdf', status: 'approved', uploadedAt: '2026-06-25', rejectionReason: null },
-  { id: 22, teacherId: 309, type: 'teaching_license', fileName: 'license_309.pdf', status: 'approved', uploadedAt: '2026-06-25', rejectionReason: null },
+  { id: 21, teacherId: 309, type: 'identity', fileName: 'national_id_309.pdf', status: 'approved', uploadedAt: '2026-06-25', rejectionReason: null },
+  { id: 22, teacherId: 309, type: 'professional', fileName: 'license_309.pdf', status: 'approved', uploadedAt: '2026-06-25', rejectionReason: null },
 ];
 
 let mockBadgeAwards = [

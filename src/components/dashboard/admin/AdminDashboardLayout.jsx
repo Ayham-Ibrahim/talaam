@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
-  Bell,
   ChevronRight,
   FileSpreadsheet,
   GraduationCap,
@@ -15,14 +14,17 @@ import {
 } from 'lucide-react';
 import { Logo } from '@/components/layout/Logo';
 import { Avatar } from '@/components/ui';
+import { NotificationsBell } from '@/components/notifications/NotificationsBell';
 import { useAuth, useLogout } from '@/hooks/useAuth';
+import { useAdminOverview } from '@/hooks/useAdmin';
 import { useT } from '@/hooks/useT';
 
+/** كل عنصر مرتبط بعدّاد من overview.stats — نقطة حمراء عند > 0. مؤقت ريثما تُستبدَل بإشعارات Firebase لحظية */
 const NAV_ITEMS = [
   { key: 'home', icon: Home, path: '/dashboard/admin', end: true },
-  { key: 'teachers', icon: GraduationCap, path: '/dashboard/admin/teachers' },
-  { key: 'packages', icon: Package, path: '/dashboard/admin/listings' },
-  { key: 'complaints', icon: MessageSquareWarning, path: '/dashboard/admin/complaints' },
+  { key: 'teachers', icon: GraduationCap, path: '/dashboard/admin/teachers', statKey: 'pendingVerificationsCount' },
+  { key: 'packages', icon: Package, path: '/dashboard/admin/listings', statKey: 'pendingApprovalsCount' },
+  { key: 'complaints', icon: MessageSquareWarning, path: '/dashboard/admin/complaints', statKey: 'openComplaintsCount' },
   { key: 'taxonomy', icon: ListTree, path: '/dashboard/admin/taxonomy' },
   { key: 'payouts', icon: Wallet, path: '/dashboard/admin/payouts' },
   { key: 'studentImport', icon: FileSpreadsheet, path: '/dashboard/admin/student-import' },
@@ -35,6 +37,7 @@ export function AdminDashboardLayout({ children }) {
   const logout = useLogout();
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
+  const { data: overview } = useAdminOverview();
 
   const activeNavItem =
     NAV_ITEMS.find((item) =>
@@ -66,6 +69,7 @@ export function AdminDashboardLayout({ children }) {
                 </div>
               );
             }
+            const pendingCount = item.statKey ? overview?.stats?.[item.statKey] : 0;
             return (
               <NavLink
                 key={item.key}
@@ -78,7 +82,10 @@ export function AdminDashboardLayout({ children }) {
                 }
               >
                 {t(`dashboard.adminNav.${item.key}`)}
-                <Icon size={22} />
+                <span className="relative">
+                  <Icon size={22} />
+                  {!!pendingCount && <span className="absolute -left-1 -top-1 h-2.5 w-2.5 rounded-full bg-accent-pink" />}
+                </span>
               </NavLink>
             );
           })}
@@ -122,13 +129,10 @@ export function AdminDashboardLayout({ children }) {
               )}
             </div>
 
-            <button
-              type="button"
-              className="hidden h-10 w-10 items-center justify-center rounded-full hover:bg-line/40 sm:flex"
-              aria-label="الاشعارات"
-            >
-              <Bell size={18} className="text-[#2D2D2D]" />
-            </button>
+            <NotificationsBell
+              buttonClassName="relative hidden h-10 w-10 items-center justify-center rounded-full hover:bg-line/40 sm:flex"
+              iconClassName="text-[#2D2D2D]"
+            />
           </div>
 
           <span className="flex items-center gap-2 rounded-pill border border-line px-4 py-2 text-sm font-bold text-ink">

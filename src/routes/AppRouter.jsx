@@ -6,7 +6,10 @@ import { HowItWorksPage } from '@/pages/HowItWorksPage';
 import { ContactPage } from '@/pages/ContactPage';
 import { FavoritesPage } from '@/pages/FavoritesPage';
 import { TeacherProfilePage } from '@/pages/TeacherProfilePage';
+import { PaymentSuccessPage } from '@/pages/PaymentSuccessPage';
+import { PaymentCancelPage } from '@/pages/PaymentCancelPage';
 import { LoginPage } from '@/pages/LoginPage';
+import { CompleteProfilePage } from '@/pages/CompleteProfilePage';
 import { StudentDashboardPage } from '@/pages/StudentDashboardPage';
 import { TeacherDashboardPage } from '@/pages/TeacherDashboardPage';
 import { AdminDashboardPage } from '@/pages/AdminDashboardPage';
@@ -28,6 +31,8 @@ import { TeacherPackagesPage } from '@/pages/TeacherPackagesPage';
 import { TeacherSessionsPage } from '@/pages/TeacherSessionsPage';
 import { TeacherSessionDetailsPage } from '@/pages/TeacherSessionDetailsPage';
 import { TeacherStudentsPage } from '@/pages/TeacherStudentsPage';
+import { TeacherSettingsPage } from '@/pages/TeacherSettingsPage';
+import { TeacherBookingRequestsPage } from '@/pages/TeacherBookingRequestsPage';
 import { TeacherStudentDetailsPage } from '@/pages/TeacherStudentDetailsPage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
@@ -42,7 +47,17 @@ export function AppRouter() {
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/teacher/:id" element={<TeacherProfilePage />} />
+        <Route path="/payments/success" element={<PaymentSuccessPage />} />
+        <Route path="/payments/cancel" element={<PaymentCancelPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/complete-profile"
+          element={
+            <ProtectedRoute>
+              <CompleteProfilePage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/dashboard/student"
           element={
@@ -216,6 +231,22 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="teacher">
               <TeacherStudentDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/teacher/settings"
+          element={
+            <ProtectedRoute role="teacher">
+              <TeacherSettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/teacher/booking-requests"
+          element={
+            <ProtectedRoute role="teacher">
+              <TeacherBookingRequestsPage />
             </ProtectedRoute>
           }
         />

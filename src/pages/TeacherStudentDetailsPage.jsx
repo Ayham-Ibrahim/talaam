@@ -79,11 +79,7 @@ export function TeacherStudentDetailsPage() {
   if (!user) return <Navigate to="/login" replace />;
 
   const typeStyle = student ? TEACHER_SESSION_TYPE_STYLES[student.type] : null;
-  const packageTypeValue = student
-    ? student.type === 'training'
-      ? typeStyle.label
-      : `باقة ${typeStyle.label}`
-    : '';
+  const packageTypeValue = typeStyle ? (student.type === 'training' ? typeStyle.label : `باقة ${typeStyle.label}`) : '—';
 
   return (
     <DashboardLayout>

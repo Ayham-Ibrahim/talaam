@@ -46,7 +46,7 @@ export function AdminListingsTable({ listings }) {
               <td className="px-4 py-4 text-right text-ink-soft">{formatDate(listing.submittedAt)}</td>
               <td className="px-4 py-4 text-right">
                 <Link
-                  to={`/dashboard/admin/listings/${listing.id}`}
+                  to={`/dashboard/admin/listings/${listing.id}?kind=${listing.kind}`}
                   className="inline-flex items-center gap-1.5 text-primary hover:opacity-70"
                 >
                   <Eye size={18} />

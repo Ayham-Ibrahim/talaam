@@ -2,10 +2,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { adminService } from '@/services/adminService';
 
+/** يُستطلَع كل دقيقة — نفس البيانات تغذّي النقاط الحمراء على شريط تنقّل الأدمن (ريثما تُستبدَل بإشعارات Firebase لحظية) */
 export function useAdminOverview() {
   return useQuery({
     queryKey: queryKeys.admin.overview(),
     queryFn: () => adminService.getOverview(),
+    refetchInterval: 60000,
   });
 }
 
@@ -22,6 +24,20 @@ export function useAdminTeacherDetail(id) {
     queryKey: queryKeys.admin.teacherDetail(id),
     queryFn: () => adminService.getTeacherDetail(id),
     enabled: !!id,
+  });
+}
+
+export function useCreateTeacherAccount() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => adminService.createTeacherAccount(payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'teachers'] }),
+  });
+}
+
+export function useCreateStudentAccount() {
+  return useMutation({
+    mutationFn: (payload) => adminService.createStudentAccount(payload),
   });
 }
 
@@ -64,6 +80,12 @@ export function useReactivateTeacher(id) {
   return useMutation({
     mutationFn: (teacherId) => adminService.reactivateTeacher(teacherId),
     onSuccess: invalidate,
+  });
+}
+
+export function useDocumentDownloadUrl() {
+  return useMutation({
+    mutationFn: (documentId) => adminService.getDocumentDownloadUrl(documentId),
   });
 }
 

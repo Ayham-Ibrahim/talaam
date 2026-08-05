@@ -1,9 +1,14 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Avatar, EmptyState } from '@/components/ui';
 import { getSessionTypeColor, SESSION_STATUS_STYLES, SESSION_STATUS_LABEL_KEYS } from '@/mocks/dashboard.mock';
+import { RescheduleRequestModal } from './RescheduleRequestModal';
+import { useCreateRescheduleRequest } from '@/hooks/useReschedule';
 import { useT } from '@/hooks/useT';
 
-function SessionCard({ session }) {
+function SessionCard({ session, onReschedule }) {
   const t = useT();
+  const navigate = useNavigate();
   const status = session.status ?? 'upcoming';
   const statusStyle = SESSION_STATUS_STYLES[status];
 
@@ -13,6 +18,8 @@ function SessionCard({ session }) {
         {session.canCancel && (
           <button
             type="button"
+            onClick={() => navigate('/contact')}
+            title={t('dashboard.rescheduleModal.sessionNotice')}
             className="rounded-xl border border-[#FF383C] bg-[#FDF0F0] px-4 py-2.5 text-sm text-[#FF383C] hover:bg-[#FF383C]/10"
           >
             {t('dashboard.myPackages.cancel')}
@@ -21,6 +28,7 @@ function SessionCard({ session }) {
         {session.canReschedule && (
           <button
             type="button"
+            onClick={() => onReschedule(session.id)}
             className="rounded-xl border border-primary bg-[#EDF0F5] px-4 py-2.5 text-sm text-primary hover:bg-primary/10"
           >
             {t('dashboard.changeAppointment')}
@@ -29,6 +37,7 @@ function SessionCard({ session }) {
         {session.canJoin && (
           <button
             type="button"
+            onClick={() => window.open(session.joinUrl, '_blank', 'noopener,noreferrer')}
             className="rounded-xl border-2 border-primary bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-hover"
           >
             {t('dashboard.join')}
@@ -102,6 +111,22 @@ function SessionCard({ session }) {
 
 export function SessionsList({ sessions }) {
   const t = useT();
+  const [reschedulingSessionId, setReschedulingSessionId] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+  const createRescheduleRequest = useCreateRescheduleRequest();
+
+  const handleConfirmReschedule = ({ proposedScheduledAt, reason }) => {
+    createRescheduleRequest.mutate(
+      { sessionId: reschedulingSessionId, proposedScheduledAt, reason },
+      {
+        onSuccess: () => {
+          setReschedulingSessionId(null);
+          setSuccessMessage(t('dashboard.rescheduleModal.success'));
+          setTimeout(() => setSuccessMessage(''), 4000);
+        },
+      }
+    );
+  };
 
   if (sessions.length === 0) {
     return <EmptyState title={t('dashboard.sessionsPage.empty')} />;
@@ -109,9 +134,28 @@ export function SessionsList({ sessions }) {
 
   return (
     <div className="flex flex-col gap-3">
+      {successMessage && (
+        <div className="rounded-2xl bg-success-light px-4 py-3 text-sm font-medium text-success">{successMessage}</div>
+      )}
       {sessions.map((session) => (
-        <SessionCard key={session.id} session={session} />
+        <SessionCard
+          key={session.id}
+          session={session}
+          onReschedule={(id) => {
+            createRescheduleRequest.reset();
+            setReschedulingSessionId(id);
+          }}
+        />
       ))}
+
+      {reschedulingSessionId && (
+        <RescheduleRequestModal
+          isPending={createRescheduleRequest.isPending}
+          error={createRescheduleRequest.error?.message}
+          onConfirm={handleConfirmReschedule}
+          onClose={() => setReschedulingSessionId(null)}
+        />
+      )}
     </div>
   );
 }

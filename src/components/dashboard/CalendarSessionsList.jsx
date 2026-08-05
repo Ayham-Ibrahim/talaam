@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { CalendarDays } from 'lucide-react';
 import { EmptyState } from '@/components/ui';
 import { SESSION_TYPE_STYLES, SESSION_STATUS_STYLES } from '@/mocks/dashboard.mock';
+import { RescheduleRequestModal } from './RescheduleRequestModal';
+import { useCreateRescheduleRequest } from '@/hooks/useReschedule';
 import { useT } from '@/hooks/useT';
 
 /** Wording for this list's status pill differs from the shared "تم الحضور" label used elsewhere */
@@ -21,7 +24,7 @@ function formatShortDate(iso) {
   return `${dd}/${mm}/${d.getFullYear()}`;
 }
 
-function DaySessionRow({ session, onDetails }) {
+function DaySessionRow({ session, onReschedule }) {
   const t = useT();
   const typeStyle = SESSION_TYPE_STYLES[session.type];
   const status = session.status ?? 'upcoming';
@@ -58,26 +61,47 @@ function DaySessionRow({ session, onDetails }) {
       </span>
 
       <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => onDetails?.(session)}
-          className="rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-ink-soft hover:bg-line/30"
-        >
-          {t('dashboard.details')}
-        </button>
-        <button
-          type="button"
-          className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-hover"
-        >
-          {t('dashboard.join')}
-        </button>
+        {session.canReschedule && (
+          <button
+            type="button"
+            onClick={() => onReschedule(session.id)}
+            className="rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-ink-soft hover:bg-line/30"
+          >
+            {t('dashboard.changeAppointment')}
+          </button>
+        )}
+        {session.joinUrl && (
+          <button
+            type="button"
+            onClick={() => window.open(session.joinUrl, '_blank', 'noopener,noreferrer')}
+            className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-hover"
+          >
+            {t('dashboard.join')}
+          </button>
+        )}
       </div>
     </div>
   );
 }
 
-export function CalendarSessionsList({ dateLabel, sessions, onDetails }) {
+export function CalendarSessionsList({ dateLabel, sessions }) {
   const t = useT();
+  const [reschedulingSessionId, setReschedulingSessionId] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+  const createRescheduleRequest = useCreateRescheduleRequest();
+
+  const handleConfirmReschedule = ({ proposedScheduledAt, reason }) => {
+    createRescheduleRequest.mutate(
+      { sessionId: reschedulingSessionId, proposedScheduledAt, reason },
+      {
+        onSuccess: () => {
+          setReschedulingSessionId(null);
+          setSuccessMessage(t('dashboard.rescheduleModal.success'));
+          setTimeout(() => setSuccessMessage(''), 4000);
+        },
+      }
+    );
+  };
 
   return (
     <div className="rounded-2xl bg-white p-6 shadow-card">
@@ -88,14 +112,34 @@ export function CalendarSessionsList({ dateLabel, sessions, onDetails }) {
         </h3>
       </div>
 
+      {successMessage && (
+        <div className="mt-4 rounded-2xl bg-success-light px-4 py-3 text-sm font-medium text-success">{successMessage}</div>
+      )}
+
       {sessions.length === 0 ? (
         <EmptyState title={t('dashboard.noSessionsForDay')} />
       ) : (
         <div className="divide-y divide-line">
           {sessions.map((session) => (
-            <DaySessionRow key={session.id} session={session} onDetails={onDetails} />
+            <DaySessionRow
+              key={session.id}
+              session={session}
+              onReschedule={(id) => {
+                createRescheduleRequest.reset();
+                setReschedulingSessionId(id);
+              }}
+            />
           ))}
         </div>
+      )}
+
+      {reschedulingSessionId && (
+        <RescheduleRequestModal
+          isPending={createRescheduleRequest.isPending}
+          error={createRescheduleRequest.error?.message}
+          onConfirm={handleConfirmReschedule}
+          onClose={() => setReschedulingSessionId(null)}
+        />
       )}
     </div>
   );

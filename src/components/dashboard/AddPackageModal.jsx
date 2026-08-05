@@ -1,54 +1,108 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
-import { PackageWizardStepIndicator } from './PackageWizardStepIndicator';
+import { WizardStepIndicator } from './WizardStepIndicator';
 import { PackageWizardBasicInfo } from './PackageWizardBasicInfo';
 import { PackageWizardScheduling } from './PackageWizardScheduling';
 import { PackageWizardPricing } from './PackageWizardPricing';
 import { PackageWizardReview } from './PackageWizardReview';
-import { SUBJECT_OPTIONS } from '@/lib/packageWizardOptions';
-import { calculateStudentPrice, DEFAULT_MARGIN_PERCENT } from '@/lib/pricing';
-import { useAuth } from '@/hooks/useAuth';
-import { useCreateTeacherPackage } from '@/hooks/useDashboard';
+import { Skeleton } from '@/components/ui';
+import { useCreateTeacherPackage, useTeacherPackage, useUpdateTeacherPackage } from '@/hooks/useDashboard';
 import { useT } from '@/hooks/useT';
 
 const INITIAL_DATA = {
-  sessionType: 'individual',
-  curriculum: '',
-  subject: '',
-  sessionsCount: '',
+  title: '',
+  session_format: 'individual',
+  capacity: '1',
+  subject_id: '',
+  curriculum_ids: [],
+  stage_ids: [],
+  sessions_count: '',
+  discount_percent: '',
   description: '',
-  selectedSlots: [],
-  teacherPrice: '',
+  schedules: [],
+  teacher_price: '',
 };
 
-export function AddPackageModal({ onClose }) {
-  const t = useT();
-  const { user } = useAuth();
-  const teacherType = user?.teacherType;
-  const createPackage = useCreateTeacherPackage();
+const STEPS = [
+  { no: 4, key: 'review' },
+  { no: 3, key: 'pricing' },
+  { no: 2, key: 'scheduling' },
+  { no: 1, key: 'basicInfo' },
+];
 
-  const [step, setStep] = useState(1);
-  const [data, setData] = useState(() => ({
-    ...INITIAL_DATA,
-    sessionType: teacherType === 'training_center' ? 'training' : 'individual',
-  }));
+/** سطر قائمة الباقات لا يحمل curricula/stages (index() لا يحمّلها) — لذا نحتاج جلب الباقة كاملة قبل ملء نموذج التعديل/العرض */
+function mapPackageToWizardData(pkg) {
+  const curriculumIds = Array.isArray(pkg.curriculum_ids) ? pkg.curriculum_ids : (pkg.curricula ?? []).map((c) => c.id);
+  const stageIds = Array.isArray(pkg.stage_ids) ? pkg.stage_ids : (pkg.stages ?? []).map((s) => s.id);
+  const schedules = (pkg.schedules ?? []).map((s) =>
+    pkg.session_format === 'individual' ? { day_of_week: s.day_of_week } : { date: s.date, start_time: s.start_time }
+  );
+
+  return {
+    title: pkg.title ?? '',
+    session_format: pkg.session_format ?? 'individual',
+    capacity: pkg.capacity ?? '1',
+    subject_id: pkg.subject_id ?? '',
+    curriculum_ids: curriculumIds,
+    stage_ids: stageIds,
+    sessions_count: pkg.sessions_count ?? '',
+    discount_percent: pkg.discount_percent ?? '',
+    description: pkg.description ?? '',
+    schedules,
+    teacher_price: pkg.teacher_price ?? '',
+  };
+}
+
+/**
+ * ثلاثة أوضاع: إنشاء (بلا packageId) دائماً مسودة جديدة، تعديل (packageId فقط)
+ * يملأ النموذج من الباقة الحالية ويستدعي update، وعرض (packageId + readOnly)
+ * يقفز مباشرة لخطوة المراجعة كملخّص للقراءة فقط بلا أي استدعاء تعديل.
+ */
+export function AddPackageModal({ onClose, packageId, readOnly = false }) {
+  const t = useT();
+  const isEditing = !!packageId;
+  const { data: existingPackage, isLoading: isLoadingPackage } = useTeacherPackage(packageId);
+  const createPackage = useCreateTeacherPackage();
+  const updatePackage = useUpdateTeacherPackage();
+
+  const [step, setStep] = useState(readOnly ? 4 : 1);
+  const [data, setData] = useState(INITIAL_DATA);
+  const [hydrated, setHydrated] = useState(!isEditing);
+
+  useEffect(() => {
+    if (existingPackage && !hydrated) {
+      setData(mapPackageToWizardData(existingPackage));
+      setHydrated(true);
+    }
+  }, [existingPackage, hydrated]);
 
   const patchData = (patch) => setData((prev) => ({ ...prev, ...patch }));
 
-  const handleSubmit = () => {
-    const { studentPrice } = calculateStudentPrice(Number(data.teacherPrice), DEFAULT_MARGIN_PERCENT);
-    const subjectLabel = SUBJECT_OPTIONS.find((o) => o.value === data.subject)?.label ?? '';
-    createPackage.mutate(
-      {
-        packageTitle: data.sessionType === 'training' ? 'دورة تدريبية' : `باقة ${data.sessionsCount} جلسات`,
-        type: data.sessionType,
-        subject: subjectLabel,
-        sessionsCount: Number(data.sessionsCount),
-        price: studentPrice,
-      },
-      { onSuccess: () => onClose?.() }
-    );
+  const handleSaveDraft = () => {
+    const payload = {
+      title: data.title.trim(),
+      description: data.description || null,
+      subject_id: Number(data.subject_id),
+      session_format: data.session_format,
+      capacity: Number(data.capacity),
+      sessions_count: Number(data.sessions_count),
+      teacher_price: Number(data.teacher_price),
+      currency: 'USD',
+      discount_percent: data.discount_percent ? Number(data.discount_percent) : null,
+      curriculum_ids: data.curriculum_ids,
+      stage_ids: data.stage_ids,
+      schedules: data.schedules,
+    };
+
+    if (isEditing) {
+      updatePackage.mutate({ id: packageId, payload }, { onSuccess: () => onClose?.() });
+    } else {
+      createPackage.mutate(payload, { onSuccess: () => onClose?.() });
+    }
   };
+
+  const isPending = isEditing ? updatePackage.isPending : createPackage.isPending;
+  const updateError = updatePackage.error?.errors?.status?.[0] ?? updatePackage.error?.message;
 
   return (
     <div className="relative rounded-2xl bg-white p-6 shadow-card sm:p-8">
@@ -63,24 +117,43 @@ export function AddPackageModal({ onClose }) {
         </button>
       )}
 
-      <PackageWizardStepIndicator currentStep={step} />
+      {isEditing && !hydrated ? (
+        <div className="mt-8 flex flex-col gap-3">
+          {isLoadingPackage ? (
+            <>
+              <Skeleton className="h-10 rounded-xl" />
+              <Skeleton className="h-40 rounded-2xl" />
+            </>
+          ) : (
+            <p className="text-center text-sm text-accent-pink">{t('dashboard.teacherPackages.empty')}</p>
+          )}
+        </div>
+      ) : (
+        <>
+          {!readOnly && <WizardStepIndicator steps={STEPS} currentStep={step} translationPrefix="dashboard.addPackage.steps" />}
 
-      {step === 1 && (
-        <PackageWizardBasicInfo data={data} onChange={patchData} teacherType={teacherType} onNext={() => setStep(2)} />
-      )}
-      {step === 2 && (
-        <PackageWizardScheduling data={data} onChange={patchData} onNext={() => setStep(3)} onBack={() => setStep(1)} />
-      )}
-      {step === 3 && (
-        <PackageWizardPricing data={data} onChange={patchData} onNext={() => setStep(4)} onBack={() => setStep(2)} />
-      )}
-      {step === 4 && (
-        <PackageWizardReview
-          data={data}
-          isPending={createPackage.isPending}
-          onSubmit={handleSubmit}
-          onBack={() => setStep(3)}
-        />
+          {!readOnly && updateError && (
+            <div className="mt-4 rounded-btn bg-accent-pink/10 px-4 py-3 text-sm text-accent-pink">{updateError}</div>
+          )}
+
+          {step === 1 && <PackageWizardBasicInfo data={data} onChange={patchData} onNext={() => setStep(2)} />}
+          {step === 2 && (
+            <PackageWizardScheduling data={data} onChange={patchData} onNext={() => setStep(3)} onBack={() => setStep(1)} />
+          )}
+          {step === 3 && (
+            <PackageWizardPricing data={data} onChange={patchData} onNext={() => setStep(4)} onBack={() => setStep(2)} />
+          )}
+          {step === 4 && (
+            <PackageWizardReview
+              data={data}
+              isPending={isPending}
+              onSubmit={handleSaveDraft}
+              onBack={() => setStep(3)}
+              readOnly={readOnly}
+              onClose={onClose}
+            />
+          )}
+        </>
       )}
     </div>
   );

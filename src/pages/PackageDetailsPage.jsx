@@ -1,4 +1,4 @@
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Clock3, CreditCard } from 'lucide-react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { PackageDetailSummary } from '@/components/dashboard/PackageDetailSummary';
@@ -9,6 +9,7 @@ import { PackageSessionsList } from '@/components/dashboard/PackageSessionsList'
 import { ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { usePackageDetails } from '@/hooks/useDashboard';
+import { useCheckoutBooking } from '@/hooks/useBooking';
 import { useT } from '@/hooks/useT';
 
 export function PackageDetailsPage() {
@@ -16,8 +17,21 @@ export function PackageDetailsPage() {
   const { user } = useAuth();
   const { id } = useParams();
   const { data, isLoading, isError, refetch } = usePackageDetails(id);
+  const checkout = useCheckoutBooking();
 
   if (!user) return <Navigate to="/login" replace />;
+
+  const [kind, rawBookingId] = String(id).split('-');
+  const isPendingRequest = kind === 'booking' && data?.package?.status === 'pending_teacher_confirmation';
+  const isPendingPayment = kind === 'booking' && data?.package?.status === 'pending_payment';
+
+  const handlePayNow = () => {
+    checkout.mutate(rawBookingId, {
+      onSuccess: (result) => {
+        if (result?.checkout_url) window.location.href = result.checkout_url;
+      },
+    });
+  };
 
   return (
     <DashboardLayout>
@@ -50,6 +64,30 @@ export function PackageDetailsPage() {
               <ArrowRight size={18} />
             </Link>
           </div>
+
+          {isPendingRequest && (
+            <div className="flex items-center gap-2 rounded-2xl bg-[#FFF6E5] p-4 text-sm font-medium text-[#B8860B]">
+              <Clock3 size={18} />
+              {t('dashboard.myPackages.pendingTeacherConfirmation')}
+            </div>
+          )}
+
+          {isPendingPayment && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-primary-light p-4">
+              <span className="flex items-center gap-2 text-sm font-medium text-primary">
+                <CreditCard size={18} />
+                {t('dashboard.myPackages.approvedAwaitingPayment')}
+              </span>
+              <button
+                type="button"
+                disabled={checkout.isPending}
+                onClick={handlePayNow}
+                className="rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+              >
+                {checkout.isPending ? t('dashboard.myPackages.processingPayment') : t('dashboard.myPackages.payNow')}
+              </button>
+            </div>
+          )}
 
           <div className="flex flex-col gap-4 lg:flex-row">
             <div className="flex flex-1 flex-col gap-4">

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  Bell,
   Calendar,
+  CalendarClock,
   ChevronLeft,
   ChevronRight,
   CreditCard,
@@ -16,8 +16,9 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/layout/Logo";
 import { Avatar } from "@/components/ui";
+import { NotificationsBell } from "@/components/notifications/NotificationsBell";
 import { useAuth, useLogout } from "@/hooks/useAuth";
-import { useFavoritesStore } from "@/store";
+import { useFavorites } from "@/hooks/useFavorites";
 import { useT } from "@/hooks/useT";
 import { LocaleOverrideContext } from "@/context/LocaleOverrideContext";
 
@@ -35,9 +36,10 @@ const TEACHER_NAV_ITEMS = [
   { key: "home", icon: Home, path: "/dashboard/teacher", end: true },
   { key: "calendar", icon: Calendar },
   { key: "packages", icon: CreditCard, path: "/dashboard/teacher/packages" },
+  { key: "bookingRequests", icon: CalendarClock, path: "/dashboard/teacher/booking-requests" },
   { key: "sessions", icon: FileText, path: "/dashboard/teacher/sessions" },
   { key: "students", icon: UserRound, path: "/dashboard/teacher/students" },
-  { key: "settings", icon: Settings },
+  { key: "settings", icon: Settings, path: "/dashboard/teacher/settings" },
 ];
 
 export function DashboardLayout({ children }) {
@@ -52,7 +54,8 @@ function DashboardLayoutInner({ children }) {
   const t = useT();
   const { user } = useAuth();
   const logout = useLogout();
-  const favoritesCount = useFavoritesStore((s) => s.favorites.size);
+  const { data: favorites } = useFavorites();
+  const favoritesCount = favorites?.length ?? 0;
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
 
@@ -128,9 +131,11 @@ function DashboardLayoutInner({ children }) {
                   <div className="text-sm text-[#2D2D2D]">{user?.name}</div>
                   <div className="text-xs text-[#777777]">
                     {t(
-                      user?.role === "teacher"
-                        ? "dashboard.roleTeacher"
-                        : "dashboard.roleStudent",
+                      user?.teacherType === "training_center"
+                        ? "dashboard.roleCenter"
+                        : user?.role === "teacher"
+                          ? "dashboard.roleTeacher"
+                          : "dashboard.roleStudent",
                     )}
                   </div>
                 </div>
@@ -161,13 +166,10 @@ function DashboardLayoutInner({ children }) {
               )}
             </div>
 
-            <button
-              type="button"
-              className="hidden h-10 w-10 items-center justify-center rounded-full hover:bg-line/40 sm:flex"
-              aria-label="الاشعارات"
-            >
-              <Bell size={18} className="text-[#2D2D2D]" />
-            </button>
+            <NotificationsBell
+              buttonClassName="relative hidden h-10 w-10 items-center justify-center rounded-full hover:bg-line/40 sm:flex"
+              iconClassName="text-[#2D2D2D]"
+            />
             <NavLink
               to="/favorites"
               className="relative hidden h-10 w-10 items-center justify-center rounded-full hover:bg-line/40 sm:flex"

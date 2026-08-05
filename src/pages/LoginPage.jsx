@@ -7,15 +7,8 @@ import { Logo } from '@/components/layout/Logo';
 import { Button } from '@/components/ui';
 import { useAuth, useLogin } from '@/hooks/useAuth';
 import { useT } from '@/hooks/useT';
-import { mockAccounts } from '@/mocks/auth.mock';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function findDemo(kind) {
-  if (kind === 'center') return mockAccounts.find((a) => a.user.teacherType === 'training_center');
-  if (kind === 'teacher') return mockAccounts.find((a) => a.user.role === 'teacher' && a.user.teacherType !== 'training_center');
-  return mockAccounts.find((a) => a.user.role === kind);
-}
 
 function roleHome(role) {
   if (role === 'teacher') return '/dashboard/teacher';
@@ -34,7 +27,6 @@ export function LoginPage() {
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm({ defaultValues: { email: '', password: '', rememberMe: true } });
 
@@ -53,11 +45,6 @@ export function LoginPage() {
         },
       }
     );
-  };
-
-  const fillDemo = (email, password) => {
-    setValue('email', email);
-    setValue('password', password);
   };
 
   return (
@@ -104,42 +91,6 @@ export function LoginPage() {
           >
             <h2 className="text-2xl font-bold text-ink">{t('auth.title')}</h2>
             <p className="mt-2 text-sm text-ink-soft">{t('auth.subtitle')}</p>
-
-            {/* Demo credentials — backend isn't connected yet */}
-            <div className="mt-6 rounded-card border border-dashed border-primary/30 bg-primary-light/60 p-4">
-              <p className="text-xs font-semibold text-primary">{t('auth.demoTitle')}</p>
-              <p className="mt-1 text-xs text-ink-soft">{t('auth.demoHint')}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => fillDemo(findDemo('student').email, findDemo('student').password)}
-                  className="rounded-pill bg-white px-3 py-1.5 text-xs font-medium text-primary shadow-sm transition-colors hover:bg-primary hover:text-white"
-                >
-                  {t('auth.demoStudent')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => fillDemo(findDemo('teacher').email, findDemo('teacher').password)}
-                  className="rounded-pill bg-white px-3 py-1.5 text-xs font-medium text-accent-purple shadow-sm transition-colors hover:bg-accent-purple hover:text-white"
-                >
-                  {t('auth.demoTeacher')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => fillDemo(findDemo('center').email, findDemo('center').password)}
-                  className="rounded-pill bg-white px-3 py-1.5 text-xs font-medium text-price shadow-sm transition-colors hover:bg-price hover:text-white"
-                >
-                  {t('auth.demoCenter')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => fillDemo(findDemo('admin').email, findDemo('admin').password)}
-                  className="rounded-pill bg-white px-3 py-1.5 text-xs font-medium text-success shadow-sm transition-colors hover:bg-success hover:text-white"
-                >
-                  {t('auth.demoAdmin')}
-                </button>
-              </div>
-            </div>
 
             <form className="mt-6 flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)} noValidate>
               {/* Email */}

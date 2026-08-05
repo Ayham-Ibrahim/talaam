@@ -11,7 +11,7 @@ import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { useT } from '@/hooks/useT';
 
 const PAGE_SIZE = 10;
-const DEFAULT_FILTERS = { status: '', subject: '', date: '', search: '' };
+const DEFAULT_FILTERS = { status: '', date: '', search: '' };
 
 export function TeacherSessionsPage() {
   const t = useT();
@@ -20,19 +20,19 @@ export function TeacherSessionsPage() {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [page, setPage] = useState(1);
 
-  const subjects = useMemo(() => [...new Set((sessions ?? []).map((s) => s.subject))], [sessions]);
   const statusOptions = useMemo(
     () => Object.entries(TEACHER_SESSION_STATUS_STYLES).map(([value, style]) => ({ value, label: style.label })),
-    [],
+    []
   );
 
   const filteredSessions = useMemo(() => {
     if (!sessions) return [];
     const search = filters.search.trim().toLowerCase();
     return sessions.filter((session) => {
+      const title = session.booking?.package?.title ?? session.course?.title ?? '';
       if (filters.status && session.status !== filters.status) return false;
-      if (filters.subject && session.subject !== filters.subject) return false;
-      if (search && !`${session.packageTitle} ${session.subject}`.toLowerCase().includes(search)) return false;
+      if (filters.date && !session.scheduled_at.startsWith(filters.date)) return false;
+      if (search && !title.toLowerCase().includes(search)) return false;
       return true;
     });
   }, [sessions, filters]);
@@ -51,12 +51,7 @@ export function TeacherSessionsPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-6">
-        <TeacherSessionsFilterBar
-          statuses={statusOptions}
-          subjects={subjects}
-          filters={filters}
-          onChange={handleFilterChange}
-        />
+        <TeacherSessionsFilterBar statuses={statusOptions} filters={filters} onChange={handleFilterChange} />
 
         {isError ? (
           <ErrorState onRetry={refetch} />
@@ -70,7 +65,7 @@ export function TeacherSessionsPage() {
           <EmptyState title={t('dashboard.teacherSessions.empty')} />
         ) : (
           <>
-            <TeacherSessionsTable sessions={pageSessions} />
+            <TeacherSessionsTable sessions={pageSessions} onJoin={(session) => window.open(session.join_url_teacher, '_blank')} />
             <div className="flex flex-wrap items-center justify-between gap-3">
               <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
               <span className="text-sm text-ink-soft">

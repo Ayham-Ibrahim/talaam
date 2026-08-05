@@ -18,7 +18,7 @@ function useInvalidatePayouts() {
 export function useGeneratePayout() {
   const invalidate = useInvalidatePayouts();
   return useMutation({
-    mutationFn: (providerId) => adminPayoutsService.generatePayout(providerId),
+    mutationFn: (payload) => adminPayoutsService.generatePayout(payload),
     onSuccess: invalidate,
   });
 }
@@ -34,7 +34,7 @@ export function useApprovePayout() {
 export function useMarkPayoutPaid() {
   const invalidate = useInvalidatePayouts();
   return useMutation({
-    mutationFn: (id) => adminPayoutsService.markPayoutPaid(id),
+    mutationFn: ({ id, transferReference }) => adminPayoutsService.markPayoutPaid(id, transferReference),
     onSuccess: invalidate,
   });
 }

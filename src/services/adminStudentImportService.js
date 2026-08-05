@@ -28,6 +28,6 @@ export const adminStudentImportService = {
     const { data } = await client.post(endpoints.admin.studentsImport, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-    return data;
+    return { fileName: file.name, ...data.data };
   },
 };

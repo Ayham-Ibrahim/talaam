@@ -3,7 +3,7 @@ import { DOCUMENT_STATUS_STYLES, DOCUMENT_TYPE_LABELS } from '@/mocks/admin.mock
 import { formatDate } from '@/lib/formatters';
 import { useT } from '@/hooks/useT';
 
-export function VerificationDocumentsList({ documents, onApprove, onReject, isActing }) {
+export function VerificationDocumentsList({ documents, onApprove, onReject, onViewFile, isActing, isLoadingFile }) {
   const t = useT();
 
   if (documents.length === 0) {
@@ -45,8 +45,10 @@ export function VerificationDocumentsList({ documents, onApprove, onReject, isAc
             <div className="mt-3 flex items-center justify-end gap-2 border-t border-line/60 pt-3">
               <button
                 type="button"
+                disabled={isLoadingFile}
+                onClick={() => onViewFile?.(doc.id)}
                 title={t('dashboard.adminTeacherDetail.viewFile')}
-                className="flex items-center gap-1.5 text-sm font-medium text-primary hover:opacity-70"
+                className="flex items-center gap-1.5 text-sm font-medium text-primary hover:opacity-70 disabled:opacity-50"
               >
                 {t('dashboard.adminTeacherDetail.viewFile')}
                 <ExternalLink size={15} />

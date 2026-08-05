@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Bell, Heart, Menu, X, LogOut, LayoutDashboard } from 'lucide-react';
+import { Heart, Menu, X, LogOut, LayoutDashboard } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Logo } from './Logo';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { CurrencySwitcher } from './CurrencySwitcher';
 import { Button, Avatar } from '@/components/ui';
-import { useFavoritesStore } from '@/store';
+import { NotificationsBell } from '@/components/notifications/NotificationsBell';
+import { useFavorites } from '@/hooks/useFavorites';
 import { useAuth, useLogout } from '@/hooks/useAuth';
 import { useT } from '@/hooks/useT';
 
@@ -15,7 +16,8 @@ export function Navbar() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const favoritesCount = useFavoritesStore((s) => s.favorites.size);
+  const { data: favorites } = useFavorites();
+  const favoritesCount = favorites?.length ?? 0;
   const { user, isAuthenticated } = useAuth();
   const logout = useLogout();
 
@@ -123,14 +125,7 @@ export function Navbar() {
               {t('nav.login')}
             </Button>
           )}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="hidden sm:flex w-11 h-11 rounded-full hover:bg-line/50 items-center justify-center shrink-0"
-            aria-label={t('nav.notifications')}
-          >
-            <Bell size={18} className="text-ink-soft" />
-          </motion.button>
+          <NotificationsBell buttonClassName="relative hidden sm:flex w-11 h-11 rounded-full hover:bg-line/50 items-center justify-center shrink-0" />
           <NavLink
             to="/favorites"
             className={({ isActive }) =>
