@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppRouter } from "@/routes/AppRouter";
 import { LogoIntro } from "@/components/ui/LogoIntro";
 import { CursorLight } from "@/motion/ambient/AmbientEngine";
+import { LenisProvider } from "@/hooks/useLenis";
 import { useEffect, useState } from "react";
 import { useLocaleStore } from "@/store";
 
@@ -35,7 +36,9 @@ export default function App() {
         <LogoIntro onComplete={() => setIntroFinished(true)} />
       )}
       <div style={{ display: introFinished ? "block" : "none" }}>
-        <AppRouter />
+        <LenisProvider>
+          <AppRouter />
+        </LenisProvider>
       </div>
     </QueryClientProvider>
   );

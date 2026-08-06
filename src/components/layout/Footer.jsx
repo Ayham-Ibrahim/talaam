@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { useT } from "@/hooks/useT";
+import { SplitWords } from "@/motion/scroll/SplitWords";
 
 export function Footer() {
   const t = useT();
@@ -39,9 +40,17 @@ export function Footer() {
 
           {/* Quick links */}
           <div>
-            <h4 className="font-bold text-ink mb-4">
+            <SplitWords
+              as="h4"
+              className="font-bold text-ink mb-4"
+              y={30}
+              stagger={0.06}
+              duration={0.7}
+              ease="power3.out"
+              start="top 90%"
+            >
               {t("footer.quickLinks")}
-            </h4>
+            </SplitWords>
             <ul className="space-y-2.5 text-sm text-ink-soft">
               {quickLinks.map((l) => (
                 <li key={l}>
@@ -55,7 +64,17 @@ export function Footer() {
 
           {/* Company */}
           <div>
-            <h4 className="font-bold text-ink mb-4">{t("footer.company")}</h4>
+            <SplitWords
+              as="h4"
+              className="font-bold text-ink mb-4"
+              y={30}
+              stagger={0.06}
+              duration={0.7}
+              ease="power3.out"
+              start="top 90%"
+            >
+              {t("footer.company")}
+            </SplitWords>
             <ul className="space-y-2.5 text-sm text-ink-soft">
               {companyLinks.map((l) => (
                 <li key={l}>
@@ -69,7 +88,17 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="font-bold text-ink mb-4">{t("footer.contact")}</h4>
+            <SplitWords
+              as="h4"
+              className="font-bold text-ink mb-4"
+              y={30}
+              stagger={0.06}
+              duration={0.7}
+              ease="power3.out"
+              start="top 90%"
+            >
+              {t("footer.contact")}
+            </SplitWords>
             <ul className="space-y-3 text-sm text-ink-soft">
               <li className="flex items-center gap-2 ">
                 <Phone size={15} />

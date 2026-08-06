@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, animate } from "framer-motion";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   fadeUp,
   scaleIn,
@@ -8,7 +10,13 @@ import {
   viewportOnce,
 } from "@/lib/motion";
 import { useRevealTimeline } from "@/motion/hooks";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { SplitWords } from "@/motion/scroll/SplitWords";
+import { ScrollReveal } from "@/motion/scroll/ScrollReveal";
+import { useStaggerReveal } from "@/motion/scroll/useStaggerReveal";
 import { AnimatedCard } from "@/motion/components";
+
+gsap.registerPlugin(ScrollTrigger);
 import {
   Star,
   GraduationCap,
@@ -60,32 +68,42 @@ const EDUCATION_TYPE_STYLES = {
 export function EducationTypes() {
   const t = useT();
   const types = t("home.educationTypes");
+  const gridRef = useStaggerReveal({
+    selector: ".education-type-card",
+    start: "top 80%",
+    y: 60,
+    scale: 0.96,
+    opacity: 0,
+    stagger: 0.12,
+    duration: 0.7,
+    ease: "power3.out",
+  });
 
   return (
     <section className="container-app mt-14">
-      <motion.h2
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOnce}
-        variants={fadeUp}
+      <SplitWords
+        as="h2"
         className="text-center font-cairo text-2xl font-bold text-[#1E1E1E]"
+        y={40}
+        stagger={0.08}
+        duration={0.9}
+        ease="power3.out"
+        start="top 85%"
       >
         {t("home.educationTypesTitle")}
-      </motion.h2>
-      <motion.p
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOnce}
-        variants={fadeUp}
+      </SplitWords>
+      <ScrollReveal
+        y={20}
+        opacity={0}
+        duration={0.7}
+        ease="power3.out"
+        start="top 85%"
         className="mt-2 mb-8 text-center font-cairo text-lg text-[#626262]"
       >
         {t("home.educationTypesSubtitle")}
-      </motion.p>
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOnce}
-        variants={staggerContainer(0.12)}
+      </ScrollReveal>
+      <div
+        ref={gridRef}
         className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 relative"
       >
         {types.map((type) => {
@@ -94,9 +112,8 @@ export function EducationTypes() {
           return (
             <AnimatedCard
               key={type.icon}
-              variant={fadeUp}
               tilt={true}
-              className="flex flex-col items-center gap-2 rounded-2xl bg-white px-4 pb-6 pt-2 text-center group"
+              className="education-type-card flex flex-col items-center gap-2 rounded-2xl bg-white px-4 pb-6 pt-2 text-center group"
             >
               <div className="relative h-[100px] w-[100px]">
                 {/* Back squircle — solid gradient, peeking out top-right */}
@@ -129,7 +146,7 @@ export function EducationTypes() {
             </AnimatedCard>
           );
         })}
-      </motion.div>
+      </div>
     </section>
   );
 }
@@ -163,32 +180,42 @@ const WHY_CHOOSE_US_COLORS = {
 export function WhyChooseUs() {
   const t = useT();
   const items = t("home.whyChooseUs");
+  const gridRef = useStaggerReveal({
+    selector: ".why-choose-card",
+    start: "top 80%",
+    y: 60,
+    scale: 0.96,
+    opacity: 0,
+    stagger: 0.12,
+    duration: 0.7,
+    ease: "power3.out",
+  });
 
   return (
     <section className="container-app mt-14">
-      <motion.h2
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOnce}
-        variants={fadeUp}
+      <SplitWords
+        as="h2"
         className="text-center font-cairo text-2xl font-bold text-[#1E1E1E]"
+        y={40}
+        stagger={0.08}
+        duration={0.9}
+        ease="power3.out"
+        start="top 85%"
       >
         {t("home.whyChooseUsTitle")}
-      </motion.h2>
-      <motion.p
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOnce}
-        variants={fadeUp}
+      </SplitWords>
+      <ScrollReveal
+        y={20}
+        opacity={0}
+        duration={0.7}
+        ease="power3.out"
+        start="top 85%"
         className="mt-2 mb-8 text-center font-cairo text-lg text-[#626262] max-w-2xl mx-auto"
       >
         {t("home.whyChooseUsSubtitle")}
-      </motion.p>
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOnce}
-        variants={staggerContainer(0.08)}
+      </ScrollReveal>
+      <div
+        ref={gridRef}
         className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
       >
         {items.map((item) => {
@@ -199,9 +226,8 @@ export function WhyChooseUs() {
           return (
             <AnimatedCard
               key={item.icon}
-              variant={fadeUp}
               tilt={true}
-              className="group relative flex items-center gap-5 overflow-visible rounded-3xl p-7 shadow-[0_4px_18px_rgba(0,0,0,0.05)] transition-shadow duration-300 hover:shadow-[0_8px_28px_rgba(0,0,0,0.09)]"
+              className="why-choose-card group relative flex items-center gap-5 overflow-visible rounded-3xl p-7 shadow-[0_4px_18px_rgba(0,0,0,0.05)] transition-shadow duration-300 hover:shadow-[0_8px_28px_rgba(0,0,0,0.09)]"
               style={{
                 background: `linear-gradient(135deg, ${color}14, ${color}05 60%, ${color}05)`,
               }}
@@ -237,7 +263,7 @@ export function WhyChooseUs() {
             </AnimatedCard>
           );
         })}
-      </motion.div>
+      </div>
     </section>
   );
 }
@@ -246,38 +272,136 @@ export function WhyChooseUs() {
 export function FeaturedTeachers() {
   const t = useT();
   const { data, isLoading, isError, refetch } = useFeaturedTeachers();
+  const sectionRef = useRef(null);
+  const trackRef = useRef(null);
+  const progressRef = useRef(null);
+  const reducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (reducedMotion || !sectionRef.current || !trackRef.current) return;
+
+    const track = trackRef.current;
+    const section = sectionRef.current;
+    const originalDisplay = track.style.display;
+    const originalFlexWrap = track.style.flexWrap;
+    const originalGap = track.style.gap;
+
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
+
+      // Always use horizontal flex track when JS is active
+      track.style.display = "flex";
+      track.style.flexWrap = "nowrap";
+      track.style.gap = "24px";
+
+      mm.add("(min-width: 768px)", () => {
+        const cards = track.querySelectorAll(".teacher-card-wrap");
+        if (!cards.length) return;
+
+        // Measure total scrollable width
+        const totalWidth = track.scrollWidth;
+        const viewportWidth = track.offsetWidth;
+        const distance = Math.max(0, totalWidth - viewportWidth);
+
+        if (distance <= 0) return;
+
+        // RTL: translate from 0 to positive distance (right to left)
+        const tween = gsap.to(track, {
+          x: distance,
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            start: "top 12%",
+            end: "+=150%",
+            pin: true,
+            scrub: 1,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => {
+              if (progressRef.current) {
+                gsap.set(progressRef.current, { scaleX: self.progress });
+              }
+            },
+          },
+        });
+
+        return () => {
+          tween.kill();
+        };
+      });
+
+      mm.add("(max-width: 767px)", () => {
+        // Mobile: native horizontal scroll with snap, no pin
+        track.style.overflowX = "auto";
+        track.style.scrollSnapType = "x mandatory";
+        const cards = track.querySelectorAll(".teacher-card-wrap");
+        cards.forEach((card) => {
+          card.style.scrollSnapAlign = "start";
+        });
+        return () => {
+          track.style.overflowX = "";
+          track.style.scrollSnapType = "";
+          cards.forEach((card) => {
+            card.style.scrollSnapAlign = "";
+          });
+        };
+      });
+    }, sectionRef);
+
+    return () => {
+      track.style.display = originalDisplay;
+      track.style.flexWrap = originalFlexWrap;
+      track.style.gap = originalGap;
+      ctx.revert();
+    };
+  }, [reducedMotion, data, isLoading]);
+
+  const renderCards = () =>
+    isLoading
+      ? Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="teacher-card-wrap shrink-0 w-[260px] sm:w-[280px]">
+            <TeacherCardSkeleton />
+          </div>
+        ))
+      : data.map((teacher) => (
+          <div key={teacher.id} className="teacher-card-wrap shrink-0 w-[260px] sm:w-[280px]">
+            <TeacherCard teacher={teacher} />
+          </div>
+        ));
 
   return (
-    <section className="container-app mt-14">
-      <motion.h2
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOnce}
-        variants={fadeUp}
+    <section ref={sectionRef} className="container-app mt-14">
+      <SplitWords
+        as="h2"
         className="text-center font-bold text-2xl text-ink mb-8"
+        y={40}
+        stagger={0.08}
+        duration={0.9}
+        ease="power3.out"
+        start="top 85%"
       >
         {t("home.topTeachers")}
-      </motion.h2>
+      </SplitWords>
       {isError ? (
         <ErrorState onRetry={refetch} />
       ) : (
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={viewportOnce}
-          variants={staggerContainer(0.08)}
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
-        >
-          {isLoading
-            ? Array.from({ length: 5 }).map((_, i) => (
-                <TeacherCardSkeleton key={i} />
-              ))
-            : data.map((teacher) => (
-                <motion.div key={teacher.id} variants={fadeUp}>
-                  <TeacherCard teacher={teacher} />
-                </motion.div>
-              ))}
-        </motion.div>
+        <>
+          {/* Mobile grid fallback / JS-enhanced horizontal track */}
+          <div
+            ref={trackRef}
+            className="teacher-track grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
+          >
+            {renderCards()}
+          </div>
+          {/* Progress bar */}
+          <div className="mt-6 hidden h-0.5 w-full overflow-hidden rounded-full bg-line md:block">
+            <div
+              ref={progressRef}
+              className="h-full origin-right bg-[#4B6898]"
+              style={{ transform: "scaleX(0)" }}
+            />
+          </div>
+        </>
       )}
     </section>
   );
@@ -412,37 +536,123 @@ export function HowItWorks() {
   const tabs = t("home.howItWorksTabs");
   const steps = role === "teacher" ? t("home.stepsTeacher") : t("home.steps");
   const icons = role === "teacher" ? TEACHER_ICONS : STUDENT_ICONS;
+  const sectionRef = useRef(null);
+  const progressRef = useRef(null);
+  const trackRef = useRef(null);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     setSupportsHover(window.matchMedia("(hover: hover)").matches);
   }, []);
 
+  useEffect(() => {
+    if (reducedMotion || !sectionRef.current || !trackRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const track = trackRef.current;
+      const section = sectionRef.current;
+      const cards = track.querySelectorAll(".step-card");
+      if (!cards.length) return;
+
+      const mm = gsap.matchMedia();
+
+      mm.add("(min-width: 1024px)", () => {
+        // Pin and drive step animations via progress
+        const total = cards.length;
+        const stepProgress = total === 5
+          ? [0.12, 0.28, 0.44, 0.60, 0.76]
+          : Array.from({ length: total }, (_, i) => (i + 1) / (total + 1));
+
+        const tween = gsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: "top 10%",
+            end: "+=250%",
+            pin: true,
+            scrub: 1,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => {
+              const p = self.progress;
+              if (progressRef.current) {
+                gsap.set(progressRef.current, { scaleY: p });
+              }
+              cards.forEach((card, i) => {
+                const threshold = stepProgress[i];
+                const isActive = p >= threshold - 0.05;
+                card.classList.toggle("step-active", isActive);
+              });
+            },
+          },
+        });
+
+        cards.forEach((card, i) => {
+          const threshold = stepProgress[i];
+          tween.fromTo(
+            card,
+            { scale: 0.8, opacity: 0 },
+            {
+              scale: 1,
+              opacity: 1,
+              duration: 0.18,
+              ease: "back.out(1.7)",
+            },
+            threshold
+          );
+        });
+
+        return () => {
+          tween.kill();
+        };
+      });
+
+      mm.add("(max-width: 1023px)", () => {
+        // Mobile/tablet: simple staggered reveal, no pin
+        cards.forEach((card) => card.classList.remove("step-active"));
+        gsap.from(cards, {
+          y: 40,
+          opacity: 0,
+          scale: 0.96,
+          duration: 0.7,
+          stagger: 0.12,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: track,
+            start: "top 80%",
+            once: true,
+          },
+        });
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, [reducedMotion, role, steps.length]);
+
   return (
-    <section className="container-app mt-20">
-      <motion.h2
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOnce}
-        variants={fadeUp}
+    <section ref={sectionRef} className="container-app mt-20">
+      <SplitWords
+        as="h2"
         className="text-center font-cairo text-2xl font-bold text-[#1E1E1E]"
+        y={40}
+        stagger={0.08}
+        duration={0.9}
+        ease="power3.out"
+        start="top 85%"
       >
         {t("home.howItWorksTitle")}
-      </motion.h2>
-      <motion.p
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOnce}
-        variants={fadeUp}
+      </SplitWords>
+      <ScrollReveal
+        y={20}
+        opacity={0}
+        duration={0.7}
+        ease="power3.out"
+        start="top 85%"
         className="mt-2 text-center font-cairo text-lg text-[#626262]"
       >
         {t("home.howItWorksSubtitle")}
-      </motion.p>
+      </ScrollReveal>
 
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOnce}
-        variants={fadeUp}
+      <div
         className="mx-auto mt-6 mb-12 flex w-full max-w-[291px] items-center gap-2 rounded-lg bg-[#F2F2F7] p-1"
       >
         {["teacher", "student"].map((key) => (
@@ -452,6 +662,10 @@ export function HowItWorks() {
             onClick={() => {
               setRole(key);
               setOpenIndex(null);
+              // Allow DOM to update then refresh scroll triggers
+              requestAnimationFrame(() => {
+                ScrollTrigger.refresh();
+              });
             }}
             className={`flex-1 rounded-lg py-2.5 font-cairo text-sm font-semibold transition-colors duration-300 ${
               role === key
@@ -462,9 +676,18 @@ export function HowItWorks() {
             {tabs[key]}
           </button>
         ))}
-      </motion.div>
+      </div>
 
       <div dir="rtl" className="relative mx-auto max-w-5xl">
+        {/* Scroll-driven vertical progress line */}
+        <div className="pointer-events-none absolute top-0 bottom-0 left-1/2 hidden w-0.5 -translate-x-1/2 overflow-hidden rounded-full bg-line lg:block">
+          <div
+            ref={progressRef}
+            className="h-full w-full origin-top bg-[#4B6898]"
+            style={{ transform: "scaleY(0)" }}
+          />
+        </div>
+
         {/* Decorative dashed connectors */}
         <div className="pointer-events-none absolute inset-0 w-full hidden lg:block">
           {Array.from({ length: steps.length - 1 }).map((_, i) => {
@@ -501,7 +724,7 @@ export function HowItWorks() {
           })}
         </div>
 
-        <div className="relative flex flex-col gap-10 lg:gap-36">
+        <div ref={trackRef} className="relative flex flex-col gap-10 lg:gap-36">
           {steps.map((step, i) => {
             const Icon = icons[i];
             const mirrored = i % 2 === 1;
@@ -708,11 +931,7 @@ export function HowItWorks() {
             return (
               <motion.div
                 key={`${role}-${step.no}`}
-                initial="hidden"
-                whileInView="visible"
-                viewport={viewportOnce}
-                variants={slideIn(mirrored, 40)}
-                className="flex"
+                className="step-card flex transition-shadow duration-300"
               >
                 <div
                   className={`flex flex-row-reverse w-full items-center lg:w-[58%] ${mirrored ? "mr-auto" : "ml-auto"}`}
@@ -749,29 +968,38 @@ export function Testimonials() {
     rating: 4.9,
     text: sample.text,
   }));
+  const gridRef = useStaggerReveal({
+    selector: ".testimonial-card",
+    start: "top 80%",
+    y: 60,
+    scale: 0.96,
+    opacity: 0,
+    stagger: 0.12,
+    duration: 0.7,
+    ease: "power3.out",
+  });
 
   return (
     <section className="container-app mt-20">
-      <motion.h2
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOnce}
-        variants={fadeUp}
+      <SplitWords
+        as="h2"
         className="text-center font-bold text-2xl text-ink mb-10"
+        y={40}
+        stagger={0.08}
+        duration={0.9}
+        ease="power3.out"
+        start="top 85%"
       >
         {t("home.testimonialsTitle")}
-      </motion.h2>
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOnce}
-        variants={staggerContainer(0.12)}
+      </SplitWords>
+      <div
+        ref={gridRef}
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
       >
         {testimonials.map((item) => (
           <motion.div
             key={item.id}
-            variants={fadeUp}
+            className="testimonial-card"
             whileHover={{
               y: -6,
               transition: { type: "spring", stiffness: 300, damping: 22 },
@@ -799,7 +1027,7 @@ export function Testimonials() {
             </Card>
           </motion.div>
         ))}
-      </motion.div>
+      </div>
     </section>
   );
 }

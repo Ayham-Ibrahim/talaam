@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   Search,
   ShieldCheck,
@@ -10,9 +12,92 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useT } from "@/hooks/useT";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { fadeUp, slideIn, staggerContainer } from "@/lib/motion";
-import { useParallax } from "@/motion/hooks";
 import { BackgroundParticles } from "@/motion/components";
+
+gsap.registerPlugin(ScrollTrigger);
+
+function TypewriterBlock({ lines, className = "", speed = 90, pause = 2200 }) {
+  const containerRef = useRef(null);
+  const reducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (!containerRef.current || reducedMotion) return;
+    const el = containerRef.current;
+    let active = true;
+    let current = "";
+    let timer = null;
+
+    // Build typed sequence: line1, then line2 with its own color wrapper
+    const line1 = lines[0] || "";
+    const line2 = lines[1] || "";
+
+    const typeNext = () => {
+      if (!active) return;
+      const full = line1 + "\u00A0\u00A0" + line2;
+
+      if (current.length < full.length) {
+        current = full.slice(0, current.length + 1);
+        el.innerHTML = render(current);
+        timer = setTimeout(typeNext, speed);
+      } else {
+        timer = setTimeout(() => {
+          current = "";
+          el.innerHTML = render(current);
+          timer = setTimeout(typeNext, speed);
+        }, pause);
+      }
+    };
+
+    const render = (text) => {
+      if (text.length <= line1.length) {
+        return `<span class="text-white">${escapeHtml(text)}</span>`;
+      }
+      const gap = "\u00A0\u00A0";
+      if (text.length <= line1.length + gap.length) {
+        return `<span class="text-white">${escapeHtml(line1)}</span>${escapeHtml(text.slice(line1.length))}`;
+      }
+      return `<span class="text-white">${escapeHtml(line1)}</span>${gap}<span class="text-[#1E1E1E]">${escapeHtml(text.slice(line1.length + gap.length))}</span>`;
+    };
+
+    const escapeHtml = (str) =>
+      str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+    // Reserve exact height by measuring full rendered text
+    el.innerHTML = render(line1 + "\u00A0\u00A0" + line2);
+    const computedHeight = el.offsetHeight;
+    el.style.minHeight = `${computedHeight}px`;
+    el.innerHTML = render("");
+
+    timer = setTimeout(typeNext, 300);
+
+    return () => {
+      active = false;
+      if (timer) clearTimeout(timer);
+    };
+  }, [lines, speed, pause, reducedMotion]);
+
+  if (reducedMotion) {
+    return (
+      <span className={className}>
+        <span className="block text-white">{lines[0]}</span>
+        <span className="block text-[#1E1E1E]">{lines[1]}</span>
+      </span>
+    );
+  }
+
+  return (
+    <span
+      ref={containerRef}
+      className={`${className} block whitespace-pre-wrap`}
+      aria-label={`${lines[0]} ${lines[1]}`}
+    />
+  );
+}
 
 export function Hero() {
   const t = useT();
@@ -20,17 +105,87 @@ export function Hero() {
   const [q, setQ] = useState("");
   const [focused, setFocused] = useState(false);
   const heroRef = useRef(null);
-
-  // Parallax
-  const { x: px1, y: py1 } = useParallax(15);
-  const { x: px2, y: py2 } = useParallax(-10);
-  const { x: px3, y: py3 } = useParallax(5);
+  const subtitleRef = useRef(null);
+  const contentRef = useRef(null);
+  const photoRef = useRef(null);
+  const glow1Ref = useRef(null);
+  const glow2Ref = useRef(null);
+  const glow3Ref = useRef(null);
+  const reducedMotion = useReducedMotion();
 
   const featureIcons = [ShieldCheck, Video, Clock, Headphones];
   const features = t("home.features");
 
   const onSearch = () =>
     navigate(`/search${q ? `?q=${encodeURIComponent(q)}` : ""}`);
+
+  useEffect(() => {
+    if (reducedMotion || !heroRef.current) return;
+
+    const ctx = gsap.context(() => {
+      if (subtitleRef.current) {
+        gsap.set(subtitleRef.current, { y: 20, opacity: 0 });
+        gsap.to(subtitleRef.current, {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          ease: "power3.out",
+          delay: 1.2,
+        });
+      }
+
+      // Scroll parallax for hero layers
+      if (contentRef.current) {
+        gsap.to(contentRef.current, {
+          y: -40,
+          ease: "none",
+          scrollTrigger: {
+            trigger: heroRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: 1,
+          },
+        });
+      }
+
+      if (photoRef.current) {
+        gsap.to(photoRef.current, {
+          y: 60,
+          ease: "none",
+          scrollTrigger: {
+            trigger: heroRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: 1,
+          },
+        });
+      }
+
+      // Mouse parallax via gsap.quickTo
+      const layers = [
+        { ref: glow1Ref, xTo: gsap.quickTo(glow1Ref.current, "x", { duration: 0.8, ease: "power3" }), yTo: gsap.quickTo(glow1Ref.current, "y", { duration: 0.8, ease: "power3" }), factor: 25 },
+        { ref: glow2Ref, xTo: gsap.quickTo(glow2Ref.current, "x", { duration: 0.8, ease: "power3" }), yTo: gsap.quickTo(glow2Ref.current, "y", { duration: 0.8, ease: "power3" }), factor: 15 },
+        { ref: glow3Ref, xTo: gsap.quickTo(glow3Ref.current, "x", { duration: 0.8, ease: "power3" }), yTo: gsap.quickTo(glow3Ref.current, "y", { duration: 0.8, ease: "power3" }), factor: 10 },
+        { ref: photoRef, xTo: gsap.quickTo(photoRef.current, "x", { duration: 0.8, ease: "power3" }), yTo: gsap.quickTo(photoRef.current, "y", { duration: 0.8, ease: "power3" }), factor: 20 },
+      ].filter((l) => l.ref.current);
+
+      const handleMouseMove = (e) => {
+        const cx = window.innerWidth / 2;
+        const cy = window.innerHeight / 2;
+        const nx = (e.clientX - cx) / cx;
+        const ny = (e.clientY - cy) / cy;
+        layers.forEach((l) => {
+          l.xTo(nx * l.factor);
+          l.yTo(ny * l.factor);
+        });
+      };
+
+      window.addEventListener("mousemove", handleMouseMove);
+      return () => window.removeEventListener("mousemove", handleMouseMove);
+    }, heroRef);
+
+    return () => ctx.revert();
+  }, [reducedMotion, t]);
 
   return (
     <section className="container-app pt-6" ref={heroRef}>
@@ -58,22 +213,23 @@ export function Hero() {
         <BackgroundParticles count={25} color="bg-white/30" />
 
         {/* Parallax teal glows behind the photo */}
-        <motion.div
-          style={{ x: px1, y: py1 }}
+        <div
+          ref={glow1Ref}
           className="absolute -right-20 top-56 hidden h-72 w-72 rounded-full bg-[#6BCEEE] opacity-30 lg:block xl:h-[28rem] xl:w-[28rem] blur-[80px]"
         />
-        <motion.div
-          style={{ x: px2, y: py2 }}
+        <div
+          ref={glow2Ref}
           className="absolute top-36 right-3 hidden h-72 w-72 rounded-full bg-[#6BCEEE] opacity-20 lg:block xl:h-[28rem] xl:w-[28rem] blur-[100px]"
         />
         {/* Soft white glow behind the text for contrast */}
-        <motion.div
-          style={{ x: px3, y: py3 }}
+        <div
+          ref={glow3Ref}
           className="absolute -left-10 -top-10 h-64 w-[85%] max-w-xl rounded-full bg-white/60 blur-[150px]"
         />
 
         {/* Teacher photo (right side) with gentle float + parallax */}
         <motion.div
+          ref={photoRef}
           initial="hidden"
           animate="visible"
           variants={slideIn(true, 50)}
@@ -81,7 +237,6 @@ export function Hero() {
           className="relative hidden w-[300px] shrink-0 lg:block xl:w-[430px] z-10"
         >
           <motion.div
-            style={{ x: px1, y: py1 }}
             animate={{ y: [0, -10, 0] }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
             className="w-full h-full"
@@ -98,6 +253,7 @@ export function Hero() {
 
         {/* Text column (left side) */}
         <motion.div
+          ref={contentRef}
           initial="hidden"
           animate="visible"
           variants={staggerContainer(0.12)}
@@ -113,16 +269,18 @@ export function Hero() {
 
           <motion.div variants={fadeUp}>
             <h1 className="text-3xl font-bold leading-tight text-white lg:text-[48px]">
-              {t("home.heroTitle1")}
+              <TypewriterBlock
+                lines={[t("home.heroTitle1"), t("home.heroTitle2")]}
+                speed={90}
+                pause={2200}
+              />
             </h1>
-            <h2 className="mt-1 text-2xl font-bold leading-tight text-[#1E1E1E] lg:text-[40px]">
-              {t("home.heroTitle2")}
-            </h2>
           </motion.div>
 
           <motion.p
+            ref={subtitleRef}
             variants={fadeUp}
-            className="max-w-2xl text-sm leading-relaxed text-white/95 lg:text-base"
+            className="max-w-2xl text-sm leading-relaxed text-white lg:text-base"
           >
             {t("home.heroSubtitle")}
           </motion.p>

@@ -59,3 +59,35 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Scroll-effects additions (appended only) */
+.teacher-track {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.teacher-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ensure pinned sections reserve space correctly */
+.pin-spacer {
+  overflow: visible !important;
+}
+
+/* Reduced motion: disable smooth scroll and motion classes */
+@media (prefers-reduced-motion: reduce) {
+  .hero-word,
+  .split-word,
+  .reveal-item,
+  .step-card,
+  .cta-float {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+/* Active step highlight (uses existing project colors) */
+.step-card.step-active {
+  filter: drop-shadow(0 0 14px rgba(75, 104, 152, 0.35));
+}
