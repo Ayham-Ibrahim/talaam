@@ -536,123 +536,37 @@ export function HowItWorks() {
   const tabs = t("home.howItWorksTabs");
   const steps = role === "teacher" ? t("home.stepsTeacher") : t("home.steps");
   const icons = role === "teacher" ? TEACHER_ICONS : STUDENT_ICONS;
-  const sectionRef = useRef(null);
-  const progressRef = useRef(null);
-  const trackRef = useRef(null);
-  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     setSupportsHover(window.matchMedia("(hover: hover)").matches);
   }, []);
 
-  useEffect(() => {
-    if (reducedMotion || !sectionRef.current || !trackRef.current) return;
-
-    const ctx = gsap.context(() => {
-      const track = trackRef.current;
-      const section = sectionRef.current;
-      const cards = track.querySelectorAll(".step-card");
-      if (!cards.length) return;
-
-      const mm = gsap.matchMedia();
-
-      mm.add("(min-width: 1024px)", () => {
-        // Pin and drive step animations via progress
-        const total = cards.length;
-        const stepProgress = total === 5
-          ? [0.12, 0.28, 0.44, 0.60, 0.76]
-          : Array.from({ length: total }, (_, i) => (i + 1) / (total + 1));
-
-        const tween = gsap.timeline({
-          scrollTrigger: {
-            trigger: section,
-            start: "top 10%",
-            end: "+=250%",
-            pin: true,
-            scrub: 1,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-            onUpdate: (self) => {
-              const p = self.progress;
-              if (progressRef.current) {
-                gsap.set(progressRef.current, { scaleY: p });
-              }
-              cards.forEach((card, i) => {
-                const threshold = stepProgress[i];
-                const isActive = p >= threshold - 0.05;
-                card.classList.toggle("step-active", isActive);
-              });
-            },
-          },
-        });
-
-        cards.forEach((card, i) => {
-          const threshold = stepProgress[i];
-          tween.fromTo(
-            card,
-            { scale: 0.8, opacity: 0 },
-            {
-              scale: 1,
-              opacity: 1,
-              duration: 0.18,
-              ease: "back.out(1.7)",
-            },
-            threshold
-          );
-        });
-
-        return () => {
-          tween.kill();
-        };
-      });
-
-      mm.add("(max-width: 1023px)", () => {
-        // Mobile/tablet: simple staggered reveal, no pin
-        cards.forEach((card) => card.classList.remove("step-active"));
-        gsap.from(cards, {
-          y: 40,
-          opacity: 0,
-          scale: 0.96,
-          duration: 0.7,
-          stagger: 0.12,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: track,
-            start: "top 80%",
-            once: true,
-          },
-        });
-      });
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, [reducedMotion, role, steps.length]);
-
   return (
-    <section ref={sectionRef} className="container-app mt-20">
-      <SplitWords
-        as="h2"
+    <section className="container-app mt-20">
+      <motion.h2
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={fadeUp}
         className="text-center font-cairo text-2xl font-bold text-[#1E1E1E]"
-        y={40}
-        stagger={0.08}
-        duration={0.9}
-        ease="power3.out"
-        start="top 85%"
       >
         {t("home.howItWorksTitle")}
-      </SplitWords>
-      <ScrollReveal
-        y={20}
-        opacity={0}
-        duration={0.7}
-        ease="power3.out"
-        start="top 85%"
+      </motion.h2>
+      <motion.p
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={fadeUp}
         className="mt-2 text-center font-cairo text-lg text-[#626262]"
       >
         {t("home.howItWorksSubtitle")}
-      </ScrollReveal>
+      </motion.p>
 
-      <div
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={fadeUp}
         className="mx-auto mt-6 mb-12 flex w-full max-w-[291px] items-center gap-2 rounded-lg bg-[#F2F2F7] p-1"
       >
         {["teacher", "student"].map((key) => (
@@ -662,10 +576,6 @@ export function HowItWorks() {
             onClick={() => {
               setRole(key);
               setOpenIndex(null);
-              // Allow DOM to update then refresh scroll triggers
-              requestAnimationFrame(() => {
-                ScrollTrigger.refresh();
-              });
             }}
             className={`flex-1 rounded-lg py-2.5 font-cairo text-sm font-semibold transition-colors duration-300 ${
               role === key
@@ -676,18 +586,9 @@ export function HowItWorks() {
             {tabs[key]}
           </button>
         ))}
-      </div>
+      </motion.div>
 
       <div dir="rtl" className="relative mx-auto max-w-5xl">
-        {/* Scroll-driven vertical progress line */}
-        <div className="pointer-events-none absolute top-0 bottom-0 left-1/2 hidden w-0.5 -translate-x-1/2 overflow-hidden rounded-full bg-line lg:block">
-          <div
-            ref={progressRef}
-            className="h-full w-full origin-top bg-[#4B6898]"
-            style={{ transform: "scaleY(0)" }}
-          />
-        </div>
-
         {/* Decorative dashed connectors */}
         <div className="pointer-events-none absolute inset-0 w-full hidden lg:block">
           {Array.from({ length: steps.length - 1 }).map((_, i) => {
@@ -724,7 +625,7 @@ export function HowItWorks() {
           })}
         </div>
 
-        <div ref={trackRef} className="relative flex flex-col gap-10 lg:gap-36">
+        <div className="relative flex flex-col gap-10 lg:gap-36">
           {steps.map((step, i) => {
             const Icon = icons[i];
             const mirrored = i % 2 === 1;
@@ -931,7 +832,11 @@ export function HowItWorks() {
             return (
               <motion.div
                 key={`${role}-${step.no}`}
-                className="step-card flex transition-shadow duration-300"
+                initial="hidden"
+                whileInView="visible"
+                viewport={viewportOnce}
+                variants={slideIn(mirrored, 40)}
+                className="flex"
               >
                 <div
                   className={`flex flex-row-reverse w-full items-center lg:w-[58%] ${mirrored ? "mr-auto" : "ml-auto"}`}
