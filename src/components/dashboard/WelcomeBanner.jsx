@@ -4,7 +4,7 @@ import { useT } from "@/hooks/useT";
 export function WelcomeBanner({
   name,
   sessionsThisWeek,
-  imageSrc = "/student dashboard_heading.png",
+  imageSrc = "/student-dashboard-heading.webp",
   teal = false,
 }) {
   const t = useT();
@@ -48,6 +48,8 @@ export function WelcomeBanner({
         <img
           src={imageSrc}
           alt=""
+          loading="lazy"
+          decoding="async"
           className="h-full w-full object-contain"
           style={{ objectPosition: "37% 38%" }}
         />

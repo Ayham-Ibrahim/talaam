@@ -87,8 +87,10 @@ export function Hero() {
             className="w-full h-full"
           >
             <img
-              src="/hero-teacher.png"
+              src="/hero-teacher.webp"
               alt=""
+              fetchpriority="high"
+              decoding="async"
               className="absolute -bottom-56 left-0 h-auto w-full rounded-2xl object-cover object-top"
             />
           </motion.div>

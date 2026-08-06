@@ -136,12 +136,12 @@ export function EducationTypes() {
 
 /* ---------- Why Choose Us ---------- */
 const WHY_CHOOSE_US_IMAGES = {
-  certified: "/why_choose_us/3.png",
-  quality: "/why_choose_us/2.png",
-  support: "/why_choose_us/1.png",
-  reports: "/why_choose_us/4.png",
-  network: "/why_choose_us/5.png",
-  reviews: "/why_choose_us/6.png",
+  certified: "/why_choose_us/3.webp",
+  quality: "/why_choose_us/2.webp",
+  support: "/why_choose_us/1.webp",
+  reports: "/why_choose_us/4.webp",
+  network: "/why_choose_us/5.webp",
+  reviews: "/why_choose_us/6.webp",
 };
 const WHY_CHOOSE_US_BADGE_ICONS = {
   certified: UserCheck,
@@ -229,6 +229,8 @@ export function WhyChooseUs() {
                 <img
                   src={image}
                   alt=""
+                  loading="lazy"
+                  decoding="async"
                   className="h-full w-full object-contain mix-blend-screen"
                 />
               </div>
@@ -835,9 +837,11 @@ export function CTASection() {
           variants={slideIn(false, 60)}
           animate={{ y: [-5, 5, -5] }}
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          src="/ea5159b8-ad3f-4475-a944-b21119d7ce97 1.svg"
+          src="/hero-cta-illustration.webp"
           alt=""
           aria-hidden="true"
+          loading="lazy"
+          decoding="async"
           className="pointer-events-none absolute left-4 top-0 hidden w-[220px] lg:block lg:left-10 lg:w-[280px] z-10"
         />
         <motion.div

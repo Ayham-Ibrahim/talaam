@@ -35,7 +35,7 @@ export function TeacherDashboardPage() {
           <WelcomeBanner
             name={firstName}
             sessionsThisWeek={data.upcomingSessions.length}
-            imageSrc="/hero-teacher.png"
+            imageSrc="/hero-teacher.webp"
             teal
           />
           <TeacherStatsGrid stats={data.stats} />

@@ -46,7 +46,7 @@ export function LogoIntro({ onComplete }) {
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col items-center gap-4"
           >
-            <img src="/logo.png" alt="TAALAM" className="h-9 w-auto lg:h-28" />
+            <img src="/logo.webp" alt="TAALAM" className="h-9 w-auto lg:h-28" />
 
             {/* <motion.div
               initial={{ opacity: 0, y: 10 }}

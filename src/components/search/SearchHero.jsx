@@ -25,8 +25,10 @@ export function SearchHero({ activeType, onSelectType }) {
 
       {/* Hero illustration */}
       <img
-        src="/search-hero-illustration.svg"
+        src="/search-hero-illustration.webp"
         alt=""
+        loading="lazy"
+        decoding="async"
         className="pointer-events-none absolute -bottom-6 left-2 hidden w-56 sm:block lg:w-72"
       />
 

@@ -41,8 +41,10 @@ export function HowItWorksPage() {
             </div>
             <div className="hidden shrink-0 lg:block">
               <img
-                src="/how_it_works/heading.png"
+                src="/how_it_works/heading.webp"
                 alt=""
+                loading="lazy"
+                decoding="async"
                 className="h-72 w-auto object-cover drop-shadow-[0_12px_30px_rgba(0,0,0,0.25)]"
               />
             </div>
@@ -124,8 +126,10 @@ export function HowItWorksPage() {
 
             {/* Video call mockup */}
             <img
-              src="/how_it_works/session.png"
+              src="/how_it_works/session.webp"
               alt=""
+              loading="lazy"
+              decoding="async"
               className="absolute z-20 object-contain drop-shadow-[0_8px_20px_rgba(0,0,0,0.25)]"
               style={{
                 left: "77.33%",

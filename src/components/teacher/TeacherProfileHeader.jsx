@@ -27,8 +27,9 @@ export function TeacherProfileHeader({ teacher }) {
             />
           ) : (
             <img
-              src="/teacher.png"
+              src="/teacher.webp"
               alt={teacher.name}
+              decoding="async"
               className="h-full w-full object-cover object-top"
             />
           )}

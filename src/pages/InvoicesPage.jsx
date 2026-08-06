@@ -70,7 +70,7 @@ export function InvoicesPage() {
         ) : invoices.length === 0 ? (
           <EmptyState
             icon={Receipt}
-            image="/fallback_images/no_billings.png"
+            image="/fallback_images/no_billings.webp"
             imageClassName="mb-2 h-[300px] w-auto object-contain"
             title={t('dashboard.invoices.emptyTitle')}
             titleClassName="font-cairo text-[32px] font-medium leading-[60px] text-ink"

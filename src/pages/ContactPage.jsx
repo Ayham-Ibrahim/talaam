@@ -46,8 +46,10 @@ export function ContactPage() {
             </div>
             <div className="hidden shrink-0 lg:block">
               <img
-                src="/contact.png"
+                src="/contact.webp"
                 alt=""
+                loading="lazy"
+                decoding="async"
                 className="h-56 w-auto object-contain"
               />
             </div>

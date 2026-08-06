@@ -39,7 +39,7 @@ export function PackagesPage() {
         ) : packages.length === 0 ? (
           <EmptyState
             icon={PackageOpen}
-            image="/fallback_images/no_packages.png"
+            image="/fallback_images/no_packages.webp"
             imageClassName="mb-2 h-[275px] w-auto object-contain"
             title={t("dashboard.myPackages.emptyTitle")}
             titleClassName="font-cairo text-[32px] font-medium leading-[60px] text-ink"

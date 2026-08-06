@@ -206,7 +206,7 @@ export function EmptyState({
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center animate-fade-in">
       {image ? (
-        <img src={image} alt="" className={imageClassName} />
+        <img src={image} alt="" loading="lazy" decoding="async" className={imageClassName} />
       ) : (
         <div className="w-16 h-16 rounded-full bg-line/40 flex items-center justify-center mb-4">
           <Icon className="text-ink-soft" size={28} />

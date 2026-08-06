@@ -68,7 +68,7 @@ export function SessionsPage() {
             {sessions.length === 0 ? (
               <EmptyState
                 icon={CalendarX2}
-                image="/fallback_images/no_sessions.png"
+                image="/fallback_images/no_sessions.webp"
                 imageClassName="mb-2 h-[300px] w-auto object-contain"
                 title={t('dashboard.sessionsPage.emptyTitle')}
                 titleClassName="font-cairo text-[32px] font-medium leading-[60px] text-ink"
