@@ -62,10 +62,7 @@ function TypewriterBlock({ lines, className = "", speed = 90, pause = 2200 }) {
     };
 
     const escapeHtml = (str) =>
-      str
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+      str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
     // Reserve exact height by measuring full rendered text
     el.innerHTML = render(line1 + "\u00A0\u00A0" + line2);
@@ -163,10 +160,54 @@ export function Hero() {
 
       // Mouse parallax via gsap.quickTo
       const layers = [
-        { ref: glow1Ref, xTo: gsap.quickTo(glow1Ref.current, "x", { duration: 0.8, ease: "power3" }), yTo: gsap.quickTo(glow1Ref.current, "y", { duration: 0.8, ease: "power3" }), factor: 25 },
-        { ref: glow2Ref, xTo: gsap.quickTo(glow2Ref.current, "x", { duration: 0.8, ease: "power3" }), yTo: gsap.quickTo(glow2Ref.current, "y", { duration: 0.8, ease: "power3" }), factor: 15 },
-        { ref: glow3Ref, xTo: gsap.quickTo(glow3Ref.current, "x", { duration: 0.8, ease: "power3" }), yTo: gsap.quickTo(glow3Ref.current, "y", { duration: 0.8, ease: "power3" }), factor: 10 },
-        { ref: photoRef, xTo: gsap.quickTo(photoRef.current, "x", { duration: 0.8, ease: "power3" }), yTo: gsap.quickTo(photoRef.current, "y", { duration: 0.8, ease: "power3" }), factor: 20 },
+        {
+          ref: glow1Ref,
+          xTo: gsap.quickTo(glow1Ref.current, "x", {
+            duration: 0.8,
+            ease: "power3",
+          }),
+          yTo: gsap.quickTo(glow1Ref.current, "y", {
+            duration: 0.8,
+            ease: "power3",
+          }),
+          factor: 25,
+        },
+        {
+          ref: glow2Ref,
+          xTo: gsap.quickTo(glow2Ref.current, "x", {
+            duration: 0.8,
+            ease: "power3",
+          }),
+          yTo: gsap.quickTo(glow2Ref.current, "y", {
+            duration: 0.8,
+            ease: "power3",
+          }),
+          factor: 15,
+        },
+        {
+          ref: glow3Ref,
+          xTo: gsap.quickTo(glow3Ref.current, "x", {
+            duration: 0.8,
+            ease: "power3",
+          }),
+          yTo: gsap.quickTo(glow3Ref.current, "y", {
+            duration: 0.8,
+            ease: "power3",
+          }),
+          factor: 10,
+        },
+        {
+          ref: photoRef,
+          xTo: gsap.quickTo(photoRef.current, "x", {
+            duration: 0.8,
+            ease: "power3",
+          }),
+          yTo: gsap.quickTo(photoRef.current, "y", {
+            duration: 0.8,
+            ease: "power3",
+          }),
+          factor: 20,
+        },
       ].filter((l) => l.ref.current);
 
       const handleMouseMove = (e) => {
@@ -234,7 +275,7 @@ export function Hero() {
           animate="visible"
           variants={slideIn(true, 50)}
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-          className="relative hidden w-[300px] shrink-0 lg:block xl:w-[430px] z-10"
+          className="relative hidden w-[400px] shrink-0 lg:block xl:w-[430px] z-10"
         >
           <motion.div
             animate={{ y: [0, -10, 0] }}

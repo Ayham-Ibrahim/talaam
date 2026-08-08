@@ -36,7 +36,11 @@ const TEACHER_NAV_ITEMS = [
   { key: "home", icon: Home, path: "/dashboard/teacher", end: true },
   { key: "calendar", icon: Calendar },
   { key: "packages", icon: CreditCard, path: "/dashboard/teacher/packages" },
-  { key: "bookingRequests", icon: CalendarClock, path: "/dashboard/teacher/booking-requests" },
+  {
+    key: "bookingRequests",
+    icon: CalendarClock,
+    path: "/dashboard/teacher/booking-requests",
+  },
   { key: "sessions", icon: FileText, path: "/dashboard/teacher/sessions" },
   { key: "students", icon: UserRound, path: "/dashboard/teacher/students" },
   { key: "settings", icon: Settings, path: "/dashboard/teacher/settings" },
@@ -59,7 +63,8 @@ function DashboardLayoutInner({ children }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
 
-  const NAV_ITEMS = user?.role === "teacher" ? TEACHER_NAV_ITEMS : STUDENT_NAV_ITEMS;
+  const NAV_ITEMS =
+    user?.role === "teacher" ? TEACHER_NAV_ITEMS : STUDENT_NAV_ITEMS;
 
   const activeNavItem =
     NAV_ITEMS.find((item) =>
@@ -76,7 +81,10 @@ function DashboardLayoutInner({ children }) {
       {/* Sidebar — reviews/settings have no route yet and render as disabled placeholders */}
       <aside className="hidden shrink-0 border-l border-line/60 bg-white lg:flex lg:w-[287px] lg:flex-col ">
         <div className="flex items-center justify-center border-b border-line/60 px-6 py-6">
-          <Logo />
+          <NavLink to="/" aria-label="الصفحة الرئيسية">
+            {" "}
+            <Logo />{" "}
+          </NavLink>
         </div>
         <nav dir="ltr" className="flex flex-1 w-full flex-col gap-1 py-4">
           {NAV_ITEMS.map((item) => {
