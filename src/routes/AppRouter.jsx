@@ -23,10 +23,13 @@ import { AdminPayoutsPage } from '@/pages/AdminPayoutsPage';
 import { AdminStudentImportPage } from '@/pages/AdminStudentImportPage';
 import { AdminSettingsPage } from '@/pages/AdminSettingsPage';
 import { CalendarPage } from '@/pages/CalendarPage';
+import { TeacherCalendarPage } from '@/pages/TeacherCalendarPage';
 import { SessionsPage } from '@/pages/SessionsPage';
 import { PackagesPage } from '@/pages/PackagesPage';
 import { PackageDetailsPage } from '@/pages/PackageDetailsPage';
 import { InvoicesPage } from '@/pages/InvoicesPage';
+import { StudentReviewsPage } from '@/pages/StudentReviewsPage';
+import { StudentSettingsPage } from '@/pages/StudentSettingsPage';
 import { TeacherPackagesPage } from '@/pages/TeacherPackagesPage';
 import { TeacherSessionsPage } from '@/pages/TeacherSessionsPage';
 import { TeacherSessionDetailsPage } from '@/pages/TeacherSessionDetailsPage';
@@ -191,6 +194,30 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="student">
               <InvoicesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/student/reviews"
+          element={
+            <ProtectedRoute role="student">
+              <StudentReviewsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/student/settings"
+          element={
+            <ProtectedRoute role="student">
+              <StudentSettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/teacher/calendar"
+          element={
+            <ProtectedRoute role="teacher">
+              <TeacherCalendarPage />
             </ProtectedRoute>
           }
         />

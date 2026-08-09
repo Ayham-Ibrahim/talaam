@@ -10,6 +10,13 @@ export const endpoints = {
   },
   profile: {
     uploadAvatar: '/me/avatar',
+    update: '/me/profile',
+    updatePassword: '/me/password',
+  },
+  reviews: {
+    mine: '/me/reviews',
+    create: (sessionId) => `/class-sessions/${sessionId}/reviews`,
+    update: (id) => `/reviews/${id}`,
   },
   favorites: {
     list: '/favorites',

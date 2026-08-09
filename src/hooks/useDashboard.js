@@ -121,6 +121,13 @@ export function useCalendarSessions() {
   });
 }
 
+export function useTeacherCalendarSessions() {
+  return useQuery({
+    queryKey: queryKeys.dashboard.teacherCalendarSessions(),
+    queryFn: () => dashboardService.getTeacherCalendarSessions(),
+  });
+}
+
 export function useSessions() {
   return useQuery({
     queryKey: queryKeys.dashboard.sessions(),

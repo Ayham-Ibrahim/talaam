@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { TeacherProfileHeader } from '@/components/teacher/TeacherProfileHeader';
 import { InfoSection } from '@/components/teacher/TeacherInfoSections';
@@ -9,6 +9,8 @@ import { RatingReviews } from '@/components/teacher/RatingReviews';
 import { BookingWidget } from '@/components/teacher/BookingWidget';
 import { CourseEnrollWidget } from '@/components/teacher/CourseEnrollWidget';
 import { ErrorState, Skeleton } from '@/components/ui';
+import { useAuth } from '@/hooks/useAuth';
+import { useFavorites, useToggleFavoriteTeacher } from '@/hooks/useFavorites';
 import { useTeacher } from '@/hooks/useTeachers';
 import { usePackages, useCourses, useRatingSummary, useReviews } from '@/hooks/useMeta';
 import { useT } from '@/hooks/useT';
@@ -18,6 +20,20 @@ const LANGUAGE_FLAGS = { ar: '/ar.png', en: '/en.png' };
 export function TeacherProfilePage() {
   const t = useT();
   const { id } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuth();
+  const { data: favorites } = useFavorites();
+  const toggleFavoriteTeacher = useToggleFavoriteTeacher();
+  const isFavorite = (favorites ?? []).some((f) => f.kind === 'teacher' && f.id === Number(id));
+
+  const handleToggleFavorite = () => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
+    toggleFavoriteTeacher.mutate(Number(id));
+  };
 
   const { data: teacher, isLoading: teacherLoading, isError: teacherError, refetch: refetchTeacher } = useTeacher(id);
   const isCenter = teacher?.type === 'training_center';
@@ -77,7 +93,7 @@ export function TeacherProfilePage() {
       <div className="container-app mt-4 grid grid-cols-1 gap-6 pb-16 lg:grid-cols-[1fr_400px]">
         {/* Main content */}
         <div>
-          <TeacherProfileHeader teacher={teacher} />
+          <TeacherProfileHeader teacher={teacher} isFavorite={isFavorite} onToggleFavorite={handleToggleFavorite} />
 
           <InfoSection title={t('teacher.qualifications')} items={teacher.qualifications} />
           <InfoSection title={t('teacher.subjects')} items={teacher.subjects} colorfulDots />

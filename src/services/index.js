@@ -187,6 +187,46 @@ export const reviewService = {
     const average = total ? reviews.reduce((sum, r) => sum + r.rating, 0) / total : 0;
     return { average: Math.round(average * 10) / 10, total, distribution };
   },
+
+  /** تقييمات الطالب الحالي لنفسه — MyReviewResource (ReviewController::myReviews) */
+  async getMine() {
+    if (config.useMocks) {
+      await mockDelay();
+      return [];
+    }
+    const { data } = await client.get(endpoints.reviews.mine, { params: { per_page: 100 } });
+    return data.data.map((review) => ({
+      id: review.id,
+      classSessionId: review.class_session_id,
+      teacherId: review.teacher_id,
+      teacherName: review.teacher_name,
+      teacherAvatar: review.teacher_avatar,
+      rating: review.rating,
+      comment: review.comment,
+      response: review.response,
+      respondedAt: review.responded_at,
+      canEdit: review.can_edit,
+      createdAt: review.created_at,
+    }));
+  },
+
+  async create(sessionId, { rating, comment }) {
+    if (config.useMocks) {
+      await mockDelay();
+      return { id: Date.now(), rating, comment };
+    }
+    const { data } = await client.post(endpoints.reviews.create(sessionId), { rating, comment: comment || null });
+    return data.data;
+  },
+
+  async update(reviewId, { rating, comment }) {
+    if (config.useMocks) {
+      await mockDelay();
+      return { id: reviewId, rating, comment };
+    }
+    const { data } = await client.put(endpoints.reviews.update(reviewId), { rating, comment: comment || null });
+    return data.data;
+  },
 };
 
 export const bookingService = {
@@ -354,6 +394,8 @@ function mapFavorite(raw) {
       favoriteId: raw.id,
       kind: 'course',
       id: raw.course.id,
+      // الدورة لا تملك صفحة تفصيل مستقلة — تُعرض ضمن ملف المركز، لذا نحتاج هذا للربط بـ /teacher/:teacherId
+      teacherId: raw.course.teacherId,
       title: raw.course.title,
       providerName: raw.course.providerName,
       providerAvatar: raw.course.providerAvatar,
@@ -554,6 +596,26 @@ function mapCalendarSessionRow(session) {
     countdown: status === 'upcoming' ? computeCountdown(session.scheduled_at) : null,
     canReschedule: status === 'upcoming',
     joinUrl: session.join_url_student ?? null,
+  };
+}
+
+/** Same as mapCalendarSessionRow but for the teacher's own calendar (join_url_teacher, no teacherName/Avatar — it's their own session) */
+function mapTeacherCalendarSessionRow(session) {
+  const status = mapSessionStatus(session.status);
+  const { time, period } = formatSessionTime(session.scheduled_at);
+  return {
+    id: session.id,
+    date: session.scheduled_at ? session.scheduled_at.slice(0, 10) : null,
+    type: sessionCategory(session),
+    packageTitle: sessionPackageTitle(session),
+    status,
+    subject: sessionSubject(session),
+    time,
+    period,
+    durationMinutes: session.duration_min,
+    countdown: status === 'upcoming' ? computeCountdown(session.scheduled_at) : null,
+    canReschedule: status === 'upcoming',
+    joinUrl: session.join_url_teacher ?? null,
   };
 }
 
@@ -972,6 +1034,20 @@ export const dashboardService = {
     }
     const { data } = await client.get(endpoints.classSessions.list, { params: { per_page: 300 } });
     return data.data.map(mapCalendarSessionRow);
+  },
+
+  /**
+   * Same shape as getCalendarSessions, from the teacher's own side — GET /class-sessions
+   * is already scoped server-side to teacher_id (ClassSession::scopeVisibleTo), only the
+   * join link differs (join_url_teacher, not _student).
+   */
+  async getTeacherCalendarSessions() {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return mockCalendarSessions;
+    }
+    const { data } = await client.get(endpoints.classSessions.list, { params: { per_page: 300 } });
+    return data.data.map(mapTeacherCalendarSessionRow);
   },
 
   /** Every class session the student attends, mapped into the flat "الجلسات" list */

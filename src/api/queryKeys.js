@@ -26,6 +26,12 @@ export const queryKeys = {
   favorites: {
     list: () => ['favorites', 'list'],
   },
+  reviews: {
+    mine: () => ['reviews', 'mine'],
+  },
+  students: {
+    myProfile: (id) => ['students', 'my-profile', id],
+  },
   notifications: {
     list: () => ['notifications', 'list'],
     unreadCount: () => ['notifications', 'unread-count'],
@@ -34,6 +40,7 @@ export const queryKeys = {
     student: () => ['dashboard', 'student'],
     teacher: () => ['dashboard', 'teacher'],
     calendarSessions: () => ['dashboard', 'calendar-sessions'],
+    teacherCalendarSessions: () => ['dashboard', 'teacher-calendar-sessions'],
     sessions: () => ['dashboard', 'sessions'],
     invoices: () => ['dashboard', 'invoices'],
     packagesList: () => ['dashboard', 'packages-list'],

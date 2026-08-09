@@ -1,4 +1,5 @@
 import { Check, Play, Star } from "lucide-react";
+import { FavoriteButton } from "@/components/ui";
 import { useT } from "@/hooks/useT";
 
 const BADGE_ICONS = {
@@ -8,7 +9,7 @@ const BADGE_ICONS = {
   3: "🏅", // مركز معتمد
 };
 
-export function TeacherProfileHeader({ teacher }) {
+export function TeacherProfileHeader({ teacher, isFavorite, onToggleFavorite }) {
   const t = useT();
 
   return (
@@ -32,6 +33,9 @@ export function TeacherProfileHeader({ teacher }) {
               decoding="async"
               className="h-full w-full object-cover object-top"
             />
+          )}
+          {onToggleFavorite && (
+            <FavoriteButton active={isFavorite} onClick={onToggleFavorite} className="absolute left-3 top-3" />
           )}
           <button
             type="button"

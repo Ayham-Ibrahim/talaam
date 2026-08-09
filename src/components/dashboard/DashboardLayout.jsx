@@ -28,13 +28,13 @@ const STUDENT_NAV_ITEMS = [
   { key: "sessions", icon: FileText, path: "/dashboard/student/sessions" },
   { key: "packages", icon: CreditCard, path: "/dashboard/student/packages" },
   { key: "invoices", icon: FileText, path: "/dashboard/student/invoices" },
-  { key: "reviews", icon: Star },
-  { key: "settings", icon: Settings },
+  { key: "reviews", icon: Star, path: "/dashboard/student/reviews" },
+  { key: "settings", icon: Settings, path: "/dashboard/student/settings" },
 ];
 
 const TEACHER_NAV_ITEMS = [
   { key: "home", icon: Home, path: "/dashboard/teacher", end: true },
-  { key: "calendar", icon: Calendar },
+  { key: "calendar", icon: Calendar, path: "/dashboard/teacher/calendar" },
   { key: "packages", icon: CreditCard, path: "/dashboard/teacher/packages" },
   {
     key: "bookingRequests",
@@ -78,7 +78,7 @@ function DashboardLayoutInner({ children }) {
 
   return (
     <div dir="rtl" className="min-h-screen bg-[#FCFCFC] lg:flex">
-      {/* Sidebar — reviews/settings have no route yet and render as disabled placeholders */}
+      {/* Sidebar */}
       <aside className="hidden shrink-0 border-l border-line/60 bg-white lg:flex lg:w-[287px] lg:flex-col ">
         <div className="flex items-center justify-center border-b border-line/60 px-6 py-6">
           <NavLink to="/" aria-label="الصفحة الرئيسية">

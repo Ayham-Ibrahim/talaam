@@ -1,5 +1,8 @@
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Award, Laptop, Package, FlaskConical, Video, CalendarRange } from 'lucide-react';
-import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
+import { EmptyState, ErrorState, FavoriteButton, Skeleton } from '@/components/ui';
+import { useAuth } from '@/hooks/useAuth';
+import { useFavorites, useToggleFavoriteCourse } from '@/hooks/useFavorites';
 import { useT } from '@/hooks/useT';
 import { useCurrencyStore } from '@/store';
 import { formatPrice } from '@/lib/currency';
@@ -24,7 +27,7 @@ function CourseFactBadge({ active, icon: Icon, label }) {
   );
 }
 
-function CourseCard({ course, index, selected, onSelect }) {
+function CourseCard({ course, index, selected, onSelect, isFavorite, onToggleFavorite }) {
   const t = useT();
   const currency = useCurrencyStore((s) => s.currency);
   const accent = COURSE_ACCENTS[index % COURSE_ACCENTS.length];
@@ -36,12 +39,15 @@ function CourseCard({ course, index, selected, onSelect }) {
         selected ? 'border-[var(--accent)] bg-[var(--accent-bg)]/40' : 'border-line bg-white hover:border-[var(--accent)]'
       }`}
     >
-      <div className="text-start">
-        <h4 className="font-bold text-ink">{course.title}</h4>
-        <p className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-soft">
-          <CalendarRange size={13} />
-          {formatDate(course.startDate)} — {formatDate(course.endDate)}
-        </p>
+      <div className="flex items-start justify-between gap-2 text-start">
+        <div>
+          <h4 className="font-bold text-ink">{course.title}</h4>
+          <p className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-soft">
+            <CalendarRange size={13} />
+            {formatDate(course.startDate)} — {formatDate(course.endDate)}
+          </p>
+        </div>
+        <FavoriteButton active={isFavorite} onClick={() => onToggleFavorite(course.id)} className="shrink-0" />
       </div>
 
       <div className="flex flex-wrap gap-1.5">
@@ -73,6 +79,20 @@ function CourseCard({ course, index, selected, onSelect }) {
 
 export function CoursesSection({ courses, isLoading, isError, refetch, selectedCourseId, onSelect }) {
   const t = useT();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuth();
+  const { data: favorites } = useFavorites();
+  const toggleFavoriteCourse = useToggleFavoriteCourse();
+  const favoriteCourseIds = new Set((favorites ?? []).filter((f) => f.kind === 'course').map((f) => f.id));
+
+  const handleToggleFavorite = (courseId) => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
+    toggleFavoriteCourse.mutate(courseId);
+  };
 
   return (
     <div className="mt-8">
@@ -90,7 +110,15 @@ export function CoursesSection({ courses, isLoading, isError, refetch, selectedC
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {courses.map((course, i) => (
-            <CourseCard key={course.id} course={course} index={i} selected={course.id === selectedCourseId} onSelect={onSelect} />
+            <CourseCard
+              key={course.id}
+              course={course}
+              index={i}
+              selected={course.id === selectedCourseId}
+              onSelect={onSelect}
+              isFavorite={favoriteCourseIds.has(course.id)}
+              onToggleFavorite={handleToggleFavorite}
+            />
           ))}
         </div>
       )}
