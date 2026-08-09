@@ -8,6 +8,7 @@ import { CourseWizardReview } from './CourseWizardReview';
 import { useCreateTeacherCourse } from '@/hooks/useDashboard';
 import { useT } from '@/hooks/useT';
 
+
 const INITIAL_DATA = {
   title: '',
   description: '',
@@ -114,7 +115,13 @@ export function AddCourseModal({ onClose }) {
         <CourseWizardPricing data={data} onChange={patchData} onNext={() => setStep(4)} onBack={() => setStep(2)} />
       )}
       {step === 4 && (
-        <CourseWizardReview data={data} isPending={createCourse.isPending} onSubmit={handleSaveDraft} onBack={() => setStep(3)} />
+        <CourseWizardReview
+          data={data}
+          isPending={createCourse.isPending}
+          error={createCourse.isError ? createCourse.error : null}
+          onSubmit={handleSaveDraft}
+          onBack={() => setStep(3)}
+        />
       )}
     </div>
   );

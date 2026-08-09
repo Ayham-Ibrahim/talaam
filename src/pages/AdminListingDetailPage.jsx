@@ -48,6 +48,9 @@ export function AdminListingDetailPage() {
     }
   };
 
+  const activeModalMutation = modal === 'reject' ? rejectListing : disableListing;
+  const manualBookingMutation = listing?.kind === 'course' ? createManualEnrollment : createManualBooking;
+
   const handleManualBookingConfirm = ({ studentId, reason }) => {
     const payload = { student_id: studentId, reason };
     const mutation = listing.kind === 'course' ? createManualEnrollment : createManualBooking;
@@ -119,6 +122,7 @@ export function AdminListingDetailPage() {
         <ReasonModal
           titleKey={modal === 'reject' ? 'rejectListingTitle' : 'disableListingTitle'}
           isPending={isActing}
+          error={activeModalMutation.isError ? activeModalMutation.error : null}
           onConfirm={handleModalConfirm}
           onClose={() => setModal(null)}
         />
@@ -127,6 +131,7 @@ export function AdminListingDetailPage() {
       {manualBookingOpen && (
         <ManualBookingModal
           isPending={isBooking}
+          error={manualBookingMutation.isError ? manualBookingMutation.error : null}
           onConfirm={handleManualBookingConfirm}
           onClose={() => setManualBookingOpen(false)}
         />

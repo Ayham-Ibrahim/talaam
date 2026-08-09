@@ -26,6 +26,8 @@ export function AdminTaxonomyPage() {
   const updateItem = useUpdateTaxonomyItem(activeType);
   const deleteItemMutation = useDeleteTaxonomyItem(activeType);
   const isActing = createItem.isPending || updateItem.isPending;
+  const activeMutation = formItem ? updateItem : createItem;
+  const saveError = activeMutation.isError ? activeMutation.error : null;
 
   if (!user) return <Navigate to="/login" replace />;
 
@@ -77,6 +79,7 @@ export function AdminTaxonomyPage() {
           typeConfig={typeConfig}
           item={formItem}
           isPending={isActing}
+          error={saveError}
           onSave={handleSave}
           onClose={() => setFormItem(undefined)}
         />

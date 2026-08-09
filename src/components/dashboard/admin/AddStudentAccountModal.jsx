@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { ApiErrorList } from '@/components/ui';
 import { useCreateStudentAccount } from '@/hooks/useAdmin';
 import { useT } from '@/hooks/useT';
 
 const INITIAL = { name: '', email: '', phone: '', password: '' };
+
+const ACCOUNT_FIELD_LABELS = { name: 'الاسم', email: 'البريد الإلكتروني', phone: 'الهاتف', password: 'كلمة المرور' };
+const accountErrorLabel = (path) => ACCOUNT_FIELD_LABELS[path] ?? path;
 
 export function AddStudentAccountModal({ onClose }) {
   const t = useT();
@@ -24,10 +28,6 @@ export function AddStudentAccountModal({ onClose }) {
     );
   };
 
-  const errorMessage = createAccount.error?.errors
-    ? Object.values(createAccount.error.errors).flat()[0]
-    : createAccount.error?.message;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
       <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-lift" onClick={(e) => e.stopPropagation()}>
@@ -44,15 +44,14 @@ export function AddStudentAccountModal({ onClose }) {
           <span className="w-8" />
         </div>
 
-        {errorMessage && (
-          <div className="mb-4 rounded-btn bg-accent-pink/10 px-4 py-3 text-sm text-accent-pink">{errorMessage}</div>
-        )}
+        {createAccount.isError && <ApiErrorList error={createAccount.error} labelFor={accountErrorLabel} className="mb-4" />}
 
         <div className="flex flex-col gap-3 text-right">
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-semibold text-ink">{t('dashboard.adminStudentImport.nameLabel')}</span>
             <input
               type="text"
+              maxLength={150}
               value={form.name}
               onChange={patch('name')}
               className={`w-full rounded-btn border bg-surface p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
@@ -66,6 +65,7 @@ export function AddStudentAccountModal({ onClose }) {
             <input
               type="email"
               dir="ltr"
+              maxLength={150}
               value={form.email}
               onChange={patch('email')}
               className={`w-full rounded-btn border bg-surface p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
@@ -79,6 +79,7 @@ export function AddStudentAccountModal({ onClose }) {
             <input
               type="tel"
               dir="ltr"
+              maxLength={25}
               value={form.phone}
               onChange={patch('phone')}
               className="w-full rounded-btn border border-line bg-surface p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"

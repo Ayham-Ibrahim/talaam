@@ -27,6 +27,7 @@ export function PackageWizardPricing({ data, onChange, onNext, onBack }) {
         <input
           type="number"
           min="0"
+          max="100000"
           dir="ltr"
           value={data.teacher_price}
           onChange={(e) => onChange({ teacher_price: e.target.value })}

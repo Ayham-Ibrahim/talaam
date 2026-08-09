@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { ApiErrorList } from '@/components/ui';
 import { useT } from '@/hooks/useT';
 
-export function ApproveRescheduleModal({ isPending, onConfirm, onClose }) {
+export function ApproveRescheduleModal({ isPending, error, onConfirm, onClose }) {
   const t = useT();
   const [value, setValue] = useState('');
   const [touched, setTouched] = useState(false);
@@ -30,6 +31,8 @@ export function ApproveRescheduleModal({ isPending, onConfirm, onClose }) {
           <h3 className="flex-1 text-center text-lg font-bold text-ink">{t('dashboard.adminReschedule.alternativeModalTitle')}</h3>
           <span className="w-8" />
         </div>
+
+        {error && <ApiErrorList error={error} labelFor={() => t('dashboard.adminReschedule.alternativeTimeLabel')} className="mb-4" />}
 
         <label className="flex flex-col gap-1.5 text-right">
           <span className="text-sm font-semibold text-ink">{t('dashboard.adminReschedule.alternativeTimeLabel')}</span>

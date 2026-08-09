@@ -1,6 +1,49 @@
 import { useTaxonomyList } from '@/hooks/useTaxonomy';
 import { COURSE_LEVEL_LABELS, COURSE_DELIVERY_MODE_LABELS } from '@/mocks/teacherCourses.mock';
+import { ApiErrorList } from '@/components/ui';
 import { useT } from '@/hooks/useT';
+
+/** Maps CreateCourseRequest field paths (incl. Laravel's dot-notation for array items) to readable labels. */
+const COURSE_FIELD_LABELS = {
+  title: 'العنوان',
+  course_field_id: 'المجال',
+  subject_id: 'المادة',
+  level: 'المستوى',
+  delivery_mode: 'نمط التقديم',
+  location: 'الموقع',
+  description: 'الوصف',
+  curriculum_ids: 'المناهج',
+  start_date: 'تاريخ البدء',
+  end_date: 'تاريخ الانتهاء',
+  total_sessions: 'عدد الجلسات',
+  max_seats: 'عدد المقاعد',
+  schedules: 'الجدولة',
+  provider_price: 'السعر',
+  pricing_mode: 'نمط التسعير',
+  total_hours: 'عدد الساعات',
+  certificate_type: 'نوع الشهادة',
+  certificate_issuer: 'جهة إصدار الشهادة',
+  certificate_requirements: 'متطلبات الشهادة',
+  prerequisites: 'المتطلبات المسبقة',
+  cancellation_policy: 'سياسة الإلغاء',
+};
+
+const SCHEDULE_SUBFIELD_LABELS = { day_of_week: 'اليوم', start_time: 'وقت البدء', end_time: 'وقت الانتهاء' };
+
+function courseErrorLabel(path) {
+  if (COURSE_FIELD_LABELS[path]) return COURSE_FIELD_LABELS[path];
+
+  const scheduleMatch = path.match(/^schedules\.(\d+)(?:\.(.+))?$/);
+  if (scheduleMatch) {
+    const [, index, sub] = scheduleMatch;
+    return `الجدولة #${Number(index) + 1}${sub ? ` - ${SCHEDULE_SUBFIELD_LABELS[sub] ?? sub}` : ''}`;
+  }
+
+  const curriculumMatch = path.match(/^curriculum_ids\.(\d+)$/);
+  if (curriculumMatch) return `المناهج #${Number(curriculumMatch[1]) + 1}`;
+
+  return path;
+}
 
 function SummaryField({ label, value }) {
   return (
@@ -11,7 +54,7 @@ function SummaryField({ label, value }) {
   );
 }
 
-export function CourseWizardReview({ data, isPending, onSubmit, onBack }) {
+export function CourseWizardReview({ data, isPending, error, onSubmit, onBack }) {
   const t = useT();
   const { data: courseFields = [] } = useTaxonomyList('course_fields');
 
@@ -19,6 +62,8 @@ export function CourseWizardReview({ data, isPending, onSubmit, onBack }) {
 
   return (
     <div className="mt-8 flex flex-col gap-6">
+      {error && <ApiErrorList error={error} labelFor={courseErrorLabel} />}
+
       <div className="grid grid-cols-2 gap-4 rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card sm:grid-cols-4">
         <SummaryField label={t('dashboard.addCourse.courseFieldLabel')} value={courseFieldLabel} />
         <SummaryField label={t('dashboard.addCourse.levelLabel')} value={COURSE_LEVEL_LABELS[data.level]} />

@@ -25,11 +25,18 @@ function addOneHour(time) {
  * schedule. end_time is derived from start_time (+1h) since every session is
  * exactly one hour, not entered separately. Packages have their own dedicated
  * pickers (AvailableDaysPicker for individual, GroupSessionDatesPicker for group).
+ *
+ * `max` mirrors CreateCourseRequest's schedules array cap (max:50 rows) so a
+ * runaway click on "add" hits a UI limit instead of a silent 422 later.
  */
-export function ScheduleRangeBuilder({ schedules, onChange }) {
+export function ScheduleRangeBuilder({ schedules, onChange, max = 50 }) {
   const t = useT();
+  const atMax = schedules.length >= max;
 
-  const addRow = () => onChange([...schedules, { day_of_week: 0, start_time: '', end_time: '' }]);
+  const addRow = () => {
+    if (atMax) return;
+    onChange([...schedules, { day_of_week: 0, start_time: '', end_time: '' }]);
+  };
   const removeRow = (index) => onChange(schedules.filter((_, i) => i !== index));
   const updateRow = (index, patch) => onChange(schedules.map((row, i) => (i === index ? { ...row, ...patch } : row)));
   const updateStartTime = (index, startTime) => updateRow(index, { start_time: startTime, end_time: addOneHour(startTime) });
@@ -69,12 +76,14 @@ export function ScheduleRangeBuilder({ schedules, onChange }) {
 
       <button
         type="button"
+        disabled={atMax}
         onClick={addRow}
-        className="flex w-fit items-center gap-1.5 rounded-xl border border-dashed border-primary px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/5"
+        className="flex w-fit items-center gap-1.5 rounded-xl border border-dashed border-primary px-4 py-2.5 text-sm font-medium text-primary transition-opacity hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
       >
         <Plus size={16} />
         {t('dashboard.addPackage.scheduleAdd')}
       </button>
+      {atMax && <p className="text-xs text-ink-soft">{`الحد الأقصى ${max} صفاً`}</p>}
     </div>
   );
 }

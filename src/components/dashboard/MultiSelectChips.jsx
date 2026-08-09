@@ -1,10 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, ChevronDown, X } from 'lucide-react';
 
-/** Multi-value picker (curriculum_ids, stage_ids...) — same visual shell as SmoothSelect but toggles many values */
-export function MultiSelectChips({ label, values, onChange, options, placeholder }) {
+/**
+ * Multi-value picker (curriculum_ids, stage_ids...) — same visual shell as SmoothSelect but toggles many values.
+ * `max` mirrors the backend's array-count cap on the same field (e.g. curriculum_ids max:20) — once reached,
+ * unselected options become unselectable instead of silently letting the user build a payload the API will reject.
+ */
+export function MultiSelectChips({ label, values, onChange, options, placeholder, max }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
+  const atMax = typeof max === 'number' && values.length >= max;
 
   useEffect(() => {
     if (!open) return;
@@ -16,6 +21,7 @@ export function MultiSelectChips({ label, values, onChange, options, placeholder
   }, [open]);
 
   const toggle = (value) => {
+    if (!values.includes(value) && atMax) return;
     onChange(values.includes(value) ? values.filter((v) => v !== value) : [...values, value]);
   };
 
@@ -42,13 +48,19 @@ export function MultiSelectChips({ label, values, onChange, options, placeholder
           <div className="absolute z-20 mt-2 w-full origin-top animate-fade-in overflow-hidden rounded-2xl bg-white p-2 shadow-lift">
             {options.map((opt) => {
               const isSelected = values.includes(opt.value);
+              const isDisabled = !isSelected && atMax;
               return (
                 <button
                   key={opt.value}
                   type="button"
+                  disabled={isDisabled}
                   onClick={() => toggle(opt.value)}
                   className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-right text-sm transition-colors duration-150 ${
-                    isSelected ? 'bg-primary/10 font-semibold text-primary' : 'text-ink hover:bg-primary/10 hover:text-primary'
+                    isSelected
+                      ? 'bg-primary/10 font-semibold text-primary'
+                      : isDisabled
+                        ? 'cursor-not-allowed text-ink-soft/50'
+                        : 'text-ink hover:bg-primary/10 hover:text-primary'
                   }`}
                 >
                   {isSelected && <Check size={15} />}
@@ -59,6 +71,8 @@ export function MultiSelectChips({ label, values, onChange, options, placeholder
           </div>
         )}
       </div>
+
+      {atMax && <span className="text-xs text-ink-soft">{`الحد الأقصى ${max} عنصر`}</span>}
 
       {selectedOptions.length > 0 && (
         <div className="flex flex-wrap gap-2">

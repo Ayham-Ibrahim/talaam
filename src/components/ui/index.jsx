@@ -1,6 +1,7 @@
 import { Star, Heart, ImageOff } from "lucide-react";
 import { motion, useMotionValue, useTransform, animate, useInView } from "framer-motion";
 import { useEffect, useRef } from "react";
+import { formatErrorList } from "@/utils/apiErrors";
 
 /* ---------- Animated Counter ---------- */
 export function Counter({ from = 0, to, duration = 1.5, className = "" }) {
@@ -215,6 +216,34 @@ export function EmptyState({
       <p className={titleClassName}>{title}</p>
       {hint && <p className={hintClassName}>{hint}</p>}
       {action && <div className="mt-4">{action}</div>}
+    </div>
+  );
+}
+
+/* ---------- ApiErrorList ---------- */
+/**
+ * Renders every message from a normalized API error ({status, message, errors}),
+ * not just the first one — a plain sentence when there's a single error, a bulleted
+ * list otherwise. Pass `labelFor(path)` to translate Laravel's raw dot-notation
+ * field paths (e.g. "schedules.2.start_time") into human labels; unmapped paths
+ * fall back to the raw path so nothing is silently dropped.
+ */
+export function ApiErrorList({ error, labelFor, className = "" }) {
+  if (!error) return null;
+  const messages = error.errors ? formatErrorList(error.errors, labelFor) : [error.message].filter(Boolean);
+  if (messages.length === 0) return null;
+
+  return (
+    <div className={`rounded-btn bg-accent-pink/10 px-4 py-3 text-sm text-accent-pink ${className}`}>
+      {messages.length === 1 ? (
+        <p>{messages[0]}</p>
+      ) : (
+        <ul className="list-inside list-disc space-y-1">
+          {messages.map((msg, i) => (
+            <li key={i}>{msg}</li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

@@ -92,6 +92,8 @@ export function AdminSettingsPage() {
                   title={SETTINGS_CATEGORY_LABELS[category] ?? category}
                   settings={settings}
                   isPending={updateSetting.isPending}
+                  errorKey={updateSetting.isError ? updateSetting.variables?.key : null}
+                  error={updateSetting.error}
                   onSave={(key, value) => updateSetting.mutate({ key, value })}
                 />
               ))}
@@ -163,6 +165,7 @@ export function AdminSettingsPage() {
         <ReasonModal
           titleKey="hideReviewTitle"
           isPending={hideReview.isPending}
+          error={hideReview.isError ? hideReview.error : null}
           onClose={() => setHideTarget(null)}
           onConfirm={(reason) => hideReview.mutate({ id: hideTarget.id, reason }, { onSuccess: () => setHideTarget(null) })}
         />

@@ -53,6 +53,7 @@ export function CourseWizardScheduleCapacity({ data, onChange, onNext, onBack })
           <input
             type="number"
             min="1"
+            max="500"
             value={data.total_sessions}
             onChange={(e) => onChange({ total_sessions: e.target.value })}
             className={`w-full rounded-lg border bg-white px-3 py-3 text-right text-sm text-ink focus:outline-none ${
@@ -65,6 +66,7 @@ export function CourseWizardScheduleCapacity({ data, onChange, onNext, onBack })
           <input
             type="number"
             min="1"
+            max="1000"
             value={data.max_seats}
             onChange={(e) => onChange({ max_seats: e.target.value })}
             className={`w-full rounded-lg border bg-white px-3 py-3 text-right text-sm text-ink focus:outline-none ${

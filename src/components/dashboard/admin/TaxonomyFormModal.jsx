@@ -1,10 +1,21 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
+import { ApiErrorList } from '@/components/ui';
 import { EDUCATION_TYPE_LABELS } from '@/mocks/adminTaxonomy.mock';
 import { useT } from '@/hooks/useT';
 
-export function TaxonomyFormModal({ typeConfig, item, isPending, onSave, onClose }) {
+const TAXONOMY_FIELD_LABELS = {
+  code: 'الرمز',
+  name_ar: 'الاسم بالعربية',
+  name_en: 'الاسم بالإنجليزية',
+  education_type: 'نوع التعليم',
+  sort_order: 'الترتيب',
+  country: 'الدولة',
+};
+const taxonomyErrorLabel = (path) => TAXONOMY_FIELD_LABELS[path] ?? path;
+
+export function TaxonomyFormModal({ typeConfig, item, isPending, error, onSave, onClose }) {
   const t = useT();
   const isEdit = !!item;
   const [code, setCode] = useState(item?.code ?? '');
@@ -40,6 +51,8 @@ export function TaxonomyFormModal({ typeConfig, item, isPending, onSave, onClose
           </h3>
           <span className="w-8" />
         </div>
+
+        {error && <ApiErrorList error={error} labelFor={taxonomyErrorLabel} className="mb-4" />}
 
         <div className="flex flex-col gap-4">
           <label className="flex flex-col gap-1.5 text-right">

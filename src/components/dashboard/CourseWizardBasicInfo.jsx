@@ -97,6 +97,7 @@ export function CourseWizardBasicInfo({ data, onChange, onNext }) {
         onChange={(v) => onChange({ curriculum_ids: v })}
         options={curriculumOptions}
         placeholder={t('dashboard.addPackage.selectPlaceholder')}
+        max={20}
       />
 
       <div className="flex w-full flex-col items-start gap-1.5">

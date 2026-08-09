@@ -46,6 +46,7 @@ export function CourseWizardPricing({ data, onChange, onNext, onBack }) {
         <input
           type="number"
           min="0"
+          max="100000"
           dir="ltr"
           value={data.provider_price}
           onChange={(e) => onChange({ provider_price: e.target.value })}
@@ -62,6 +63,7 @@ export function CourseWizardPricing({ data, onChange, onNext, onBack }) {
           <input
             type="number"
             min="1"
+            max="2000"
             dir="ltr"
             value={data.total_hours}
             onChange={(e) => onChange({ total_hours: e.target.value })}
@@ -155,22 +157,28 @@ export function CourseWizardPricing({ data, onChange, onNext, onBack }) {
 
       <div className="flex w-full flex-col items-start gap-1.5">
         <label className="text-sm font-semibold text-primary">{t('dashboard.addCourse.prerequisitesLabel')}</label>
-        <textarea
-          value={data.prerequisites}
-          onChange={(e) => onChange({ prerequisites: e.target.value })}
-          rows={2}
-          className="w-full resize-none rounded-lg border border-[#E3E3E3] bg-white px-3 py-2.5 text-right text-sm text-ink outline-none focus:border-primary"
-        />
+        <div className="w-full rounded-lg border border-[#E3E3E3] px-3 py-2.5">
+          <textarea
+            value={data.prerequisites}
+            onChange={(e) => onChange({ prerequisites: e.target.value.slice(0, 2000) })}
+            rows={2}
+            className="w-full resize-none bg-transparent text-right text-sm text-ink outline-none"
+          />
+          <div className="text-left text-xs text-[#AEAEB2]">{data.prerequisites.length}/2000</div>
+        </div>
       </div>
 
       <div className="flex w-full flex-col items-start gap-1.5">
         <label className="text-sm font-semibold text-primary">{t('dashboard.addCourse.cancellationPolicyLabel')}</label>
-        <textarea
-          value={data.cancellation_policy}
-          onChange={(e) => onChange({ cancellation_policy: e.target.value })}
-          rows={2}
-          className="w-full resize-none rounded-lg border border-[#E3E3E3] bg-white px-3 py-2.5 text-right text-sm text-ink outline-none focus:border-primary"
-        />
+        <div className="w-full rounded-lg border border-[#E3E3E3] px-3 py-2.5">
+          <textarea
+            value={data.cancellation_policy}
+            onChange={(e) => onChange({ cancellation_policy: e.target.value.slice(0, 2000) })}
+            rows={2}
+            className="w-full resize-none bg-transparent text-right text-sm text-ink outline-none"
+          />
+          <div className="text-left text-xs text-[#AEAEB2]">{data.cancellation_policy.length}/2000</div>
+        </div>
       </div>
 
       <div className="flex items-start gap-3 rounded-2xl border border-dashed border-primary/30 bg-primary-light/40 p-5">

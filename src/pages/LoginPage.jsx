@@ -4,9 +4,11 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, GraduationCap, Mail, Lock, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Logo } from '@/components/layout/Logo';
-import { Button } from '@/components/ui';
+import { ApiErrorList, Button } from '@/components/ui';
 import { useAuth, useLogin } from '@/hooks/useAuth';
 import { useT } from '@/hooks/useT';
+
+const LOGIN_FIELD_LABELS = { email: 'البريد الإلكتروني', password: 'كلمة المرور' };
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -101,6 +103,7 @@ export function LoginPage() {
                   <input
                     type="email"
                     dir="ltr"
+                    maxLength={255}
                     placeholder={t('auth.emailPlaceholder')}
                     className={`w-full rounded-btn border bg-surface py-3 pl-3.5 pr-10 text-left text-sm text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 ${
                       errors.email ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
@@ -108,6 +111,7 @@ export function LoginPage() {
                     {...register('email', {
                       required: t('auth.emailRequired'),
                       pattern: { value: EMAIL_PATTERN, message: t('auth.emailInvalid') },
+                      maxLength: { value: 255, message: t('auth.emailTooLong') },
                     })}
                   />
                 </div>
@@ -122,6 +126,7 @@ export function LoginPage() {
                   <input
                     type={showPassword ? 'text' : 'password'}
                     dir="ltr"
+                    maxLength={255}
                     placeholder={t('auth.passwordPlaceholder')}
                     className={`w-full rounded-btn border bg-surface py-3 pl-10 pr-10 text-left text-sm text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 ${
                       errors.password ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
@@ -129,6 +134,7 @@ export function LoginPage() {
                     {...register('password', {
                       required: t('auth.passwordRequired'),
                       minLength: { value: 6, message: t('auth.passwordMin') },
+                      maxLength: { value: 255, message: t('auth.passwordTooLong') },
                     })}
                   />
                   <button
@@ -162,9 +168,10 @@ export function LoginPage() {
               </div>
 
               {login.isError && (
-                <div className="rounded-btn bg-accent-pink/10 px-4 py-3 text-sm text-accent-pink">
-                  {login.error?.message || t('auth.invalidCredentials')}
-                </div>
+                <ApiErrorList
+                  error={{ ...login.error, message: login.error?.message || t('auth.invalidCredentials') }}
+                  labelFor={(path) => LOGIN_FIELD_LABELS[path] ?? path}
+                />
               )}
 
               <Button type="submit" disabled={login.isPending} className="w-full justify-center py-3">

@@ -3,10 +3,27 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { GraduationCap } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
+import { ApiErrorList } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useCompleteStudentProfile } from '@/hooks/useStudentAccount';
 import { useTaxonomyList } from '@/hooks/useTaxonomy';
 import { useT } from '@/hooks/useT';
+
+const STUDENT_PROFILE_FIELD_LABELS = {
+  education_type: 'نوع التعليم',
+  curriculum_id: 'المنهج',
+  stage_id: 'المرحلة',
+  grade: 'الصف',
+  university_id: 'الجامعة',
+  major_id: 'التخصص',
+  academic_level: 'المستوى الأكاديمي',
+  course_field_id: 'مجال الدورة',
+  level: 'المستوى',
+  birth_date: 'تاريخ الميلاد',
+  guardian_name: 'اسم ولي الأمر',
+  guardian_phone: 'هاتف ولي الأمر',
+};
+const studentProfileErrorLabel = (path) => STUDENT_PROFILE_FIELD_LABELS[path] ?? path;
 
 const EDUCATION_TYPES = [
   { value: 'school', key: 'school' },
@@ -86,10 +103,6 @@ export function CompleteStudentProfilePage() {
     completeProfile.mutate(payload, { onSuccess: () => navigate('/dashboard/student', { replace: true }) });
   };
 
-  const errorMessage = completeProfile.error?.errors
-    ? Object.values(completeProfile.error.errors).flat()[0]
-    : completeProfile.error?.message;
-
   return (
     <PageContainer>
       <div className="container-app flex justify-center py-10">
@@ -102,8 +115,8 @@ export function CompleteStudentProfilePage() {
             <p className="text-sm text-ink-soft">{t('completeProfile.studentHint')}</p>
           </div>
 
-          {errorMessage && (
-            <div className="mb-4 rounded-btn bg-accent-pink/10 px-4 py-3 text-sm text-accent-pink">{errorMessage}</div>
+          {completeProfile.isError && (
+            <ApiErrorList error={completeProfile.error} labelFor={studentProfileErrorLabel} className="mb-4" />
           )}
 
           <div className="flex flex-col gap-4 text-right">

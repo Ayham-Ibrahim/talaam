@@ -143,6 +143,7 @@ export function PackageWizardBasicInfo({ data, onChange, onNext }) {
           <input
             type="number"
             min={isGroup ? 2 : 1}
+            max="100"
             disabled={!isGroup}
             value={data.capacity}
             onChange={(e) => onChange({ capacity: e.target.value })}
@@ -162,6 +163,7 @@ export function PackageWizardBasicInfo({ data, onChange, onNext }) {
           onChange={(v) => onChange({ curriculum_ids: v })}
           options={curriculumOptions}
           placeholder={t("dashboard.addPackage.selectPlaceholder")}
+          max={20}
         />
         <MultiSelectChips
           label={t("dashboard.addPackage.stageLabel")}
@@ -169,6 +171,7 @@ export function PackageWizardBasicInfo({ data, onChange, onNext }) {
           onChange={(v) => onChange({ stage_ids: v })}
           options={stageOptions}
           placeholder={t("dashboard.addPackage.selectPlaceholder")}
+          max={20}
         />
       </div>
       <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
@@ -179,6 +182,7 @@ export function PackageWizardBasicInfo({ data, onChange, onNext }) {
           <input
             type="number"
             min="1"
+            max="200"
             value={data.sessions_count}
             onChange={(e) => onChange({ sessions_count: e.target.value })}
             placeholder={t("dashboard.addPackage.sessionsCountPlaceholder")}

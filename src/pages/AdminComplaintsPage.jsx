@@ -136,6 +136,7 @@ export function AdminComplaintsPage() {
       {modal?.type === 'resolve' && (
         <ResolveComplaintModal
           isPending={isActing}
+          error={resolveComplaint.isError ? resolveComplaint.error : null}
           onClose={closeModal}
           onConfirm={(resolutionType, note) =>
             resolveComplaint.mutate({ id: modal.complaint.id, resolutionType, note }, { onSuccess: closeModal })
@@ -147,6 +148,7 @@ export function AdminComplaintsPage() {
         <ReasonModal
           titleKey="escalateComplaintTitle"
           isPending={isActing}
+          error={escalateComplaint.isError ? escalateComplaint.error : null}
           onClose={closeModal}
           onConfirm={(note) => escalateComplaint.mutate({ id: modal.complaint.id, note }, { onSuccess: closeModal })}
         />
@@ -155,6 +157,7 @@ export function AdminComplaintsPage() {
       {modal?.type === 'approveAlternative' && (
         <ApproveRescheduleModal
           isPending={isActing}
+          error={approveReschedule.isError ? approveReschedule.error : null}
           onClose={closeModal}
           onConfirm={(alternativeScheduledAt) =>
             approveReschedule.mutate({ id: modal.request.id, alternativeScheduledAt }, { onSuccess: closeModal })
@@ -166,6 +169,7 @@ export function AdminComplaintsPage() {
         <ReasonModal
           titleKey="rejectRescheduleTitle"
           isPending={isActing}
+          error={rejectReschedule.isError ? rejectReschedule.error : null}
           onClose={closeModal}
           onConfirm={(reason) => rejectReschedule.mutate({ id: modal.request.id, reason }, { onSuccess: closeModal })}
         />

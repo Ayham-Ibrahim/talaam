@@ -87,6 +87,9 @@ export function AdminTeacherDetailPage() {
         ? 'suspendTeacherTitle'
         : 'rejectDocumentTitle';
 
+  const activeModalMutation =
+    modal?.type === 'rejectTeacher' ? rejectTeacher : modal?.type === 'suspendTeacher' ? suspendTeacher : rejectDocument;
+
   return (
     <AdminDashboardLayout>
       <div className="mb-4 flex justify-end">
@@ -145,6 +148,7 @@ export function AdminTeacherDetailPage() {
         <ReasonModal
           titleKey={modalTitleKey}
           isPending={isActing}
+          error={activeModalMutation.isError ? activeModalMutation.error : null}
           onConfirm={handleModalConfirm}
           onClose={() => setModal(null)}
         />

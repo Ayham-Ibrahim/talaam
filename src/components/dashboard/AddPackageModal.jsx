@@ -102,7 +102,8 @@ export function AddPackageModal({ onClose, packageId, readOnly = false }) {
   };
 
   const isPending = isEditing ? updatePackage.isPending : createPackage.isPending;
-  const updateError = updatePackage.error?.errors?.status?.[0] ?? updatePackage.error?.message;
+  const activeMutation = isEditing ? updatePackage : createPackage;
+  const submitError = activeMutation.isError ? activeMutation.error : null;
 
   return (
     <div className="relative rounded-2xl bg-white p-6 shadow-card sm:p-8">
@@ -132,10 +133,6 @@ export function AddPackageModal({ onClose, packageId, readOnly = false }) {
         <>
           {!readOnly && <WizardStepIndicator steps={STEPS} currentStep={step} translationPrefix="dashboard.addPackage.steps" />}
 
-          {!readOnly && updateError && (
-            <div className="mt-4 rounded-btn bg-accent-pink/10 px-4 py-3 text-sm text-accent-pink">{updateError}</div>
-          )}
-
           {step === 1 && <PackageWizardBasicInfo data={data} onChange={patchData} onNext={() => setStep(2)} />}
           {step === 2 && (
             <PackageWizardScheduling data={data} onChange={patchData} onNext={() => setStep(3)} onBack={() => setStep(1)} />
@@ -147,6 +144,7 @@ export function AddPackageModal({ onClose, packageId, readOnly = false }) {
             <PackageWizardReview
               data={data}
               isPending={isPending}
+              error={submitError}
               onSubmit={handleSaveDraft}
               onBack={() => setStep(3)}
               readOnly={readOnly}

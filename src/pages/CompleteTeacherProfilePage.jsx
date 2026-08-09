@@ -4,7 +4,7 @@ import { GraduationCap, UploadCloud, FileText, Check, Camera, Clock, XCircle, Ba
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { MultiSelectChips } from '@/components/dashboard/MultiSelectChips';
-import { Avatar } from '@/components/ui';
+import { ApiErrorList, Avatar } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useMyTeacher,
@@ -21,6 +21,18 @@ import { useT } from '@/hooks/useT';
 const QUALIFICATION_OPTIONS = Object.entries(QUALIFICATION_LABELS).map(([value, label]) => ({ value, label }));
 const EXPERIENCE_OPTIONS = Object.entries(EXPERIENCE_LABELS).map(([value, label]) => ({ value, label }));
 const DOCUMENT_TYPE_OPTIONS = Object.entries(DOCUMENT_TYPE_LABELS).map(([value, label]) => ({ value, label }));
+
+const PROFILE_FIELD_LABELS = {
+  bio: 'نبذة عني',
+  qualification: 'المؤهل العلمي',
+  experience_years: 'سنوات الخبرة',
+  subject_ids: 'المواد',
+  curriculum_ids: 'المناهج',
+  language_ids: 'اللغات',
+  display_name_en: 'الاسم بالإنجليزية',
+  commercial_register: 'السجل التجاري',
+};
+const profileErrorLabel = (path) => PROFILE_FIELD_LABELS[path.replace(/\.\d+$/, '')] ?? path;
 
 /** يطابق TeacherService::REQUIRED_DOCUMENT_TYPES في الباك تماماً */
 const REQUIRED_DOCUMENT_TYPES = ['identity', 'academic', 'experience'];
@@ -166,9 +178,6 @@ export function CompleteTeacherProfilePage() {
     submitForVerification.mutate();
   };
 
-  const saveError = updateProfile.error?.errors ? Object.values(updateProfile.error.errors).flat()[0] : updateProfile.error?.message;
-  const submitError = submitForVerification.error?.errors?.profile?.[0] ?? submitForVerification.error?.message;
-  const avatarError = uploadAvatar.error?.errors ? Object.values(uploadAvatar.error.errors).flat()[0] : uploadAvatar.error?.message;
 
   return (
     <PageContainer>
@@ -183,7 +192,7 @@ export function CompleteTeacherProfilePage() {
               </label>
             </div>
             {uploadAvatar.isPending && <span className="text-xs text-ink-soft">{t('completeProfile.uploading')}</span>}
-            {avatarError && <span className="text-xs text-accent-pink">{avatarError}</span>}
+            {uploadAvatar.isError && <ApiErrorList error={uploadAvatar.error} labelFor={() => null} className="text-xs" />}
 
             <h1 className="text-xl font-bold text-ink">{t('completeProfile.teacherTitle')}</h1>
             <p className="text-sm text-ink-soft">{t('completeProfile.teacherHint')}</p>
@@ -193,8 +202,8 @@ export function CompleteTeacherProfilePage() {
             <p className="text-center text-sm text-ink-soft">…</p>
           ) : (
             <>
-              {saveError && (
-                <div className="mb-4 rounded-btn bg-accent-pink/10 px-4 py-3 text-sm text-accent-pink">{saveError}</div>
+              {updateProfile.isError && (
+                <ApiErrorList error={updateProfile.error} labelFor={profileErrorLabel} className="mb-4" />
               )}
 
               <div className="flex flex-col gap-4 text-right">
@@ -232,6 +241,7 @@ export function CompleteTeacherProfilePage() {
                   onChange={(v) => setForm((prev) => ({ ...prev, subject_ids: v }))}
                   options={subjects.map((s) => ({ value: s.id, label: s.name_ar }))}
                   placeholder="—"
+                  max={30}
                 />
                 <MultiSelectChips
                   label={t('completeProfile.curriculumLabel')}
@@ -239,6 +249,7 @@ export function CompleteTeacherProfilePage() {
                   onChange={(v) => setForm((prev) => ({ ...prev, curriculum_ids: v }))}
                   options={curricula.map((c) => ({ value: c.id, label: c.name_ar }))}
                   placeholder="—"
+                  max={20}
                 />
                 <MultiSelectChips
                   label={t('completeProfile.languagesLabel')}
@@ -246,6 +257,7 @@ export function CompleteTeacherProfilePage() {
                   onChange={(v) => setForm((prev) => ({ ...prev, language_ids: v }))}
                   options={languages.map((l) => ({ value: l.id, label: l.name_ar }))}
                   placeholder="—"
+                  max={20}
                 />
 
                 {isTrainingCenter && (
@@ -365,8 +377,8 @@ export function CompleteTeacherProfilePage() {
                 </div>
               </div>
 
-              {submitError && (
-                <div className="mt-4 rounded-btn bg-accent-pink/10 px-4 py-3 text-sm text-accent-pink">{submitError}</div>
+              {submitForVerification.isError && (
+                <ApiErrorList error={submitForVerification.error} labelFor={() => null} className="mt-4" />
               )}
 
               <button

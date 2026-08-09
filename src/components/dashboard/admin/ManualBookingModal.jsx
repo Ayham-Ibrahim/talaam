@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Search, User, X } from 'lucide-react';
 import { useAdminStudentSearch } from '@/hooks/useAdminStudents';
+import { ApiErrorList } from '@/components/ui';
 import { useT } from '@/hooks/useT';
+
+const MANUAL_BOOKING_FIELD_LABELS = { student_id: 'الطالب', reason: 'السبب' };
 
 /**
  * Books a package (or enrolls in a course) on a student's behalf — for technical
@@ -10,7 +13,7 @@ import { useT } from '@/hooks/useT';
  * Packages always use the teacher's own fixed schedule (no admin-chosen date);
  * courses enroll into the whole existing date range.
  */
-export function ManualBookingModal({ isPending, onConfirm, onClose }) {
+export function ManualBookingModal({ isPending, error, onConfirm, onClose }) {
   const t = useT();
   const [query, setQuery] = useState('');
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -45,6 +48,10 @@ export function ManualBookingModal({ isPending, onConfirm, onClose }) {
           <h3 className="flex-1 text-center text-lg font-bold text-ink">{t('dashboard.adminManualBooking.title')}</h3>
           <span className="w-8" />
         </div>
+
+        {error && (
+          <ApiErrorList error={error} labelFor={(path) => MANUAL_BOOKING_FIELD_LABELS[path] ?? path} className="mb-4" />
+        )}
 
         <label className="flex flex-col gap-1.5 text-right">
           <span className="text-sm font-semibold text-ink">{t('dashboard.adminManualBooking.studentLabel')}</span>
@@ -107,10 +114,12 @@ export function ManualBookingModal({ isPending, onConfirm, onClose }) {
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder={t('dashboard.adminManualBooking.reasonPlaceholder')}
+            maxLength={500}
             className={`w-full resize-none rounded-btn border bg-surface p-3 text-sm text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 ${
               touched && reason.trim() === '' ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
             }`}
           />
+          <div className="text-left text-xs text-ink-soft/70">{reason.length}/500</div>
           {touched && reason.trim() === '' && <span className="text-xs text-accent-pink">{t('dashboard.adminManualBooking.reasonRequired')}</span>}
         </label>
 
