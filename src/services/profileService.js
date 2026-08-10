@@ -34,4 +34,14 @@ export const profileService = {
     const { data } = await client.put(endpoints.profile.updatePassword, payload);
     return data.data;
   },
+
+  /** استدعاء صامت من الفرونت — الباك يتجاهله بهدوء إن كان المستخدم قد ثبَّت منطقته يدوياً (timezone_auto=false) */
+  async syncTimezone(timezone) {
+    if (config.useMocks) {
+      await mockDelay(100);
+      return null;
+    }
+    const { data } = await client.put(endpoints.profile.syncTimezone, { timezone });
+    return data.data;
+  },
 };

@@ -12,6 +12,7 @@ export const endpoints = {
     uploadAvatar: '/me/avatar',
     update: '/me/profile',
     updatePassword: '/me/password',
+    syncTimezone: '/me/timezone/sync',
   },
   reviews: {
     mine: '/me/reviews',

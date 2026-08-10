@@ -15,12 +15,13 @@ export function useUploadAvatar() {
   });
 }
 
-/** يحدّث بيانات الحساب الأساسية (اسم/هاتف/واتساب/جنس) فوراً في المتجر بلا إعادة تسجيل دخول */
+/** يحدّث بيانات الحساب الأساسية (اسم/هاتف/واتساب/جنس/منطقة زمنية) فوراً في المتجر بلا إعادة تسجيل دخول */
 export function useUpdateProfile() {
   const { updateUser } = useAuth();
   return useMutation({
     mutationFn: (payload) => profileService.updateProfile(payload),
-    onSuccess: (data) => updateUser({ name: data.name, phone: data.phone }),
+    onSuccess: (data) =>
+      updateUser({ name: data.name, phone: data.phone, timezone: data.timezone, timezone_auto: data.timezone_auto }),
   });
 }
 
@@ -28,5 +29,19 @@ export function useUpdateProfile() {
 export function useUpdatePassword() {
   return useMutation({
     mutationFn: (payload) => profileService.updatePassword(payload),
+  });
+}
+
+/**
+ * تُستدعى صامتة مرة واحدة عند تحميل التطبيق (App.jsx) — الباك يتجاهلها بهدوء
+ * إن كان المستخدم قد ثبَّت منطقته الزمنية يدوياً من الإعدادات، فلا تأثير سلبياً لاستدعائها دائماً.
+ */
+export function useSyncTimezone() {
+  const { updateUser } = useAuth();
+  return useMutation({
+    mutationFn: (timezone) => profileService.syncTimezone(timezone),
+    onSuccess: (data) => {
+      if (data?.timezone) updateUser({ timezone: data.timezone, timezone_auto: data.timezone_auto });
+    },
   });
 }

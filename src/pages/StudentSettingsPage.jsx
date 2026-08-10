@@ -10,6 +10,7 @@ import {
 } from '@/components/dashboard/StudentAcademicProfileFields';
 import { ApiErrorList, Avatar, Skeleton } from '@/components/ui';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
+import { TimezoneField } from '@/components/dashboard/TimezoneField';
 import { useAuth } from '@/hooks/useAuth';
 import { useUploadAvatar, useUpdateProfile, useUpdatePassword } from '@/hooks/useProfile';
 import { useCompleteStudentProfile, useMyStudentProfile } from '@/hooks/useStudentAccount';
@@ -58,7 +59,7 @@ export function StudentSettingsPage() {
   const updatePassword = useUpdatePassword();
   const updateAcademicProfile = useCompleteStudentProfile(studentId);
 
-  const [basicForm, setBasicForm] = useState({ name: '', phone: '', whatsapp: '', gender: '' });
+  const [basicForm, setBasicForm] = useState({ name: '', phone: '', whatsapp: '', gender: '', timezone: '', timezoneAuto: true });
   const [academicForm, setAcademicForm] = useState(STUDENT_ACADEMIC_INITIAL);
   const [academicTouched, setAcademicTouched] = useState(false);
   const [academicHydrated, setAcademicHydrated] = useState(false);
@@ -67,7 +68,14 @@ export function StudentSettingsPage() {
 
   useEffect(() => {
     if (user) {
-      setBasicForm({ name: user.name ?? '', phone: user.phone ?? '', whatsapp: profile?.whatsapp ?? '', gender: profile?.gender ?? '' });
+      setBasicForm({
+        name: user.name ?? '',
+        phone: user.phone ?? '',
+        whatsapp: profile?.whatsapp ?? '',
+        gender: profile?.gender ?? '',
+        timezone: user.timezone ?? '',
+        timezoneAuto: user.timezone_auto ?? true,
+      });
     }
   }, [user, profile?.whatsapp, profile?.gender]);
 
@@ -104,6 +112,8 @@ export function StudentSettingsPage() {
       phone: basicForm.phone.trim() || null,
       whatsapp: basicForm.whatsapp.trim() || null,
       gender: basicForm.gender || null,
+      timezone: basicForm.timezone || null,
+      timezone_auto: basicForm.timezoneAuto,
     });
   };
 
@@ -193,6 +203,12 @@ export function StudentSettingsPage() {
                 placeholder="—"
               />
             </div>
+
+            <TimezoneField
+              timezone={basicForm.timezone}
+              auto={basicForm.timezoneAuto}
+              onChange={({ auto, timezone }) => setBasicForm((prev) => ({ ...prev, timezoneAuto: auto, timezone }))}
+            />
 
             <button
               type="button"
