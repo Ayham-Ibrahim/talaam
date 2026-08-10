@@ -4,6 +4,7 @@ import { LogoIntro } from "@/components/ui/LogoIntro";
 import { CursorLight } from "@/motion/ambient/AmbientEngine";
 import { useEffect, useState } from "react";
 import { useLocaleStore } from "@/store";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,6 +28,33 @@ export default function App() {
     document.documentElement.lang = locale;
     document.documentElement.dir = locale === "en" ? "ltr" : "rtl";
   }, [locale]);
+
+  // The whole app tree stays mounted (display: none) behind the intro
+  // screen, so every GSAP ScrollTrigger created while it's hidden measures
+  // a zero-height layout and ends up with wrong trigger positions — some
+  // animations fire late, others (once: true) never fire at all. Once the
+  // intro clears and the real layout is visible, force GSAP to recompute
+  // every trigger against the actual DOM.
+  useEffect(() => {
+    if (!introFinished) return;
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    });
+
+    // Images/fonts that finish loading after that point can still shift
+    // element heights and invalidate the trigger positions again.
+    const onWindowLoad = () => ScrollTrigger.refresh();
+    if (document.readyState === "complete") {
+      onWindowLoad();
+    } else {
+      window.addEventListener("load", onWindowLoad);
+    }
+
+    return () => {
+      cancelAnimationFrame(id);
+      window.removeEventListener("load", onWindowLoad);
+    };
+  }, [introFinished]);
 
   return (
     <QueryClientProvider client={queryClient}>

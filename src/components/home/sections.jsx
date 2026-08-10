@@ -298,16 +298,18 @@ export function FeaturedTeachers() {
         const cards = track.querySelectorAll(".teacher-card-wrap");
         if (!cards.length) return;
 
-        // Measure total scrollable width
-        const totalWidth = track.scrollWidth;
-        const viewportWidth = track.offsetWidth;
-        const distance = Math.max(0, totalWidth - viewportWidth);
-
-        if (distance <= 0) return;
+        // Measured lazily (not once at setup) — if this effect runs while
+        // the app is still hidden behind the intro splash (display: none),
+        // scrollWidth/offsetWidth both read 0 here. Passing a function
+        // instead of a fixed number lets GSAP re-measure it whenever the
+        // tween is invalidated, e.g. by the ScrollTrigger.refresh() call
+        // App.jsx fires once the intro clears and the real layout exists.
+        const getDistance = () =>
+          Math.max(0, track.scrollWidth - track.offsetWidth);
 
         // RTL: translate from 0 to positive distance (right to left)
         const tween = gsap.to(track, {
-          x: distance,
+          x: getDistance,
           ease: "none",
           scrollTrigger: {
             trigger: section,

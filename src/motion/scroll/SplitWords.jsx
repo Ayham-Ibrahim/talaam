@@ -1,10 +1,13 @@
 import { useRef, useEffect } from "react";
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
-gsap.registerPlugin(ScrollTrigger);
-
+// NOTE: this used to gate the word-reveal behind a GSAP ScrollTrigger
+// (onEnter). See the comment in useStaggerReveal.js — that trigger's
+// position was measured against the app tree while mounted hidden
+// (display: none) behind the intro splash, so it was unreliable across the
+// site: some headings revealed late, others never revealed at all. Playing
+// the animation directly on mount removes that dependency entirely.
 export function SplitWords({
   children,
   as: Tag = "span",
@@ -15,12 +18,10 @@ export function SplitWords({
   duration = 0.9,
   ease = "power3.out",
   delay = 0,
-  start = "top 85%",
   onReady,
 }) {
   const containerRef = useRef(null);
   const reducedMotion = useReducedMotion();
-  const triggeredRef = useRef(false);
 
   const text = typeof children === "string" ? children : "";
 
@@ -30,28 +31,19 @@ export function SplitWords({
       const words = containerRef.current.querySelectorAll(".split-word");
       gsap.set(words, { y, opacity: 0 });
 
-      ScrollTrigger.create({
-        trigger: containerRef.current,
-        start,
-        once: true,
-        onEnter: () => {
-          if (triggeredRef.current) return;
-          triggeredRef.current = true;
-          gsap.to(words, {
-            y: 0,
-            opacity: 1,
-            duration,
-            stagger,
-            ease,
-            delay,
-            onComplete: onReady,
-          });
-        },
+      gsap.to(words, {
+        y: 0,
+        opacity: 1,
+        duration,
+        stagger,
+        ease,
+        delay,
+        onComplete: onReady,
       });
     }, containerRef);
 
     return () => ctx.revert();
-  }, [animate, reducedMotion, y, stagger, duration, ease, delay, start, onReady, text]);
+  }, [animate, reducedMotion, y, stagger, duration, ease, delay, onReady, text]);
 
   if (!text) {
     return <Tag className={className}>{children}</Tag>;

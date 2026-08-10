@@ -1,10 +1,13 @@
 import { useRef, useEffect } from "react";
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
-gsap.registerPlugin(ScrollTrigger);
-
+// NOTE: this used to gate the reveal behind a GSAP ScrollTrigger. See the
+// comment in useStaggerReveal.js — the trigger's position was measured
+// against the app tree while it's mounted hidden (display: none) behind the
+// intro splash, so it was unreliable: some elements revealed at the wrong
+// scroll position, others never revealed at all. Playing the animation
+// directly on mount removes that dependency entirely.
 export function ScrollReveal({
   children,
   className = "",
@@ -15,8 +18,6 @@ export function ScrollReveal({
   duration = 0.7,
   ease = "power3.out",
   delay = 0,
-  start = "top 82%",
-  once = true,
   as: Tag = "div",
 }) {
   const ref = useRef(null);
@@ -34,16 +35,11 @@ export function ScrollReveal({
         duration,
         ease,
         delay,
-        scrollTrigger: {
-          trigger: ref.current,
-          start,
-          once,
-        },
       });
     }, ref);
 
     return () => ctx.revert();
-  }, [reducedMotion, y, x, scale, opacity, duration, ease, delay, start, once]);
+  }, [reducedMotion, y, x, scale, opacity, duration, ease, delay]);
 
   return (
     <Tag
