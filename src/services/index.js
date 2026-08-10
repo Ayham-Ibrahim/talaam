@@ -344,6 +344,16 @@ export const enrollmentService = {
     const { data } = await client.post(endpoints.enrollments.createManual(courseId), payload);
     return data.data;
   },
+
+  /** إعادة محاولة الدفع لتسجيل ما زال pending_payment (أغلق الطالب نافذة Stripe الأولى بلا إكمال الدفع) */
+  async checkoutEnrollment(enrollmentId) {
+    if (config.useMocks) {
+      await mockDelay(500);
+      return { checkout_url: null };
+    }
+    const { data } = await client.post(endpoints.enrollments.checkout(enrollmentId));
+    return data.data;
+  },
 };
 
 export const rescheduleService = {

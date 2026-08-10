@@ -1,9 +1,9 @@
 /**
- * Client-side CSV template generator for bulk student import.
- * Columns mirror StudentImportService::validateRow() on the backend exactly —
- * keep this in sync if the backend's expected columns ever change.
+ * Client-side CSV template generators for bulk import (students, teachers).
+ * Columns mirror the respective backend *ImportService::validateRow() exactly —
+ * keep these in sync if the backend's expected columns ever change.
  */
-const HEADERS = [
+const STUDENT_HEADERS = [
   'name',
   'email',
   'phone',
@@ -21,7 +21,7 @@ const HEADERS = [
   'guardian_phone',
 ];
 
-const EXAMPLE_ROW = [
+const STUDENT_EXAMPLE_ROW = [
   'أحمد علي',
   'ahmad.ali@example.com',
   '0500000001',
@@ -39,15 +39,28 @@ const EXAMPLE_ROW = [
   '0500000002',
 ];
 
-export function downloadStudentImportTemplate() {
-  const csv = [HEADERS.join(','), EXAMPLE_ROW.join(',')].join('\n');
+/** يوازي TeacherImportService::validateRow() — teacher_type: school | university | training_center */
+const TEACHER_HEADERS = ['name', 'email', 'phone', 'teacher_type'];
+
+const TEACHER_EXAMPLE_ROW = ['أحمد المعلم', 'ahmad.teacher@example.com', '0500000001', 'school'];
+
+function downloadCsv(headers, exampleRow, filename) {
+  const csv = [headers.join(','), exampleRow.join(',')].join('\n');
   const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = 'student_import_template.csv';
+  link.download = filename;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+}
+
+export function downloadStudentImportTemplate() {
+  downloadCsv(STUDENT_HEADERS, STUDENT_EXAMPLE_ROW, 'student_import_template.csv');
+}
+
+export function downloadTeacherImportTemplate() {
+  downloadCsv(TEACHER_HEADERS, TEACHER_EXAMPLE_ROW, 'teacher_import_template.csv');
 }

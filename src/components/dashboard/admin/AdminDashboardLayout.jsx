@@ -28,6 +28,7 @@ const NAV_ITEMS = [
   { key: 'taxonomy', icon: ListTree, path: '/dashboard/admin/taxonomy' },
   { key: 'payouts', icon: Wallet, path: '/dashboard/admin/payouts' },
   { key: 'studentImport', icon: FileSpreadsheet, path: '/dashboard/admin/student-import' },
+  { key: 'teacherImport', icon: FileSpreadsheet, path: '/dashboard/admin/teacher-import' },
   { key: 'settings', icon: Settings, path: '/dashboard/admin/settings' },
 ];
 

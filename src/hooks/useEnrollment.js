@@ -6,3 +6,9 @@ export function useCreateEnrollment(courseId) {
     mutationFn: () => enrollmentService.createEnrollment(courseId),
   });
 }
+
+export function useCheckoutEnrollment() {
+  return useMutation({
+    mutationFn: (enrollmentId) => enrollmentService.checkoutEnrollment(enrollmentId),
+  });
+}

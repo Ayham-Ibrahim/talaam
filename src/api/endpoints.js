@@ -56,6 +56,7 @@ export const endpoints = {
     detail: (id) => `/enrollments/${id}`,
     create: (courseId) => `/courses/${courseId}/enrollments`,
     createManual: (courseId) => `/courses/${courseId}/enrollments/manual`,
+    checkout: (id) => `/enrollments/${id}/checkout`,
   },
   packages: {
     list: '/packages',
@@ -132,6 +133,7 @@ export const endpoints = {
     approvePayout: (id) => `/payouts/${id}/approve`,
     markPayoutPaid: (id) => `/payouts/${id}/mark-paid`,
     studentsImport: '/students/import',
+    teachersImport: '/teachers/import',
     settings: '/admin/settings',
     updateSetting: (key) => `/admin/settings/${key}`,
     auditLog: '/admin/audit-log',

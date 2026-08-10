@@ -934,6 +934,7 @@
       "taxonomy": "التصنيفات",
       "payouts": "المستحقات المالية",
       "studentImport": "استيراد الطلاب",
+      "teacherImport": "استيراد المعلمين",
       "settings": "الإعدادات وسجل التدقيق"
     },
     "adminOverview": {
@@ -1203,6 +1204,24 @@
       "passwordHint": "8 أحرف على الأقل — سترسَل للطالب عبر البريد الإلكتروني",
       "addSubmit": "إنشاء الحساب",
       "close": "إغلاق"
+    },
+    "adminTeacherImport": {
+      "title": "استيراد المعلمين",
+      "subtitle": "رفع دفعة معلمين جماعياً عبر ملف Excel أو CSV — كل معلم يُدعى بعدها لإكمال ملفه وتوثيقه",
+      "downloadTemplate": "تحميل نموذج الملف",
+      "dropzoneTitle": "اسحب الملف هنا أو اضغط للاختيار",
+      "dropzoneHint": "CSV أو Excel — بحد أقصى 5 ميغابايت",
+      "remove": "إزالة",
+      "errorType": "صيغة الملف غير مدعومة (CSV أو Excel فقط)",
+      "errorSize": "حجم الملف يتجاوز 5 ميغابايت",
+      "errorGeneric": "حدث خطأ أثناء الاستيراد، حاول مرة أخرى",
+      "import": "استيراد",
+      "importing": "جارٍ الاستيراد...",
+      "importedLabel": "تم استيراده بنجاح",
+      "failedLabel": "فشل الاستيراد",
+      "colRow": "رقم الصف",
+      "colError": "الخطأ",
+      "addTeacher": "إضافة معلم"
     },
     "adminSettings": {
       "title": "الإعدادات وسجل التدقيق",

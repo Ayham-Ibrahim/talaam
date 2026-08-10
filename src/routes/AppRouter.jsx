@@ -21,6 +21,7 @@ import { AdminComplaintsPage } from '@/pages/AdminComplaintsPage';
 import { AdminTaxonomyPage } from '@/pages/AdminTaxonomyPage';
 import { AdminPayoutsPage } from '@/pages/AdminPayoutsPage';
 import { AdminStudentImportPage } from '@/pages/AdminStudentImportPage';
+import { AdminTeacherImportPage } from '@/pages/AdminTeacherImportPage';
 import { AdminSettingsPage } from '@/pages/AdminSettingsPage';
 import { CalendarPage } from '@/pages/CalendarPage';
 import { TeacherCalendarPage } from '@/pages/TeacherCalendarPage';
@@ -146,6 +147,14 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="admin">
               <AdminStudentImportPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/teacher-import"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminTeacherImportPage />
             </ProtectedRoute>
           }
         />

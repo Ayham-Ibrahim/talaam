@@ -10,6 +10,7 @@ import { ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { usePackageDetails } from '@/hooks/useDashboard';
 import { useCheckoutBooking } from '@/hooks/useBooking';
+import { useCheckoutEnrollment } from '@/hooks/useEnrollment';
 import { useT } from '@/hooks/useT';
 
 export function PackageDetailsPage() {
@@ -17,16 +18,19 @@ export function PackageDetailsPage() {
   const { user } = useAuth();
   const { id } = useParams();
   const { data, isLoading, isError, refetch } = usePackageDetails(id);
-  const checkout = useCheckoutBooking();
+  const checkoutBooking = useCheckoutBooking();
+  const checkoutEnrollment = useCheckoutEnrollment();
 
   if (!user) return <Navigate to="/login" replace />;
 
-  const [kind, rawBookingId] = String(id).split('-');
+  const [kind, rawId] = String(id).split('-');
+  // بلا "بانتظار موافقة المعلم" للتسجيل في دورة — التسجيل يُؤكَّد بالدفع مباشرة، لا موافقة معلم وسيطة كالحجز الفردي
   const isPendingRequest = kind === 'booking' && data?.package?.status === 'pending_teacher_confirmation';
-  const isPendingPayment = kind === 'booking' && data?.package?.status === 'pending_payment';
+  const isPendingPayment = ['booking', 'enrollment'].includes(kind) && data?.package?.status === 'pending_payment';
+  const checkout = kind === 'enrollment' ? checkoutEnrollment : checkoutBooking;
 
   const handlePayNow = () => {
-    checkout.mutate(rawBookingId, {
+    checkout.mutate(rawId, {
       onSuccess: (result) => {
         if (result?.checkout_url) window.location.href = result.checkout_url;
       },
