@@ -36,28 +36,32 @@ function SessionRow({ session }) {
           </div>
         </div>
 
-        <span className="h-8 w-px bg-line" />
+        {session.countdown && (
+          <>
+            <span className="h-8 w-px bg-line" />
 
-        <div className="flex items-center gap-3">
-          <div className="text-center">
-            <div className="font-bold text-[#B00852]">
-              {String(session.countdown.days).padStart(2, "0")}
+            <div className="flex items-center gap-3">
+              <div className="text-center">
+                <div className="font-bold text-[#B00852]">
+                  {String(session.countdown.days).padStart(2, "0")}
+                </div>
+                <div className="text-ink-soft">{t("dashboard.day")}</div>
+              </div>
+              <div className="text-center">
+                <div className="font-bold text-[#B00852]">
+                  {String(session.countdown.hours).padStart(2, "0")}
+                </div>
+                <div className="text-ink-soft">{t("dashboard.hour")}</div>
+              </div>
+              <div className="text-center">
+                <div className="font-bold text-[#B00852]">
+                  {String(session.countdown.minutes).padStart(2, "0")}
+                </div>
+                <div className="text-ink-soft">{t("dashboard.minute")}</div>
+              </div>
             </div>
-            <div className="text-ink-soft">{t("dashboard.day")}</div>
-          </div>
-          <div className="text-center">
-            <div className="font-bold text-[#B00852]">
-              {String(session.countdown.hours).padStart(2, "0")}
-            </div>
-            <div className="text-ink-soft">{t("dashboard.hour")}</div>
-          </div>
-          <div className="text-center">
-            <div className="font-bold text-[#B00852]">
-              {String(session.countdown.minutes).padStart(2, "0")}
-            </div>
-            <div className="text-ink-soft">{t("dashboard.minute")}</div>
-          </div>
-        </div>
+          </>
+        )}
         {session.joinUrl && (
           <Button
             variant="outline"
