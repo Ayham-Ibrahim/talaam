@@ -317,6 +317,16 @@ export const bookingService = {
     const { data } = await client.post(endpoints.bookings.createManual(packageId), payload);
     return data.data;
   },
+
+  /** PDF invoice for a paid booking — backend rejects with 422 while pending_payment */
+  async downloadInvoice(bookingId) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return new Blob(['Demo mode — no real invoice available.'], { type: 'application/pdf' });
+    }
+    const { data } = await client.get(endpoints.bookings.invoice(bookingId), { responseType: 'blob' });
+    return data;
+  },
 };
 
 export const enrollmentService = {
@@ -353,6 +363,16 @@ export const enrollmentService = {
     }
     const { data } = await client.post(endpoints.enrollments.checkout(enrollmentId));
     return data.data;
+  },
+
+  /** PDF invoice for a paid enrollment — backend rejects with 422 while pending_payment */
+  async downloadInvoice(enrollmentId) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return new Blob(['Demo mode — no real invoice available.'], { type: 'application/pdf' });
+    }
+    const { data } = await client.get(endpoints.enrollments.invoice(enrollmentId), { responseType: 'blob' });
+    return data;
   },
 };
 
@@ -695,6 +715,8 @@ function mapBookingToInvoice(booking) {
   const pkg = booking.package;
   return {
     id: booking.reference ?? booking.id,
+    recordId: booking.id,
+    kind: 'booking',
     issueDate: formatDate(booking.created_at),
     teacherName: booking.teacher?.user?.name ?? null,
     teacherAvatar: booking.teacher?.user?.avatar_path ?? null,
@@ -713,6 +735,8 @@ function mapEnrollmentToInvoice(enrollment) {
   const course = enrollment.course;
   return {
     id: enrollment.reference ?? enrollment.id,
+    recordId: enrollment.id,
+    kind: 'enrollment',
     issueDate: formatDate(enrollment.created_at),
     teacherName: enrollment.teacher?.user?.name ?? null,
     teacherAvatar: enrollment.teacher?.user?.avatar_path ?? null,

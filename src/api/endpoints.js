@@ -51,6 +51,7 @@ export const endpoints = {
     approve: (id) => `/bookings/${id}/approve`,
     reject: (id) => `/bookings/${id}/reject`,
     checkout: (id) => `/bookings/${id}/checkout`,
+    invoice: (id) => `/bookings/${id}/invoice`,
   },
   enrollments: {
     list: '/enrollments',
@@ -58,6 +59,7 @@ export const endpoints = {
     create: (courseId) => `/courses/${courseId}/enrollments`,
     createManual: (courseId) => `/courses/${courseId}/enrollments/manual`,
     checkout: (id) => `/enrollments/${id}/checkout`,
+    invoice: (id) => `/enrollments/${id}/invoice`,
   },
   packages: {
     list: '/packages',

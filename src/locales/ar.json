@@ -929,7 +929,9 @@
       "typeLabel": "النوع",
       "teacherLabel": "المدرس",
       "amountDetails": "تفاصيل المبلغ",
-      "packagePrice": "سعر الباقة"
+      "packagePrice": "سعر الباقة",
+      "notPaidYet": "لا توجد فاتورة بعد — أكمل الدفع أولاً",
+      "downloadFailed": "تعذّر تنزيل الفاتورة، يرجى المحاولة مرة أخرى"
     },
     "adminNav": {
       "home": "نظرة عامة",

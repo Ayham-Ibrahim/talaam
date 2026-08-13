@@ -14,7 +14,7 @@ function InfoRow({ icon: Icon, label, value }) {
   );
 }
 
-export function InvoiceDetailsModal({ invoice, onClose }) {
+export function InvoiceDetailsModal({ invoice, onClose, onDownload, isDownloading }) {
   const t = useT();
 
   if (!invoice) return null;
@@ -55,7 +55,9 @@ export function InvoiceDetailsModal({ invoice, onClose }) {
 
         <button
           type="button"
-          className="mt-6 w-full rounded-xl bg-primary py-3 text-sm font-medium text-white hover:bg-primary-hover"
+          onClick={() => onDownload(invoice)}
+          disabled={isDownloading}
+          className="mt-6 w-full rounded-xl bg-primary py-3 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
         >
           {t('dashboard.invoices.download')}
         </button>

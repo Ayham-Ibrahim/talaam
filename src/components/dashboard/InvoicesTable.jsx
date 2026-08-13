@@ -1,9 +1,9 @@
-import { Download, Eye } from 'lucide-react';
+import { Download, Eye, Loader2 } from 'lucide-react';
 import { Avatar } from '@/components/ui';
 import { INVOICE_STATUS_STYLES, PACKAGE_TYPE_STYLES } from '@/mocks/dashboard.mock';
 import { useT } from '@/hooks/useT';
 
-export function InvoicesTable({ invoices, onView, onDownload }) {
+export function InvoicesTable({ invoices, onView, onDownload, downloadingId }) {
   const t = useT();
 
   return (
@@ -61,10 +61,15 @@ export function InvoicesTable({ invoices, onView, onDownload }) {
                     <button
                       type="button"
                       onClick={() => onDownload(invoice)}
-                      className="text-[#34C759] hover:opacity-70"
+                      disabled={downloadingId === invoice.id}
+                      className="text-[#34C759] hover:opacity-70 disabled:opacity-50"
                       aria-label={t('dashboard.invoices.download')}
                     >
-                      <Download size={18} />
+                      {downloadingId === invoice.id ? (
+                        <Loader2 size={18} className="animate-spin" />
+                      ) : (
+                        <Download size={18} />
+                      )}
                     </button>
                   </div>
                 </td>

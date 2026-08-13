@@ -12,3 +12,9 @@ export function useCheckoutEnrollment() {
     mutationFn: (enrollmentId) => enrollmentService.checkoutEnrollment(enrollmentId),
   });
 }
+
+export function useDownloadEnrollmentInvoice() {
+  return useMutation({
+    mutationFn: (enrollmentId) => enrollmentService.downloadInvoice(enrollmentId),
+  });
+}

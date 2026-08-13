@@ -9,6 +9,9 @@ import { Pagination } from '@/components/dashboard/Pagination';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useInvoices } from '@/hooks/useDashboard';
+import { useDownloadBookingInvoice } from '@/hooks/useBooking';
+import { useDownloadEnrollmentInvoice } from '@/hooks/useEnrollment';
+import { saveBlob } from '@/lib/download';
 import { INVOICE_STATUS_STYLES } from '@/mocks/dashboard.mock';
 import { useT } from '@/hooks/useT';
 
@@ -22,6 +25,26 @@ export function InvoicesPage() {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [page, setPage] = useState(1);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [downloadingId, setDownloadingId] = useState(null);
+  const downloadBookingInvoice = useDownloadBookingInvoice();
+  const downloadEnrollmentInvoice = useDownloadEnrollmentInvoice();
+
+  const handleDownload = async (invoice) => {
+    if (invoice.paymentStatus !== 'paid') {
+      window.alert(t('dashboard.invoices.notPaidYet'));
+      return;
+    }
+    setDownloadingId(invoice.id);
+    try {
+      const mutate = invoice.kind === 'enrollment' ? downloadEnrollmentInvoice : downloadBookingInvoice;
+      const blob = await mutate.mutateAsync(invoice.recordId);
+      saveBlob(blob, `invoice-${invoice.id}.pdf`);
+    } catch {
+      window.alert(t('dashboard.invoices.downloadFailed'));
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   const statusOptions = useMemo(
     () => Object.entries(INVOICE_STATUS_STYLES).map(([value, style]) => ({ value, label: style.label })),
@@ -81,7 +104,12 @@ export function InvoicesPage() {
           <EmptyState title={t('dashboard.invoices.empty')} />
         ) : (
           <>
-            <InvoicesTable invoices={pageInvoices} onView={setSelectedInvoice} onDownload={() => {}} />
+            <InvoicesTable
+              invoices={pageInvoices}
+              onView={setSelectedInvoice}
+              onDownload={handleDownload}
+              downloadingId={downloadingId}
+            />
             <div className="flex flex-wrap items-center justify-between gap-3">
               <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
               <span className="text-sm text-ink-soft">
@@ -94,7 +122,12 @@ export function InvoicesPage() {
         )}
       </div>
 
-      <InvoiceDetailsModal invoice={selectedInvoice} onClose={() => setSelectedInvoice(null)} />
+      <InvoiceDetailsModal
+        invoice={selectedInvoice}
+        onClose={() => setSelectedInvoice(null)}
+        onDownload={handleDownload}
+        isDownloading={selectedInvoice != null && downloadingId === selectedInvoice.id}
+      />
     </DashboardLayout>
   );
 }

@@ -42,3 +42,9 @@ export function useCheckoutBooking() {
     mutationFn: (bookingId) => bookingService.checkoutBooking(bookingId),
   });
 }
+
+export function useDownloadBookingInvoice() {
+  return useMutation({
+    mutationFn: (bookingId) => bookingService.downloadInvoice(bookingId),
+  });
+}
