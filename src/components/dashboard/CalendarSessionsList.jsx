@@ -4,6 +4,8 @@ import { EmptyState } from '@/components/ui';
 import { SESSION_TYPE_STYLES, SESSION_STATUS_STYLES } from '@/mocks/dashboard.mock';
 import { RescheduleRequestModal } from './RescheduleRequestModal';
 import { useCreateRescheduleRequest } from '@/hooks/useReschedule';
+import { useJoinSession } from '@/hooks/useSessionJoin';
+import { handleSessionJoin } from '@/lib/joinSession';
 import { useT } from '@/hooks/useT';
 
 /** Wording for this list's status pill differs from the shared "تم الحضور" label used elsewhere */
@@ -26,6 +28,7 @@ function formatShortDate(iso) {
 
 function DaySessionRow({ session, onReschedule }) {
   const t = useT();
+  const joinSession = useJoinSession();
   const typeStyle = SESSION_TYPE_STYLES[session.type];
   const status = session.status ?? 'upcoming';
   const statusStyle = SESSION_STATUS_STYLES[status];
@@ -73,8 +76,9 @@ function DaySessionRow({ session, onReschedule }) {
         {session.joinUrl && (
           <button
             type="button"
-            onClick={() => window.open(session.joinUrl, '_blank', 'noopener,noreferrer')}
-            className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-hover"
+            disabled={joinSession.isPending}
+            onClick={() => handleSessionJoin(joinSession.mutateAsync, session.id)}
+            className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
           >
             {t('dashboard.join')}
           </button>

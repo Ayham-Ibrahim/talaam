@@ -3,7 +3,7 @@ import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { formatDateTime } from '@/lib/formatters';
 import { useT } from '@/hooks/useT';
 
-export function TeacherSessionsTable({ sessions, onJoin }) {
+export function TeacherSessionsTable({ sessions, onJoin, joinPending = false }) {
   const t = useT();
   const navigate = useNavigate();
 
@@ -49,8 +49,9 @@ export function TeacherSessionsTable({ sessions, onJoin }) {
                     {canJoin && (
                       <button
                         type="button"
+                        disabled={joinPending}
                         onClick={() => onJoin?.(session)}
-                        className="rounded-xl border-2 border-primary bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary-hover"
+                        className="rounded-xl border-2 border-primary bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary-hover disabled:opacity-50"
                       >
                         {t('dashboard.teacherSessions.join')}
                       </button>

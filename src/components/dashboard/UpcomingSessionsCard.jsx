@@ -2,10 +2,13 @@ import { CalendarDays } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button, EmptyState } from "@/components/ui";
 import { getSessionTypeColor } from "@/mocks/dashboard.mock";
+import { useJoinSession } from "@/hooks/useSessionJoin";
+import { handleSessionJoin } from "@/lib/joinSession";
 import { useT } from "@/hooks/useT";
 
 function SessionRow({ session }) {
   const t = useT();
+  const joinSession = useJoinSession();
 
   return (
     <div className="flex flex-wrap items-center w-full justify-between gap-4 py-4">
@@ -67,7 +70,8 @@ function SessionRow({ session }) {
             variant="outline"
             size="sm"
             className="!rounded-xl !border-2"
-            onClick={() => window.open(session.joinUrl, "_blank", "noopener,noreferrer")}
+            disabled={joinSession.isPending}
+            onClick={() => handleSessionJoin(joinSession.mutateAsync, session.id)}
           >
             {t("dashboard.join")}
           </Button>

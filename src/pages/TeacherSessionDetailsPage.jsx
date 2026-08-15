@@ -4,6 +4,8 @@ import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeacherSessionDetails } from '@/hooks/useDashboard';
+import { useJoinSession } from '@/hooks/useSessionJoin';
+import { handleSessionJoin } from '@/lib/joinSession';
 import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { formatDateTime } from '@/lib/formatters';
 import { useT } from '@/hooks/useT';
@@ -13,6 +15,7 @@ export function TeacherSessionDetailsPage() {
   const { user } = useAuth();
   const { id } = useParams();
   const { data: session, isLoading, isError, refetch } = useTeacherSessionDetails(id);
+  const joinSession = useJoinSession();
 
   if (!user) return <Navigate to="/login" replace />;
 
@@ -94,8 +97,9 @@ export function TeacherSessionDetailsPage() {
           {canJoin && (
             <button
               type="button"
-              onClick={() => window.open(session.join_url_teacher, '_blank')}
-              className="mx-auto flex items-center gap-2 rounded-xl border-2 border-primary bg-primary px-8 py-3 text-sm font-medium text-white hover:bg-primary-hover"
+              disabled={joinSession.isPending}
+              onClick={() => handleSessionJoin(joinSession.mutateAsync, session.id)}
+              className="mx-auto flex items-center gap-2 rounded-xl border-2 border-primary bg-primary px-8 py-3 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
             >
               <Video size={18} />
               {t('dashboard.teacherSessions.join')}

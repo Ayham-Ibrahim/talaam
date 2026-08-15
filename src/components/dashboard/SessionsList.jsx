@@ -4,11 +4,14 @@ import { Avatar, EmptyState } from '@/components/ui';
 import { getSessionTypeColor, SESSION_STATUS_STYLES, SESSION_STATUS_LABEL_KEYS } from '@/mocks/dashboard.mock';
 import { RescheduleRequestModal } from './RescheduleRequestModal';
 import { useCreateRescheduleRequest } from '@/hooks/useReschedule';
+import { useJoinSession } from '@/hooks/useSessionJoin';
+import { handleSessionJoin } from '@/lib/joinSession';
 import { useT } from '@/hooks/useT';
 
 function SessionCard({ session, onReschedule }) {
   const t = useT();
   const navigate = useNavigate();
+  const joinSession = useJoinSession();
   const status = session.status ?? 'upcoming';
   const statusStyle = SESSION_STATUS_STYLES[status];
 
@@ -37,8 +40,9 @@ function SessionCard({ session, onReschedule }) {
         {session.canJoin && (
           <button
             type="button"
-            onClick={() => window.open(session.joinUrl, '_blank', 'noopener,noreferrer')}
-            className="rounded-xl border-2 border-primary bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-hover"
+            disabled={joinSession.isPending}
+            onClick={() => handleSessionJoin(joinSession.mutateAsync, session.id)}
+            className="rounded-xl border-2 border-primary bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
           >
             {t('dashboard.join')}
           </button>

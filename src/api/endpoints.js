@@ -78,6 +78,7 @@ export const endpoints = {
     list: '/class-sessions',
     detail: (id) => `/class-sessions/${id}`,
     rescheduleRequests: (id) => `/class-sessions/${id}/reschedule-requests`,
+    join: (id) => `/class-sessions/${id}/join`,
   },
   students: {
     search: '/students',

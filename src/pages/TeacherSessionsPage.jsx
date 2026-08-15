@@ -7,6 +7,8 @@ import { Pagination } from '@/components/dashboard/Pagination';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeacherSessions } from '@/hooks/useDashboard';
+import { useJoinSession } from '@/hooks/useSessionJoin';
+import { handleSessionJoin } from '@/lib/joinSession';
 import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { useT } from '@/hooks/useT';
 
@@ -19,6 +21,7 @@ export function TeacherSessionsPage() {
   const { data: sessions, isLoading, isError, refetch } = useTeacherSessions();
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [page, setPage] = useState(1);
+  const joinSession = useJoinSession();
 
   const statusOptions = useMemo(
     () => Object.entries(TEACHER_SESSION_STATUS_STYLES).map(([value, style]) => ({ value, label: style.label })),
@@ -65,7 +68,11 @@ export function TeacherSessionsPage() {
           <EmptyState title={t('dashboard.teacherSessions.empty')} />
         ) : (
           <>
-            <TeacherSessionsTable sessions={pageSessions} onJoin={(session) => window.open(session.join_url_teacher, '_blank')} />
+            <TeacherSessionsTable
+              sessions={pageSessions}
+              joinPending={joinSession.isPending}
+              onJoin={(session) => handleSessionJoin(joinSession.mutateAsync, session.id)}
+            />
             <div className="flex flex-wrap items-center justify-between gap-3">
               <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
               <span className="text-sm text-ink-soft">

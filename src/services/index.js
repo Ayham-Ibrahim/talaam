@@ -376,6 +376,26 @@ export const enrollmentService = {
   },
 };
 
+export const classSessionService = {
+  /**
+   * Was previously: open session.join_url_{teacher,student} directly via
+   * window.open(). That URL is BigBlueButton's raw `join` API endpoint —
+   * when the meeting isn't actually running there yet (not started, already
+   * ended, or the room was never created), BBB responds with an unstyled
+   * XML error body instead of redirecting, and since navigation already
+   * happened, the app has no chance to catch or reformat it. This endpoint
+   * checks first and returns either the real join URL or a clean message.
+   */
+  async join(sessionId) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return { url: null };
+    }
+    const { data } = await client.get(endpoints.classSessions.join(sessionId));
+    return data.data;
+  },
+};
+
 export const rescheduleService = {
   /**
    * Student or teacher requests a new time for an existing session — never applied
