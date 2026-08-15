@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence, animate } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -10,7 +10,6 @@ import {
   viewportOnce,
 } from "@/lib/motion";
 import { useRevealTimeline } from "@/motion/hooks";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { SplitWords } from "@/motion/scroll/SplitWords";
 import { ScrollReveal } from "@/motion/scroll/ScrollReveal";
 import { useStaggerReveal } from "@/motion/scroll/useStaggerReveal";
@@ -83,7 +82,7 @@ export function EducationTypes() {
     <section className="container-app mt-14">
       <SplitWords
         as="h2"
-        className="text-center font-cairo text-2xl font-bold text-[#1E1E1E]"
+        className="text-center font-cairo text-2xl font-bold text-ink"
         y={40}
         stagger={0.08}
         duration={0.9}
@@ -98,7 +97,7 @@ export function EducationTypes() {
         duration={0.7}
         ease="power3.out"
         start="top 85%"
-        className="mt-2 mb-8 text-center font-cairo text-lg text-[#626262]"
+        className="mt-2 mb-8 text-center font-cairo text-lg text-ink-soft"
       >
         {t("home.educationTypesSubtitle")}
       </ScrollReveal>
@@ -113,7 +112,7 @@ export function EducationTypes() {
             <AnimatedCard
               key={type.icon}
               tilt={true}
-              className="education-type-card flex flex-col items-center gap-2 rounded-2xl bg-white px-4 pb-6 pt-2 text-center group"
+              className="education-type-card flex flex-col items-center gap-2 rounded-2xl bg-white px-4 pb-6 pt-2 text-center shadow-card transition-shadow duration-200 hover:shadow-lift group"
             >
               <div className="relative h-[100px] w-[100px]">
                 {/* Back squircle — solid gradient, peeking out top-right */}
@@ -136,10 +135,10 @@ export function EducationTypes() {
                 </motion.div>
               </div>
               <div className="flex flex-col items-center gap-1 group-hover:-translate-y-0.5 transition-transform duration-300">
-                <h3 className="font-cairo text-xl font-bold text-[#1E1E1E]">
+                <h3 className="font-cairo text-xl font-bold text-ink">
                   {type.title}
                 </h3>
-                <p className="font-cairo text-base leading-loose text-[#626262]">
+                <p className="font-cairo text-base leading-loose text-ink-soft">
                   {type.desc}
                 </p>
               </div>
@@ -168,13 +167,15 @@ const WHY_CHOOSE_US_BADGE_ICONS = {
   network: Share2,
   reviews: Users,
 };
+// Was a one-off #4A90E2 blue repeated for every key — swapped for the real
+// brand primary so this section matches the rest of the product exactly.
 const WHY_CHOOSE_US_COLORS = {
-  certified: "#4A90E2",
-  quality: "#4A90E2",
-  support: "#4A90E2",
-  reports: "#4A90E2",
-  network: "#4A90E2",
-  reviews: "#4A90E2",
+  certified: "#3B5998",
+  quality: "#3B5998",
+  support: "#3B5998",
+  reports: "#3B5998",
+  network: "#3B5998",
+  reviews: "#3B5998",
 };
 
 export function WhyChooseUs() {
@@ -195,7 +196,7 @@ export function WhyChooseUs() {
     <section className="container-app mt-14">
       <SplitWords
         as="h2"
-        className="text-center font-cairo text-2xl font-bold text-[#1E1E1E]"
+        className="text-center font-cairo text-2xl font-bold text-ink"
         y={40}
         stagger={0.08}
         duration={0.9}
@@ -210,7 +211,7 @@ export function WhyChooseUs() {
         duration={0.7}
         ease="power3.out"
         start="top 85%"
-        className="mt-2 mb-8 text-center font-cairo text-lg text-[#626262] max-w-2xl mx-auto"
+        className="mt-2 mb-8 text-center font-cairo text-lg text-ink-soft max-w-2xl mx-auto"
       >
         {t("home.whyChooseUsSubtitle")}
       </ScrollReveal>
@@ -242,10 +243,10 @@ export function WhyChooseUs() {
 
               {/* Text (first in DOM → renders on the right in RTL) */}
               <div className="flex-1 text-start">
-                <h3 className="mb-2 font-cairo text-lg font-bold text-[#1E1E1E] sm:text-xl">
+                <h3 className="mb-2 font-cairo text-lg font-bold text-ink sm:text-xl">
                   {item.title}
                 </h3>
-                <p className="font-cairo text-sm leading-relaxed text-[#626262]">
+                <p className="font-cairo text-sm leading-relaxed text-ink-soft">
                   {item.desc}
                 </p>
               </div>
@@ -269,110 +270,31 @@ export function WhyChooseUs() {
 }
 
 /* ---------- Featured Teachers ---------- */
+/**
+ * Previously a GSAP ScrollTrigger `pin: true` horizontal-scroll-jack over
+ * this same grid markup: it pinned the section and reserved scroll distance
+ * equal to `end: "+=150%"` regardless of how much horizontal content there
+ * actually was, which is exactly what produces a large dead vertical gap
+ * once the pin releases. The same effect force-switched the track from
+ * `display: grid` to `display: flex` via inline styles the instant it
+ * mounted (before ScrollTrigger's own lazy width measurement had anything
+ * reliable to measure — see the removed comment about the intro splash
+ * screen), and a mismeasured/mid-transition flex track is exactly how a grid
+ * of cards can visually appear to repeat itself. Both bugs shared one root
+ * cause. The grid below was already the real markup (the pin effect only
+ * ever *repurposed* it at runtime) — this just lets it render as a normal,
+ * robust responsive grid, with no scroll-jacking.
+ */
 export function FeaturedTeachers() {
   const t = useT();
   const { data, isLoading, isError, refetch } = useFeaturedTeachers();
-  const sectionRef = useRef(null);
-  const trackRef = useRef(null);
-  const progressRef = useRef(null);
-  const reducedMotion = useReducedMotion();
 
-  useEffect(() => {
-    if (reducedMotion || !sectionRef.current || !trackRef.current) return;
-
-    const track = trackRef.current;
-    const section = sectionRef.current;
-    const originalDisplay = track.style.display;
-    const originalFlexWrap = track.style.flexWrap;
-    const originalGap = track.style.gap;
-
-    const ctx = gsap.context(() => {
-      const mm = gsap.matchMedia();
-
-      // Always use horizontal flex track when JS is active
-      track.style.display = "flex";
-      track.style.flexWrap = "nowrap";
-      track.style.gap = "24px";
-
-      mm.add("(min-width: 768px)", () => {
-        const cards = track.querySelectorAll(".teacher-card-wrap");
-        if (!cards.length) return;
-
-        // Measured lazily (not once at setup) — if this effect runs while
-        // the app is still hidden behind the intro splash (display: none),
-        // scrollWidth/offsetWidth both read 0 here. Passing a function
-        // instead of a fixed number lets GSAP re-measure it whenever the
-        // tween is invalidated, e.g. by the ScrollTrigger.refresh() call
-        // App.jsx fires once the intro clears and the real layout exists.
-        const getDistance = () =>
-          Math.max(0, track.scrollWidth - track.offsetWidth);
-
-        // RTL: translate from 0 to positive distance (right to left)
-        const tween = gsap.to(track, {
-          x: getDistance,
-          ease: "none",
-          scrollTrigger: {
-            trigger: section,
-            start: "top 12%",
-            end: "+=150%",
-            pin: true,
-            scrub: 1,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-            onUpdate: (self) => {
-              if (progressRef.current) {
-                gsap.set(progressRef.current, { scaleX: self.progress });
-              }
-            },
-          },
-        });
-
-        return () => {
-          tween.kill();
-        };
-      });
-
-      mm.add("(max-width: 767px)", () => {
-        // Mobile: native horizontal scroll with snap, no pin
-        track.style.overflowX = "auto";
-        track.style.scrollSnapType = "x mandatory";
-        const cards = track.querySelectorAll(".teacher-card-wrap");
-        cards.forEach((card) => {
-          card.style.scrollSnapAlign = "start";
-        });
-        return () => {
-          track.style.overflowX = "";
-          track.style.scrollSnapType = "";
-          cards.forEach((card) => {
-            card.style.scrollSnapAlign = "";
-          });
-        };
-      });
-    }, sectionRef);
-
-    return () => {
-      track.style.display = originalDisplay;
-      track.style.flexWrap = originalFlexWrap;
-      track.style.gap = originalGap;
-      ctx.revert();
-    };
-  }, [reducedMotion, data, isLoading]);
-
-  const renderCards = () =>
-    isLoading
-      ? Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="teacher-card-wrap shrink-0 w-[260px] sm:w-[280px]">
-            <TeacherCardSkeleton />
-          </div>
-        ))
-      : data.map((teacher) => (
-          <div key={teacher.id} className="teacher-card-wrap shrink-0 w-[260px] sm:w-[280px]">
-            <TeacherCard teacher={teacher} />
-          </div>
-        ));
+  // Defensive de-dupe by id — cheap, harmless if the API never sends
+  // duplicates, and a real safeguard if it ever does.
+  const teachers = isLoading ? [] : Array.from(new Map((data ?? []).map((tc) => [tc.id, tc])).values());
 
   return (
-    <section ref={sectionRef} className="container-app mt-14">
+    <section className="container-app mt-14">
       <SplitWords
         as="h2"
         className="text-center font-bold text-2xl text-ink mb-8"
@@ -387,23 +309,11 @@ export function FeaturedTeachers() {
       {isError ? (
         <ErrorState onRetry={refetch} />
       ) : (
-        <>
-          {/* Mobile grid fallback / JS-enhanced horizontal track */}
-          <div
-            ref={trackRef}
-            className="teacher-track grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
-          >
-            {renderCards()}
-          </div>
-          {/* Progress bar */}
-          <div className="mt-6 hidden h-0.5 w-full overflow-hidden rounded-full bg-line md:block">
-            <div
-              ref={progressRef}
-              className="h-full origin-right bg-[#4B6898]"
-              style={{ transform: "scaleX(0)" }}
-            />
-          </div>
-        </>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+          {isLoading
+            ? Array.from({ length: 5 }).map((_, i) => <TeacherCardSkeleton key={i} />)
+            : teachers.map((teacher) => <TeacherCard key={teacher.id} teacher={teacher} />)}
+        </div>
       )}
     </section>
   );
@@ -913,8 +823,9 @@ export function Testimonials() {
             }}
           >
             <Card className="p-6">
+              {/* was text-accent-purple/30 — swapped to stay off the "purple" anti-pattern list */}
               <div className="flex items-start justify-between mb-4">
-                <Quote className="text-accent-purple/30" size={28} />
+                <Quote className="text-primary/25" size={28} />
               </div>
               <p className="text-sm text-ink-soft leading-relaxed mb-5">
                 {item.text}

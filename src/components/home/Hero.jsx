@@ -64,12 +64,7 @@ function TypewriterBlock({ lines, className = "", speed = 90, pause = 2200 }) {
     const escapeHtml = (str) =>
       str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-    // Reserve exact height by measuring full rendered text
-    el.innerHTML = render(line1 + "\u00A0\u00A0" + line2);
-    const computedHeight = el.offsetHeight;
-    el.style.minHeight = `${computedHeight}px`;
     el.innerHTML = render("");
-
     timer = setTimeout(typeNext, 300);
 
     return () => {
@@ -88,11 +83,30 @@ function TypewriterBlock({ lines, className = "", speed = 90, pause = 2200 }) {
   }
 
   return (
-    <span
-      ref={containerRef}
-      className={`${className} block whitespace-pre-wrap`}
-      aria-label={`${lines[0]} ${lines[1]}`}
-    />
+    <span className={`${className} relative block`}>
+      {/*
+        Space used to be reserved by measuring `el.offsetHeight` ONCE on
+        mount and hard-coding it as `minHeight` in px. On narrow (mobile)
+        widths the headline wraps to 3 lines instead of 2 \u2014 if that one-off
+        measurement ran even slightly before layout/fonts settled, the
+        reserved box came out shorter than the real 3-line text, and the
+        tail of the second line ("\u0627\u0644\u062A\u0639\u0644\u064A\u0645\u064A\u0629") got clipped by this section's
+        own overflow-hidden \u2014 visible as text ending mid-word.
+        Fix: reserve space with a real, invisible DOM clone in normal flow
+        instead. The browser recomputes its height on every resize/reflow,
+        so it's correct at any viewport width without any JS measurement.
+      */}
+      <span aria-hidden="true" className="invisible block whitespace-pre-wrap">
+        {lines[0]}
+        {"\u00A0\u00A0"}
+        {lines[1]}
+      </span>
+      <span
+        ref={containerRef}
+        className="absolute inset-0 block whitespace-pre-wrap"
+        aria-label={`${lines[0]} ${lines[1]}`}
+      />
+    </span>
   );
 }
 

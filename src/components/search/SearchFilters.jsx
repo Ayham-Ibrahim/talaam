@@ -23,7 +23,13 @@ function FilterSelect({ icon: Icon, label, options = [], value, onChange, placeh
   );
 }
 
-export function SearchFilters({ meta, draft, onChange, onApply, onReset }) {
+/**
+ * `hideHeading`: the mobile entry point (SearchPage) wraps this in its own
+ * toggle button that already reads "تصفية" — rendering this component's own
+ * heading too would show that label twice back-to-back. Desktop keeps the
+ * heading since there it's the only place the label appears.
+ */
+export function SearchFilters({ meta, draft, onChange, onApply, onReset, hideHeading = false }) {
   const t = useT();
   const currency = useCurrencyStore((s) => s.currency);
   const priceMin = meta?.priceRange?.min ?? 50;
@@ -32,9 +38,11 @@ export function SearchFilters({ meta, draft, onChange, onApply, onReset }) {
 
   return (
     <aside className="w-full shrink-0 lg:w-72">
-      <h3 className="mb-5 flex items-center gap-2 font-bold text-ink">
-        <SlidersHorizontal size={18} /> {t('search.filterTitle')}
-      </h3>
+      {!hideHeading && (
+        <h3 className="mb-5 flex items-center gap-2 font-bold text-ink">
+          <SlidersHorizontal size={18} /> {t('search.filterTitle')}
+        </h3>
+      )}
 
       <div className="space-y-5">
         <FilterSelect

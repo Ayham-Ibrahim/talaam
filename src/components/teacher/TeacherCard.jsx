@@ -1,9 +1,23 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Card, VerifiedBadge, FavoriteButton, StarRating, Avatar, Skeleton } from '@/components/ui';
+import { BadgeCheck, Sparkles, Clock3 } from 'lucide-react';
+import { FavoriteButton, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites, useToggleFavoriteTeacher } from '@/hooks/useFavorites';
-import { motion } from 'framer-motion';
 
+/**
+ * Redesigned around the fields actually available on a search-result teacher
+ * (see teacherService.mapSearchResult): id, name, avatar, isVerified, typeLabel.
+ *
+ * ASSUMPTION: `teacher.isExpert` and `teacher.yearsExperience` are NOT part of
+ * mapSearchResult today, so those two badges will simply never render until a
+ * backend/mapping change adds them (out of scope here — presentation only).
+ * The card is written to pick them up automatically the moment they exist —
+ * no future changes to this file would be needed.
+ *
+ * "Specialty" maps to `typeLabel` (e.g. "مدرسي" / "مدرب") — the closest
+ * available field; subject-level specialty only exists on the full profile
+ * fetch, not the lightweight search/list result this card is built from.
+ */
 export function TeacherCard({ teacher }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,65 +35,89 @@ export function TeacherCard({ teacher }) {
     toggleFavoriteTeacher.mutate(teacher.id);
   };
 
-  return (
-    <Card className="group p-3 transition-all duration-300 flex flex-col relative overflow-hidden h-full">
-      {/* Top badges row */}
-      <div className="flex items-center justify-between mb-2 relative z-10 transition-transform duration-300">
-        {teacher.isVerified && <VerifiedBadge />}
-        <FavoriteButton
-          active={isFavorite}
-          className="opacity-0 lg:opacity-100 lg:group-hover:opacity-100 transition-opacity"
-          onClick={handleToggleFavorite}
-        />
-      </div>
+  const profileHref = `/teacher/${teacher.id}`;
+  const initials = (teacher.name ?? '')
+    .replace(/^[أا]\.\s*/, '')
+    .trim()
+    .charAt(0);
 
-      <Link to={`/teacher/${teacher.id}`} className="flex flex-col items-center text-center flex-1 z-10">
-        {/* Photo */}
-        <div className="w-full aspect-[4/5] rounded-xl overflow-hidden bg-accent-purple/10 flex items-center justify-center mb-3">
+  return (
+    <div className="group relative flex h-full flex-col overflow-hidden rounded-card bg-surface shadow-card transition-shadow duration-200 hover:shadow-lift">
+      {/* Soft colored header band — on-brand navy tint, not a purple placeholder */}
+      <div className="h-16 shrink-0 bg-gradient-to-b from-primary-light to-primary-light/40" aria-hidden="true" />
+
+      <FavoriteButton
+        active={isFavorite}
+        onClick={handleToggleFavorite}
+        className="absolute left-3 top-3 z-10 cursor-pointer transition-transform duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 motion-reduce:transition-none motion-reduce:hover:scale-100"
+      />
+
+      <Link
+        to={profileHref}
+        className="flex flex-1 cursor-pointer flex-col items-center rounded-t-none px-4 pb-4 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+      >
+        {/* Circular avatar, overlapping the header band — real photo, or a
+            colored-initials fallback (no purple placeholder rectangle) */}
+        <div className="-mt-9 h-[72px] w-[72px] shrink-0 overflow-hidden rounded-full bg-primary-light ring-4 ring-surface transition-transform duration-200 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100">
           {teacher.avatar ? (
-            <motion.img 
-              whileHover={{ scale: 1.03 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              src={teacher.avatar} 
-              alt={teacher.name} 
-              className="w-full h-full object-cover" 
-            />
+            <img src={teacher.avatar} alt={teacher.name} className="h-full w-full object-cover" />
           ) : (
-            <Avatar name={teacher.name} size="xl" className="!rounded-none w-full h-full text-3xl" />
+            <span className="flex h-full w-full items-center justify-center text-2xl font-bold text-primary">
+              {initials || teacher.name?.charAt(0) || '؟'}
+            </span>
           )}
         </div>
 
-        {/* Name + subject */}
-        <h3 className="font-bold text-ink text-[15px]">{teacher.name}</h3>
-        <p className="text-sm text-ink-soft mt-0.5">{teacher.typeLabel}</p>
+        <h3 className="mt-3 line-clamp-1 text-[15px] font-bold text-ink">{teacher.name}</h3>
+        {teacher.typeLabel && <p className="mt-0.5 text-sm text-ink-soft">{teacher.typeLabel}</p>}
 
-        {/* Meta row */}
-        <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 mt-2 text-[11px] text-ink-soft">
-          {teacher.city && (
-            <>
-              <span>{teacher.city}</span>
-              <span className="text-line">•</span>
-            </>
+        {/* Badge pills — each hidden entirely when its data isn't available,
+            never rendered empty/zero (per the no-fake-stats rule) */}
+        <div className="mt-2.5 flex flex-wrap items-center justify-center gap-1.5">
+          {teacher.isVerified && (
+            <span className="inline-flex items-center gap-1 rounded-pill bg-success-light px-2.5 py-1 text-[11px] font-semibold text-success">
+              <BadgeCheck size={12} aria-hidden="true" />
+              موثّق
+            </span>
           )}
-          <StarRating value={teacher.rating} size={12} />
+          {teacher.isExpert && (
+            <span className="inline-flex items-center gap-1 rounded-pill bg-star/10 px-2.5 py-1 text-[11px] font-semibold text-star">
+              <Sparkles size={12} aria-hidden="true" />
+              خبير
+            </span>
+          )}
+          {Boolean(teacher.yearsExperience) && (
+            <span className="inline-flex items-center gap-1 rounded-pill bg-accent-pink/10 px-2.5 py-1 text-[11px] font-semibold text-accent-pink">
+              <Clock3 size={12} aria-hidden="true" />
+              {teacher.yearsExperience} سنوات خبرة
+            </span>
+          )}
         </div>
 
         <div className="flex-1" />
+
+        <span className="mt-3 inline-flex w-full cursor-pointer items-center justify-center rounded-btn bg-primary py-2 text-sm font-medium text-white transition-colors duration-200 group-hover:bg-primary-hover">
+          عرض الملف
+        </span>
       </Link>
-    </Card>
+    </div>
   );
 }
 
 export function TeacherCardSkeleton() {
   return (
-    <Card className="p-3 shadow-none border border-line/20">
-      <div className="flex justify-between mb-2">
-        <Skeleton className="w-20 h-6 rounded-pill" />
-        <Skeleton className="w-8 h-8 rounded-full" />
+    <div className="flex h-full flex-col overflow-hidden rounded-card border border-line/20 bg-surface shadow-card">
+      <Skeleton className="h-16 w-full rounded-none" />
+      <div className="flex flex-1 flex-col items-center px-4 pb-4">
+        <Skeleton className="-mt-9 h-[72px] w-[72px] shrink-0 rounded-full ring-4 ring-surface" />
+        <Skeleton className="mt-3 h-4 w-2/3" />
+        <Skeleton className="mt-2 h-3 w-1/2" />
+        <div className="mt-2.5 flex gap-1.5">
+          <Skeleton className="h-5 w-16 rounded-pill" />
+          <Skeleton className="h-5 w-16 rounded-pill" />
+        </div>
+        <Skeleton className="mt-4 h-9 w-full rounded-btn" />
       </div>
-      <Skeleton className="w-full aspect-[4/5] rounded-xl mb-3" />
-      <Skeleton className="w-2/3 h-4 mx-auto mb-2" />
-      <Skeleton className="w-1/2 h-3 mx-auto" />
-    </Card>
+    </div>
   );
 }

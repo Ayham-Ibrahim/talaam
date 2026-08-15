@@ -54,9 +54,11 @@ export function Navbar() {
       }`}
     >
       <div className="container-app flex items-center justify-between h-16">
-        {/* Right (RTL start): logo + mobile toggle */}
+        {/* Right (RTL start): mobile toggle (outermost) + logo.
+            The burger must sit on the OUTER edge (first in DOM → renders
+            furthest right in RTL flex), with the logo inside it — not the
+            other way around. */}
         <div className="flex items-center gap-1 sm:gap-3">
-          <Logo />
           <button
             className="lg:hidden w-11 h-11 flex items-center justify-center shrink-0 disabled:opacity-50"
             onClick={() => setOpen((v) => !v)}
@@ -66,6 +68,7 @@ export function Navbar() {
               {open ? <X size={22} /> : <Menu size={22} />}
             </motion.div>
           </button>
+          <Logo />
         </div>
 
         {/* Center: nav links */}
