@@ -16,7 +16,7 @@ export function PageContainer({ children }) {
   }, [pathname]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col overflow-x-hidden relative w-full max-w-[100vw]">
       <Navbar />
       <main className="flex-1 mt-16">{children}</main>
       <Footer />

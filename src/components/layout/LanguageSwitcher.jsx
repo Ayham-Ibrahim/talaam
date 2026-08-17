@@ -9,7 +9,7 @@ const LANGUAGES = [
   { code: 'en', label: 'English' },
 ];
 
-export function LanguageSwitcher() {
+export function LanguageSwitcher({ className }) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const active = useLocaleStore((s) => s.locale);
@@ -21,7 +21,7 @@ export function LanguageSwitcher() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setOpen((v) => !v)}
-        className={`hidden sm:flex w-11 h-11 rounded-full hover:bg-line/50 transition-colors items-center justify-center shrink-0 ${
+        className={className || `hidden sm:flex w-11 h-11 rounded-full hover:bg-line/50 transition-colors items-center justify-center shrink-0 ${
           open ? 'bg-line/50' : ''
         }`}
         aria-label={t('nav.language')}

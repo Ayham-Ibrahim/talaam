@@ -7,7 +7,7 @@
     @apply border-line;
   }
   body {
-    @apply bg-canvas text-ink font-sans antialiased;
+    @apply bg-canvas text-ink font-sans antialiased overflow-x-hidden;
   }
   ::selection {
     @apply bg-accent-purple/20;

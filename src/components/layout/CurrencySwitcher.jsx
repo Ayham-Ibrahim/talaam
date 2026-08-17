@@ -5,7 +5,7 @@ import { useCurrencyStore } from '@/store';
 import { useT } from '@/hooks/useT';
 import { CURRENCIES } from '@/lib/currency';
 
-export function CurrencySwitcher() {
+export function CurrencySwitcher({ className }) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const active = useCurrencyStore((s) => s.currency);
@@ -17,7 +17,7 @@ export function CurrencySwitcher() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setOpen((v) => !v)}
-        className={`hidden sm:flex items-center gap-1 h-11 px-2.5 rounded-full hover:bg-line/50 transition-colors shrink-0 ${
+        className={className || `hidden sm:flex items-center gap-1 h-11 px-2.5 rounded-full hover:bg-line/50 transition-colors shrink-0 ${
           open ? 'bg-line/50' : ''
         }`}
         aria-label={t('nav.currency')}

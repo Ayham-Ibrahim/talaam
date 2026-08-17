@@ -15,6 +15,7 @@ export function Navbar() {
   const t = useT();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [menuAnimationComplete, setMenuAnimationComplete] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { data: favorites } = useFavorites();
   const favoritesCount = favorites?.length ?? 0;
@@ -61,7 +62,10 @@ export function Navbar() {
         <div className="flex items-center gap-1 sm:gap-3">
           <button
             className="lg:hidden w-11 h-11 flex items-center justify-center shrink-0 disabled:opacity-50"
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => {
+              if (open) setMenuAnimationComplete(false);
+              setOpen((v) => !v);
+            }}
             aria-label={t('nav.menu')}
           >
             <motion.div initial={false} animate={{ rotate: open ? 90 : 0 }}>
@@ -161,7 +165,9 @@ export function Navbar() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="lg:hidden border-t border-line/50 bg-surface/95 backdrop-blur overflow-hidden px-6 py-4 flex flex-col gap-3"
+            onAnimationComplete={() => setMenuAnimationComplete(true)}
+            className="lg:hidden border-t border-line/50 bg-surface/95 backdrop-blur px-6 py-4 flex flex-col gap-3"
+            style={{ overflow: menuAnimationComplete ? "visible" : "hidden" }}
           >
             {links.map((l, i) => (
               <motion.div
@@ -182,6 +188,32 @@ export function Navbar() {
                 </NavLink>
               </motion.div>
             ))}
+
+            <motion.div
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: links.length * 0.05 }}
+              className="flex items-center gap-4 pt-4 mt-2 border-t border-line/50"
+            >
+              <NotificationsBell buttonClassName="relative flex w-11 h-11 rounded-full bg-canvas hover:bg-line/50 items-center justify-center shrink-0" />
+              <NavLink
+                to="/favorites"
+                onClick={() => setOpen(false)}
+                className={({ isActive }) =>
+                  `flex relative w-11 h-11 rounded-full hover:bg-line/50 transition-colors items-center justify-center shrink-0 ${
+                    isActive ? 'bg-line/50' : 'bg-canvas'
+                  }`
+                }
+                aria-label={t('favorites.title')}
+              >
+                <Heart size={18} className="text-ink-soft" />
+                {favoritesCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-accent-pink" />
+                )}
+              </NavLink>
+              <LanguageSwitcher className="flex w-11 h-11 rounded-full bg-canvas hover:bg-line/50 transition-colors items-center justify-center shrink-0" />
+              <CurrencySwitcher className="flex items-center gap-1 h-11 px-2.5 rounded-full bg-canvas hover:bg-line/50 transition-colors shrink-0" />
+            </motion.div>
           </motion.nav>
         )}
       </AnimatePresence>
