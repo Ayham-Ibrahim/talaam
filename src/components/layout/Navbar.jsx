@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Heart, Menu, X, LogOut, LayoutDashboard } from 'lucide-react';
+import { Heart, Menu, X, LogOut, LayoutDashboard, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Logo } from './Logo';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -94,49 +94,16 @@ export function Navbar() {
         </nav>
 
         {/* Left (RTL end): login + icons */}
-        <div className="flex items-center gap-1 sm:gap-3">
-          {isAuthenticated ? (
-            <>
-              <NavLink
-                to={dashboardPath}
-                className="hidden sm:flex items-center gap-2 rounded-pill py-1 pl-3 pr-1 hover:bg-line/50 transition-colors"
-              >
-                <Avatar name={user.name} size="sm" className="!w-8 !h-8 text-xs" />
-                <span className="text-sm font-medium text-ink max-w-[110px] truncate">{user.name}</span>
-              </NavLink>
-              <NavLink
-                to={dashboardPath}
-                className="sm:hidden w-11 h-11 rounded-full hover:bg-line/50 flex items-center justify-center shrink-0"
-                aria-label={t(
-                  user?.role === 'teacher'
-                    ? 'dashboard.teacherTitle'
-                    : user?.role === 'admin'
-                      ? 'dashboard.adminTitle'
-                      : 'dashboard.studentTitle'
-                )}
-              >
-                <LayoutDashboard size={18} className="text-ink-soft" />
-              </NavLink>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => logout.mutate()}
-                className="w-11 h-11 rounded-full hover:bg-line/50 flex items-center justify-center shrink-0"
-                aria-label={t('dashboard.logout')}
-              >
-                <LogOut size={18} className="text-ink-soft" />
-              </motion.button>
-            </>
-          ) : (
-            <Button size="sm" className="sm:!px-5" onClick={() => navigate('/login')}>
-              {t('nav.login')}
-            </Button>
-          )}
-          <NotificationsBell buttonClassName="relative hidden sm:flex w-11 h-11 rounded-full hover:bg-line/50 items-center justify-center shrink-0" />
+        <div className="flex items-center gap-1 sm:gap-2 text-ink-soft">
+          <LanguageSwitcher className="flex w-10 h-10 rounded-full hover:bg-line/50 transition-colors items-center justify-center shrink-0" />
+          <CurrencySwitcher className="flex items-center gap-1 h-10 px-1 sm:px-2.5 rounded-full hover:bg-line/50 transition-colors shrink-0" />
+          
+          <NotificationsBell buttonClassName="relative flex w-10 h-10 rounded-full hover:bg-line/50 items-center justify-center shrink-0" />
+          
           <NavLink
             to="/favorites"
             className={({ isActive }) =>
-              `hidden sm:flex relative w-11 h-11 rounded-full hover:bg-line/50 transition-colors items-center justify-center shrink-0 ${
+              `hidden sm:flex relative w-10 h-10 rounded-full hover:bg-line/50 transition-colors items-center justify-center shrink-0 ${
                 isActive ? 'bg-line/50' : ''
               }`
             }
@@ -153,8 +120,57 @@ export function Navbar() {
               />
             )}
           </NavLink>
-          <LanguageSwitcher />
-          <CurrencySwitcher />
+
+          {isAuthenticated ? (
+            <>
+              <NavLink
+                to={dashboardPath}
+                className="sm:hidden w-10 h-10 text-ink-soft rounded-full hover:bg-line/50 flex items-center justify-center shrink-0"
+                aria-label={t(
+                  user?.role === 'teacher'
+                    ? 'dashboard.teacherTitle'
+                    : user?.role === 'admin'
+                      ? 'dashboard.adminTitle'
+                      : 'dashboard.studentTitle'
+                )}
+              >
+                <LayoutDashboard size={18} />
+              </NavLink>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => logout.mutate()}
+                className="hidden sm:flex w-10 h-10 text-ink-soft rounded-full hover:bg-line/50 items-center justify-center shrink-0"
+                aria-label={t('dashboard.logout')}
+              >
+                <LogOut size={18} />
+              </motion.button>
+              <NavLink
+                to={dashboardPath}
+                className="hidden sm:flex items-center gap-2 rounded-pill py-1 pl-3 pr-1 hover:bg-line/50 transition-colors mr-2"
+              >
+                <Avatar name={user.name} size="sm" className="!w-8 !h-8 text-xs" />
+                <span className="text-sm font-medium text-ink max-w-[110px] truncate">{user.name}</span>
+              </NavLink>
+            </>
+          ) : (
+            <>
+              {/* Desktop Login Button */}
+              <Button size="sm" className="hidden sm:flex !px-5 mr-2" onClick={() => navigate('/login')}>
+                {t('nav.login')}
+              </Button>
+              {/* Mobile Login Icon */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/login')}
+                className="sm:hidden text-ink-soft w-10 h-10 rounded-full hover:bg-line/50 flex items-center justify-center shrink-0"
+                aria-label={t('nav.login')}
+              >
+                <User size={18} />
+              </motion.button>
+            </>
+          )}
         </div>
       </div>
 
@@ -188,31 +204,28 @@ export function Navbar() {
                 </NavLink>
               </motion.div>
             ))}
-
+            
             <motion.div
               initial={{ x: -20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: links.length * 0.05 }}
-              className="flex items-center gap-4 pt-4 mt-2 border-t border-line/50"
+              className="pt-2 mt-2 border-t border-line/50"
             >
-              <NotificationsBell buttonClassName="relative flex w-11 h-11 rounded-full bg-canvas hover:bg-line/50 items-center justify-center shrink-0" />
               <NavLink
                 to="/favorites"
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
-                  `flex relative w-11 h-11 rounded-full hover:bg-line/50 transition-colors items-center justify-center shrink-0 ${
-                    isActive ? 'bg-line/50' : 'bg-canvas'
-                  }`
+                  `flex items-center gap-2 block text-sm font-medium py-1 w-full ${isActive ? 'text-primary' : 'text-ink-soft'}`
                 }
-                aria-label={t('favorites.title')}
               >
-                <Heart size={18} className="text-ink-soft" />
+                <Heart size={16} />
+                <span>{t('favorites.title')}</span>
                 {favoritesCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-accent-pink" />
+                  <span className="bg-accent-pink text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-4 text-center">
+                    {favoritesCount}
+                  </span>
                 )}
               </NavLink>
-              <LanguageSwitcher className="flex w-11 h-11 rounded-full bg-canvas hover:bg-line/50 transition-colors items-center justify-center shrink-0" />
-              <CurrencySwitcher className="flex items-center gap-1 h-11 px-2.5 rounded-full bg-canvas hover:bg-line/50 transition-colors shrink-0" />
             </motion.div>
           </motion.nav>
         )}
