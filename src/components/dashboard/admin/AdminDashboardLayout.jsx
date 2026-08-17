@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   ChevronRight,
@@ -11,6 +11,8 @@ import {
   Package,
   Settings,
   Wallet,
+  Menu,
+  X,
 } from 'lucide-react';
 import { Logo } from '@/components/layout/Logo';
 import { Avatar } from '@/components/ui';
@@ -37,8 +39,14 @@ export function AdminDashboardLayout({ children }) {
   const { user } = useAuth();
   const logout = useLogout();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const { data: overview } = useAdminOverview();
+
+  // Close sidebar on path change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
 
   const activeNavItem =
     NAV_ITEMS.find((item) =>
@@ -51,12 +59,30 @@ export function AdminDashboardLayout({ children }) {
   const ActivePageIcon = activeNavItem.icon;
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#FCFCFC] lg:flex">
-      <aside className="hidden shrink-0 border-l border-line/60 bg-white lg:flex lg:w-[287px] lg:flex-col">
-        <div className="flex items-center justify-center border-b border-line/60 px-6 py-6">
-          <Logo />
-        </div>
-        <nav dir="ltr" className="flex flex-1 w-full flex-col gap-1 py-4">
+    <div dir="rtl" className="min-h-screen bg-[#FCFCFC] lg:flex relative">
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <aside className={`shrink-0 border-l border-line/60 bg-white lg:flex lg:w-[287px] lg:flex-col ${
+        sidebarOpen ? "fixed inset-y-0 right-0 z-50 flex w-[287px] flex-col" : "hidden"
+      }`}>
+        <div className="flex flex-col flex-1 h-full overflow-y-auto">
+          <div className="flex items-center justify-between border-b border-line/60 px-6 py-6">
+            <Logo />
+            {/* Close button for mobile */}
+            <button 
+              className="lg:hidden text-[#2D2D2D]" 
+              onClick={() => setSidebarOpen(false)}
+            >
+              <X size={24} />
+            </button>
+          </div>
+          <nav dir="ltr" className="flex flex-1 w-full flex-col gap-1 py-4">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             if (!item.path) {
@@ -91,12 +117,13 @@ export function AdminDashboardLayout({ children }) {
             );
           })}
         </nav>
+        </div>
       </aside>
 
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col overflow-hidden">
         <header
           dir="ltr"
-          className="flex items-center justify-between gap-4 border-b border-line/60 bg-white px-6 py-3 lg:px-10"
+          className="flex items-center justify-between gap-4 border-b border-line/60 bg-white px-4 py-3 lg:px-10"
         >
           <div className="flex items-center gap-2">
             <div className="relative">
@@ -136,13 +163,22 @@ export function AdminDashboardLayout({ children }) {
             />
           </div>
 
-          <span className="flex items-center gap-2 rounded-pill border border-line px-4 py-2 text-sm font-bold text-ink">
-            {t(`dashboard.adminNav.${activeNavItem.key}`)}
-            <ActivePageIcon size={16} className="text-primary" />
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="flex items-center gap-2 rounded-pill border border-line px-3 sm:px-4 py-1.5 sm:py-2 text-sm font-bold text-ink">
+              <span className="hidden sm:inline">{t(`dashboard.adminNav.${activeNavItem.key}`)}</span>
+              <ActivePageIcon size={16} className="text-primary" />
+            </span>
+            <button
+              className="lg:hidden flex h-10 w-10 shrink-0 items-center justify-center rounded-pill border border-line bg-white text-[#2D2D2D]"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="القائمة"
+            >
+              <Menu size={20} />
+            </button>
+          </div>
         </header>
 
-        <main dir="rtl" className="flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
+        <main dir="rtl" className="flex-1 overflow-auto px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
           {children}
         </main>
       </div>
