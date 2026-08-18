@@ -15,6 +15,7 @@ import {
   UserRound,
   Menu,
   X,
+  Globe,
 } from "lucide-react";
 import { Logo } from "@/components/layout/Logo";
 import { Avatar } from "@/components/ui";
@@ -200,6 +201,14 @@ function DashboardLayoutInner({ children }) {
               )}
             </div>
 
+            <NavLink
+              to="/"
+              className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-line/40 transition-colors"
+              aria-label="العودة للموقع"
+              title="العودة للموقع"
+            >
+              <Globe size={18} className="text-[#2D2D2D]" />
+            </NavLink>
             <NotificationsBell
               buttonClassName="relative hidden h-10 w-10 items-center justify-center rounded-full hover:bg-line/40 sm:flex"
               iconClassName="text-[#2D2D2D]"
