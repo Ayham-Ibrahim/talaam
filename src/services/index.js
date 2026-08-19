@@ -511,9 +511,15 @@ export const metaService = {
 const SESSION_TYPE_LABELS = { individual: 'جلسة فردية', group: 'جلسة جماعية', training: 'دورة تدريبية' };
 
 /** ClassSession.status → the 3-state vocabulary the student dashboard UI understands */
-function mapSessionStatus(status) {
+function mapSessionStatus(status, scheduledAt = null) {
   if (status === 'completed') return 'attended';
   if (['cancelled', 'no_show_student', 'no_show_teacher'].includes(status)) return 'cancelled';
+  if (scheduledAt) {
+    const scheduledAtMs = new Date(scheduledAt).getTime();
+    if (Number.isFinite(scheduledAtMs) && scheduledAtMs <= Date.now()) {
+      return 'attended';
+    }
+  }
   return 'upcoming'; // scheduled, reschedule_pending, rescheduled, active, suspended
 }
 
@@ -584,7 +590,7 @@ function computeCountdown(scheduledAt) {
 function mapSessionListRow(session) {
   const category = sessionCategory(session);
   const { time, period } = formatSessionTime(session.scheduled_at);
-  const status = mapSessionStatus(session.status);
+  const status = mapSessionStatus(session.status, session.scheduled_at);
   const isUpcoming = status === 'upcoming';
   return {
     id: session.id,
@@ -629,7 +635,7 @@ function mapUpcomingSessionRow(session) {
 
 /** GET /class-sessions row → calendar day-cell row */
 function mapCalendarSessionRow(session) {
-  const status = mapSessionStatus(session.status);
+  const status = mapSessionStatus(session.status, session.scheduled_at);
   const { time, period } = formatSessionTime(session.scheduled_at);
   return {
     id: session.id,
@@ -651,7 +657,7 @@ function mapCalendarSessionRow(session) {
 
 /** Same as mapCalendarSessionRow but for the teacher's own calendar (join_url_teacher, no teacherName/Avatar — it's their own session) */
 function mapTeacherCalendarSessionRow(session) {
-  const status = mapSessionStatus(session.status);
+  const status = mapSessionStatus(session.status, session.scheduled_at);
   const { time, period } = formatSessionTime(session.scheduled_at);
   return {
     id: session.id,

@@ -851,7 +851,7 @@
     "sessionsFor": "جلسات",
     "changeAppointment": "تغيير الموعد",
     "statusUpcoming": "قادمة",
-    "statusAttended": "تم الحضور",
+    "statusAttended": "انتهت الجلسة",
     "noSessionsForDay": "لا توجد جلسات في هذا اليوم",
     "sessionTypeIndividual": "جلسة فردية",
     "sessionTypeGroup": "جلسة جماعية",
