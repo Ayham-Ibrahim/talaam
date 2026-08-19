@@ -13,6 +13,7 @@ export function ReasonModal({ titleKey, isPending, error, maxLength = 500, onCon
   const t = useT();
   const [reason, setReason] = useState('');
   const [touched, setTouched] = useState(false);
+  const reasonKey = 'dashboard.reasonModal';
 
   const trimmed = reason.trim();
   const isValid = trimmed.length > 0;
@@ -30,31 +31,32 @@ export function ReasonModal({ titleKey, isPending, error, maxLength = 500, onCon
           <button
             type="button"
             onClick={onClose}
-            aria-label={t('reasonModal.cancel')}
+            aria-label={t(`${reasonKey}.cancel`)}
             className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft hover:bg-line/40 hover:text-ink"
           >
             <X size={18} />
           </button>
-          <h3 className="flex-1 text-center text-lg font-bold text-ink">{t(`reasonModal.${titleKey}`)}</h3>
+          <h3 className="flex-1 text-center text-lg font-bold text-ink">{t(`${reasonKey}.${titleKey}`)}</h3>
           <span className="w-8" />
         </div>
 
-        {error && <ApiErrorList error={error} labelFor={() => t('reasonModal.reasonLabel')} className="mb-4" />}
+        {error && <ApiErrorList error={error} labelFor={() => t(`${reasonKey}.reasonLabel`)} className="mb-4" />}
 
         <label className="flex flex-col gap-1.5 text-right">
-          <span className="text-sm font-semibold text-ink">{t('reasonModal.reasonLabel')}</span>
+          <span className="text-sm font-semibold text-ink">{t(`${reasonKey}.reasonLabel`)}</span>
+          <span className="text-xs text-ink-soft">{t(`${reasonKey}.reasonHint`)}</span>
           <textarea
             rows={4}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder={t('reasonModal.reasonPlaceholder')}
+            placeholder={t(`${reasonKey}.reasonPlaceholder`)}
             maxLength={maxLength}
             className={`w-full resize-none rounded-btn border bg-surface p-3 text-sm text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 ${
               touched && !isValid ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
             }`}
           />
           <div className="text-left text-xs text-ink-soft/70">{reason.length}/{maxLength}</div>
-          {touched && !isValid && <span className="text-xs text-accent-pink">{t('reasonModal.reasonRequired')}</span>}
+          {touched && !isValid && <span className="text-xs text-accent-pink">{t(`${reasonKey}.reasonRequired`)}</span>}
         </label>
 
         <div className="mt-6 flex gap-3">
@@ -63,7 +65,7 @@ export function ReasonModal({ titleKey, isPending, error, maxLength = 500, onCon
             onClick={onClose}
             className="flex-1 rounded-xl border border-line py-3 text-sm font-medium text-ink-soft hover:bg-line/30"
           >
-            {t('reasonModal.cancel')}
+            {t(`${reasonKey}.cancel`)}
           </button>
           <button
             type="button"
@@ -71,7 +73,7 @@ export function ReasonModal({ titleKey, isPending, error, maxLength = 500, onCon
             onClick={handleConfirm}
             className="flex-1 rounded-xl bg-accent-pink py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {t('reasonModal.confirm')}
+            {t(`${reasonKey}.confirm`)}
           </button>
         </div>
       </div>

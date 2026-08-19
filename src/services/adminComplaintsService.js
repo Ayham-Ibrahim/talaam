@@ -10,6 +10,42 @@ import {
   updateMockRescheduleRequest,
 } from '@/mocks/adminComplaints.mock';
 
+function mapRescheduleRequest(request) {
+  const attendees = request.session?.attendees ?? [];
+  const attendeeCount = attendees.length;
+  const firstAttendeeName = attendees[0]?.student?.user?.name ?? null;
+  const teacherName =
+    request.teacherName ??
+    request.teacher_name ??
+    request.session?.teacher?.user?.name ??
+    (request.requester_role === 'teacher' ? request.requester?.name : null) ??
+    '';
+
+  const studentName =
+    request.studentName ??
+    request.student_name ??
+    (request.requester_role === 'student'
+      ? request.requester?.name ?? request.booking?.student?.user?.name ?? firstAttendeeName
+      : request.booking?.student?.user?.name ?? (attendeeCount > 1 ? `مجموعة (${attendeeCount} طلاب)` : firstAttendeeName)) ??
+    '';
+
+  return {
+    ...request,
+    teacherName,
+    studentName,
+    originalScheduledAt:
+      request.originalScheduledAt ?? request.original_scheduled_at ?? request.currentScheduledAt ?? request.current_scheduled_at ?? null,
+    proposedScheduledAt: request.proposedScheduledAt ?? request.proposed_scheduled_at ?? null,
+    alternativeScheduledAt:
+      request.alternativeScheduledAt ?? request.alternative_scheduled_at ?? request.adminAlternativeAt ?? request.admin_alternative_at ?? null,
+    withinFreeWindow: request.withinFreeWindow ?? request.within_free_window ?? false,
+    createdAt: request.createdAt ?? request.created_at ?? null,
+    rejectionReason: request.rejectionReason ?? request.rejection_reason ?? null,
+    reviewedAt: request.reviewedAt ?? request.reviewed_at ?? null,
+    slaDueAt: request.slaDueAt ?? request.sla_due_at ?? null,
+  };
+}
+
 /**
  * Admin service for the two SLA/decision queues: complaints (24h SLA,
  * resolution has no refund options per platform policy) and reschedule
@@ -59,11 +95,11 @@ export const adminComplaintsService = {
   async getRescheduleRequests(filters = {}) {
     if (config.useMocks) {
       await mockDelay(300);
-      const data = filterMockRescheduleRequests(filters);
+      const data = filterMockRescheduleRequests(filters).map(mapRescheduleRequest);
       return { data, total: data.length };
     }
     const { data } = await client.get(endpoints.admin.rescheduleRequests, { params: filters });
-    return { data: data.data, total: data.meta?.total ?? data.data.length };
+    return { data: data.data.map(mapRescheduleRequest), total: data.meta?.total ?? data.data.length };
   },
 
   async approveReschedule(id, alternativeScheduledAt) {

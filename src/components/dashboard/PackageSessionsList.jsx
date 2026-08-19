@@ -126,6 +126,7 @@ export function PackageSessionsList({ sessions, showType = true }) {
   const [reschedulingSessionId, setReschedulingSessionId] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const createRescheduleRequest = useCreateRescheduleRequest();
+  const activeSession = sessions.find((session) => session.id === reschedulingSessionId) ?? null;
 
   const handleConfirmReschedule = ({ proposedScheduledAt, reason }) => {
     createRescheduleRequest.mutate(
@@ -174,7 +175,8 @@ export function PackageSessionsList({ sessions, showType = true }) {
       {reschedulingSessionId && (
         <RescheduleRequestModal
           isPending={createRescheduleRequest.isPending}
-          error={createRescheduleRequest.error?.message}
+          error={createRescheduleRequest.error}
+          currentScheduledAt={activeSession?.scheduled_at ?? activeSession?.scheduledAt ?? null}
           onConfirm={handleConfirmReschedule}
           onClose={() => setReschedulingSessionId(null)}
         />

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { ApiErrorList } from '@/components/ui';
 import { useT } from '@/hooks/useT';
 
 function toLocalIsoDateTime(date, time) {
@@ -7,25 +8,57 @@ function toLocalIsoDateTime(date, time) {
   return `${date}T${time}:00`;
 }
 
+function getFirstFieldError(error, field) {
+  const messages = error?.errors?.[field];
+  return Array.isArray(messages) && messages.length > 0 ? messages[0] : null;
+}
+
+function isReasonRequired(currentScheduledAt) {
+  if (!currentScheduledAt) return false;
+
+  const scheduledAtMs = new Date(currentScheduledAt).getTime();
+  if (!Number.isFinite(scheduledAtMs)) return false;
+
+  return scheduledAtMs - Date.now() > 24 * 60 * 60 * 1000;
+}
+
 /**
  * لا يوجد مسار تلقائي لتغيير المواعيد — كل طلب يبدأ pending وينتظر قرار
- * الأدمن (approve/reject) صراحةً، بصرف النظر عن السبب. السبب إلزامي فقط إذا
- * كان الموعد المقترح أقرب من نافذة التغيير المرنة (24 ساعة افتراضياً)، لذا
- * نطلبه هنا دائماً لتبسيط الأمر بدل التحقق من الإعداد على الواجهة.
+ * الأدمن (approve/reject) صراحةً. إذا كانت الجلسة الأصلية ما تزال أبعد من
+ * نافذة التغيير المجانية، فالسبب يصبح إلزامياً حسب سياسة الباك إند.
  */
-export function RescheduleRequestModal({ isPending, error, onConfirm, onClose }) {
+export function RescheduleRequestModal({ isPending, error, currentScheduledAt, onConfirm, onClose }) {
   const t = useT();
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [reason, setReason] = useState('');
   const [touched, setTouched] = useState(false);
 
-  const isValid = Boolean(date && time);
+  const proposedScheduledAt = toLocalIsoDateTime(date, time);
+  const proposedAtMs = proposedScheduledAt ? new Date(proposedScheduledAt).getTime() : NaN;
+  const missingDateTime = !date || !time;
+  const invalidPastDateTime = !missingDateTime && (!Number.isFinite(proposedAtMs) || proposedAtMs <= Date.now());
+  const reasonIsRequired = isReasonRequired(currentScheduledAt);
+  const missingReason = reasonIsRequired && reason.trim() === '';
+
+  const proposedDateTimeError =
+    (touched && missingDateTime && t('dashboard.rescheduleModal.dateTimeRequired')) ||
+    (touched && invalidPastDateTime && t('dashboard.rescheduleModal.dateTimeFuture')) ||
+    getFirstFieldError(error, 'proposed_scheduled_at');
+  const reasonError = (touched && missingReason && t('dashboard.rescheduleModal.reasonRequired')) || getFirstFieldError(error, 'reason');
+  const showApiSummary = error && !proposedDateTimeError && !reasonError;
+  const isValid = !missingDateTime && !invalidPastDateTime && !missingReason;
+
+  const rescheduleFieldLabel = (path) => {
+    if (path === 'proposed_scheduled_at') return t('dashboard.rescheduleModal.dateTimeLabel');
+    if (path === 'reason') return t('dashboard.rescheduleModal.reasonLabel');
+    return path;
+  };
 
   const handleConfirm = () => {
     setTouched(true);
     if (!isValid) return;
-    onConfirm({ proposedScheduledAt: toLocalIsoDateTime(date, time), reason: reason.trim() });
+    onConfirm({ proposedScheduledAt, reason: reason.trim() });
   };
 
   return (
@@ -46,9 +79,7 @@ export function RescheduleRequestModal({ isPending, error, onConfirm, onClose })
 
         <p className="mb-4 text-sm text-ink-soft">{t('dashboard.rescheduleModal.hint')}</p>
 
-        {error && (
-          <div className="mb-4 rounded-btn bg-accent-pink/10 px-4 py-3 text-sm text-accent-pink">{error}</div>
-        )}
+        {showApiSummary && <ApiErrorList error={error} labelFor={rescheduleFieldLabel} className="mb-4" />}
 
         <div className="grid grid-cols-2 gap-3">
           <label className="flex flex-col gap-1.5 text-right">
@@ -58,7 +89,7 @@ export function RescheduleRequestModal({ isPending, error, onConfirm, onClose })
               value={date}
               onChange={(e) => setDate(e.target.value)}
               className={`w-full rounded-btn border bg-surface p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
-                touched && !date ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
+                proposedDateTimeError ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
               }`}
             />
           </label>
@@ -69,24 +100,28 @@ export function RescheduleRequestModal({ isPending, error, onConfirm, onClose })
               value={time}
               onChange={(e) => setTime(e.target.value)}
               className={`w-full rounded-btn border bg-surface p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
-                touched && !time ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
+                proposedDateTimeError ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
               }`}
             />
           </label>
         </div>
-        {touched && !isValid && (
-          <span className="mt-1.5 block text-xs text-accent-pink">{t('dashboard.rescheduleModal.dateTimeRequired')}</span>
-        )}
+        {proposedDateTimeError && <span className="mt-1.5 block text-xs text-accent-pink">{proposedDateTimeError}</span>}
 
         <label className="mt-4 flex flex-col gap-1.5 text-right">
           <span className="text-sm font-semibold text-ink">{t('dashboard.rescheduleModal.reasonLabel')}</span>
+          <span className="text-xs text-ink-soft">
+            {reasonIsRequired ? t('dashboard.rescheduleModal.reasonHintRequired') : t('dashboard.rescheduleModal.reasonHintOptional')}
+          </span>
           <textarea
             rows={3}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder={t('dashboard.rescheduleModal.reasonPlaceholder')}
-            className="w-full resize-none rounded-btn border border-line bg-surface p-3 text-sm text-ink placeholder:text-ink-soft/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className={`w-full resize-none rounded-btn border bg-surface p-3 text-sm text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 ${
+              reasonError ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
+            }`}
           />
+          {reasonError && <span className="text-xs text-accent-pink">{reasonError}</span>}
         </label>
 
         <div className="mt-6 flex gap-3">

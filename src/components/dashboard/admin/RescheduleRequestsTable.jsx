@@ -5,16 +5,19 @@ import { useT } from '@/hooks/useT';
 
 export function RescheduleRequestsTable({ requests, onApprove, onApproveWithAlternative, onReject, isActing }) {
   const t = useT();
+  const renderText = (value) => value || '—';
+  const renderDateTime = (value) => formatDateTime(value) || '—';
 
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
-      <table className="w-full min-w-[920px] text-sm">
+      <table className="w-full min-w-[1080px] text-sm">
         <thead>
           <tr className="border-b border-line">
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminComplaints.colTeacher')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminComplaints.colStudent')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminReschedule.colOriginal')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminReschedule.colProposed')}</th>
+            <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminReschedule.colCreated')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminReschedule.colWindow')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminComplaints.colStatus')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminComplaints.colActions')}</th>
@@ -23,16 +26,19 @@ export function RescheduleRequestsTable({ requests, onApprove, onApproveWithAlte
         <tbody className="divide-y divide-line">
           {requests.map((r, i) => (
             <tr key={r.id} className={i % 2 === 1 ? 'bg-[#FAFBFD]' : ''}>
-              <td className="px-4 py-4 text-right font-semibold text-ink">{r.teacherName}</td>
-              <td className="px-4 py-4 text-right text-ink-soft">{r.studentName}</td>
+              <td className="px-4 py-4 text-right font-semibold text-ink">{renderText(r.teacherName)}</td>
+              <td className="px-4 py-4 text-right text-ink-soft">{renderText(r.studentName)}</td>
               <td className="px-4 py-4 text-right text-ink-soft" dir="ltr">
-                {formatDateTime(r.originalScheduledAt)}
+                {renderDateTime(r.originalScheduledAt)}
               </td>
               <td className="px-4 py-4 text-right text-ink-soft" dir="ltr">
-                {formatDateTime(r.proposedScheduledAt)}
+                {renderDateTime(r.proposedScheduledAt)}
                 {r.alternativeScheduledAt && (
-                  <div className="text-xs text-price">{formatDateTime(r.alternativeScheduledAt)}</div>
+                  <div className="text-xs text-price">{renderDateTime(r.alternativeScheduledAt)}</div>
                 )}
+              </td>
+              <td className="px-4 py-4 text-right text-ink-soft" dir="ltr">
+                {renderDateTime(r.createdAt)}
               </td>
               <td className="px-4 py-4 text-right">
                 <span

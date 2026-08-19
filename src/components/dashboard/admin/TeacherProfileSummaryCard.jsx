@@ -1,5 +1,5 @@
 import { Mail, Phone, CalendarDays, GraduationCap, MapPin, Globe, AlertTriangle } from 'lucide-react';
-import { Avatar } from '@/components/ui';
+import { ApiErrorList, Avatar } from '@/components/ui';
 import { TeacherStatusBadge } from './TeacherStatusBadge';
 import { TEACHER_TYPE_LABELS } from '@/mocks/admin.mock';
 import { QUALIFICATION_LABELS, EXPERIENCE_LABELS } from '@/services/teacherService';
@@ -37,9 +37,16 @@ function ChipsRow({ label, items }) {
   );
 }
 
-export function TeacherProfileSummaryCard({ teacher, actions, isActing }) {
+export function TeacherProfileSummaryCard({ teacher, actions, isActing, actionError = null }) {
   const t = useT();
   const isTrainingCenter = teacher.type === 'training_center';
+  const canApprove = teacher.canApprove ?? teacher.status === 'pending';
+  const showApprovalBlockedReason = teacher.status === 'pending' && !canApprove && teacher.approvalBlockedReason;
+
+  const teacherActionErrorLabel = (path) => {
+    if (path === 'status') return t('dashboard.adminTeacherDetail.approveTeacher');
+    return path;
+  };
 
   return (
     <div className="rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card sm:p-6">
@@ -123,17 +130,31 @@ export function TeacherProfileSummaryCard({ teacher, actions, isActing }) {
         </div>
       )}
 
+      {showApprovalBlockedReason && (
+        <div className="mt-4 flex items-start gap-2 rounded-xl bg-[#FDF6E8] p-3 text-right">
+          <AlertTriangle size={16} className="mt-0.5 shrink-0 text-[#B7791F]" />
+          <div>
+            <div className="text-xs font-bold text-[#B7791F]">{t('dashboard.adminTeacherDetail.approvalBlockedTitle')}</div>
+            <div className="text-sm text-ink">{teacher.approvalBlockedReason}</div>
+          </div>
+        </div>
+      )}
+
+      {actionError && <ApiErrorList error={actionError} labelFor={teacherActionErrorLabel} className="mt-4" />}
+
       <div className="mt-6 flex flex-wrap gap-3">
         {teacher.status === 'pending' && (
           <>
-            <button
-              type="button"
-              disabled={isActing}
-              onClick={actions.onApprove}
-              className="flex-1 rounded-xl bg-success py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-            >
-              {t('dashboard.adminTeacherDetail.approveTeacher')}
-            </button>
+            {canApprove && (
+              <button
+                type="button"
+                disabled={isActing}
+                onClick={actions.onApprove}
+                className="flex-1 rounded-xl bg-success py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              >
+                {t('dashboard.adminTeacherDetail.approveTeacher')}
+              </button>
+            )}
             <button
               type="button"
               disabled={isActing}
@@ -153,17 +174,6 @@ export function TeacherProfileSummaryCard({ teacher, actions, isActing }) {
             className="flex-1 rounded-xl border border-accent-pink py-3 text-sm font-medium text-accent-pink transition-colors hover:bg-accent-pink/5 disabled:opacity-50"
           >
             {t('dashboard.adminTeacherDetail.suspendTeacher')}
-          </button>
-        )}
-
-        {teacher.status === 'rejected' && (
-          <button
-            type="button"
-            disabled={isActing}
-            onClick={actions.onApprove}
-            className="flex-1 rounded-xl bg-success py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
-            {t('dashboard.adminTeacherDetail.approveTeacher')}
           </button>
         )}
 

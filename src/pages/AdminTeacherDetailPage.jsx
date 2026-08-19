@@ -89,6 +89,7 @@ export function AdminTeacherDetailPage() {
 
   const activeModalMutation =
     modal?.type === 'rejectTeacher' ? rejectTeacher : modal?.type === 'suspendTeacher' ? suspendTeacher : rejectDocument;
+  const teacherActionError = approveTeacher.isError ? approveTeacher.error : reactivateTeacher.isError ? reactivateTeacher.error : null;
 
   return (
     <AdminDashboardLayout>
@@ -114,6 +115,7 @@ export function AdminTeacherDetailPage() {
             <TeacherProfileSummaryCard
               teacher={data.teacher}
               isActing={isActing}
+              actionError={teacherActionError}
               actions={{
                 onApprove: () => approveTeacher.mutate(id),
                 onReject: () => setModal({ type: 'rejectTeacher' }),
