@@ -203,11 +203,10 @@ function DashboardLayoutInner({ children }) {
 
             <NavLink
               to="/"
-              className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-line/40 transition-colors"
+              className="hidden sm:flex items-center gap-2 rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-[#2D2D2D] hover:bg-line/40 transition-colors"
               aria-label="العودة للموقع"
-              title="العودة للموقع"
             >
-              <Globe size={18} className="text-[#2D2D2D]" />
+              العودة للمنصة
             </NavLink>
             <NotificationsBell
               buttonClassName="relative hidden h-10 w-10 items-center justify-center rounded-full hover:bg-line/40 sm:flex"
