@@ -42,14 +42,18 @@ export function SessionsPage() {
     const search = filters.search.trim().toLowerCase();
     return sessions.filter((session) => {
       if (activeTab !== 'all' && session.category !== activeTab) return false;
-      if (filters.status && session.status !== filters.status) return false;
+      // الحالة تُصفّى من السيرفر فعلياً (params.status في useSessions أدناه) —
+      // لا نعيد تصفيتها هنا. كانت تُعاد تصفيتها بمقارنة session.status (بعد
+      // تبسيطه عبر mapSessionStatus إلى upcoming/attended/cancelled) بقيمة
+      // "reschedule_pending" الخام حين يُختار ذلك الفلتر تحديداً، فلا تتطابقان
+      // أبداً وتختفي كل النتائج التي أعادها السيرفر بصحة تامة.
       if (filters.subject && session.subject !== filters.subject) return false;
       if (search && !`${session.teacherName} ${session.subject} ${session.sessionType}`.toLowerCase().includes(search)) {
         return false;
       }
       return true;
     });
-  }, [sessions, activeTab, filters]);
+  }, [sessions, activeTab, filters.subject, filters.search]);
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
