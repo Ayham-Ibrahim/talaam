@@ -1183,6 +1183,9 @@ export const dashboardService = {
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,
+        // الأقرب موعداً أولاً — الافتراضي في الـ API نفسه عكسي (الأحدث تاريخاً
+        // أولاً) لأنه المسار العام المشترك مع نقاط استدعاء أخرى، فيُطلَب هنا صراحة.
+        sort: params.sort ?? 'asc',
         ...(params.status ? { status: params.status } : {}),
       },
     });

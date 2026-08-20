@@ -106,8 +106,15 @@ export function SessionsPage() {
             ) : (
               <>
                 <SessionsList sessions={filteredSessions} />
-                <div className="flex justify-center">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+                  {sessionsResponse?.meta && (
+                    <span className="text-sm text-ink-soft">
+                      {t('dashboard.sessionsPage.showingPrefix')} {(page - 1) * PER_PAGE + 1} -{' '}
+                      {Math.min(page * PER_PAGE, sessionsResponse.meta.total)} {t('dashboard.sessionsPage.showingOf')}{' '}
+                      {sessionsResponse.meta.total} {t('dashboard.sessionsPage.unit')}
+                    </span>
+                  )}
                 </div>
               </>
             )}

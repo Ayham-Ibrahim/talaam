@@ -8,7 +8,12 @@ import { useJoinSession } from '@/hooks/useSessionJoin';
 import { handleSessionJoin } from '@/lib/joinSession';
 import { useT } from '@/hooks/useT';
 
-function SessionCard({ session, onReschedule }) {
+/**
+ * جدول بدل بطاقات متفرقة — عمود الإجراءات هو الأخير في الـ DOM عمداً، فيظهر
+ * في أقصى يسار الصف (اتجاه RTL: أول عنصر بالـ DOM يظهر يميناً)، بنفس تعامل
+ * TeacherSessionsTable في لوحة المعلم.
+ */
+function SessionRow({ session, isEven, onReschedule }) {
   const t = useT();
   const navigate = useNavigate();
   const joinSession = useJoinSession();
@@ -16,100 +21,75 @@ function SessionCard({ session, onReschedule }) {
   const statusStyle = SESSION_STATUS_STYLES[status];
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-white p-4 shadow-card">
-      <div className="flex items-center gap-2">
-        {session.canCancel && (
-          <button
-            type="button"
-            onClick={() => navigate('/contact')}
-            title={t('dashboard.rescheduleModal.sessionNotice')}
-            className="rounded-xl border border-[#FF383C] bg-[#FDF0F0] px-4 py-2.5 text-sm text-[#FF383C] hover:bg-[#FF383C]/10"
-          >
-            {t('dashboard.myPackages.cancel')}
-          </button>
-        )}
-        {session.canReschedule && (
-          <button
-            type="button"
-            onClick={() => onReschedule(session.id)}
-            className="rounded-xl border border-primary bg-[#EDF0F5] px-4 py-2.5 text-sm text-primary hover:bg-primary/10"
-          >
-            {t('dashboard.changeAppointment')}
-          </button>
-        )}
-        {session.canJoin && (
-          <button
-            type="button"
-            disabled={joinSession.isPending}
-            onClick={() => handleSessionJoin(joinSession.mutateAsync, session.id)}
-            className="rounded-xl border-2 border-primary bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
-          >
-            {t('dashboard.join')}
-          </button>
-        )}
-      </div>
-
-      <div className="flex flex-1 flex-wrap items-center justify-end gap-4 text-sm">
-        {session.countdown && (
-          <>
-            <div className="flex items-center gap-3">
-              <div className="text-center">
-                <div className="font-bold text-[#B00852]">{String(session.countdown.days).padStart(2, '0')}</div>
-                <div className="text-ink-soft">{t('dashboard.day')}</div>
-              </div>
-              <div className="text-center">
-                <div className="font-bold text-[#B00852]">{String(session.countdown.hours).padStart(2, '0')}</div>
-                <div className="text-ink-soft">{t('dashboard.hour')}</div>
-              </div>
-              <div className="text-center">
-                <div className="font-bold text-[#B00852]">{String(session.countdown.minutes).padStart(2, '0')}</div>
-                <div className="text-ink-soft">{t('dashboard.minute')}</div>
-              </div>
-            </div>
-            <span className="h-8 w-px bg-line" />
-          </>
-        )}
-
-        <div className="text-right">
-          <div className="font-semibold text-ink">
-            {session.time} {session.period}
+    <tr className={isEven ? 'bg-[#F7F8FD]' : ''}>
+      <td className="px-4 py-4 text-right">
+        <div className="flex items-center justify-end gap-2">
+          <div className="text-right">
+            <div className="font-semibold text-ink">{session.teacherName}</div>
+            <div className="text-xs text-ink-soft">{session.subject}</div>
           </div>
-          <div className="text-ink-soft">
-            {session.durationMinutes} {t('teacher.sessionMinutes')}
-          </div>
+          <Avatar name={session.teacherName} src={session.teacherAvatar} size="sm" />
         </div>
-
-        <span className="h-8 w-px bg-line" />
-
-        <div className="text-right">
-          <div className="font-semibold text-ink">{session.day}</div>
-          <div className="text-ink-soft">{session.date}</div>
+      </td>
+      <td className="px-4 py-4 text-center">
+        <span className="font-semibold" style={{ color: getSessionTypeColor(session.sessionType) }}>
+          {session.sessionType}
+        </span>
+      </td>
+      <td className="px-4 py-4 text-center text-ink">
+        <div className="font-semibold">{session.day}</div>
+        <div className="text-xs text-ink-soft">{session.date}</div>
+      </td>
+      <td className="px-4 py-4 text-center text-ink" dir="ltr">
+        <div className="font-semibold">
+          {session.time} {session.period}
         </div>
-
-        <span className="h-8 w-px bg-line" />
-
+        <div className="text-xs text-ink-soft">
+          {session.durationMinutes} {t('teacher.sessionMinutes')}
+        </div>
+      </td>
+      <td className="px-4 py-4 text-center">
         <span
           className="rounded-pill px-3 py-1 text-xs font-bold"
           style={{ backgroundColor: statusStyle.bg, color: statusStyle.color }}
         >
           {t(SESSION_STATUS_LABEL_KEYS[status])}
         </span>
-
-        <span className="h-8 w-px bg-line" />
-
-        <span className="font-semibold" style={{ color: getSessionTypeColor(session.sessionType) }}>
-          {session.sessionType}
-        </span>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <div className="text-right">
-          <div className="font-semibold text-ink">{session.teacherName}</div>
-          <div className="text-sm text-ink-soft">{session.subject}</div>
+      </td>
+      <td className="px-4 py-4 text-center">
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {session.canJoin && (
+            <button
+              type="button"
+              disabled={joinSession.isPending}
+              onClick={() => handleSessionJoin(joinSession.mutateAsync, session.id)}
+              className="rounded-xl border-2 border-primary bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+            >
+              {t('dashboard.join')}
+            </button>
+          )}
+          {session.canReschedule && (
+            <button
+              type="button"
+              onClick={() => onReschedule(session.id)}
+              className="rounded-xl border border-primary bg-[#EDF0F5] px-4 py-2 text-xs font-medium text-primary hover:bg-primary/10"
+            >
+              {t('dashboard.changeAppointment')}
+            </button>
+          )}
+          {session.canCancel && (
+            <button
+              type="button"
+              onClick={() => navigate('/contact')}
+              title={t('dashboard.rescheduleModal.sessionNotice')}
+              className="rounded-xl border border-[#FF383C] bg-[#FDF0F0] px-4 py-2 text-xs text-[#FF383C] hover:bg-[#FF383C]/10"
+            >
+              {t('dashboard.myPackages.cancel')}
+            </button>
+          )}
         </div>
-        <Avatar name={session.teacherName} src={session.teacherAvatar} size="md" />
-      </div>
-    </div>
+      </td>
+    </tr>
   );
 }
 
@@ -142,16 +122,34 @@ export function SessionsList({ sessions }) {
       {successMessage && (
         <div className="rounded-2xl bg-success-light px-4 py-3 text-sm font-medium text-success">{successMessage}</div>
       )}
-      {sessions.map((session) => (
-        <SessionCard
-          key={session.id}
-          session={session}
-          onReschedule={(id) => {
-            createRescheduleRequest.reset();
-            setReschedulingSessionId(id);
-          }}
-        />
-      ))}
+
+      <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
+        <table className="w-full min-w-[860px] text-sm">
+          <thead>
+            <tr className="border-b border-line">
+              <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.sessionsTable.teacher')}</th>
+              <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.sessionsTable.type')}</th>
+              <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.sessionsTable.date')}</th>
+              <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.sessionsTable.time')}</th>
+              <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.sessionsTable.status')}</th>
+              <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.sessionsTable.action')}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-line">
+            {sessions.map((session, i) => (
+              <SessionRow
+                key={session.id}
+                session={session}
+                isEven={i % 2 === 1}
+                onReschedule={(id) => {
+                  createRescheduleRequest.reset();
+                  setReschedulingSessionId(id);
+                }}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {reschedulingSessionId && (
         <RescheduleRequestModal
