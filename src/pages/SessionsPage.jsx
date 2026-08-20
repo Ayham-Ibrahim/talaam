@@ -5,6 +5,7 @@ import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { SessionsFilterTabs } from '@/components/dashboard/SessionsFilterTabs';
 import { SessionsFilterBar } from '@/components/dashboard/SessionsFilterBar';
 import { SessionsList } from '@/components/dashboard/SessionsList';
+import { Pagination } from '@/components/dashboard/Pagination';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useSessions } from '@/hooks/useDashboard';
@@ -12,13 +13,22 @@ import { SESSION_STATUS_LABEL_KEYS } from '@/mocks/dashboard.mock';
 import { useT } from '@/hooks/useT';
 
 const DEFAULT_FILTERS = { status: '', subject: '', search: '' };
+const PER_PAGE = 10;
 
 export function SessionsPage() {
   const t = useT();
   const { user } = useAuth();
-  const { data: sessions, isLoading, isError, refetch } = useSessions();
   const [activeTab, setActiveTab] = useState('all');
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [page, setPage] = useState(1);
+  const { data: sessionsResponse, isLoading, isError, refetch } = useSessions({
+    page,
+    per_page: PER_PAGE,
+    status: filters.status || undefined,
+  });
+
+  const sessions = sessionsResponse?.data ?? [];
+  const totalPages = Math.max(1, sessionsResponse?.meta?.last_page ?? 1);
 
   const subjects = useMemo(() => [...new Set((sessions ?? []).map((s) => s.subject))], [sessions]);
 
@@ -41,12 +51,22 @@ export function SessionsPage() {
     });
   }, [sessions, activeTab, filters]);
 
+  const handleFilterChange = (key, value) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+    setPage(1);
+  };
+
+  const handleTabChange = (value) => {
+    setActiveTab(value);
+    setPage(1);
+  };
+
   if (!user) return <Navigate to="/login" replace />;
 
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-6">
-        <SessionsFilterTabs active={activeTab} onChange={setActiveTab} />
+        <SessionsFilterTabs active={activeTab} onChange={handleTabChange} />
 
         {isError ? (
           <ErrorState onRetry={refetch} />
@@ -62,7 +82,7 @@ export function SessionsPage() {
               statuses={statusOptions}
               subjects={subjects}
               filters={filters}
-              onChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
+              onChange={handleFilterChange}
             />
 
             {sessions.length === 0 ? (
@@ -84,7 +104,12 @@ export function SessionsPage() {
                 }
               />
             ) : (
-              <SessionsList sessions={filteredSessions} />
+              <>
+                <SessionsList sessions={filteredSessions} />
+                <div className="flex justify-center">
+                  <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+                </div>
+              </>
             )}
           </>
         )}

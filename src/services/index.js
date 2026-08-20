@@ -510,17 +510,57 @@ export const metaService = {
 
 const SESSION_TYPE_LABELS = { individual: 'جلسة فردية', group: 'جلسة جماعية', training: 'دورة تدريبية' };
 
+function getSessionTiming(scheduledAt, durationMinutes = 0) {
+  if (!scheduledAt) return { startsAtMs: NaN, endsAtMs: NaN, nowMs: Date.now() };
+
+  const startsAtMs = new Date(scheduledAt).getTime();
+  const safeDurationMinutes = Number.isFinite(Number(durationMinutes)) ? Number(durationMinutes) : 0;
+  const endsAtMs = startsAtMs + safeDurationMinutes * 60 * 1000;
+
+  return { startsAtMs, endsAtMs, nowMs: Date.now() };
+}
+
 /** ClassSession.status → the 3-state vocabulary the student dashboard UI understands */
-function mapSessionStatus(status, scheduledAt = null) {
+function mapSessionStatus(status, scheduledAt = null, durationMinutes = 0) {
   if (status === 'completed') return 'attended';
   if (['cancelled', 'no_show_student', 'no_show_teacher'].includes(status)) return 'cancelled';
   if (scheduledAt) {
-    const scheduledAtMs = new Date(scheduledAt).getTime();
-    if (Number.isFinite(scheduledAtMs) && scheduledAtMs <= Date.now()) {
+    const { endsAtMs, nowMs } = getSessionTiming(scheduledAt, durationMinutes);
+    if (Number.isFinite(endsAtMs) && nowMs > endsAtMs) {
       return 'attended';
     }
   }
   return 'upcoming'; // scheduled, reschedule_pending, rescheduled, active, suspended
+}
+
+function canJoinSession(session, joinUrl) {
+  if (!joinUrl) return false;
+  if (['completed', 'cancelled', 'no_show_student', 'no_show_teacher'].includes(session.status)) {
+    return false;
+  }
+
+  const { startsAtMs, endsAtMs, nowMs } = getSessionTiming(session.scheduled_at, session.duration_min);
+  if (!Number.isFinite(startsAtMs) || !Number.isFinite(endsAtMs)) return false;
+
+  return nowMs >= startsAtMs && nowMs <= endsAtMs;
+}
+
+function hasPendingRescheduleRequest(session) {
+  if (session.has_pending_reschedule_request != null) {
+    return Boolean(session.has_pending_reschedule_request);
+  }
+
+  const requests = session.reschedule_requests ?? session.rescheduleRequests ?? [];
+  return requests.some((request) => request.status === 'pending');
+}
+
+function pendingRescheduleRequestCreatedAt(session) {
+  if (session.pending_reschedule_request_created_at) {
+    return session.pending_reschedule_request_created_at;
+  }
+
+  const requests = session.reschedule_requests ?? session.rescheduleRequests ?? [];
+  return requests.find((request) => request.status === 'pending')?.created_at ?? null;
 }
 
 /** Booking/Enrollment.status → the 3-state vocabulary the invoices UI understands */
@@ -590,8 +630,10 @@ function computeCountdown(scheduledAt) {
 function mapSessionListRow(session) {
   const category = sessionCategory(session);
   const { time, period } = formatSessionTime(session.scheduled_at);
-  const status = mapSessionStatus(session.status, session.scheduled_at);
+  const hasPendingReschedule = hasPendingRescheduleRequest(session);
+  const status = hasPendingReschedule ? 'reschedule_pending' : mapSessionStatus(session.status, session.scheduled_at, session.duration_min);
   const isUpcoming = status === 'upcoming';
+  const canJoin = canJoinSession(session, session.join_url_student ?? null);
   return {
     id: session.id,
     scheduledAt: session.scheduled_at,
@@ -608,9 +650,11 @@ function mapSessionListRow(session) {
     durationMinutes: session.duration_min,
     countdown: isUpcoming ? computeCountdown(session.scheduled_at) : null,
     joinUrl: session.join_url_student ?? null,
-    canJoin: isUpcoming && Boolean(session.join_url_student),
-    canReschedule: isUpcoming,
+    canJoin,
+    canReschedule: isUpcoming && !hasPendingReschedule,
     canCancel: isUpcoming,
+    hasPendingRescheduleRequest: hasPendingReschedule,
+    pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),
   };
 }
 
@@ -629,13 +673,14 @@ function mapUpcomingSessionRow(session) {
     period,
     durationMinutes: session.duration_min,
     countdown: computeCountdown(session.scheduled_at),
-    joinUrl: session.join_url_student ?? null,
+    joinUrl: canJoinSession(session, session.join_url_student ?? null) ? session.join_url_student : null,
   };
 }
 
 /** GET /class-sessions row → calendar day-cell row */
 function mapCalendarSessionRow(session) {
-  const status = mapSessionStatus(session.status, session.scheduled_at);
+  const hasPendingReschedule = hasPendingRescheduleRequest(session);
+  const status = hasPendingReschedule ? 'reschedule_pending' : mapSessionStatus(session.status, session.scheduled_at, session.duration_min);
   const { time, period } = formatSessionTime(session.scheduled_at);
   return {
     id: session.id,
@@ -650,14 +695,17 @@ function mapCalendarSessionRow(session) {
     period,
     durationMinutes: session.duration_min,
     countdown: status === 'upcoming' ? computeCountdown(session.scheduled_at) : null,
-    canReschedule: status === 'upcoming',
-    joinUrl: session.join_url_student ?? null,
+    canReschedule: status === 'upcoming' && !hasPendingReschedule,
+    joinUrl: canJoinSession(session, session.join_url_student ?? null) ? session.join_url_student : null,
+    hasPendingRescheduleRequest: hasPendingReschedule,
+    pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),
   };
 }
 
 /** Same as mapCalendarSessionRow but for the teacher's own calendar (join_url_teacher, no teacherName/Avatar — it's their own session) */
 function mapTeacherCalendarSessionRow(session) {
-  const status = mapSessionStatus(session.status, session.scheduled_at);
+  const hasPendingReschedule = hasPendingRescheduleRequest(session);
+  const status = hasPendingReschedule ? 'reschedule_pending' : mapSessionStatus(session.status, session.scheduled_at, session.duration_min);
   const { time, period } = formatSessionTime(session.scheduled_at);
   return {
     id: session.id,
@@ -670,8 +718,10 @@ function mapTeacherCalendarSessionRow(session) {
     period,
     durationMinutes: session.duration_min,
     countdown: status === 'upcoming' ? computeCountdown(session.scheduled_at) : null,
-    canReschedule: status === 'upcoming',
-    joinUrl: session.join_url_teacher ?? null,
+    canReschedule: status === 'upcoming' && !hasPendingReschedule,
+    joinUrl: canJoinSession(session, session.join_url_teacher ?? null) ? session.join_url_teacher : null,
+    hasPendingRescheduleRequest: hasPendingReschedule,
+    pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),
   };
 }
 
@@ -704,6 +754,7 @@ function mapBookingToPackageCard(booking) {
     purchaseDate: formatDate(booking.created_at),
     expiryDate: booking.expires_at ? formatDate(booking.expires_at) : null,
     price: Number(booking.amount_paid ?? 0),
+    cancellationReason: booking.cancellation_reason ?? null,
   };
 }
 
@@ -1111,13 +1162,34 @@ export const dashboardService = {
   },
 
   /** Every class session the student attends, mapped into the flat "الجلسات" list */
-  async getSessions() {
+  async getSessions(params = {}) {
     if (config.useMocks) {
       await mockDelay(300);
-      return mockAllSessions;
+      const page = Number(params.page ?? 1);
+      const perPage = Number(params.per_page ?? 10);
+      const sorted = [...mockAllSessions];
+      const startIndex = (page - 1) * perPage;
+      return {
+        data: sorted.slice(startIndex, startIndex + perPage),
+        meta: {
+          current_page: page,
+          per_page: perPage,
+          total: sorted.length,
+          last_page: Math.max(1, Math.ceil(sorted.length / perPage)),
+        },
+      };
     }
-    const { data } = await client.get(endpoints.classSessions.list, { params: { per_page: 300 } });
-    return data.data.map(mapSessionListRow);
+    const { data } = await client.get(endpoints.classSessions.list, {
+      params: {
+        page: params.page ?? 1,
+        per_page: params.per_page ?? 10,
+        ...(params.status ? { status: params.status } : {}),
+      },
+    });
+    return {
+      data: data.data.map(mapSessionListRow),
+      meta: data.meta,
+    };
   },
 
   /**

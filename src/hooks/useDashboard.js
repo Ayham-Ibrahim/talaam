@@ -128,10 +128,11 @@ export function useTeacherCalendarSessions() {
   });
 }
 
-export function useSessions() {
+export function useSessions(params = {}) {
   return useQuery({
-    queryKey: queryKeys.dashboard.sessions(),
-    queryFn: () => dashboardService.getSessions(),
+    queryKey: queryKeys.dashboard.sessions(params),
+    queryFn: () => dashboardService.getSessions(params),
+    keepPreviousData: true,
   });
 }
 

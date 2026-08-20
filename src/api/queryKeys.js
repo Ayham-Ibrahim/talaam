@@ -41,7 +41,7 @@ export const queryKeys = {
     teacher: () => ['dashboard', 'teacher'],
     calendarSessions: () => ['dashboard', 'calendar-sessions'],
     teacherCalendarSessions: () => ['dashboard', 'teacher-calendar-sessions'],
-    sessions: () => ['dashboard', 'sessions'],
+    sessions: (params = {}) => ['dashboard', 'sessions', params],
     invoices: () => ['dashboard', 'invoices'],
     packagesList: () => ['dashboard', 'packages-list'],
     teacherPackagesList: () => ['dashboard', 'teacher-packages-list'],

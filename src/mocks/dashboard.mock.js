@@ -391,12 +391,14 @@ export function getSessionTypeColor(label) {
 /** Session status badge colors, shared across all session list components */
 export const SESSION_STATUS_STYLES = {
   upcoming: { bg: '#F0FAFD', color: '#6BCEEE' },
+  reschedule_pending: { bg: '#FEF3E2', color: '#B7791F' },
   attended: { bg: '#F0FDF2', color: '#34C759' },
   cancelled: { bg: '#FDF0F0', color: '#FF383C' },
 };
 
 export const SESSION_STATUS_LABEL_KEYS = {
   upcoming: 'dashboard.statusUpcoming',
+  reschedule_pending: 'dashboard.statusReschedulePending',
   attended: 'dashboard.statusAttended',
   cancelled: 'dashboard.myPackages.statusCancelled',
 };

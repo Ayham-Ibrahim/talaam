@@ -26,6 +26,7 @@ export function PackageDetailsPage() {
   const [kind, rawId] = String(id).split('-');
   // بلا "بانتظار موافقة المعلم" للتسجيل في دورة — التسجيل يُؤكَّد بالدفع مباشرة، لا موافقة معلم وسيطة كالحجز الفردي
   const isPendingRequest = kind === 'booking' && data?.package?.status === 'pending_teacher_confirmation';
+  const isExpiredPendingRequest = kind === 'booking' && data?.package?.status === 'expired' && !!data?.package?.cancellationReason;
   const isPendingPayment = ['booking', 'enrollment'].includes(kind) && data?.package?.status === 'pending_payment';
   const checkout = kind === 'enrollment' ? checkoutEnrollment : checkoutBooking;
 
@@ -73,6 +74,13 @@ export function PackageDetailsPage() {
             <div className="flex items-center gap-2 rounded-2xl bg-[#FFF6E5] p-4 text-sm font-medium text-[#B8860B]">
               <Clock3 size={18} />
               {t('dashboard.myPackages.pendingTeacherConfirmation')}
+            </div>
+          )}
+
+          {isExpiredPendingRequest && (
+            <div className="flex items-center gap-2 rounded-2xl bg-[#FDF0F0] p-4 text-sm font-medium text-[#C03A2B]">
+              <Clock3 size={18} />
+              {data.package.cancellationReason || t('dashboard.myPackages.expiredTeacherConfirmation')}
             </div>
           )}
 
