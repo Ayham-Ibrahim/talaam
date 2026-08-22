@@ -11,6 +11,62 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { useAuth, useLogout } from '@/hooks/useAuth';
 import { useT } from '@/hooks/useT';
 
+/**
+ * كانت صورة البروفايل تنقل مباشرة للوحة التحكم بلا أي خيار آخر — تسجيل
+ * الخروج كان زر أيقونة منفصلاً بجانبها، مما جعل نية الضغط على الصورة نفسها
+ * غامضة (تنقّل فوري بلا تأكيد ولا خيارات). الآن الضغط عليها يفتح قائمة صغيرة
+ * فيها الخياران معاً — نفس نمط NotificationsBell (زر تبديل + طبقة شفافة
+ * لإغلاقها بالضغط خارجها).
+ */
+function AccountMenu({ user, dashboardPath, dashboardTitle, onLogout }) {
+  const t = useT();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative hidden sm:block">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-label={dashboardTitle}
+        className="flex items-center gap-2 rounded-pill py-1 pl-3 pr-1 hover:bg-line/50 transition-colors mr-2"
+      >
+        <Avatar name={user.name} size="sm" className="!w-8 !h-8 text-xs" />
+        <span className="text-sm font-medium text-ink max-w-[110px] truncate">{user.name}</span>
+      </button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div
+            dir="rtl"
+            className="absolute left-0 top-full z-20 mt-2 w-48 overflow-hidden rounded-2xl border border-line bg-white py-1.5 shadow-lift"
+          >
+            <NavLink
+              to={dashboardPath}
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-ink hover:bg-line/30"
+            >
+              <LayoutDashboard size={16} className="text-ink-soft" />
+              {t('nav.dashboard')}
+            </NavLink>
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                onLogout();
+              }}
+              className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-accent-pink hover:bg-line/30"
+            >
+              <LogOut size={16} />
+              {t('dashboard.logout')}
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function Navbar() {
   const t = useT();
   const navigate = useNavigate();
@@ -72,7 +128,9 @@ export function Navbar() {
               {open ? <X size={22} /> : <Menu size={22} />}
             </motion.div>
           </button>
-          <Logo />
+          <NavLink to="/" aria-label={t('nav.home')}>
+            <Logo />
+          </NavLink>
         </div>
 
         {/* Center: nav links */}
@@ -136,22 +194,18 @@ export function Navbar() {
               >
                 <LayoutDashboard size={18} />
               </NavLink>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => logout.mutate()}
-                className="hidden sm:flex w-10 h-10 text-ink-soft rounded-full hover:bg-line/50 items-center justify-center shrink-0"
-                aria-label={t('dashboard.logout')}
-              >
-                <LogOut size={18} />
-              </motion.button>
-              <NavLink
-                to={dashboardPath}
-                className="hidden sm:flex items-center gap-2 rounded-pill py-1 pl-3 pr-1 hover:bg-line/50 transition-colors mr-2"
-              >
-                <Avatar name={user.name} size="sm" className="!w-8 !h-8 text-xs" />
-                <span className="text-sm font-medium text-ink max-w-[110px] truncate">{user.name}</span>
-              </NavLink>
+              <AccountMenu
+                user={user}
+                dashboardPath={dashboardPath}
+                dashboardTitle={t(
+                  user?.role === 'teacher'
+                    ? 'dashboard.teacherTitle'
+                    : user?.role === 'admin'
+                      ? 'dashboard.adminTitle'
+                      : 'dashboard.studentTitle'
+                )}
+                onLogout={() => logout.mutate()}
+              />
             </>
           ) : (
             <>
