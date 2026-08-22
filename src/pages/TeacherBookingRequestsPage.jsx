@@ -24,9 +24,18 @@ function RequestRow({ request, onApprove, onReject, isPending }) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-ink">
-          <CalendarClock size={16} className="text-ink-soft" />
-          {formatDate(request.requestedDate)} · {request.requestedStartTime?.slice(0, 5)}
+        <div className="flex flex-col items-end gap-1 text-sm text-ink">
+          {request.requestedSlots.map((slot, i) => (
+            <div key={i} className="flex items-center gap-2">
+              {request.requestedSlots.length > 1 && (
+                <span className="text-xs font-bold text-primary">
+                  {t('dashboard.bookingRequests.sessionLabel')} {i + 1}
+                </span>
+              )}
+              {formatDate(slot.date)} · {slot.start_time?.slice(0, 5)}
+              <CalendarClock size={16} className="text-ink-soft" />
+            </div>
+          ))}
         </div>
 
         <div className="flex items-center gap-2">

@@ -1,4 +1,4 @@
-import { Medal } from 'lucide-react';
+import { BookOpen, CalendarDays, Layers, Medal, Users } from 'lucide-react';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useT } from '@/hooks/useT';
 import { useCurrencyStore } from '@/store';
@@ -13,12 +13,23 @@ const PACKAGE_ACCENTS = [
   { bg: '#E3F5EC', solid: '#2E9E6B' }, // green
 ];
 
+/** Compact weekday+time summary for a group package's fixed schedule, e.g. "إثنين 5:00، أربعاء 5:00" */
+function scheduleSummary(schedules, weekdays) {
+  if (!schedules?.length) return null;
+  return schedules
+    .map((s) => `${weekdays[s.day_of_week]} ${(s.start_time ?? '').slice(0, 5)}`)
+    .join('، ');
+}
+
 function PackageCard({ pkg, index, selected, onSelect }) {
   const t = useT();
   const currency = useCurrencyStore((s) => s.currency);
   const accent = PACKAGE_ACCENTS[index % PACKAGE_ACCENTS.length];
   const hasDiscount = !!pkg.discountPercent;
   const originalPrice = hasDiscount ? Math.round(pkg.price / (1 - pkg.discountPercent / 100)) : null;
+  const isGroup = pkg.sessionFormat === 'group';
+  const weekdays = t('booking.weekdays');
+  const schedule = isGroup ? scheduleSummary(pkg.schedules, weekdays) : null;
 
   return (
     <div
@@ -42,10 +53,47 @@ function PackageCard({ pkg, index, selected, onSelect }) {
 
       <div className="text-start">
         <h4 className="font-bold text-ink">{pkg.title}</h4>
-        <p className="mt-0.5 text-xs text-ink-soft">
-          {pkg.note ?? `${pkg.durationPerSession} ${t('teacher.sessionMinutes')}`}
-        </p>
+        {pkg.description && <p className="mt-0.5 line-clamp-2 text-xs text-ink-soft">{pkg.description}</p>}
       </div>
+
+      {/* Subject + format pills */}
+      <div className="flex flex-wrap items-center justify-end gap-1.5">
+        {pkg.subject && (
+          <span className="rounded-pill bg-canvas px-2.5 py-1 text-[11px] font-semibold text-ink-soft">{pkg.subject}</span>
+        )}
+        <span className="inline-flex items-center gap-1 rounded-pill bg-[var(--accent-bg)] px-2.5 py-1 text-[11px] font-semibold text-[var(--accent)]">
+          {isGroup ? <Users size={11} /> : <BookOpen size={11} />}
+          {isGroup ? t('teacher.groupFormat') : t('teacher.individualFormat')}
+        </span>
+      </div>
+
+      {/* Facts row: sessions count, duration, seats (group only) */}
+      <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1 text-xs text-ink-soft">
+        {pkg.durationPerSession != null && (
+          <span>
+            {pkg.durationPerSession} {t('teacher.sessionMinutes')}
+          </span>
+        )}
+        {pkg.sessionsCount != null && (
+          <span className="inline-flex items-center gap-1">
+            <Layers size={12} />
+            {pkg.sessionsCount} {t('teacher.sessionsCountLabel')}
+          </span>
+        )}
+        {isGroup && pkg.capacity != null && (
+          <span className="inline-flex items-center gap-1">
+            <Users size={12} />
+            {pkg.enrolledCount ?? 0}/{pkg.capacity} {t('teacher.seatsLabel')}
+          </span>
+        )}
+      </div>
+
+      {schedule && (
+        <div className="flex items-start justify-end gap-1.5 text-xs text-ink-soft">
+          <span className="text-end">{schedule}</span>
+          <CalendarDays size={12} className="mt-0.5 shrink-0" />
+        </div>
+      )}
 
       <div className="flex items-baseline justify-end gap-2">
         {hasDiscount && (

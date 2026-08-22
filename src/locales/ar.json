@@ -343,6 +343,11 @@
     "intro": "تعريف بالمعلم",
     "profileLabel": "ملف المعلم",
     "packagesEmpty": "لا توجد باقات متاحة حالياً",
+    "individualFormat": "جلسة فردية",
+    "groupFormat": "جلسة جماعية",
+    "sessionsCountLabel": "جلسات",
+    "seatsLabel": "مقعد محجوز",
+    "scheduleLabel": "المواعيد",
     "reviewsEmpty": "لا توجد تقييمات بعد",
     "reviewsTitle": "اراء الطلاب",
     "course": {
@@ -397,7 +402,15 @@
     "loginToBook": "سجّل الدخول لإتمام الحجز",
     "availableDaysTitle": "الأيام المتاحة",
     "sendRequest": "أرسل طلب الحجز",
-    "requestSuccess": "تم إرسال طلبك، بانتظار موافقة المعلم على الموعد"
+    "requestSuccess": "تم إرسال طلبك، بانتظار موافقة المعلم على الموعد",
+    "sessionLabel": "الجلسة",
+    "ofLabel": "من",
+    "confirmSlot": "تأكيد هذه الجلسة",
+    "updateSlot": "تحديث هذه الجلسة",
+    "chosenSessionsTitle": "الجلسات المختارة",
+    "editSlot": "تعديل",
+    "removeSlot": "إزالة",
+    "multiSessionHint": "هذه الباقة تحتوي أكثر من جلسة — اختر يوماً ووقتاً مستقلَّين لكل جلسة على حدة."
   },
   "favorites": {
     "title": "المفضلة",
@@ -594,7 +607,8 @@
       "approve": "موافقة",
       "reject": "رفض",
       "reasonPlaceholder": "سبب الرفض (اختياري)",
-      "confirmReject": "تأكيد الرفض"
+      "confirmReject": "تأكيد الرفض",
+      "sessionLabel": "جلسة"
     },
     "teacherSessions": {
       "package": "الباقة/الدورة",

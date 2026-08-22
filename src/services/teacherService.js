@@ -86,8 +86,12 @@ export const teacherService = {
     }
     const params = {
       teacher_type: filters.type === 'training' ? 'training_center' : (filters.type || undefined),
+      subject_id: filters.subject || undefined,
+      stage_id: filters.stage || undefined,
+      language_id: filters.language || undefined,
       q: filters.q || undefined,
       min_rating: filters.minRating ?? undefined,
+      min_price: filters.minPrice ?? undefined,
     };
     const { data } = await client.get(endpoints.teachers.search, { params });
     return { data: data.data.map(mapSearchResult), total: data.meta?.total ?? data.data.length };

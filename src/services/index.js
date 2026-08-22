@@ -231,17 +231,19 @@ export const reviewService = {
 
 export const bookingService = {
   /**
-   * Individual package — student picks a date (must match one of the package's
-   * available weekdays) + a free time and submits a REQUEST. No payment yet —
-   * status comes back pending_teacher_confirmation; the teacher must approve
-   * before checkout() can be called.
+   * Individual package — student picks an INDEPENDENT date (must match one of
+   * the package's available weekdays) + free time for EACH session of the
+   * package (slots.length must equal the package's sessions_count exactly),
+   * and submits a REQUEST. No payment yet — status comes back
+   * pending_teacher_confirmation; the teacher must approve before checkout()
+   * can be called. `slots`: [{ date: 'YYYY-MM-DD', start_time: 'HH:mm' }, ...]
    */
-  async requestIndividualBooking(packageId, { date, start_time }) {
+  async requestIndividualBooking(packageId, slots) {
     if (config.useMocks) {
       await mockDelay(500);
       return { id: Math.floor(Math.random() * 100000), status: 'pending_teacher_confirmation' };
     }
-    const { data } = await client.post(endpoints.bookings.createIndividual(packageId), { date, start_time });
+    const { data } = await client.post(endpoints.bookings.createIndividual(packageId), { slots });
     return data.data;
   },
 
@@ -287,8 +289,11 @@ export const bookingService = {
       studentName: booking.student?.user?.name ?? null,
       studentAvatar: booking.student?.user?.avatar_path ?? null,
       packageTitle: booking.package?.title ?? null,
-      requestedDate: booking.requested_date,
-      requestedStartTime: booking.requested_start_time,
+      // موعد مستقل لكل جلسة — requested_slots هو مصدر الحقيقة؛ الحجوزات القديمة
+      // (قبل دعم عدة مواعيد) ليس لها إلا موعداً واحداً محفوظاً في العمودين القديمين.
+      requestedSlots: booking.requested_slots?.length
+        ? booking.requested_slots
+        : [{ date: booking.requested_date, start_time: booking.requested_start_time }],
       createdAt: booking.created_at,
     }));
   },
@@ -533,6 +538,17 @@ function mapSessionStatus(status, scheduledAt = null, durationMinutes = 0) {
   return 'upcoming'; // scheduled, reschedule_pending, rescheduled, active, suspended
 }
 
+/**
+ * الجلسات تُنشأ فور موافقة المعلم/انضمام الطالب بصرف النظر عن اكتمال الدفع —
+ * فحجز بحالة pending_payment له جلسات "قادمة" حقيقية بالفعل رغم أنه غير مؤهل
+ * لأي طلب تعديل عليها بعد (الباك اند يرفضها 422 على أي حال، هذا فقط يُخفي
+ * الزر مسبقاً بدل إظهاره ثم رفضه). لا مكافئ لها لجلسات الدورات (course) هنا —
+ * خارج نطاق هذا الفحص.
+ */
+function isSessionPaid(session) {
+  return session.booking?.status !== 'pending_payment';
+}
+
 function canJoinSession(session, joinUrl) {
   if (!joinUrl) return false;
   if (['completed', 'cancelled', 'no_show_student', 'no_show_teacher'].includes(session.status)) {
@@ -651,7 +667,7 @@ function mapSessionListRow(session) {
     countdown: isUpcoming ? computeCountdown(session.scheduled_at) : null,
     joinUrl: session.join_url_student ?? null,
     canJoin,
-    canReschedule: isUpcoming && !hasPendingReschedule,
+    canReschedule: isUpcoming && !hasPendingReschedule && isSessionPaid(session),
     canCancel: isUpcoming,
     hasPendingRescheduleRequest: hasPendingReschedule,
     pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),
@@ -695,7 +711,7 @@ function mapCalendarSessionRow(session) {
     period,
     durationMinutes: session.duration_min,
     countdown: status === 'upcoming' ? computeCountdown(session.scheduled_at) : null,
-    canReschedule: status === 'upcoming' && !hasPendingReschedule,
+    canReschedule: status === 'upcoming' && !hasPendingReschedule && isSessionPaid(session),
     joinUrl: canJoinSession(session, session.join_url_student ?? null) ? session.join_url_student : null,
     hasPendingRescheduleRequest: hasPendingReschedule,
     pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),
@@ -718,7 +734,7 @@ function mapTeacherCalendarSessionRow(session) {
     period,
     durationMinutes: session.duration_min,
     countdown: status === 'upcoming' ? computeCountdown(session.scheduled_at) : null,
-    canReschedule: status === 'upcoming' && !hasPendingReschedule,
+    canReschedule: status === 'upcoming' && !hasPendingReschedule && isSessionPaid(session),
     joinUrl: canJoinSession(session, session.join_url_teacher ?? null) ? session.join_url_teacher : null,
     hasPendingRescheduleRequest: hasPendingReschedule,
     pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),

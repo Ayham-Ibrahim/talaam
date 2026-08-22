@@ -29,14 +29,26 @@ client.interceptors.request.use(
 // Response interceptor — normalize errors into a predictable shape
 client.interceptors.response.use(
   (res) => res,
-  (error) => {
+  async (error) => {
+    let data = error.response?.data;
+
+    // طلبات التنزيل (الفواتير مثلاً) تُرسَل بـ responseType:'blob' — فأي خطأ
+    // JSON حقيقي يُرجعه السيرفر (422 "لم يُدفع بعد"، 403، 500 ...) يصل هنا
+    // كـ Blob خام لا ككائن JSON مُفكَّك تلقائياً، فتُفقَد رسالة الخطأ الفعلية
+    // القادمة من الباك اند ويظهر للمستخدم نص عام دائماً بصرف النظر عن السبب
+    // الحقيقي. نقرأها كنص JSON هنا أولاً قبل التطبيع.
+    if (data instanceof Blob && data.type?.includes('json')) {
+      try {
+        data = JSON.parse(await data.text());
+      } catch {
+        // ليست JSON فعلاً (خطأ شبكة خام مثلاً) — تُترك كما هي وتؤول لرسالة عامة أدناه
+      }
+    }
+
     const normalized = {
       status: error.response?.status ?? 0,
-      message:
-        error.response?.data?.message ||
-        error.message ||
-        'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى',
-      errors: error.response?.data?.errors ?? null,
+      message: data?.message || error.message || 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى',
+      errors: data?.errors ?? null,
     };
     return Promise.reject(normalized);
   }

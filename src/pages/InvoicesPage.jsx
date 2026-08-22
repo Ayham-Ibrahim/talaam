@@ -39,8 +39,10 @@ export function InvoicesPage() {
       const mutate = invoice.kind === 'enrollment' ? downloadEnrollmentInvoice : downloadBookingInvoice;
       const blob = await mutate.mutateAsync(invoice.recordId);
       saveBlob(blob, `invoice-${invoice.id}.pdf`);
-    } catch {
-      window.alert(t('dashboard.invoices.downloadFailed'));
+    } catch (err) {
+      // بعد إصلاح client.js، الأخطاء الحقيقية (422 "لم يُدفع بعد"، إلخ) تصل
+      // الآن بنص عربي واضح من الباك اند — نعرضه بدل النص العام الثابت متى توفّر.
+      window.alert(err?.message || t('dashboard.invoices.downloadFailed'));
     } finally {
       setDownloadingId(null);
     }

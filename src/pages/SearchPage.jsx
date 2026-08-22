@@ -27,7 +27,12 @@ export function SearchPage() {
 
   const filters = useMemo(
     () => ({
-      type,
+      // `type` (hero pills) and `applied.level` (sidebar select) both drive the
+      // same teacher_type filter — the hero pill wins when both are set.
+      type: type ?? applied.level,
+      subject: applied.subject ?? undefined,
+      stage: applied.stage ?? undefined,
+      language: applied.language ?? undefined,
       q: q || undefined,
       minPrice: applied.minPrice ?? undefined,
       minRating: applied.minRating ?? undefined,

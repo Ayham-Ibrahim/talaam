@@ -9,9 +9,10 @@ export function usePendingBookingRequests() {
   });
 }
 
+/** slots: [{ date: 'YYYY-MM-DD', start_time: 'HH:mm' }, ...] — one entry per session of the package */
 export function useRequestIndividualBooking(packageId) {
   return useMutation({
-    mutationFn: ({ date, start_time }) => bookingService.requestIndividualBooking(packageId, { date, start_time }),
+    mutationFn: (slots) => bookingService.requestIndividualBooking(packageId, slots),
   });
 }
 
