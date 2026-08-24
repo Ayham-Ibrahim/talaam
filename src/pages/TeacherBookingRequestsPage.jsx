@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { CalendarClock, Check, X } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
-import { Avatar, EmptyState, ErrorState, Skeleton } from '@/components/ui';
+import { ApiErrorList, Avatar, EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { usePendingBookingRequests, useApproveBookingRequest, useRejectBookingRequest } from '@/hooks/useBooking';
 import { useT } from '@/hooks/useT';
 import { formatDate } from '@/lib/formatters';
 
-function RequestRow({ request, onApprove, onReject, isPending }) {
+function RequestRow({ request, onApprove, onReject, isPending, error }) {
   const t = useT();
   const [reason, setReason] = useState('');
   const [showRejectForm, setShowRejectForm] = useState(false);
@@ -60,6 +60,15 @@ function RequestRow({ request, onApprove, onReject, isPending }) {
         </div>
       </div>
 
+      {/* كان فشل الموافقة/الرفض (تعارض جدول، حالة تغيّرت...) صامتاً تماماً من
+          منظور المعلم — الخطأ يصل من الباك اند برسالة عربية واضحة ومحدَّدة
+          (راجع ScheduleConflictService) لكن لا شيء كان يعرضها على الشاشة. */}
+      {error && (
+        <div className="border-t border-line pt-3">
+          <ApiErrorList error={error} labelFor={() => null} />
+        </div>
+      )}
+
       {showRejectForm && (
         <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
           <input
@@ -89,8 +98,21 @@ export function TeacherBookingRequestsPage() {
   const { data: requests, isLoading, isError, refetch } = usePendingBookingRequests();
   const approve = useApproveBookingRequest();
   const reject = useRejectBookingRequest();
+  // أي طلب هو صاحب آخر محاولة موافقة/رفض — يُستخدم لعرض خطأ الفشل (إن وُجد)
+  // على صفّه هو تحديداً بدل تجاهله تماماً أو خلطه بصفوف أخرى.
+  const [activeRequestId, setActiveRequestId] = useState(null);
 
   if (!user) return <Navigate to="/login" replace />;
+
+  const handleApprove = (id) => {
+    setActiveRequestId(id);
+    approve.mutate(id);
+  };
+
+  const handleReject = (id, reason) => {
+    setActiveRequestId(id);
+    reject.mutate({ bookingId: id, reason: reason || undefined });
+  };
 
   return (
     <DashboardLayout>
@@ -113,9 +135,10 @@ export function TeacherBookingRequestsPage() {
               <RequestRow
                 key={request.id}
                 request={request}
-                isPending={approve.isPending || reject.isPending}
-                onApprove={(id) => approve.mutate(id)}
-                onReject={(id, reason) => reject.mutate({ bookingId: id, reason: reason || undefined })}
+                isPending={(approve.isPending || reject.isPending) && activeRequestId === request.id}
+                error={activeRequestId === request.id ? (approve.error ?? reject.error) : null}
+                onApprove={handleApprove}
+                onReject={handleReject}
               />
             ))}
           </div>
