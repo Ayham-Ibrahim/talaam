@@ -61,4 +61,28 @@ export const authService = {
     const { data } = await client.get(endpoints.auth.me);
     return withTeacherType(data.data);
   },
+
+  /** الباك اند يعيد دوماً نفس الرسالة العامة بصرف النظر عن وجود الحساب فعلاً — يمنع اكتشاف البريد المسجَّل */
+  async forgotPassword(email) {
+    if (config.useMocks) {
+      await mockDelay(500);
+      return { message: 'إذا كان بريدك الإلكتروني مسجلاً لدينا، ستصلك رسالة تحتوي رابط إعادة تعيين كلمة المرور' };
+    }
+    const { data } = await client.post(endpoints.auth.forgotPassword, { email });
+    return { message: data.message };
+  },
+
+  async resetPassword({ email, token, password, passwordConfirmation }) {
+    if (config.useMocks) {
+      await mockDelay(500);
+      return { message: 'تم إعادة تعيين كلمة المرور بنجاح' };
+    }
+    const { data } = await client.post(endpoints.auth.resetPassword, {
+      email,
+      token,
+      password,
+      password_confirmation: passwordConfirmation,
+    });
+    return { message: data.message };
+  },
 };

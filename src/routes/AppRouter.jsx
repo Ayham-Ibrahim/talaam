@@ -9,11 +9,14 @@ import { TeacherProfilePage } from '@/pages/TeacherProfilePage';
 import { PaymentSuccessPage } from '@/pages/PaymentSuccessPage';
 import { PaymentCancelPage } from '@/pages/PaymentCancelPage';
 import { LoginPage } from '@/pages/LoginPage';
+import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
+import { ResetPasswordPage } from '@/pages/ResetPasswordPage';
 import { CompleteProfilePage } from '@/pages/CompleteProfilePage';
 import { StudentDashboardPage } from '@/pages/StudentDashboardPage';
 import { TeacherDashboardPage } from '@/pages/TeacherDashboardPage';
 import { AdminDashboardPage } from '@/pages/AdminDashboardPage';
 import { AdminTeachersPage } from '@/pages/AdminTeachersPage';
+import { AdminStudentsPage } from '@/pages/AdminStudentsPage';
 import { AdminTeacherDetailPage } from '@/pages/AdminTeacherDetailPage';
 import { AdminListingsPage } from '@/pages/AdminListingsPage';
 import { AdminListingDetailPage } from '@/pages/AdminListingDetailPage';
@@ -22,6 +25,7 @@ import { AdminTaxonomyPage } from '@/pages/AdminTaxonomyPage';
 import { AdminPayoutsPage } from '@/pages/AdminPayoutsPage';
 import { AdminStudentImportPage } from '@/pages/AdminStudentImportPage';
 import { AdminTeacherImportPage } from '@/pages/AdminTeacherImportPage';
+import { AdminImportBatchesPage } from '@/pages/AdminImportBatchesPage';
 import { AdminSettingsPage } from '@/pages/AdminSettingsPage';
 import { CalendarPage } from '@/pages/CalendarPage';
 import { TeacherCalendarPage } from '@/pages/TeacherCalendarPage';
@@ -54,6 +58,8 @@ export function AppRouter() {
         <Route path="/payments/success" element={<PaymentSuccessPage />} />
         <Route path="/payments/cancel" element={<PaymentCancelPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route
           path="/complete-profile"
           element={
@@ -91,6 +97,14 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="admin">
               <AdminTeachersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/students"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminStudentsPage />
             </ProtectedRoute>
           }
         />
@@ -155,6 +169,14 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="admin">
               <AdminTeacherImportPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/import-batches"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminImportBatchesPage />
             </ProtectedRoute>
           }
         />

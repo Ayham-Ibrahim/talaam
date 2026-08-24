@@ -571,7 +571,26 @@
     "heroSubtitle": "سجّل دخولك وتابع جلساتك وباقاتك ومعلميك في مكان واحد",
     "backHome": "العودة للرئيسية",
     "showPassword": "إظهار كلمة المرور",
-    "hidePassword": "إخفاء كلمة المرور"
+    "hidePassword": "إخفاء كلمة المرور",
+    "forgotTitle": "نسيت كلمة المرور",
+    "forgotSubtitle": "أدخل بريدك الإلكتروني وسنرسل لك رابطاً لإعادة تعيين كلمة المرور",
+    "forgotSubmit": "إرسال رابط إعادة التعيين",
+    "forgotSubmitting": "جارٍ الإرسال...",
+    "forgotSuccessTitle": "تحقق من بريدك الإلكتروني",
+    "backToLogin": "العودة لتسجيل الدخول",
+    "resetTitle": "إعادة تعيين كلمة المرور",
+    "resetSubtitle": "اختر كلمة مرور جديدة لحسابك",
+    "newPasswordLabel": "كلمة المرور الجديدة",
+    "passwordComplexity": "8 أحرف على الأقل، تجمع بين حروف كبيرة وصغيرة وأرقام",
+    "confirmPasswordLabel": "تأكيد كلمة المرور",
+    "confirmPasswordRequired": "تأكيد كلمة المرور مطلوب",
+    "passwordMismatch": "كلمتا المرور غير متطابقتين",
+    "resetSubmit": "إعادة تعيين كلمة المرور",
+    "resetSubmitting": "جارٍ إعادة التعيين...",
+    "resetSuccessTitle": "تم تغيير كلمة المرور بنجاح",
+    "resetSuccessHint": "يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة",
+    "goToLogin": "الذهاب لتسجيل الدخول",
+    "invalidResetLink": "رابط إعادة التعيين غير صالح — يرجى طلب رابط جديد"
   },
   "dashboard": {
     "welcome": "مرحباً",
@@ -964,12 +983,14 @@
     "adminNav": {
       "home": "نظرة عامة",
       "teachers": "المعلمون",
+      "students": "الطلاب",
       "packages": "الباقات والدورات",
       "complaints": "الشكاوى والمواعيد",
       "taxonomy": "التصنيفات",
       "payouts": "المستحقات المالية",
       "studentImport": "استيراد الطلاب",
       "teacherImport": "استيراد المعلمين",
+      "importBatches": "سجل الاستيراد",
       "settings": "الإعدادات وسجل التدقيق"
     },
     "adminOverview": {
@@ -983,6 +1004,33 @@
       "attentionEmpty": "لا توجد طلبات توثيق معلقة حالياً 🎉",
       "attentionSubmittedAt": "قُدِّم بتاريخ",
       "review": "مراجعة"
+    },
+    "adminStudents": {
+      "title": "إدارة الطلاب",
+      "subtitle": "قائمة الطلاب المسجَّلين، حالة حساباتهم، وإعادة تعيين كلمات المرور",
+      "searchPlaceholder": "ابحث بالاسم أو البريد الإلكتروني",
+      "allEducationTypes": "كل التصنيفات الأكاديمية",
+      "educationType": {
+        "school": "مدرسي",
+        "university": "جامعي",
+        "training": "تدريبي"
+      },
+      "noEducationType": "غير مكتمل",
+      "colStudent": "الطالب",
+      "colPhone": "الهاتف",
+      "colEducationType": "التصنيف الأكاديمي",
+      "colStatus": "الحالة",
+      "colJoined": "تاريخ الانضمام",
+      "colActions": "الإجراءات",
+      "active": "نشط",
+      "inactive": "معطَّل",
+      "empty": "لا يوجد طلاب مطابقون",
+      "changePassword": "تغيير كلمة المرور",
+      "changePasswordTitle": "تغيير كلمة مرور الطالب",
+      "changePasswordFor": "تعيين كلمة مرور جديدة للطالب:",
+      "changePasswordHint": "8 أحرف على الأقل — سترسَل للطالب عبر البريد الإلكتروني، وسيُسجَّل خروجه من كل الأجهزة الأخرى",
+      "changePasswordSubmit": "تغيير كلمة المرور",
+      "changingPassword": "جارٍ التغيير..."
     },
     "adminTeachers": {
       "title": "إدارة المعلمين",
@@ -1292,6 +1340,34 @@
       "colRow": "رقم الصف",
       "colError": "الخطأ",
       "addTeacher": "إضافة معلم"
+    },
+    "importBatch": {
+      "queued": "بانتظار المعالجة في الخلفية...",
+      "processing": "جارٍ الاستيراد في الخلفية...",
+      "failedGeneric": "تعذّر إكمال الاستيراد",
+      "rowsProgress": "صف"
+    },
+    "importBatches": {
+      "title": "سجل الاستيراد",
+      "subtitle": "متابعة عمليات استيراد الطلاب والمعلمين — تعمل في الخلفية ولا تتطلب الانتظار",
+      "filterAll": "الكل",
+      "filterStudents": "الطلاب",
+      "filterTeachers": "المعلمون",
+      "colType": "النوع",
+      "colFile": "الملف",
+      "colStatus": "الحالة",
+      "colProgress": "التقدّم",
+      "colImported": "نجح",
+      "colFailed": "فشل",
+      "colCreatedBy": "بواسطة",
+      "colDate": "التاريخ",
+      "typeStudent": "طلاب",
+      "typeTeacher": "معلمون",
+      "statusQueued": "بالانتظار",
+      "statusProcessing": "جارٍ المعالجة",
+      "statusCompleted": "مكتمل",
+      "statusFailed": "فشل",
+      "empty": "لا توجد عمليات استيراد بعد"
     },
     "adminSettings": {
       "title": "الإعدادات وسجل التدقيق",

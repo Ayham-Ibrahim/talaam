@@ -29,3 +29,15 @@ export function useLogout() {
     onSettled: () => logout(),
   });
 }
+
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: (email) => authService.forgotPassword(email),
+  });
+}
+
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: (payload) => authService.resetPassword(payload),
+  });
+}

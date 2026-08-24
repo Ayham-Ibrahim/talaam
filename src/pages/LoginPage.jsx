@@ -159,12 +159,9 @@ export function LoginPage() {
                   />
                   {t('auth.rememberMe')}
                 </label>
-                <span
-                  title={t('auth.comingSoon')}
-                  className="cursor-not-allowed text-sm font-medium text-ink-soft/60"
-                >
+                <Link to="/forgot-password" className="text-sm font-medium text-primary hover:opacity-70">
                   {t('auth.forgotPassword')}
-                </span>
+                </Link>
               </div>
 
               {login.isError && (

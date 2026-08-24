@@ -7,6 +7,8 @@ export const endpoints = {
     login: '/auth/login',
     logout: '/auth/logout',
     me: '/auth/me',
+    forgotPassword: '/auth/forgot-password',
+    resetPassword: '/auth/reset-password',
   },
   profile: {
     uploadAvatar: '/me/avatar',
@@ -84,6 +86,7 @@ export const endpoints = {
     search: '/students',
     detail: (id) => `/students/${id}`,
     update: (id) => `/students/${id}`,
+    resetPassword: (id) => `/students/${id}/password`,
   },
   taxonomy: (type) => `/taxonomy/${type}`,
   meta: {
@@ -138,6 +141,8 @@ export const endpoints = {
     markPayoutPaid: (id) => `/payouts/${id}/mark-paid`,
     studentsImport: '/students/import',
     teachersImport: '/teachers/import',
+    importBatches: '/import-batches',
+    importBatch: (id) => `/import-batches/${id}`,
     settings: '/admin/settings',
     updateSetting: (key) => `/admin/settings/${key}`,
     auditLog: '/admin/audit-log',
