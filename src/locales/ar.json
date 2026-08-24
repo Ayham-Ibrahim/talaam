@@ -1222,9 +1222,9 @@
       "cancel": "إلغاء"
     },
     "adminReschedule": {
-      "colOriginal": "الموعد الأصلي",
-      "colProposed": "الموعد المقترح",
-      "colCreated": "تاريخ إنشاء الطلب",
+      "colOriginal": "الموعد الأصلي (بتوقيت الطالب)",
+      "colProposed": "الموعد المقترح (بتوقيت الطالب)",
+      "colCreated": "تاريخ إنشاء الطلب (بتوقيت الطالب)",
       "colWindow": "النافذة الزمنية",
       "withinWindow": "ضمن النافذة المجانية",
       "outsideWindow": "خارج النافذة المجانية",

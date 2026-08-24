@@ -38,6 +38,10 @@ function mapRescheduleRequest(request) {
     proposedScheduledAt: request.proposedScheduledAt ?? request.proposed_scheduled_at ?? null,
     alternativeScheduledAt:
       request.alternativeScheduledAt ?? request.alternative_scheduled_at ?? request.adminAlternativeAt ?? request.admin_alternative_at ?? null,
+    // الوقت هنا يعني جدول الطالب هو تحديداً (بصرف النظر عمّن أرسل الطلب فعلياً) —
+    // يُستخدَم لعرض كل تواريخ هذا الطلب بتوقيت الطالب لا بتوقيت متصفح من يشاهد
+    // الجدول (كان هذا الخطأ سابقاً: يظهر بتوقيت الأدمن المحلي).
+    studentTimezone: request.studentTimezone ?? request.student_timezone ?? null,
     withinFreeWindow: request.withinFreeWindow ?? request.within_free_window ?? false,
     createdAt: request.createdAt ?? request.created_at ?? null,
     rejectionReason: request.rejectionReason ?? request.rejection_reason ?? null,

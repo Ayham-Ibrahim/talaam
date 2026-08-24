@@ -6,7 +6,9 @@ import { useT } from '@/hooks/useT';
 export function RescheduleRequestsTable({ requests, onApprove, onApproveWithAlternative, onReject, isActing }) {
   const t = useT();
   const renderText = (value) => value || '—';
-  const renderDateTime = (value) => formatDateTime(value) || '—';
+  // بتوقيت الطالب دوماً، لا بتوقيت متصفح الأدمن الذي يشاهد الجدول — الجلسة
+  // والطلب كلاهما يخص جدول الطالب أصلاً بصرف النظر عمّن أرسل الطلب فعلياً.
+  const renderDateTime = (value, timezone) => formatDateTime(value, timezone) || '—';
 
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
@@ -29,16 +31,16 @@ export function RescheduleRequestsTable({ requests, onApprove, onApproveWithAlte
               <td className="px-4 py-4 text-right font-semibold text-ink">{renderText(r.teacherName)}</td>
               <td className="px-4 py-4 text-right text-ink-soft">{renderText(r.studentName)}</td>
               <td className="px-4 py-4 text-right text-ink-soft" dir="ltr">
-                {renderDateTime(r.originalScheduledAt)}
+                {renderDateTime(r.originalScheduledAt, r.studentTimezone)}
               </td>
               <td className="px-4 py-4 text-right text-ink-soft" dir="ltr">
-                {renderDateTime(r.proposedScheduledAt)}
+                {renderDateTime(r.proposedScheduledAt, r.studentTimezone)}
                 {r.alternativeScheduledAt && (
-                  <div className="text-xs text-price">{renderDateTime(r.alternativeScheduledAt)}</div>
+                  <div className="text-xs text-price">{renderDateTime(r.alternativeScheduledAt, r.studentTimezone)}</div>
                 )}
               </td>
               <td className="px-4 py-4 text-right text-ink-soft" dir="ltr">
-                {renderDateTime(r.createdAt)}
+                {renderDateTime(r.createdAt, r.studentTimezone)}
               </td>
               <td className="px-4 py-4 text-right">
                 <span

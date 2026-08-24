@@ -33,8 +33,16 @@ export function formatDate(iso) {
   }
 }
 
-/** Formats an ISO datetime string to Arabic date + time */
-export function formatDateTime(iso) {
+/**
+ * Formats an ISO datetime string to Arabic date + time.
+ * `timezone` (IANA name, e.g. "Asia/Riyadh") is optional — when given, the
+ * moment is rendered in THAT zone instead of the viewer's own browser zone.
+ * Needed wherever a time was entered by someone other than whoever is
+ * looking at it (e.g. an admin reviewing a student's reschedule request —
+ * the request's dates mean nothing in the admin's own local time, only in
+ * the student's), so the viewer never silently sees the wrong wall-clock time.
+ */
+export function formatDateTime(iso, timezone) {
   if (!iso) return '';
   try {
     return new Intl.DateTimeFormat(config.locale, {
@@ -43,6 +51,7 @@ export function formatDateTime(iso) {
       year: 'numeric',
       hour: 'numeric',
       minute: '2-digit',
+      ...(timezone ? { timeZone: timezone } : {}),
     }).format(new Date(iso));
   } catch {
     return iso;
