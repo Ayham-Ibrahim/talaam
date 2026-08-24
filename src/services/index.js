@@ -74,6 +74,21 @@ export const packageService = {
     const { data } = await client.get(endpoints.teachers.packages(teacherId));
     return data.data.map(mapStudentPackage);
   },
+
+  /**
+   * أوقات معلم هذه الباقة المشغولة فعلاً في يوم معيّن — عرض استشاري في واجهة
+   * الحجز قبل الإرسال فقط (BookingWidget)، وليس الفحص الملزم (ذاك يبقى على
+   * الباك اند وقت الحجز الفعلي عبر ScheduleConflictService، وقد يتغير الوضع
+   * بين لحظة هذا الاستدعاء ولحظة الإرسال بسباق واقعي).
+   */
+  async getBusySlots(packageId, dateISO) {
+    if (config.useMocks) {
+      await mockDelay(200);
+      return [];
+    }
+    const { data } = await client.get(endpoints.packages.busySlots(packageId), { params: { date: dateISO } });
+    return data.data.map((slot) => ({ start: new Date(slot.start), end: new Date(slot.end) }));
+  },
 };
 
 /** GET /teachers/{id}/courses row → mirrors StudentCourseResource */

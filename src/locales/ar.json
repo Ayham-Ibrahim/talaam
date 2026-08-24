@@ -375,6 +375,8 @@
     "subjectLabel": "المادة",
     "chooseDate": "اختر التاريخ",
     "chooseTime": "اختر الوقت المتاح",
+    "unavailableTimesLabel": "غير متاح في هذا اليوم:",
+    "timeUnavailable": "هذا الوقت غير متاح — يتعارض مع جلسة أخرى للمعلم",
     "noSlots": "لا توجد مواعيد متاحة لهذا اليوم",
     "summary": "ملخص الحجز",
     "total": "المجموع",

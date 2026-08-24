@@ -69,6 +69,7 @@ export const endpoints = {
     detail: (id) => `/packages/${id}`,
     update: (id) => `/packages/${id}`,
     submit: (id) => `/packages/${id}/submit`,
+    busySlots: (id) => `/packages/${id}/busy-slots`,
   },
   courses: {
     list: '/courses',

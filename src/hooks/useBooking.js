@@ -1,11 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
-import { bookingService } from '@/services';
+import { bookingService, packageService } from '@/services';
 
 export function usePendingBookingRequests() {
   return useQuery({
     queryKey: queryKeys.bookings.list({ status: 'pending_teacher_confirmation' }),
     queryFn: () => bookingService.getPendingRequests(),
+  });
+}
+
+/** أوقات معلم الباقة المشغولة في اليوم المختار — لعرض "غير متاح" قبل الإرسال في BookingWidget */
+export function usePackageBusySlots(packageId, dateISO) {
+  return useQuery({
+    queryKey: ['packages', packageId, 'busy-slots', dateISO],
+    queryFn: () => packageService.getBusySlots(packageId, dateISO),
+    enabled: !!packageId && !!dateISO,
+    staleTime: 30 * 1000,
   });
 }
 

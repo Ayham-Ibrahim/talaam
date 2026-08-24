@@ -1,12 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock, Pencil, Trash2 } from 'lucide-react';
+import { AlertTriangle, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock, Pencil, Trash2 } from 'lucide-react';
 import { Button, ApiErrorList } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
-import { useRequestIndividualBooking, useCreateGroupBooking } from '@/hooks/useBooking';
+import { useRequestIndividualBooking, useCreateGroupBooking, usePackageBusySlots } from '@/hooks/useBooking';
 import { useT } from '@/hooks/useT';
 import { useCurrencyStore } from '@/store';
 import { formatPrice } from '@/lib/currency';
+
+/** يتقاطعان إن بدأ كل منهما قبل انتهاء الآخر — نفس منطق ScheduleConflictService::assertNoConflict بالضبط */
+function rangesOverlap(startA, endA, startB, endB) {
+  return startA < endB && startB < endA;
+}
 
 /** Backend TIME columns serialize as "H:i:s" — trim to "H:i" for display */
 function formatTime(t) {
@@ -17,6 +22,10 @@ function startOfDay(date) {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
   return d;
+}
+
+function formatHHmm(date) {
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
 function toISODate(date) {
@@ -77,6 +86,22 @@ export function BookingWidget({ selectedPackage }) {
   const requestIndividual = useRequestIndividualBooking(selectedPackage?.id);
   const createGroup = useCreateGroupBooking(selectedPackage?.id);
 
+  // عرض استشاري فقط قبل الإرسال — الفحص الملزم الفعلي على الباك اند وقت
+  // الحجز (ScheduleConflictService)، وقد يتغير الوضع بين هذا الاستعلام
+  // ولحظة الإرسال الفعلية بسباق واقعي (معلم يوافق على حجز آخر في الأثناء).
+  const { data: busySlots } = usePackageBusySlots(selectedPackage?.id, selectedDate ? toISODate(selectedDate) : null);
+  const durationMinutes = selectedPackage?.durationPerSession ?? 60;
+
+  const selectedTimeConflict = useMemo(() => {
+    if (!selectedDate || !selectedTime || !busySlots?.length) return null;
+    const [h, m] = selectedTime.split(':').map(Number);
+    const start = new Date(selectedDate);
+    start.setHours(h, m, 0, 0);
+    const end = new Date(start.getTime() + durationMinutes * 60000);
+
+    return busySlots.find((slot) => rangesOverlap(start, end, slot.start, slot.end)) ?? null;
+  }, [selectedDate, selectedTime, busySlots, durationMinutes]);
+
   const monthLabel = new Intl.DateTimeFormat('ar', { month: 'long', year: 'numeric' }).format(viewDate);
   const cells = useMemo(() => buildMonthGrid(viewDate), [viewDate]);
 
@@ -102,7 +127,7 @@ export function BookingWidget({ selectedPackage }) {
   };
 
   const handleConfirmSlot = () => {
-    if (!selectedDate || !selectedTime) return;
+    if (!selectedDate || !selectedTime || selectedTimeConflict) return;
     setSlots((prev) => {
       const next = [...prev];
       next[activeIndex] = { date: selectedDate, time: selectedTime };
@@ -318,16 +343,36 @@ export function BookingWidget({ selectedPackage }) {
                     type="time"
                     value={selectedTime}
                     onChange={(e) => setSelectedTime(e.target.value)}
-                    className="w-full rounded-lg border border-[#E3E3E3] px-3 py-3 text-sm text-ink focus:border-primary focus:outline-none"
+                    aria-invalid={!!selectedTimeConflict}
+                    className={`w-full rounded-lg border px-3 py-3 text-sm text-ink focus:outline-none ${
+                      selectedTimeConflict ? 'border-[#FF383C] focus:border-[#FF383C]' : 'border-[#E3E3E3] focus:border-primary'
+                    }`}
                   />
+
+                  {busySlots?.length > 0 && (
+                    <p className="text-xs text-ink-soft">
+                      {t('booking.unavailableTimesLabel')}{' '}
+                      {busySlots
+                        .map((slot) => `${formatHHmm(slot.start)}–${formatHHmm(slot.end)}`)
+                        .join('، ')}
+                    </p>
+                  )}
+
+                  {selectedTimeConflict && (
+                    <p className="flex items-center gap-1.5 text-xs font-semibold text-[#FF383C]">
+                      <AlertTriangle size={13} />
+                      {t('booking.timeUnavailable')}
+                    </p>
+                  )}
                 </div>
               )}
 
               {selectedDate && selectedTime && (
                 <button
                   type="button"
+                  disabled={!!selectedTimeConflict}
                   onClick={handleConfirmSlot}
-                  className="w-full rounded-xl border-2 border-primary bg-primary/5 py-2.5 text-sm font-bold text-primary hover:bg-primary/10"
+                  className="w-full rounded-xl border-2 border-primary bg-primary/5 py-2.5 text-sm font-bold text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:border-line disabled:bg-line/20 disabled:text-ink-soft"
                 >
                   {slots[activeIndex] ? t('booking.updateSlot') : t('booking.confirmSlot')}
                 </button>
