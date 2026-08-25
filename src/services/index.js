@@ -564,6 +564,16 @@ function isSessionPaid(session) {
   return session.booking?.status !== 'pending_payment';
 }
 
+/**
+ * موعد جلسة الباقة الجماعية مشترك بين عدة طلاب دفعوا عليه معاً — تغييره بطلب
+ * طرف واحد يكسر جدول البقية بلا تنسيق، فالباك اند يرفضه 422 دوماً؛ هذا فقط
+ * يُخفي الزر مسبقاً بدل إظهاره ثم رفضه (نفس نمط isSessionPaid أعلاه). لا مكافئ
+ * لها لجلسات الدورات (course) هنا — خارج نطاق هذا الفحص.
+ */
+function isIndividualPackageSession(session) {
+  return session.booking?.package?.session_format !== 'group';
+}
+
 function canJoinSession(session, joinUrl) {
   if (!joinUrl) return false;
   if (['completed', 'cancelled', 'no_show_student', 'no_show_teacher'].includes(session.status)) {
@@ -682,7 +692,7 @@ function mapSessionListRow(session) {
     countdown: isUpcoming ? computeCountdown(session.scheduled_at) : null,
     joinUrl: session.join_url_student ?? null,
     canJoin,
-    canReschedule: isUpcoming && !hasPendingReschedule && isSessionPaid(session),
+    canReschedule: isUpcoming && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
     canCancel: isUpcoming,
     hasPendingRescheduleRequest: hasPendingReschedule,
     pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),
@@ -726,7 +736,7 @@ function mapCalendarSessionRow(session) {
     period,
     durationMinutes: session.duration_min,
     countdown: status === 'upcoming' ? computeCountdown(session.scheduled_at) : null,
-    canReschedule: status === 'upcoming' && !hasPendingReschedule && isSessionPaid(session),
+    canReschedule: status === 'upcoming' && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
     joinUrl: canJoinSession(session, session.join_url_student ?? null) ? session.join_url_student : null,
     hasPendingRescheduleRequest: hasPendingReschedule,
     pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),
@@ -749,7 +759,7 @@ function mapTeacherCalendarSessionRow(session) {
     period,
     durationMinutes: session.duration_min,
     countdown: status === 'upcoming' ? computeCountdown(session.scheduled_at) : null,
-    canReschedule: status === 'upcoming' && !hasPendingReschedule && isSessionPaid(session),
+    canReschedule: status === 'upcoming' && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
     joinUrl: canJoinSession(session, session.join_url_teacher ?? null) ? session.join_url_teacher : null,
     hasPendingRescheduleRequest: hasPendingReschedule,
     pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),

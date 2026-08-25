@@ -23,6 +23,11 @@ function notificationContent(t, notification) {
       return { title: t('notifications.studentImported'), body: null };
     case 'SessionReminder':
       return { title: t('notifications.sessionReminder'), body: formatDateTime(data.scheduled_at) };
+    case 'RescheduleRequestReviewed':
+      return {
+        title: data.status === 'rejected' ? t('notifications.rescheduleRejected') : t('notifications.rescheduleApproved'),
+        body: data.status === 'rejected' ? data.reason : data.newScheduledAt ? formatDateTime(data.newScheduledAt) : null,
+      };
     default:
       return { title: type, body: null };
   }

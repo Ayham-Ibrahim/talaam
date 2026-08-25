@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { GraduationCap, UploadCloud, FileText, Check, Camera, Clock, XCircle, Ban } from 'lucide-react';
+import { GraduationCap, UploadCloud, FileText, Check, Camera, Clock, XCircle, Ban, Trash2 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { MultiSelectChips } from '@/components/dashboard/MultiSelectChips';
@@ -12,7 +12,7 @@ import {
   useUploadVerificationDocument,
   useSubmitForVerification,
 } from '@/hooks/useTeacherAccount';
-import { useUploadAvatar } from '@/hooks/useProfile';
+import { useUploadAvatar, useDeleteAvatar } from '@/hooks/useProfile';
 import { useTaxonomyList } from '@/hooks/useTaxonomy';
 import { QUALIFICATION_LABELS, EXPERIENCE_LABELS } from '@/services/teacherService';
 import { DOCUMENT_TYPE_LABELS, DOCUMENT_STATUS_STYLES } from '@/mocks/admin.mock';
@@ -70,6 +70,7 @@ export function CompleteTeacherProfilePage() {
   const uploadDocument = useUploadVerificationDocument(teacherId);
   const submitForVerification = useSubmitForVerification(teacherId);
   const uploadAvatar = useUploadAvatar();
+  const deleteAvatar = useDeleteAvatar();
 
   const [form, setForm] = useState({
     bio: '',
@@ -190,9 +191,22 @@ export function CompleteTeacherProfilePage() {
                 <Camera size={15} />
                 <input type="file" accept="image/png,image/jpeg" onChange={handleAvatarChange} className="hidden" />
               </label>
+              {user.avatar && (
+                <button
+                  type="button"
+                  onClick={() => deleteAvatar.mutate()}
+                  disabled={deleteAvatar.isPending}
+                  title={t('completeProfile.removePhoto')}
+                  className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-white text-accent-pink shadow-card hover:bg-accent-pink/10 disabled:opacity-50"
+                >
+                  <Trash2 size={15} />
+                </button>
+              )}
             </div>
             {uploadAvatar.isPending && <span className="text-xs text-ink-soft">{t('completeProfile.uploading')}</span>}
+            {deleteAvatar.isPending && <span className="text-xs text-ink-soft">{t('completeProfile.deletingAvatar')}</span>}
             {uploadAvatar.isError && <ApiErrorList error={uploadAvatar.error} labelFor={() => null} className="text-xs" />}
+            {deleteAvatar.isError && <ApiErrorList error={deleteAvatar.error} labelFor={() => null} className="text-xs" />}
 
             <h1 className="text-xl font-bold text-ink">{t('completeProfile.teacherTitle')}</h1>
             <p className="text-sm text-ink-soft">{t('completeProfile.teacherHint')}</p>
@@ -213,9 +227,10 @@ export function CompleteTeacherProfilePage() {
                     rows={4}
                     value={form.bio}
                     onChange={patch('bio')}
-                    maxLength={2000}
+                    maxLength={1000}
                     className="w-full resize-none rounded-btn border border-line bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
+                  <div className="text-left text-xs text-ink-soft/70">{form.bio.length}/1000</div>
                 </label>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

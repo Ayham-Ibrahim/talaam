@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Camera, GraduationCap, KeyRound, UserRound } from 'lucide-react';
+import { Camera, GraduationCap, KeyRound, UserRound, Trash2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import {
   StudentAcademicProfileFields,
@@ -12,7 +12,7 @@ import { ApiErrorList, Avatar, Skeleton } from '@/components/ui';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { TimezoneField } from '@/components/dashboard/TimezoneField';
 import { useAuth } from '@/hooks/useAuth';
-import { useUploadAvatar, useUpdateProfile, useUpdatePassword } from '@/hooks/useProfile';
+import { useUploadAvatar, useDeleteAvatar, useUpdateProfile, useUpdatePassword } from '@/hooks/useProfile';
 import { useCompleteStudentProfile, useMyStudentProfile } from '@/hooks/useStudentAccount';
 import { useT } from '@/hooks/useT';
 
@@ -55,6 +55,7 @@ export function StudentSettingsPage() {
 
   const { data: profile, isLoading: profileLoading } = useMyStudentProfile(studentId);
   const uploadAvatar = useUploadAvatar();
+  const deleteAvatar = useDeleteAvatar();
   const updateProfile = useUpdateProfile();
   const updatePassword = useUpdatePassword();
   const updateAcademicProfile = useCompleteStudentProfile(studentId);
@@ -152,10 +153,23 @@ export function StudentSettingsPage() {
                   <Camera size={13} />
                   <input type="file" accept="image/png,image/jpeg" onChange={handleAvatarChange} className="hidden" />
                 </label>
+                {user.avatar && (
+                  <button
+                    type="button"
+                    onClick={() => deleteAvatar.mutate()}
+                    disabled={deleteAvatar.isPending}
+                    title={t('studentSettings.removePhoto')}
+                    className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-white text-accent-pink shadow-card hover:bg-accent-pink/10 disabled:opacity-50"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                )}
               </div>
               {uploadAvatar.isPending && <span className="text-xs text-ink-soft">{t('studentSettings.uploading')}</span>}
+              {deleteAvatar.isPending && <span className="text-xs text-ink-soft">{t('studentSettings.deletingAvatar')}</span>}
             </div>
             {uploadAvatar.isError && <ApiErrorList error={uploadAvatar.error} labelFor={() => null} />}
+            {deleteAvatar.isError && <ApiErrorList error={deleteAvatar.error} labelFor={() => null} />}
 
             {updateProfile.isError && <ApiErrorList error={updateProfile.error} labelFor={profileErrorLabel} />}
 

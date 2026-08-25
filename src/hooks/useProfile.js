@@ -15,6 +15,15 @@ export function useUploadAvatar() {
   });
 }
 
+/** يعيد الحساب فوراً للصورة الافتراضية (أحرف الاسم الأولى) بلا إعادة تسجيل دخول — نفس منطق useUploadAvatar أعلاه */
+export function useDeleteAvatar() {
+  const { updateUser } = useAuth();
+  return useMutation({
+    mutationFn: () => profileService.deleteAvatar(),
+    onSuccess: () => updateUser({ avatar_path: null, avatar: null }),
+  });
+}
+
 /** يحدّث بيانات الحساب الأساسية (اسم/هاتف/واتساب/جنس/منطقة زمنية) فوراً في المتجر بلا إعادة تسجيل دخول */
 export function useUpdateProfile() {
   const { updateUser } = useAuth();

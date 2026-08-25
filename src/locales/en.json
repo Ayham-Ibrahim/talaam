@@ -383,6 +383,8 @@
     "basicInfoTitle": "Basic Info",
     "basicInfoHint": "Name, contact info, and profile photo",
     "uploading": "Uploading...",
+    "removePhoto": "Remove photo",
+    "deletingAvatar": "Removing...",
     "nameLabel": "Name",
     "phoneLabel": "Phone",
     "whatsappLabel": "WhatsApp",

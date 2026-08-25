@@ -17,6 +17,16 @@ export const profileService = {
     return data.data;
   },
 
+  /** يعيد الحساب للصورة الافتراضية (أحرف الاسم الأولى) — آمنة التكرار حتى لو لم تكن هناك صورة أصلاً */
+  async deleteAvatar() {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return { avatar_path: null };
+    }
+    const { data } = await client.delete(endpoints.profile.deleteAvatar);
+    return data.data;
+  },
+
   async updateProfile(payload) {
     if (config.useMocks) {
       await mockDelay(300);

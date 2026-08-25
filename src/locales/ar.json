@@ -437,7 +437,9 @@
     "teacherRejected": "تم رفض طلب التوثيق",
     "teacherInvited": "تمت دعوتك للانضمام كمعلم على منصة تعلّم",
     "studentImported": "تم إنشاء حسابك كطالب على منصة تعلّم",
-    "sessionReminder": "لديك جلسة قادمة"
+    "sessionReminder": "لديك جلسة قادمة",
+    "rescheduleApproved": "تمت الموافقة على طلب تغيير موعد جلستك",
+    "rescheduleRejected": "تم رفض طلب تغيير موعد جلستك"
   },
   "completeProfile": {
     "studentTitle": "أكمل ملفك الشخصي",
@@ -493,6 +495,8 @@
     "documentTypeLabel": "نوع الوثيقة",
     "documentFileLabel": "الملف",
     "uploading": "جارٍ الرفع...",
+    "removePhoto": "حذف الصورة",
+    "deletingAvatar": "جارٍ الحذف...",
     "upload": "رفع",
     "submitForReview": "إرسال للمراجعة",
     "submitting": "جارٍ الإرسال...",
@@ -504,6 +508,8 @@
     "basicInfoTitle": "البيانات الأساسية",
     "basicInfoHint": "الاسم، وسائل التواصل، والصورة الشخصية",
     "uploading": "جارٍ الرفع...",
+    "removePhoto": "حذف الصورة",
+    "deletingAvatar": "جارٍ الحذف...",
     "nameLabel": "الاسم",
     "phoneLabel": "رقم الهاتف",
     "whatsappLabel": "واتساب",
