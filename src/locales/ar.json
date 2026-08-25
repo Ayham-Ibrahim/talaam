@@ -494,6 +494,7 @@
     "documentsHint": "ارفع وثيقة واحدة على الأقل قبل إرسال طلب المراجعة",
     "documentTypeLabel": "نوع الوثيقة",
     "documentFileLabel": "الملف",
+    "documentFileHint": "صورة (JPG أو PNG) أو PDF فقط، بحجم 5 ميغابايت كحد أقصى",
     "uploading": "جارٍ الرفع...",
     "removePhoto": "حذف الصورة",
     "deletingAvatar": "جارٍ الحذف...",

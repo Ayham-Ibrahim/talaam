@@ -376,9 +376,11 @@ export function CompleteTeacherProfilePage() {
                     <span className="text-sm font-semibold text-ink">{t('completeProfile.documentFileLabel')}</span>
                     <input
                       type="file"
+                      accept="image/png,image/jpeg,application/pdf"
                       onChange={(e) => setDocFile(e.target.files?.[0] ?? null)}
                       className="w-full rounded-btn border border-line bg-white p-2.5 text-sm text-ink"
                     />
+                    <span className="text-xs text-ink-soft">{t('completeProfile.documentFileHint')}</span>
                   </label>
                   <button
                     type="button"
@@ -390,6 +392,9 @@ export function CompleteTeacherProfilePage() {
                     {uploadDocument.isPending ? t('completeProfile.uploading') : t('completeProfile.upload')}
                   </button>
                 </div>
+                {uploadDocument.isError && (
+                  <ApiErrorList error={uploadDocument.error} labelFor={() => null} className="mt-2 text-xs" />
+                )}
               </div>
 
               {submitForVerification.isError && (
