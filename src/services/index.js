@@ -1228,6 +1228,7 @@ export const dashboardService = {
         // أولاً) لأنه المسار العام المشترك مع نقاط استدعاء أخرى، فيُطلَب هنا صراحة.
         sort: params.sort ?? 'asc',
         ...(params.status ? { status: params.status } : {}),
+        ...(params.category ? { category: params.category } : {}),
       },
     });
     return {

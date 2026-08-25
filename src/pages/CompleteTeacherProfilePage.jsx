@@ -85,6 +85,10 @@ export function CompleteTeacherProfilePage() {
   const [hydrated, setHydrated] = useState(false);
   const [docType, setDocType] = useState('identity');
   const [docFile, setDocFile] = useState(null);
+  // input[type=file] عنصر غير خاضع للتحكم في عرضه — تصفير state الملف وحده لا
+  // يُفرغ ما يعرضه المتصفح فعلياً؛ تغيير key يجبر React على استبدال عنصر الـ
+  // DOM بآخر جديد فارغ تماماً بعد كل رفع ناجح.
+  const [docInputKey, setDocInputKey] = useState(0);
 
   const { data: subjects = [] } = useTaxonomyList('subjects');
   const { data: curricula = [] } = useTaxonomyList('curricula');
@@ -169,7 +173,15 @@ export function CompleteTeacherProfilePage() {
 
   const handleUpload = () => {
     if (!docFile) return;
-    uploadDocument.mutate({ type: docType, file: docFile }, { onSuccess: () => setDocFile(null) });
+    uploadDocument.mutate(
+      { type: docType, file: docFile },
+      {
+        onSuccess: () => {
+          setDocFile(null);
+          setDocInputKey((k) => k + 1);
+        },
+      },
+    );
   };
 
   // بلا تنقّل بعد النجاح عمداً — status يصبح pending_verification فوراً عبر
@@ -375,6 +387,7 @@ export function CompleteTeacherProfilePage() {
                   <label className="flex flex-1 flex-col gap-1.5">
                     <span className="text-sm font-semibold text-ink">{t('completeProfile.documentFileLabel')}</span>
                     <input
+                      key={docInputKey}
                       type="file"
                       accept="image/png,image/jpeg,application/pdf"
                       onChange={(e) => setDocFile(e.target.files?.[0] ?? null)}
@@ -392,6 +405,11 @@ export function CompleteTeacherProfilePage() {
                     {uploadDocument.isPending ? t('completeProfile.uploading') : t('completeProfile.upload')}
                   </button>
                 </div>
+                {uploadDocument.isSuccess && (
+                  <div className="mt-2 rounded-btn bg-success-light px-4 py-2.5 text-xs font-medium text-success">
+                    {t('completeProfile.documentUploaded')}
+                  </div>
+                )}
                 {uploadDocument.isError && (
                   <ApiErrorList error={uploadDocument.error} labelFor={() => null} className="mt-2 text-xs" />
                 )}

@@ -25,6 +25,10 @@ export function SessionsPage() {
     page,
     per_page: PER_PAGE,
     status: filters.status || undefined,
+    // مُصفّاة على السيرفر (وليس على الفرونت إند بعد ترقيم الصفحات) — وإلا فصفحة
+    // بعينها قد لا تحوي أي جلسة من الفئة المختارة رغم وجود جلسات منها في صفحات
+    // أخرى، فيظهر "لا توجد جلسات" مع عدّاد/ترقيم لإجمالي كل الفئات مجتمعة.
+    category: activeTab !== 'all' ? activeTab : undefined,
   });
 
   const sessions = sessionsResponse?.data ?? [];
@@ -41,19 +45,19 @@ export function SessionsPage() {
     if (!sessions) return [];
     const search = filters.search.trim().toLowerCase();
     return sessions.filter((session) => {
-      if (activeTab !== 'all' && session.category !== activeTab) return false;
-      // الحالة تُصفّى من السيرفر فعلياً (params.status في useSessions أدناه) —
-      // لا نعيد تصفيتها هنا. كانت تُعاد تصفيتها بمقارنة session.status (بعد
-      // تبسيطه عبر mapSessionStatus إلى upcoming/attended/cancelled) بقيمة
-      // "reschedule_pending" الخام حين يُختار ذلك الفلتر تحديداً، فلا تتطابقان
-      // أبداً وتختفي كل النتائج التي أعادها السيرفر بصحة تامة.
+      // الحالة والفئة (التبويب) تُصفَّيان من السيرفر فعلياً (params.status
+      // وparams.category في useSessions أعلاه) — لا نعيد تصفيتهما هنا. كانت
+      // الحالة تُعاد تصفيتها بمقارنة session.status الخام بقيمة "reschedule_pending"
+      // حين يُختار ذلك الفلتر تحديداً فلا تتطابقان أبداً؛ وكانت الفئة تُصفَّى
+      // بالكامل على الفرونت إند بعد ترقيم صفحة من السيرفر بالفعل، فتظهر صفحة
+      // فارغة من الفئة المختارة مع عدّاد/ترقيم لإجمالي كل الفئات (كلا العطلين مُصلَحان الآن).
       if (filters.subject && session.subject !== filters.subject) return false;
       if (search && !`${session.teacherName} ${session.subject} ${session.sessionType}`.toLowerCase().includes(search)) {
         return false;
       }
       return true;
     });
-  }, [sessions, activeTab, filters.subject, filters.search]);
+  }, [sessions, filters.subject, filters.search]);
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -89,7 +93,7 @@ export function SessionsPage() {
               onChange={handleFilterChange}
             />
 
-            {sessions.length === 0 ? (
+            {filteredSessions.length === 0 ? (
               <EmptyState
                 icon={CalendarX2}
                 image="/fallback_images/no_sessions.webp"
