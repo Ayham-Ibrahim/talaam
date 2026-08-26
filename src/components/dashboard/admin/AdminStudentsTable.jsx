@@ -46,13 +46,13 @@ export function AdminStudentsTable({ students }) {
             <tr key={student.id} className={i % 2 === 1 ? 'bg-[#FAFBFD]' : ''}>
               <td className="px-4 py-4 text-right">
                 <div className="flex items-center justify-end gap-2">
+                  <Avatar name={student.name} src={student.avatar} size="sm" className="!h-9 !w-9" />
                   <div className="text-right">
                     <div className="font-semibold text-ink">{student.name}</div>
                     <div className="text-xs text-ink-soft" dir="ltr">
                       {student.email}
                     </div>
                   </div>
-                  <Avatar name={student.name} src={student.avatar} size="sm" className="!h-9 !w-9" />
                 </div>
               </td>
               <td className="px-4 py-4 text-right text-ink-soft" dir="ltr">

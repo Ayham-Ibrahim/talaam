@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
 import { AdminStudentsFilterBar } from '@/components/dashboard/admin/AdminStudentsFilterBar';
 import { AdminStudentsTable } from '@/components/dashboard/admin/AdminStudentsTable';
+import { AddStudentAccountModal } from '@/components/dashboard/admin/AddStudentAccountModal';
 import { Pagination } from '@/components/dashboard/Pagination';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
@@ -17,6 +19,7 @@ export function AdminStudentsPage() {
   const { user } = useAuth();
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [page, setPage] = useState(1);
+  const [showAddModal, setShowAddModal] = useState(false);
   const { data, isLoading, isError, refetch } = useAdminStudentsList(filters);
 
   const handleFilterChange = (key, value) => {
@@ -34,9 +37,19 @@ export function AdminStudentsPage() {
   return (
     <AdminDashboardLayout>
       <div className="flex flex-col gap-6">
-        <div className="text-right">
-          <h1 className="text-xl font-bold text-ink">{t('dashboard.adminStudents.title')}</h1>
-          <p className="mt-1 text-sm text-ink-soft">{t('dashboard.adminStudents.subtitle')}</p>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="text-right">
+            <h1 className="text-xl font-bold text-ink">{t('dashboard.adminStudents.title')}</h1>
+            <p className="mt-1 text-sm text-ink-soft">{t('dashboard.adminStudents.subtitle')}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-hover"
+          >
+            <Plus size={16} />
+            {t('dashboard.adminStudents.addStudent')}
+          </button>
         </div>
 
         <AdminStudentsFilterBar filters={filters} onChange={handleFilterChange} />
@@ -58,6 +71,8 @@ export function AdminStudentsPage() {
           </>
         )}
       </div>
+
+      {showAddModal && <AddStudentAccountModal onClose={() => setShowAddModal(false)} />}
     </AdminDashboardLayout>
   );
 }

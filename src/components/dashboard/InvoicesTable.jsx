@@ -35,8 +35,8 @@ export function InvoicesTable({ invoices, onView, onDownload, downloadingId }) {
                 </td>
                 <td className="px-4 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <span className="text-ink-soft">{invoice.teacherName}</span>
                     <Avatar name={invoice.teacherName} src={invoice.teacherAvatar} size="sm" className="!h-9 !w-9" />
+                    <span className="text-ink-soft">{invoice.teacherName}</span>
                   </div>
                 </td>
                 <td className="px-4 py-4 text-right font-semibold text-ink">{invoice.amount}$</td>

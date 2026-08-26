@@ -36,8 +36,10 @@ export function useCreateTeacherAccount() {
 }
 
 export function useCreateStudentAccount() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload) => adminService.createStudentAccount(payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'students-list'] }),
   });
 }
 

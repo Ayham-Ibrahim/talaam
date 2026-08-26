@@ -1018,6 +1018,7 @@
     "adminStudents": {
       "title": "إدارة الطلاب",
       "subtitle": "قائمة الطلاب المسجَّلين، حالة حساباتهم، وإعادة تعيين كلمات المرور",
+      "addStudent": "إضافة طالب",
       "searchPlaceholder": "ابحث بالاسم أو البريد الإلكتروني",
       "allEducationTypes": "كل التصنيفات الأكاديمية",
       "educationType": {

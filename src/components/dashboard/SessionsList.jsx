@@ -24,11 +24,11 @@ function SessionRow({ session, isEven, onReschedule }) {
     <tr className={isEven ? 'bg-[#F7F8FD]' : ''}>
       <td className="px-4 py-4 text-right">
         <div className="flex items-center justify-end gap-2">
+          <Avatar name={session.teacherName} src={session.teacherAvatar} size="sm" />
           <div className="text-right">
             <div className="font-semibold text-ink">{session.teacherName}</div>
             <div className="text-xs text-ink-soft">{session.subject}</div>
           </div>
-          <Avatar name={session.teacherName} src={session.teacherAvatar} size="sm" />
         </div>
       </td>
       <td className="px-4 py-4 text-center">
