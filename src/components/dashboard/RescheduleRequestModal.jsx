@@ -1,12 +1,9 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { ApiErrorList } from '@/components/ui';
+import { useAuth } from '@/hooks/useAuth';
 import { useT } from '@/hooks/useT';
-
-function toLocalIsoDateTime(date, time) {
-  if (!date || !time) return null;
-  return `${date}T${time}:00`;
-}
+import { zonedWallTimeToUtcIso } from '@/lib/zonedDateTime';
 
 function getFirstFieldError(error, field) {
   const messages = error?.errors?.[field];
@@ -29,12 +26,16 @@ function isReasonRequired(currentScheduledAt) {
  */
 export function RescheduleRequestModal({ isPending, error, currentScheduledAt, onConfirm, onClose }) {
   const t = useT();
+  const { user } = useAuth();
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [reason, setReason] = useState('');
   const [touched, setTouched] = useState(false);
 
-  const proposedScheduledAt = toLocalIsoDateTime(date, time);
+  // بتوقيت المستخدم الحالي نفسه (من أرسل الطلب، طالباً كان أو معلماً) — لا
+  // بتوقيت UTC ولا بأي منطقة أخرى، وإلا يُحفَظ موعد مُزاح فعلياً بفارق التوقيت
+  // الكامل عن الوقت الذي اختاره هو تحديداً (انظر توثيق zonedWallTimeToUtcIso).
+  const proposedScheduledAt = zonedWallTimeToUtcIso(date, time, user?.timezone);
   const proposedAtMs = proposedScheduledAt ? new Date(proposedScheduledAt).getTime() : NaN;
   const missingDateTime = !date || !time;
   const invalidPastDateTime = !missingDateTime && (!Number.isFinite(proposedAtMs) || proposedAtMs <= Date.now());
