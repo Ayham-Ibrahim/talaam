@@ -1300,9 +1300,19 @@ export const dashboardService = {
     if (kind === 'booking') {
       const { data } = await client.get(endpoints.bookings.detail(rawId));
       const booking = data.data;
+      // GET /bookings/{id} لا يُحمّل علاقة booking على كل جلسة ضمن attended_sessions
+      // (كل هذه الجلسات تخص هذا الحجز نفسه أصلاً، فلا داعٍ لتكرارها من الباك اند) —
+      // لكن mapSessionListRow يعتمد على session.booking.status لتحديد isSessionPaid()
+      // (تُخفي زر "طلب تغيير الموعد" لحجز pending_payment). بلا هذا الإسناد يكون
+      // session.booking undefined دائماً هنا، فتُعامَل كل جلسة كأنها مدفوعة زوراً
+      // بصرف النظر عن حالة الحجز الفعلية.
+      const sessions = (booking.attended_sessions ?? []).map((session) => ({
+        ...session,
+        booking: session.booking ?? booking,
+      }));
       return {
         package: mapBookingToPackageCard(booking),
-        sessions: (booking.attended_sessions ?? []).map(mapSessionListRow),
+        sessions: sessions.map(mapSessionListRow),
       };
     }
 
