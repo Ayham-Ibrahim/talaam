@@ -119,7 +119,10 @@ export const adminService = {
       await mockDelay(400);
       return updateMockTeacher(id, { status: 'verified', suspensionReason: null });
     }
-    const { data } = await client.post(endpoints.admin.approveTeacher(id));
+    // كانت تستدعي approveTeacher خطأً — endpoint التوثيق يشترط status='pending_verification'
+    // تحديداً في الباك اند، فيُرفض دائماً لمعلم suspended فعلياً (RULE، انظر
+    // TeacherService::reactivate). مسار reactivate مخصَّص فعلياً لهذا الانتقال.
+    const { data } = await client.post(endpoints.admin.reactivateTeacher(id));
     return data.data;
   },
 
