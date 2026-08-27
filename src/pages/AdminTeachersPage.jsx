@@ -20,7 +20,13 @@ export function AdminTeachersPage() {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [page, setPage] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const { data, isLoading, isError, refetch } = useAdminTeachers(filters);
+
+  const handleAddSuccess = () => {
+    setSuccessMessage(t('dashboard.adminTeachers.addSuccess'));
+    setTimeout(() => setSuccessMessage(''), 4000);
+  };
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -52,6 +58,10 @@ export function AdminTeachersPage() {
           </button>
         </div>
 
+        {successMessage && (
+          <div className="rounded-2xl bg-success-light px-4 py-3 text-sm font-medium text-success">{successMessage}</div>
+        )}
+
         <AdminTeachersFilterBar filters={filters} onChange={handleFilterChange} />
 
         {isError ? (
@@ -72,7 +82,9 @@ export function AdminTeachersPage() {
         )}
       </div>
 
-      {showAddModal && <AddTeacherAccountModal onClose={() => setShowAddModal(false)} />}
+      {showAddModal && (
+        <AddTeacherAccountModal onClose={() => setShowAddModal(false)} onSuccess={handleAddSuccess} />
+      )}
     </AdminDashboardLayout>
   );
 }

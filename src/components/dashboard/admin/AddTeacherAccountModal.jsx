@@ -25,7 +25,7 @@ const INITIAL_TOUCHED = { name: false, email: false, phone: false, teacher_type:
 const ACCOUNT_FIELD_LABELS = { name: 'الاسم', email: 'البريد الإلكتروني', phone: 'الهاتف', teacher_type: 'النوع', password: 'كلمة المرور' };
 const accountErrorLabel = (path) => ACCOUNT_FIELD_LABELS[path] ?? path;
 
-export function AddTeacherAccountModal({ onClose }) {
+export function AddTeacherAccountModal({ onClose, onSuccess }) {
   const t = useT();
   const [form, setForm] = useState(INITIAL);
   const [touched, setTouched] = useState(INITIAL_TOUCHED);
@@ -152,7 +152,12 @@ export function AddTeacherAccountModal({ onClose }) {
     if (!isValid) return;
     createAccount.mutate(
       { ...form, name: form.name.trim(), email: form.email.trim(), phone: form.phone || null },
-      { onSuccess: () => onClose?.() },
+      {
+        onSuccess: () => {
+          onClose?.();
+          onSuccess?.();
+        },
+      },
     );
   };
 
@@ -221,6 +226,7 @@ export function AddTeacherAccountModal({ onClose }) {
               inputMode="tel"
               autoComplete="tel"
               pattern="^\+?\d*$"
+              placeholder={t('dashboard.adminTeachers.phonePlaceholder')}
               value={form.phone}
               onKeyDown={handlePhoneKeyDown}
               onPaste={handlePhonePaste}

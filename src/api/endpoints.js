@@ -113,6 +113,7 @@ export const endpoints = {
     rejectTeacher: (id) => `/teachers/${id}/reject`,
     suspendTeacher: (id) => `/teachers/${id}/suspend`,
     reactivateTeacher: (id) => `/teachers/${id}/reactivate`,
+    deleteTeacher: (id) => `/teachers/${id}`,
     verificationDocuments: '/verification-documents',
     approveDocument: (id) => `/verification-documents/${id}/approve`,
     rejectDocument: (id) => `/verification-documents/${id}/reject`,

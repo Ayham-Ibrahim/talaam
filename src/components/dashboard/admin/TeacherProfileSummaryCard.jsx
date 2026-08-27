@@ -45,6 +45,7 @@ export function TeacherProfileSummaryCard({ teacher, actions, isActing, actionEr
 
   const teacherActionErrorLabel = (path) => {
     if (path === 'status') return t('dashboard.adminTeacherDetail.approveTeacher');
+    if (path === 'documents') return t('dashboard.adminTeacherDetail.documentsLabel');
     return path;
   };
 

@@ -439,7 +439,8 @@
     "studentImported": "تم إنشاء حسابك كطالب على منصة تعلّم",
     "sessionReminder": "لديك جلسة قادمة",
     "rescheduleApproved": "تمت الموافقة على طلب تغيير موعد جلستك",
-    "rescheduleRejected": "تم رفض طلب تغيير موعد جلستك"
+    "rescheduleRejected": "تم رفض طلب تغيير موعد جلستك",
+    "documentRejected": "تم رفض إحدى وثائقك الثبوتية"
   },
   "completeProfile": {
     "studentTitle": "أكمل ملفك الشخصي",
@@ -452,8 +453,12 @@
     "rejectedBody": "تم رفض طلب توثيق حسابك. تواصل مع الإدارة لمعرفة التفاصيل.",
     "suspendedTitle": "حسابك موقوف",
     "suspendedBody": "تم إيقاف حسابك مؤقتاً. تواصل مع الإدارة لمزيد من التفاصيل.",
+    "pendingDocumentActionBody": "طلبك ما زال قيد المراجعة، لكن إحدى وثائقك رُفضت وتحتاج إعادة رفع — أعد رفعها أدناه لمتابعة المراجعة.",
+    "suspendedDocumentActionBody": "حسابك موقوف مؤقتاً، وإحدى وثائقك رُفضت وتحتاج إعادة رفع — أعد رفعها أدناه.",
     "documentsRequiredHint": "الوثائق الثلاث التالية إلزامية ولا يمكن إتمام التسجيل بدونها",
     "documentMissing": "لم تُرفع بعد",
+    "documentRejectedReason": "سبب الرفض",
+    "documentReuploadPrompt": "إعادة رفع هذه الوثيقة",
     "educationTypeLabel": "نوع التعليم",
     "educationTypes": {
       "school": "مدرسي",
@@ -488,8 +493,10 @@
     "subjectsLabel": "المواد",
     "languagesLabel": "اللغات",
     "displayNameEnLabel": "اسم المركز بالإنجليزية",
+    "displayNameEnInvalid": "الاسم يجب أن يحتوي على أحرف فقط من دون أرقام أو رموز",
     "commercialRegisterLabel": "رقم السجل التجاري",
     "saveProfile": "حفظ الملف الشخصي",
+    "saveSuccess": "تم حفظ الملف الشخصي بنجاح",
     "documentsTitle": "وثائق التوثيق",
     "documentsHint": "ارفع وثيقة واحدة على الأقل قبل إرسال طلب المراجعة",
     "documentTypeLabel": "نوع الوثيقة",
@@ -1077,6 +1084,7 @@
       "emailInvalid": "أدخل بريدًا إلكترونيًا صحيحًا",
       "emailTooLong": "البريد الإلكتروني طويل جداً، الحد الأقصى 150 حرفاً",
       "phoneLabel": "رقم الهاتف",
+      "phonePlaceholder": "+9665xxxxxxxx",
       "phoneHint": "أرقام فقط، ويمكن أن يبدأ الرقم بـ +",
       "phoneInvalid": "أدخل رقم هاتف صحيحًا باستخدام الأرقام فقط",
       "phoneTooLong": "رقم الهاتف طويل جداً، الحد الأقصى 25 خانة",
@@ -1088,7 +1096,14 @@
       "passwordMin": "كلمة المرور يجب ألا تقل عن 8 أحرف",
       "passwordTooLong": "كلمة المرور طويلة جداً، الحد الأقصى 255 حرفاً",
       "addSubmit": "إنشاء الحساب",
-      "close": "إغلاق"
+      "close": "إغلاق",
+      "addSuccess": "تم إنشاء حساب المعلم بنجاح",
+      "deleteTeacher": "حذف",
+      "deleteModalTitle": "حذف حساب المعلم",
+      "deleteModalMessage": "سيتم حذف هذا الحساب وكل وثائقه وبياناته نهائياً ولا يمكن التراجع عن ذلك. هل أنت متأكد من حذف",
+      "deleteConfirm": "نعم، احذف الحساب",
+      "deleting": "جارٍ الحذف...",
+      "deleteSuccess": "تم حذف حساب المعلم بنجاح"
     },
     "adminTeacherDetail": {
       "back": "العودة لقائمة المعلمين",
@@ -1115,6 +1130,7 @@
       "suspendTeacher": "إيقاف المعلم",
       "reactivateTeacher": "إعادة تفعيل",
       "approvalBlockedTitle": "لا يمكن اعتماد هذا الحساب حالياً",
+      "documentsLabel": "الوثائق الثبوتية",
       "documentsTitle": "وثائق التوثيق",
       "documentsEmpty": "لم يرفع المعلم أي وثائق بعد",
       "docUploadedAt": "رُفعت بتاريخ",

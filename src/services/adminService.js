@@ -126,6 +126,16 @@ export const adminService = {
     return data.data;
   },
 
+  /** متاح فقط لمعلم status='rejected' (يتحقق منه الباك اند) — حذف حقيقي نهائي لكل بياناته ووثائقه */
+  async deleteTeacher(id) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return null;
+    }
+    const { data } = await client.delete(endpoints.admin.deleteTeacher(id));
+    return data.data;
+  },
+
   /** رابط موقَّع صالح 15 دقيقة (VerificationDocumentController::downloadUrl) — لا مقابل مباشر في وضع المحاكاة */
   async getDocumentDownloadUrl(documentId) {
     if (config.useMocks) {

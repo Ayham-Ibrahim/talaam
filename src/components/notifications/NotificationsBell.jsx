@@ -7,6 +7,7 @@ import {
   useMarkAllNotificationsRead,
 } from '@/hooks/useNotifications';
 import { formatDateTime } from '@/lib/formatters';
+import { DOCUMENT_TYPE_LABELS } from '@/mocks/admin.mock';
 import { useT } from '@/hooks/useT';
 
 function notificationContent(t, notification) {
@@ -27,6 +28,11 @@ function notificationContent(t, notification) {
       return {
         title: data.status === 'rejected' ? t('notifications.rescheduleRejected') : t('notifications.rescheduleApproved'),
         body: data.status === 'rejected' ? data.reason : data.newScheduledAt ? formatDateTime(data.newScheduledAt) : null,
+      };
+    case 'VerificationDocumentRejected':
+      return {
+        title: t('notifications.documentRejected'),
+        body: `${DOCUMENT_TYPE_LABELS[data.type] ?? data.type}: ${data.reason}`,
       };
     default:
       return { title: type, body: null };

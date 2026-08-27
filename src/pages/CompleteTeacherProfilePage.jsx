@@ -16,6 +16,7 @@ import { useUploadAvatar, useDeleteAvatar } from '@/hooks/useProfile';
 import { useTaxonomyList } from '@/hooks/useTaxonomy';
 import { QUALIFICATION_LABELS, EXPERIENCE_LABELS } from '@/services/teacherService';
 import { DOCUMENT_TYPE_LABELS, DOCUMENT_STATUS_STYLES } from '@/mocks/admin.mock';
+import { isEditingKey, isNameInputCharacterValid, sanitizeName } from '@/lib/accountFormValidation';
 import { useT } from '@/hooks/useT';
 
 const QUALIFICATION_OPTIONS = Object.entries(QUALIFICATION_LABELS).map(([value, label]) => ({ value, label }));
@@ -85,6 +86,8 @@ export function CompleteTeacherProfilePage() {
   const [hydrated, setHydrated] = useState(false);
   const [docType, setDocType] = useState('identity');
   const [docFile, setDocFile] = useState(null);
+  const [displayNameHasInvalidChars, setDisplayNameHasInvalidChars] = useState(false);
+  const [profileSuccessMessage, setProfileSuccessMessage] = useState('');
   // input[type=file] عنصر غير خاضع للتحكم في عرضه — تصفير state الملف وحده لا
   // يُفرغ ما يعرضه المتصفح فعلياً؛ تغيير key يجبر React على استبدال عنصر الـ
   // DOM بآخر جديد فارغ تماماً بعد كل رفع ناجح.
@@ -113,8 +116,31 @@ export function CompleteTeacherProfilePage() {
   if (!user) return <Navigate to="/login" replace />;
   if (!user.teacher) return <Navigate to="/" replace />;
 
+  const documents = teacher?.verification_documents ?? [];
+  const uploadedTypes = new Set(documents.map((d) => d.type));
+  const missingTypes = REQUIRED_DOCUMENT_TYPES.filter((type) => !uploadedTypes.has(type));
+  const canSubmit = form.bio.trim() !== '' && missingTypes.length === 0;
+
+  // آخر وثيقة من كل نوع فقط تمثّل حالته فعلياً — الباك اند يُرجع كل السجل
+  // التاريخي (وثيقة رُفضت ثم أُعيد رفعها تبقى في القائمة)، مرتّباً الأحدث
+  // أولاً. الاعتماد على .some() على القائمة كاملة كان يُبقي "يحتاج إجراء"
+  // فعّالاً للأبد حتى بعد إصلاح الوثيقة ونجاحها، لوجود نسخة قديمة مرفوضة.
+  const latestDocsByType = new Map();
+  for (const doc of documents) {
+    if (!latestDocsByType.has(doc.type)) latestDocsByType.set(doc.type, doc);
+  }
+  const hasRejectedDocument = [...latestDocsByType.values()].some((d) => d.status === 'rejected');
+  const needsDocumentAction = (status === 'pending_verification' || status === 'suspended') && hasRejectedDocument;
+
+  // اعتماد المعلم لا يُنقّل بعيداً عن هذه الصفحة تلقائياً عبر ProtectedRoute
+  // إن كان قد فُتح عليها أصلاً وبقي فيها (status المخزَّن يتزامن مع الحقيقي عبر
+  // useMyTeacher أثناء بقائه هنا، فيتغير دون أي تنقّل فعلي بين الصفحات).
+  if (status === 'verified') {
+    return <Navigate to="/dashboard/teacher" replace />;
+  }
+
   // بعد الإرسال، الحساب محجوز عن لوحة التحكم حتى يقرر الأدمن — انظر ProtectedRoute
-  if (status === 'pending_verification') {
+  if (status === 'pending_verification' && !needsDocumentAction) {
     return (
       <StatusScreen
         icon={Clock}
@@ -134,7 +160,7 @@ export function CompleteTeacherProfilePage() {
       />
     );
   }
-  if (status === 'suspended') {
+  if (status === 'suspended' && !needsDocumentAction) {
     return (
       <StatusScreen
         icon={Ban}
@@ -145,25 +171,55 @@ export function CompleteTeacherProfilePage() {
     );
   }
 
-  const documents = teacher?.verification_documents ?? [];
-  const uploadedTypes = new Set(documents.map((d) => d.type));
-  const missingTypes = REQUIRED_DOCUMENT_TYPES.filter((type) => !uploadedTypes.has(type));
-  const canSubmit = form.bio.trim() !== '' && missingTypes.length === 0;
-
   const patch = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
+  // اسم العرض بالإنجليزية: أحرف فقط بلا أرقام — نفس قاعدة حقل الاسم في نافذة
+  // "إضافة معلم" عند الأدمن (accountFormValidation مشتركة بين الاثنين).
+  const handleDisplayNameChange = (e) => {
+    const nextValue = e.target.value;
+    setDisplayNameHasInvalidChars(!isNameInputCharacterValid(nextValue));
+    setForm((prev) => ({ ...prev, display_name_en: sanitizeName(nextValue) }));
+  };
+
+  const handleDisplayNameKeyDown = (e) => {
+    if (isEditingKey(e) || isNameInputCharacterValid(e.key)) {
+      setDisplayNameHasInvalidChars(false);
+      return;
+    }
+    e.preventDefault();
+    setDisplayNameHasInvalidChars(true);
+  };
+
+  const handleDisplayNamePaste = (e) => {
+    const pastedText = e.clipboardData.getData('text');
+    if (!isNameInputCharacterValid(pastedText)) {
+      e.preventDefault();
+      setDisplayNameHasInvalidChars(true);
+      return;
+    }
+    setDisplayNameHasInvalidChars(false);
+  };
+
   const handleSaveProfile = () => {
-    updateProfile.mutate({
-      bio: form.bio || null,
-      qualification: form.qualification || null,
-      experience_years: form.experience_years || null,
-      subject_ids: form.subject_ids,
-      curriculum_ids: form.curriculum_ids,
-      language_ids: form.language_ids,
-      ...(isTrainingCenter
-        ? { display_name_en: form.display_name_en, commercial_register: form.commercial_register }
-        : {}),
-    });
+    updateProfile.mutate(
+      {
+        bio: form.bio || null,
+        qualification: form.qualification || null,
+        experience_years: form.experience_years || null,
+        subject_ids: form.subject_ids,
+        curriculum_ids: form.curriculum_ids,
+        language_ids: form.language_ids,
+        ...(isTrainingCenter
+          ? { display_name_en: form.display_name_en, commercial_register: form.commercial_register }
+          : {}),
+      },
+      {
+        onSuccess: () => {
+          setProfileSuccessMessage(t('completeProfile.saveSuccess'));
+          setTimeout(() => setProfileSuccessMessage(''), 4000);
+        },
+      },
+    );
   };
 
   const handleAvatarChange = (e) => {
@@ -228,10 +284,20 @@ export function CompleteTeacherProfilePage() {
             <p className="text-center text-sm text-ink-soft">…</p>
           ) : (
             <>
-              {updateProfile.isError && (
+              {needsDocumentAction && (
+                <div className="mb-6 rounded-2xl bg-accent-pink/5 px-4 py-3 text-center text-sm font-medium text-accent-pink">
+                  {status === 'suspended'
+                    ? t('completeProfile.suspendedDocumentActionBody')
+                    : t('completeProfile.pendingDocumentActionBody')}
+                </div>
+              )}
+
+              {status === 'active_unverified' && updateProfile.isError && (
                 <ApiErrorList error={updateProfile.error} labelFor={profileErrorLabel} className="mb-4" />
               )}
 
+              {status === 'active_unverified' && (
+              <>
               <div className="flex flex-col gap-4 text-right">
                 <label className="flex flex-col gap-1.5">
                   <span className="text-sm font-semibold text-ink">{t('completeProfile.bioLabel')}</span>
@@ -239,10 +305,10 @@ export function CompleteTeacherProfilePage() {
                     rows={4}
                     value={form.bio}
                     onChange={patch('bio')}
-                    maxLength={1000}
+                    maxLength={500}
                     className="w-full resize-none rounded-btn border border-line bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
-                  <div className="text-left text-xs text-ink-soft/70">{form.bio.length}/1000</div>
+                  <div className="text-left text-xs text-ink-soft/70">{form.bio.length}/500</div>
                 </label>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -294,10 +360,21 @@ export function CompleteTeacherProfilePage() {
                       <input
                         type="text"
                         dir="ltr"
+                        maxLength={180}
                         value={form.display_name_en}
-                        onChange={patch('display_name_en')}
-                        className="w-full rounded-btn border border-line bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        onKeyDown={handleDisplayNameKeyDown}
+                        onPaste={handleDisplayNamePaste}
+                        onChange={handleDisplayNameChange}
+                        aria-invalid={displayNameHasInvalidChars}
+                        className={`w-full rounded-btn border bg-white p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
+                          displayNameHasInvalidChars
+                            ? 'border-accent-pink focus:ring-accent-pink/30'
+                            : 'border-line focus:border-primary focus:ring-primary/20'
+                        }`}
                       />
+                      {displayNameHasInvalidChars && (
+                        <span className="text-xs text-accent-pink">{t('completeProfile.displayNameEnInvalid')}</span>
+                      )}
                     </label>
                     <label className="flex flex-col gap-1.5">
                       <span className="text-sm font-semibold text-ink">{t('completeProfile.commercialRegisterLabel')}</span>
@@ -321,38 +398,66 @@ export function CompleteTeacherProfilePage() {
               >
                 {updateProfile.isPending ? t('completeProfile.saving') : t('completeProfile.saveProfile')}
               </button>
+              {profileSuccessMessage && (
+                <div className="mt-2 rounded-btn bg-success-light px-4 py-2.5 text-xs font-medium text-success">
+                  {profileSuccessMessage}
+                </div>
+              )}
+              </>
+              )}
 
-              <div className="mt-8 border-t border-line/60 pt-6">
+              <div className={status === 'active_unverified' ? 'mt-8 border-t border-line/60 pt-6' : ''}>
                 <h2 className="text-right text-base font-bold text-ink">{t('completeProfile.documentsTitle')}</h2>
                 <p className="mt-1 text-right text-sm text-ink-soft">{t('completeProfile.documentsRequiredHint')}</p>
 
                 <ul className="mt-4 flex flex-col gap-2">
                   {REQUIRED_DOCUMENT_TYPES.map((type) => {
+                    // الأحدث فقط يمثّل حالة النوع فعلياً — قد يرفع المعلم أكثر
+                    // من مرة لنفس النوع بعد رفض سابق (الباك اند يُرجع الوثائق
+                    // بترتيب الأحدث أولاً، فأول تطابق هنا هو الأحدث دائماً).
                     const uploadedDoc = documents.find((d) => d.type === type);
                     const style = uploadedDoc ? DOCUMENT_STATUS_STYLES[uploadedDoc.status] : null;
+                    const isRejected = uploadedDoc?.status === 'rejected';
                     return (
                       <li
                         key={type}
-                        className={`flex items-center justify-between gap-3 rounded-xl px-4 py-3 text-right shadow-card ${
+                        className={`rounded-xl px-4 py-3 text-right shadow-card ${
                           uploadedDoc ? 'bg-white' : 'bg-accent-pink/5'
                         }`}
                       >
-                        {uploadedDoc ? (
-                          <span
-                            className="rounded-pill px-3 py-1 text-xs font-bold"
-                            style={{ backgroundColor: style?.bg, color: style?.color }}
-                          >
-                            {style?.label}
+                        <div className="flex items-center justify-between gap-3">
+                          {uploadedDoc ? (
+                            <span
+                              className="rounded-pill px-3 py-1 text-xs font-bold"
+                              style={{ backgroundColor: style?.bg, color: style?.color }}
+                            >
+                              {style?.label}
+                            </span>
+                          ) : (
+                            <span className="rounded-pill bg-accent-pink/10 px-3 py-1 text-xs font-bold text-accent-pink">
+                              {t('completeProfile.documentMissing')}
+                            </span>
+                          )}
+                          <span className="flex items-center gap-2 text-sm font-medium text-ink">
+                            {DOCUMENT_TYPE_LABELS[type] ?? type}
+                            <FileText size={16} className="text-ink-soft" />
                           </span>
-                        ) : (
-                          <span className="rounded-pill bg-accent-pink/10 px-3 py-1 text-xs font-bold text-accent-pink">
-                            {t('completeProfile.documentMissing')}
-                          </span>
+                        </div>
+
+                        {isRejected && (
+                          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-accent-pink/5 px-3 py-2 text-xs">
+                            <button
+                              type="button"
+                              onClick={() => setDocType(type)}
+                              className="font-semibold text-primary underline-offset-2 hover:underline"
+                            >
+                              {t('completeProfile.documentReuploadPrompt')}
+                            </button>
+                            <span className="text-accent-pink">
+                              {t('completeProfile.documentRejectedReason')}: {uploadedDoc.rejection_reason}
+                            </span>
+                          </div>
                         )}
-                        <span className="flex items-center gap-2 text-sm font-medium text-ink">
-                          {DOCUMENT_TYPE_LABELS[type] ?? type}
-                          <FileText size={16} className="text-ink-soft" />
-                        </span>
                       </li>
                     );
                   })}
@@ -393,7 +498,6 @@ export function CompleteTeacherProfilePage() {
                       onChange={(e) => setDocFile(e.target.files?.[0] ?? null)}
                       className="w-full rounded-btn border border-line bg-white p-2.5 text-sm text-ink"
                     />
-                    <span className="text-xs text-ink-soft">{t('completeProfile.documentFileHint')}</span>
                   </label>
                   <button
                     type="button"
@@ -405,6 +509,7 @@ export function CompleteTeacherProfilePage() {
                     {uploadDocument.isPending ? t('completeProfile.uploading') : t('completeProfile.upload')}
                   </button>
                 </div>
+                <span className="text-xs text-ink-soft">{t('completeProfile.documentFileHint')}</span>
                 {uploadDocument.isSuccess && (
                   <div className="mt-2 rounded-btn bg-success-light px-4 py-2.5 text-xs font-medium text-success">
                     {t('completeProfile.documentUploaded')}
@@ -415,6 +520,8 @@ export function CompleteTeacherProfilePage() {
                 )}
               </div>
 
+              {status === 'active_unverified' && (
+              <>
               {submitForVerification.isError && (
                 <ApiErrorList error={submitForVerification.error} labelFor={() => null} className="mt-4" />
               )}
@@ -429,6 +536,8 @@ export function CompleteTeacherProfilePage() {
                 {submitForVerification.isPending ? t('completeProfile.submitting') : t('completeProfile.submitForReview')}
               </button>
               {!canSubmit && <p className="mt-2 text-center text-xs text-ink-soft">{t('completeProfile.submitHint')}</p>}
+              </>
+              )}
             </>
           )}
         </div>

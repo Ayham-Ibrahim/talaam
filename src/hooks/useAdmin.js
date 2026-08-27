@@ -85,6 +85,14 @@ export function useReactivateTeacher(id) {
   });
 }
 
+export function useDeleteTeacher() {
+  const invalidate = useInvalidateTeacher();
+  return useMutation({
+    mutationFn: (teacherId) => adminService.deleteTeacher(teacherId),
+    onSuccess: invalidate,
+  });
+}
+
 export function useDocumentDownloadUrl() {
   return useMutation({
     mutationFn: (documentId) => adminService.getDocumentDownloadUrl(documentId),
