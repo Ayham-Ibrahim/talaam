@@ -755,6 +755,7 @@ function mapSessionListRow(session) {
     canJoin,
     canReschedule: !bookingInactive && isUpcoming && isBeforeSessionStart(session) && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
     canCancel: !bookingInactive && isUpcoming,
+    recordingUrl: session.recording_url ?? null,
     hasPendingRescheduleRequest: hasPendingReschedule,
     pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),
   };

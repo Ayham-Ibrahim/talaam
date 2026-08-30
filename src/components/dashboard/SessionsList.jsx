@@ -77,6 +77,16 @@ function SessionRow({ session, isEven, onReschedule }) {
               {t('dashboard.changeAppointment')}
             </button>
           )}
+          {session.recordingUrl && (
+            <a
+              href={session.recordingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-xl border border-primary bg-[#EDF0F5] px-4 py-2 text-xs font-medium text-primary hover:bg-primary/10"
+            >
+              {t('dashboard.watchRecording')}
+            </a>
+          )}
           {session.canCancel && (
             <button
               type="button"
