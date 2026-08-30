@@ -2,6 +2,7 @@ import { config } from '@/config/env';
 import { client, mockDelay } from '@/api/client';
 import { endpoints } from '@/api/endpoints';
 import { formatDate } from '@/lib/formatters';
+import { getBrowserTimezone } from '@/lib/timezone';
 import { useAuthStore } from '@/store';
 import { TEACHER_TYPE_LABELS } from '@/services/teacherService';
 import {
@@ -655,25 +656,47 @@ function sessionPackageTitle(session) {
   return session.booking?.package?.title ?? session.course?.title ?? null;
 }
 
-/** "H:MM"/"م" pair from an ISO datetime, matching the Arabic 12-hour display used across the dashboard */
-function formatSessionTime(scheduledAt) {
+/**
+ * scheduled_at يُخزَّن ويُرسَل UTC دائماً. عرضه يجب أن يكون بالمنطقة الزمنية
+ * المضبوطة في حساب المستخدم (user.timezone) لا بتوقيت جهازه إن اختلفا — طالب
+ * ضبط حسابه على Asia/Tokyo يجب أن يرى وقت جلسته بتوقيت طوكيو حتى لو كان متصفحه
+ * على منطقة أخرى، ومعلمٌ على Asia/Riyadh يرى نفس الجلسة بتوقيت الرياض. نرجع
+ * لتوقيت المتصفح فقط إن لم تُضبط منطقة الحساب بعد.
+ */
+function accountTimeZone() {
+  return useAuthStore.getState().user?.timezone || getBrowserTimezone();
+}
+
+function zonedParts(scheduledAt, timeZone) {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    hourCycle: 'h23',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+    .formatToParts(new Date(scheduledAt))
+    .reduce((acc, { type, value }) => (type === 'literal' ? acc : { ...acc, [type]: value }), {});
+}
+
+/** "H:MM"/"م" pair from an ISO datetime, in the account timezone, matching the Arabic 12-hour display used across the dashboard */
+function formatSessionTime(scheduledAt, timeZone = accountTimeZone()) {
   if (!scheduledAt) return { time: null, period: null };
-  const d = new Date(scheduledAt);
-  const hours24 = d.getHours();
+  const { hour, minute } = zonedParts(scheduledAt, timeZone);
+  const hours24 = Number(hour);
   const period = hours24 < 12 ? 'ص' : 'م';
   const hours12 = ((hours24 + 11) % 12) + 1;
-  const time = `${String(hours12).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  const time = `${String(hours12).padStart(2, '0')}:${minute}`;
   return { time, period };
 }
 
-function formatSessionDay(scheduledAt) {
+function formatSessionDay(scheduledAt, timeZone = accountTimeZone()) {
   if (!scheduledAt) return null;
-  return new Intl.DateTimeFormat('ar', { weekday: 'long' }).format(new Date(scheduledAt));
+  return new Intl.DateTimeFormat('ar', { weekday: 'long', timeZone }).format(new Date(scheduledAt));
 }
 
-function formatSessionDate(scheduledAt) {
+function formatSessionDate(scheduledAt, timeZone = accountTimeZone()) {
   if (!scheduledAt) return null;
-  return new Intl.DateTimeFormat('ar', { day: 'numeric', month: 'long' }).format(new Date(scheduledAt));
+  return new Intl.DateTimeFormat('ar', { day: 'numeric', month: 'long', timeZone }).format(new Date(scheduledAt));
 }
 
 /** null once the moment has passed — countdown widgets only make sense for the future */

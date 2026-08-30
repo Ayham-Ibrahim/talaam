@@ -75,16 +75,22 @@ export function BookingWidget({ selectedPackage }) {
   const [slots, setSlots] = useState(() => Array(sessionsCount).fill(null));
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // باقة جديدة (أو عدد جلسات مختلف) → إعادة تصفير كامل التقدّم السابق
+  const requestIndividual = useRequestIndividualBooking(selectedPackage?.id);
+  const createGroup = useCreateGroupBooking(selectedPackage?.id);
+
+  // باقة جديدة (أو عدد جلسات مختلف) → إعادة تصفير كامل التقدّم السابق، بما فيه
+  // حالة الطلب (خطأ/نجاح) — وإلا تبقى رسالة خطأ باقةٍ ظاهرةً داخل باقة أخرى لا
+  // علاقة لها بها. mutation في React Query يحتفظ بآخر نتيجة حتى reset() صريح.
   useEffect(() => {
     setSlots(Array(sessionsCount).fill(null));
     setActiveIndex(0);
     setSelectedDate(null);
     setSelectedTime('');
+    requestIndividual.reset();
+    createGroup.reset();
+    // reset مرجعياً ثابتة في React Query — لا داعي لإدراجها في التبعيّات
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPackage?.id, sessionsCount]);
-
-  const requestIndividual = useRequestIndividualBooking(selectedPackage?.id);
-  const createGroup = useCreateGroupBooking(selectedPackage?.id);
 
   // عرض استشاري فقط قبل الإرسال — الفحص الملزم الفعلي على الباك اند وقت
   // الحجز (ScheduleConflictService)، وقد يتغير الوضع بين هذا الاستعلام
