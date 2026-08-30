@@ -40,7 +40,15 @@ export function ReasonModal({ titleKey, isPending, error, maxLength = 500, onCon
           <span className="w-8" />
         </div>
 
-        {error && <ApiErrorList error={error} labelFor={() => t(`${reasonKey}.reasonLabel`)} className="mb-4" />}
+        {/* عنوان "السبب" يُلصَق فقط بأخطاء حقل السبب نفسه؛ الأخطاء الأخرى (قاعدة
+            عمل يرفضها الباك اند، كوجود جلسات نشطة عند تعليق معلم) تُعرَض كما هي. */}
+        {error && (
+          <ApiErrorList
+            error={error}
+            labelFor={(path) => (path === 'reason' ? t(`${reasonKey}.reasonLabel`) : null)}
+            className="mb-4"
+          />
+        )}
 
         <label className="flex flex-col gap-1.5 text-right">
           <span className="text-sm font-semibold text-ink">{t(`${reasonKey}.reasonLabel`)}</span>

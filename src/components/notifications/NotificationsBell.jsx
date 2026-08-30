@@ -29,6 +29,13 @@ function notificationContent(t, notification) {
         title: data.status === 'rejected' ? t('notifications.rescheduleRejected') : t('notifications.rescheduleApproved'),
         body: data.status === 'rejected' ? data.reason : data.newScheduledAt ? formatDateTime(data.newScheduledAt) : null,
       };
+    case 'RescheduleRequestSubmitted':
+      return {
+        title: data.forReviewer
+          ? t('notifications.rescheduleSubmittedForReview')
+          : t('notifications.rescheduleSubmitted'),
+        body: data.proposedScheduledAt ? formatDateTime(data.proposedScheduledAt) : null,
+      };
     case 'VerificationDocumentRejected':
       return {
         title: t('notifications.documentRejected'),

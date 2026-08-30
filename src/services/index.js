@@ -565,6 +565,28 @@ function isSessionPaid(session) {
 }
 
 /**
+ * الحجز المرتبط بالجلسة انتهت صلاحيته (expired) أو أُلغي (cancelled) — الجلسة لم
+ * تعد صالحة إطلاقاً: تُعرَض كـ"ملغاة" في السجل بلا أي إجراء (انضمام/تغيير موعد/
+ * إلغاء). مرآة لفلتر ClassSession::scopeVisibleTo في الباك اند الذي يُخفيها من
+ * قائمة "الجلسات"؛ هذا الفحص يغطّي المسارات التي تجلب جلسات الحجز مباشرةً
+ * (تفاصيل الباقة عبر GET /bookings/{id}) فلا تمرّ بذلك الفلتر.
+ */
+function isSessionBookingInactive(session) {
+  return ['expired', 'cancelled'].includes(session.booking?.status);
+}
+
+/**
+ * "باقاتي" تعرض الاشتراكات القائمة فقط. حجز انتهت مهلة دفعه دون إكمالها (expired)
+ * أو أُلغي (cancelled) — كل جلساته باطلة ولم يعد اشتراكاً قائماً، فلا كارت له هنا؛
+ * يبقى ظاهراً في "الفواتير/سجل الحجوزات". ومثله التسجيل الملغى/المنسحب منه.
+ */
+function isLiveSubscriptionRecord(kind, record) {
+  return kind === 'booking'
+    ? !['expired', 'cancelled'].includes(record.status)
+    : !['cancelled', 'withdrawn'].includes(record.status);
+}
+
+/**
  * موعد جلسة الباقة الجماعية مشترك بين عدة طلاب دفعوا عليه معاً — تغييره بطلب
  * طرف واحد يكسر جدول البقية بلا تنسيق، فالباك اند يرفضه 422 دوماً؛ هذا فقط
  * يُخفي الزر مسبقاً بدل إظهاره ثم رفضه (نفس نمط isSessionPaid أعلاه). لا مكافئ
@@ -672,9 +694,14 @@ function mapSessionListRow(session) {
   const category = sessionCategory(session);
   const { time, period } = formatSessionTime(session.scheduled_at);
   const hasPendingReschedule = hasPendingRescheduleRequest(session);
-  const status = hasPendingReschedule ? 'reschedule_pending' : mapSessionStatus(session.status, session.scheduled_at, session.duration_min);
+  const bookingInactive = isSessionBookingInactive(session);
+  const status = bookingInactive
+    ? 'cancelled'
+    : hasPendingReschedule
+      ? 'reschedule_pending'
+      : mapSessionStatus(session.status, session.scheduled_at, session.duration_min);
   const isUpcoming = status === 'upcoming';
-  const canJoin = canJoinSession(session, session.join_url_student ?? null);
+  const canJoin = !bookingInactive && canJoinSession(session, session.join_url_student ?? null);
   return {
     id: session.id,
     scheduledAt: session.scheduled_at,
@@ -692,8 +719,8 @@ function mapSessionListRow(session) {
     countdown: isUpcoming ? computeCountdown(session.scheduled_at) : null,
     joinUrl: session.join_url_student ?? null,
     canJoin,
-    canReschedule: isUpcoming && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
-    canCancel: isUpcoming,
+    canReschedule: !bookingInactive && isUpcoming && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
+    canCancel: !bookingInactive && isUpcoming,
     hasPendingRescheduleRequest: hasPendingReschedule,
     pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),
   };
@@ -1279,7 +1306,9 @@ export const dashboardService = {
     const records = [
       ...bookingsRes.data.data.map((r) => ({ kind: 'booking', record: r })),
       ...enrollmentsRes.data.data.map((r) => ({ kind: 'enrollment', record: r })),
-    ].sort((a, b) => new Date(b.record.created_at) - new Date(a.record.created_at));
+    ]
+      .filter(({ kind, record }) => isLiveSubscriptionRecord(kind, record))
+      .sort((a, b) => new Date(b.record.created_at) - new Date(a.record.created_at));
 
     return records.map(({ kind, record }) =>
       kind === 'booking'

@@ -1,4 +1,5 @@
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
+import { sanitizeName, sanitizePhone, validateName, validatePhone } from '@/lib/accountFormValidation';
 import { useTaxonomyList } from '@/hooks/useTaxonomy';
 import { useT } from '@/hooks/useT';
 
@@ -32,7 +33,48 @@ const EDUCATION_TYPES = [
 const ACADEMIC_LEVELS = ['diploma', 'bachelor', 'master'];
 const TRAINING_LEVELS = ['beginner', 'intermediate', 'advanced'];
 
-export function isStudentAcademicFormValid(form) {
+/** الباك اند يُعيد birth_date كـ ISO كامل ("2005-03-10T00:00:00Z") — نأخذ جزء التاريخ فقط ليقبله <input type="date"> وتصحّ المقارنة. */
+export function toDateInputValue(value) {
+  return value ? String(value).slice(0, 10) : '';
+}
+
+/** أحدث تاريخ ميلاد مقبول = أمس (الباك اند: before:today — تاريخ اليوم نفسه مرفوض). */
+export function maxBirthDate() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/** تاريخ ميلاد اليوم أو بعده غير صالح؛ الحقل اختياري فالقيمة الفارغة صالحة. يطابق قاعدة before:today في الباك اند. */
+export function isBirthDateValid(birthDate) {
+  const date = toDateInputValue(birthDate);
+  return !date || date <= maxBirthDate();
+}
+
+/** الصف الدراسي: رقم صحيح من 1 إلى 12 فقط (الباك اند: integer|min:1|max:12). اختياري. */
+export function isGradeValid(grade) {
+  if (grade === '' || grade == null) return true;
+  const n = Number(grade);
+  return Number.isInteger(n) && n >= 1 && n <= 12;
+}
+
+/** يُبقي الأرقام فقط أثناء الكتابة في حقل الصف. */
+export function sanitizeGradeInput(raw) {
+  return String(raw).replace(/[^\d]/g, '');
+}
+
+/** هاتف ولي الأمر: أرقام فقط (نفس قاعدة الهاتف). اختياري. */
+export function isGuardianPhoneValid(phone) {
+  return !phone || validatePhone(sanitizePhone(String(phone))) === null;
+}
+
+/** اسم ولي الأمر: أحرف فقط بلا أرقام أو رموز (نفس قاعدة الاسم في الباك اند). اختياري. */
+export function isGuardianNameValid(name) {
+  return !String(name ?? '').trim() || validateName(String(name)) === null;
+}
+
+/** الحقول الإلزامية لنوع التعليم المختار فقط — لتلميح "أكمل الحقول المطلوبة". */
+export function studentAcademicRequiredFieldsFilled(form) {
   return form.education_type === 'school'
     ? form.curriculum_id !== '' && form.stage_id !== ''
     : form.education_type === 'university'
@@ -42,12 +84,26 @@ export function isStudentAcademicFormValid(form) {
         : false;
 }
 
+/** خطأ في أي حقل حر (تاريخ ميلاد/صف/اسم وهاتف ولي الأمر) — لتعطيل زر الحفظ، مستقل عن اكتمال الحقول الإلزامية. */
+export function hasStudentAcademicFieldError(form) {
+  return (
+    !isBirthDateValid(form.birth_date) ||
+    !isGradeValid(form.grade) ||
+    !isGuardianNameValid(form.guardian_name) ||
+    !isGuardianPhoneValid(form.guardian_phone)
+  );
+}
+
+export function isStudentAcademicFormValid(form) {
+  return studentAcademicRequiredFieldsFilled(form) && !hasStudentAcademicFieldError(form);
+}
+
 export function buildStudentAcademicPayload(form) {
   const payload = { education_type: form.education_type };
   if (form.education_type === 'school') {
     payload.curriculum_id = Number(form.curriculum_id);
     payload.stage_id = Number(form.stage_id);
-    if (form.grade) payload.grade = Number(form.grade);
+    if (form.grade && isGradeValid(form.grade)) payload.grade = Number(form.grade);
   } else if (form.education_type === 'university') {
     payload.university_id = Number(form.university_id);
     payload.major_id = Number(form.major_id);
@@ -56,15 +112,20 @@ export function buildStudentAcademicPayload(form) {
     payload.course_field_id = Number(form.course_field_id);
     payload.level = form.level;
   }
-  if (form.birth_date) payload.birth_date = form.birth_date;
-  if (form.guardian_name) payload.guardian_name = form.guardian_name;
-  if (form.guardian_phone) payload.guardian_phone = form.guardian_phone;
+  if (form.birth_date) payload.birth_date = toDateInputValue(form.birth_date);
+  if (form.guardian_name && form.guardian_name.trim()) payload.guardian_name = form.guardian_name.trim();
+  if (form.guardian_phone) payload.guardian_phone = sanitizePhone(String(form.guardian_phone));
   return payload;
 }
 
 export function StudentAcademicProfileFields({ form, setForm, touched }) {
   const t = useT();
-  const isValid = isStudentAcademicFormValid(form);
+  // تلميح "أكمل الحقول المطلوبة" يخص الحقول الإلزامية فقط — أخطاء الصف/تاريخ
+  // الميلاد/هاتف ولي الأمر لها رسائلها الخاصة تحت كل حقل مباشرةً.
+  const requiredFieldsValid = studentAcademicRequiredFieldsFilled(form);
+  const gradeError = !isGradeValid(form.grade);
+  const guardianNameError = !isGuardianNameValid(form.guardian_name);
+  const guardianPhoneError = !isGuardianPhoneValid(form.guardian_phone);
 
   const { data: curricula = [] } = useTaxonomyList(form.education_type === 'school' ? 'curricula' : null);
   const { data: stages = [] } = useTaxonomyList(form.education_type === 'school' ? 'stages' : null);
@@ -116,12 +177,19 @@ export function StudentAcademicProfileFields({ form, setForm, touched }) {
             <span className="text-sm font-semibold text-ink">{t('completeProfile.gradeLabel')}</span>
             <input
               type="number"
+              inputMode="numeric"
               min="1"
               max="12"
               value={form.grade}
-              onChange={patch('grade')}
-              className="w-full rounded-btn border border-line bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              onChange={(e) => setForm((prev) => ({ ...prev, grade: sanitizeGradeInput(e.target.value) }))}
+              aria-invalid={gradeError}
+              className={`w-full rounded-btn border bg-white p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
+                gradeError
+                  ? 'border-accent-pink focus:border-accent-pink focus:ring-accent-pink/20'
+                  : 'border-line focus:border-primary focus:ring-primary/20'
+              }`}
             />
+            {gradeError && <span className="text-xs text-accent-pink">{t('completeProfile.gradeInvalid')}</span>}
           </label>
         </>
       )}
@@ -177,10 +245,19 @@ export function StudentAcademicProfileFields({ form, setForm, touched }) {
             <span className="text-sm font-semibold text-ink">{t('completeProfile.birthDateLabel')}</span>
             <input
               type="date"
-              value={form.birth_date}
+              value={toDateInputValue(form.birth_date)}
+              max={maxBirthDate()}
               onChange={patch('birth_date')}
-              className="w-full rounded-btn border border-line bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              aria-invalid={!isBirthDateValid(form.birth_date)}
+              className={`w-full rounded-btn border bg-white p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
+                !isBirthDateValid(form.birth_date)
+                  ? 'border-accent-pink focus:border-accent-pink focus:ring-accent-pink/20'
+                  : 'border-line focus:border-primary focus:ring-primary/20'
+              }`}
             />
+            {!isBirthDateValid(form.birth_date) && (
+              <span className="text-xs text-accent-pink">{t('completeProfile.birthDateInvalid')}</span>
+            )}
           </label>
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-semibold text-ink">{t('completeProfile.guardianNameLabel')}</span>
@@ -188,25 +265,42 @@ export function StudentAcademicProfileFields({ form, setForm, touched }) {
               type="text"
               maxLength={150}
               value={form.guardian_name}
-              onChange={patch('guardian_name')}
-              className="w-full rounded-btn border border-line bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              onChange={(e) => setForm((prev) => ({ ...prev, guardian_name: sanitizeName(e.target.value) }))}
+              aria-invalid={guardianNameError}
+              className={`w-full rounded-btn border bg-white p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
+                guardianNameError
+                  ? 'border-accent-pink focus:border-accent-pink focus:ring-accent-pink/20'
+                  : 'border-line focus:border-primary focus:ring-primary/20'
+              }`}
             />
+            {guardianNameError && (
+              <span className="text-xs text-accent-pink">{t('completeProfile.guardianNameInvalid')}</span>
+            )}
           </label>
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-semibold text-ink">{t('completeProfile.guardianPhoneLabel')}</span>
             <input
               type="tel"
+              inputMode="tel"
               dir="ltr"
               maxLength={25}
               value={form.guardian_phone}
-              onChange={patch('guardian_phone')}
-              className="w-full rounded-btn border border-line bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              onChange={(e) => setForm((prev) => ({ ...prev, guardian_phone: sanitizePhone(e.target.value) }))}
+              aria-invalid={guardianPhoneError}
+              className={`w-full rounded-btn border bg-white p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
+                guardianPhoneError
+                  ? 'border-accent-pink focus:border-accent-pink focus:ring-accent-pink/20'
+                  : 'border-line focus:border-primary focus:ring-primary/20'
+              }`}
             />
+            {guardianPhoneError && (
+              <span className="text-xs text-accent-pink">{t('completeProfile.guardianPhoneInvalid')}</span>
+            )}
           </label>
         </>
       )}
 
-      {form.education_type && touched && !isValid && (
+      {form.education_type && touched && !requiredFieldsValid && (
         <span className="text-xs text-accent-pink">{t('completeProfile.requiredHint')}</span>
       )}
     </div>

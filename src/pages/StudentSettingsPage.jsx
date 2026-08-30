@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Navigate } from 'react-router-dom';
 import { Camera, GraduationCap, KeyRound, UserRound, Trash2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
@@ -7,6 +8,7 @@ import {
   STUDENT_ACADEMIC_INITIAL,
   buildStudentAcademicPayload,
   isStudentAcademicFormValid,
+  hasStudentAcademicFieldError,
 } from '@/components/dashboard/StudentAcademicProfileFields';
 import { ApiErrorList, Avatar, Skeleton } from '@/components/ui';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
@@ -14,10 +16,26 @@ import { TimezoneField } from '@/components/dashboard/TimezoneField';
 import { useAuth } from '@/hooks/useAuth';
 import { useUploadAvatar, useDeleteAvatar, useUpdateProfile, useUpdatePassword } from '@/hooks/useProfile';
 import { useCompleteStudentProfile, useMyStudentProfile } from '@/hooks/useStudentAccount';
+import { queryKeys } from '@/api/queryKeys';
 import { useT } from '@/hooks/useT';
 
 const PROFILE_FIELD_LABELS = { name: 'الاسم', phone: 'رقم الهاتف', whatsapp: 'واتساب', gender: 'الجنس' };
 const profileErrorLabel = (path) => PROFILE_FIELD_LABELS[path] ?? path;
+
+/** أرقام فقط مع بادئة + اختيارية واحدة — يطابق قاعدة UpdateMyProfileRequest في الباك اند. */
+const PHONE_PATTERN = /^\+?[0-9]{7,24}$/;
+
+/** يمنع ظهور أي حرف/رمز أثناء الكتابة: يُبقي الأرقام فقط، مع + واحدة في البداية إن وُجدت. */
+function sanitizePhoneInput(raw) {
+  const cleaned = raw.replace(/[^\d+]/g, '');
+  return cleaned.startsWith('+') ? '+' + cleaned.slice(1).replace(/\+/g, '') : cleaned.replace(/\+/g, '');
+}
+
+/** رسالة الخطأ الفورية، أو null. القيمة الفارغة مقبولة (الحقل اختياري). */
+function phoneFieldError(value, invalidMessage) {
+  if (!value) return null;
+  return PHONE_PATTERN.test(value) ? null : invalidMessage;
+}
 
 const PASSWORD_FIELD_LABELS = { current_password: 'كلمة المرور الحالية', password: 'كلمة المرور الجديدة' };
 const passwordErrorLabel = (path) => PASSWORD_FIELD_LABELS[path] ?? path;
@@ -51,6 +69,7 @@ function SectionCard({ icon: Icon, title, hint, children }) {
 export function StudentSettingsPage() {
   const t = useT();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const studentId = user?.student?.id;
 
   const { data: profile, isLoading: profileLoading } = useMyStudentProfile(studentId);
@@ -66,19 +85,25 @@ export function StudentSettingsPage() {
   const [academicHydrated, setAcademicHydrated] = useState(false);
   const [passwordForm, setPasswordForm] = useState({ current_password: '', password: '', password_confirmation: '' });
   const [passwordTouched, setPasswordTouched] = useState(false);
+  const [basicBlurred, setBasicBlurred] = useState({ phone: false, whatsapp: false });
+  const [basicHydrated, setBasicHydrated] = useState(false);
 
+  // نملأ النموذج مرّة واحدة بعد توفّر user واكتمال تحميل ملف الطالب (مصدر
+  // whatsapp/gender). سابقاً كان يُعاد ملؤه عند كل تغيّر في user — وبعد الحفظ
+  // يتغيّر user (updateUser) فيُعاد ضبط whatsapp/gender من نسخة profile
+  // المخزَّنة القديمة (لم تُبطَّل)، فتُمسح القيمتان اللتان أدخلهما المستخدم للتوّ.
   useEffect(() => {
-    if (user) {
-      setBasicForm({
-        name: user.name ?? '',
-        phone: user.phone ?? '',
-        whatsapp: profile?.whatsapp ?? '',
-        gender: profile?.gender ?? '',
-        timezone: user.timezone ?? '',
-        timezoneAuto: user.timezone_auto ?? true,
-      });
-    }
-  }, [user, profile?.whatsapp, profile?.gender]);
+    if (basicHydrated || !user || profileLoading) return;
+    setBasicForm({
+      name: user.name ?? '',
+      phone: user.phone ?? '',
+      whatsapp: profile?.whatsapp ?? '',
+      gender: profile?.gender ?? '',
+      timezone: user.timezone ?? '',
+      timezoneAuto: user.timezone_auto ?? true,
+    });
+    setBasicHydrated(true);
+  }, [user, profile, profileLoading, basicHydrated]);
 
   useEffect(() => {
     if (profile && !academicHydrated) {
@@ -107,15 +132,31 @@ export function StudentSettingsPage() {
     if (file) uploadAvatar.mutate(file);
   };
 
+  const phoneError = phoneFieldError(basicForm.phone.trim(), t('studentSettings.phoneInvalid'));
+  const whatsappError = phoneFieldError(basicForm.whatsapp.trim(), t('studentSettings.whatsappInvalid'));
+  const showPhoneError = basicBlurred.phone && Boolean(phoneError);
+  const showWhatsappError = basicBlurred.whatsapp && Boolean(whatsappError);
+
   const handleSaveBasic = () => {
-    updateProfile.mutate({
-      name: basicForm.name.trim(),
-      phone: basicForm.phone.trim() || null,
-      whatsapp: basicForm.whatsapp.trim() || null,
-      gender: basicForm.gender || null,
-      timezone: basicForm.timezone || null,
-      timezone_auto: basicForm.timezoneAuto,
-    });
+    setBasicBlurred({ phone: true, whatsapp: true });
+    if (phoneError || whatsappError) return;
+    updateProfile.mutate(
+      {
+        name: basicForm.name.trim(),
+        phone: basicForm.phone.trim() || null,
+        whatsapp: basicForm.whatsapp.trim() || null,
+        gender: basicForm.gender || null,
+        timezone: basicForm.timezone || null,
+        timezone_auto: basicForm.timezoneAuto,
+      },
+      {
+        // whatsapp/gender يُحفظان على users لكن UserResource (رد التحديث) لا
+        // يُعيدهما، فذاكرة ملف الطالب تبقى قديمة — نُبطلها كي يجلبها أي إعادة
+        // تحميل/دخول لاحق من الخادم بقيمها المحفوظة فعلاً.
+        onSuccess: () =>
+          queryClient.invalidateQueries({ queryKey: queryKeys.students.myProfile(studentId) }),
+      }
+    );
   };
 
   const handleSaveAcademic = () => {
@@ -124,10 +165,13 @@ export function StudentSettingsPage() {
     updateAcademicProfile.mutate(buildStudentAcademicPayload(academicForm));
   };
 
+  const passwordSameAsCurrent =
+    passwordForm.password !== '' && passwordForm.password === passwordForm.current_password;
   const isPasswordValid =
     passwordForm.current_password !== '' &&
     passwordForm.password.length >= 8 &&
-    passwordForm.password === passwordForm.password_confirmation;
+    passwordForm.password === passwordForm.password_confirmation &&
+    !passwordSameAsCurrent;
 
   const handleSavePassword = () => {
     setPasswordTouched(true);
@@ -188,23 +232,47 @@ export function StudentSettingsPage() {
                 <span className="text-sm font-semibold text-ink">{t('studentSettings.phoneLabel')}</span>
                 <input
                   type="tel"
+                  inputMode="tel"
                   dir="ltr"
                   maxLength={25}
                   value={basicForm.phone}
-                  onChange={(e) => setBasicForm((prev) => ({ ...prev, phone: e.target.value }))}
-                  className="w-full rounded-btn border border-line bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  onChange={(e) => setBasicForm((prev) => ({ ...prev, phone: sanitizePhoneInput(e.target.value) }))}
+                  onBlur={() => setBasicBlurred((prev) => ({ ...prev, phone: true }))}
+                  aria-invalid={showPhoneError}
+                  className={`w-full rounded-btn border bg-white p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
+                    showPhoneError
+                      ? 'border-accent-pink focus:border-accent-pink focus:ring-accent-pink/20'
+                      : 'border-line focus:border-primary focus:ring-primary/20'
+                  }`}
                 />
+                {showPhoneError ? (
+                  <span className="text-xs text-accent-pink">{phoneError}</span>
+                ) : (
+                  <span className="text-xs text-ink-soft">{t('studentSettings.phoneHint')}</span>
+                )}
               </label>
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-semibold text-ink">{t('studentSettings.whatsappLabel')}</span>
                 <input
                   type="tel"
+                  inputMode="tel"
                   dir="ltr"
                   maxLength={25}
                   value={basicForm.whatsapp}
-                  onChange={(e) => setBasicForm((prev) => ({ ...prev, whatsapp: e.target.value }))}
-                  className="w-full rounded-btn border border-line bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  onChange={(e) => setBasicForm((prev) => ({ ...prev, whatsapp: sanitizePhoneInput(e.target.value) }))}
+                  onBlur={() => setBasicBlurred((prev) => ({ ...prev, whatsapp: true }))}
+                  aria-invalid={showWhatsappError}
+                  className={`w-full rounded-btn border bg-white p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
+                    showWhatsappError
+                      ? 'border-accent-pink focus:border-accent-pink focus:ring-accent-pink/20'
+                      : 'border-line focus:border-primary focus:ring-primary/20'
+                  }`}
                 />
+                {showWhatsappError ? (
+                  <span className="text-xs text-accent-pink">{whatsappError}</span>
+                ) : (
+                  <span className="text-xs text-ink-soft">{t('studentSettings.phoneHint')}</span>
+                )}
               </label>
               <SmoothSelect
                 label={t('studentSettings.genderLabel')}
@@ -226,7 +294,7 @@ export function StudentSettingsPage() {
 
             <button
               type="button"
-              disabled={updateProfile.isPending || basicForm.name.trim() === ''}
+              disabled={updateProfile.isPending || basicForm.name.trim() === '' || showPhoneError || showWhatsappError}
               onClick={handleSaveBasic}
               className="w-fit rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
             >
@@ -247,7 +315,7 @@ export function StudentSettingsPage() {
               <StudentAcademicProfileFields form={academicForm} setForm={setAcademicForm} touched={academicTouched} />
               <button
                 type="button"
-                disabled={updateAcademicProfile.isPending}
+                disabled={updateAcademicProfile.isPending || hasStudentAcademicFieldError(academicForm)}
                 onClick={handleSaveAcademic}
                 className="mt-4 w-fit rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
               >
@@ -292,13 +360,18 @@ export function StudentSettingsPage() {
                   maxLength={255}
                   value={passwordForm.password}
                   onChange={(e) => setPasswordForm((prev) => ({ ...prev, password: e.target.value }))}
+                  aria-invalid={passwordTouched && (passwordForm.password.length < 8 || passwordSameAsCurrent)}
                   className={`w-full rounded-btn border bg-white p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
-                    passwordTouched && passwordForm.password.length < 8
+                    passwordTouched && (passwordForm.password.length < 8 || passwordSameAsCurrent)
                       ? 'border-accent-pink focus:ring-accent-pink/30'
                       : 'border-line focus:border-primary focus:ring-primary/20'
                   }`}
                 />
-                <span className="text-xs text-ink-soft">{t('studentSettings.passwordHintText')}</span>
+                {passwordSameAsCurrent ? (
+                  <span className="text-xs text-accent-pink">{t('studentSettings.passwordSameAsCurrent')}</span>
+                ) : (
+                  <span className="text-xs text-ink-soft">{t('studentSettings.passwordHintText')}</span>
+                )}
               </label>
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-semibold text-ink">{t('studentSettings.confirmPasswordLabel')}</span>

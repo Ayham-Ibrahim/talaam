@@ -7,6 +7,7 @@ import {
   STUDENT_ACADEMIC_INITIAL,
   buildStudentAcademicPayload,
   isStudentAcademicFormValid,
+  hasStudentAcademicFieldError,
 } from '@/components/dashboard/StudentAcademicProfileFields';
 import { ApiErrorList } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
@@ -71,7 +72,7 @@ export function CompleteStudentProfilePage() {
 
           <button
             type="button"
-            disabled={completeProfile.isPending}
+            disabled={completeProfile.isPending || hasStudentAcademicFieldError(form)}
             onClick={handleSubmit}
             className="mt-6 w-full rounded-xl bg-primary py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >

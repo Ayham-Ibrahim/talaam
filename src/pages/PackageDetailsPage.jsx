@@ -105,7 +105,9 @@ export function PackageDetailsPage() {
             <div className="flex flex-1 flex-col gap-4">
               <PackageDetailSummary pkg={data.package} />
               <PackageSpecsRow pkg={data.package} />
-              {data.package.remainingSessions > 0 && data.package.remainingSessions <= 2 && <PackageRebookBanner />}
+              {['confirmed', 'active', 'in_progress'].includes(data.package.status) &&
+                data.package.remainingSessions > 0 &&
+                data.package.remainingSessions <= 2 && <PackageRebookBanner />}
               <PackageSessionsList sessions={data.sessions} showType={false} />
             </div>
 
