@@ -1,4 +1,5 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { authService } from '@/services/authService';
 import { useAuthStore } from '@/store';
 
@@ -22,11 +23,29 @@ export function useLogin() {
 }
 
 export function useLogout() {
-  const logout = useAuthStore((s) => s.logout);
+  const clearSession = useAuthStore((s) => s.logout);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => authService.logout(),
-    onSettled: () => logout(),
+    // نُبطل توكن الخادم أولاً بينما هو ما زال في المتجر؛ لو فشل النداء (شبكة
+    // أو توكن منتهٍ) نبتلع الخطأ ونُكمل الخروج المحلي على أي حال — best-effort.
+    mutationFn: async () => {
+      try {
+        await authService.logout();
+      } catch {
+        /* ignore — الخروج المحلي أدناه هو ما يهمّ فعلياً */
+      }
+    },
+    // نجح النداء أو فشل: امسح الجلسة محلياً + كل كاش الاستعلامات (بيانات الطالب
+    // المخزَّنة) ثم وجّه صراحةً للصفحة العامة. لا نعتمد على إعادة تصيير
+    // ProtectedRoute وحدها — التوجيه فوري ومحدَّد. أي فتح لاحق لصفحة محمية
+    // يعيد ProtectedRoute توجيهه إلى /login لأن isAuthenticated أصبح false.
+    onSettled: () => {
+      clearSession();
+      queryClient.clear();
+      navigate('/', { replace: true });
+    },
   });
 }
 

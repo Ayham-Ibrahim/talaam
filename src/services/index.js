@@ -597,6 +597,17 @@ function isIndividualPackageSession(session) {
   return session.booking?.package?.session_format !== 'group';
 }
 
+/**
+ * تغيير الموعد مسموح فقط قبل بدء الجلسة فعلياً — لا أثناء عملها ولا بعد انتهائها.
+ * mapSessionStatus يبقى يُرجع 'upcoming' لجلسة بدأت ولم تنتهِ بعد (يفحص نهايتها
+ * لا بدايتها)، فلا يكفي isUpcoming وحده لإخفاء زر "تعديل الموعد". الباك اند يرفض
+ * الطلب 422 على أي حال؛ هذا يُخفي الزر مسبقاً.
+ */
+function isBeforeSessionStart(session) {
+  const { startsAtMs, nowMs } = getSessionTiming(session.scheduled_at);
+  return Number.isFinite(startsAtMs) && nowMs < startsAtMs;
+}
+
 function canJoinSession(session, joinUrl) {
   if (!joinUrl) return false;
   if (['completed', 'cancelled', 'no_show_student', 'no_show_teacher'].includes(session.status)) {
@@ -742,7 +753,7 @@ function mapSessionListRow(session) {
     countdown: isUpcoming ? computeCountdown(session.scheduled_at) : null,
     joinUrl: session.join_url_student ?? null,
     canJoin,
-    canReschedule: !bookingInactive && isUpcoming && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
+    canReschedule: !bookingInactive && isUpcoming && isBeforeSessionStart(session) && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
     canCancel: !bookingInactive && isUpcoming,
     hasPendingRescheduleRequest: hasPendingReschedule,
     pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),
@@ -786,7 +797,7 @@ function mapCalendarSessionRow(session) {
     period,
     durationMinutes: session.duration_min,
     countdown: status === 'upcoming' ? computeCountdown(session.scheduled_at) : null,
-    canReschedule: status === 'upcoming' && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
+    canReschedule: status === 'upcoming' && isBeforeSessionStart(session) && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
     joinUrl: canJoinSession(session, session.join_url_student ?? null) ? session.join_url_student : null,
     hasPendingRescheduleRequest: hasPendingReschedule,
     pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),
@@ -809,7 +820,7 @@ function mapTeacherCalendarSessionRow(session) {
     period,
     durationMinutes: session.duration_min,
     countdown: status === 'upcoming' ? computeCountdown(session.scheduled_at) : null,
-    canReschedule: status === 'upcoming' && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
+    canReschedule: status === 'upcoming' && isBeforeSessionStart(session) && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
     joinUrl: canJoinSession(session, session.join_url_teacher ?? null) ? session.join_url_teacher : null,
     hasPendingRescheduleRequest: hasPendingReschedule,
     pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),
@@ -980,8 +991,13 @@ export const dashboardService = {
     const upcoming = sessions
       .filter((s) => mapSessionStatus(s.status) === 'upcoming' && new Date(s.scheduled_at) > now)
       .sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at));
+    // ساعات التعلّم = مجموع مدد الجلسات التي انعقدت فعلاً. لا شيء في الباك اند
+    // يضبط class_sessions.status='completed'، فالاعتماد عليه وحده يُبقيها صفراً
+    // أبداً — نستخدم نفس اشتقاق mapSessionStatus ('attended' = status=completed
+    // أو انقضى وقت الجلسة كاملاً دون إلغاء/غياب)، وهو نفس ما يعتمده تبويب
+    // "الجلسات المنتهية" في صفحة الجلسات. فتُحدَّث الساعات تلقائياً بعد كل جلسة.
     const completedMinutes = sessions
-      .filter((s) => s.status === 'completed')
+      .filter((s) => mapSessionStatus(s.status, s.scheduled_at, s.duration_min) === 'attended')
       .reduce((sum, s) => sum + (s.duration_min ?? 0), 0);
 
     const records = [...bookings, ...enrollments];
