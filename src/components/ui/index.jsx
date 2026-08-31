@@ -3,6 +3,8 @@ import { motion, useMotionValue, useTransform, animate, useInView } from "framer
 import { useEffect, useRef } from "react";
 import { formatErrorList } from "@/utils/apiErrors";
 
+export { PasswordInputActions } from "./PasswordInputActions";
+
 /* ---------- Animated Counter ---------- */
 export function Counter({ from = 0, to, duration = 1.5, className = "" }) {
   const ref = useRef(null);

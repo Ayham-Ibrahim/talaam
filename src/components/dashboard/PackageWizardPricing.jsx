@@ -8,11 +8,12 @@ import { useT } from '@/hooks/useT';
  * any of them here would leak a figure that doesn't exist yet and violates the
  * backend's explicit policy (TeacherPackageResource excludes them entirely).
  */
-export function PackageWizardPricing({ data, onChange, onNext, onBack }) {
+export function PackageWizardPricing({ data, onChange, onNext, onBack, serverErrors }) {
   const t = useT();
   const [touched, setTouched] = useState(false);
 
   const isValid = data.teacher_price !== '' && Number(data.teacher_price) > 0;
+  const priceError = serverErrors?.teacher_price?.[0] ?? (touched && !isValid ? t('dashboard.addPackage.priceRequired') : null);
 
   const handleNext = () => {
     setTouched(true);
@@ -32,10 +33,12 @@ export function PackageWizardPricing({ data, onChange, onNext, onBack }) {
           value={data.teacher_price}
           onChange={(e) => onChange({ teacher_price: e.target.value })}
           placeholder={t('dashboard.addPackage.pricePlaceholder')}
+          aria-invalid={!!priceError}
           className={`w-full rounded-lg border bg-white px-3 py-3 text-left text-sm text-ink placeholder:text-[#AEAEB2] focus:outline-none ${
-            touched && !isValid ? 'border-accent-pink' : 'border-[#E3E3E3] focus:border-primary'
+            priceError ? 'border-accent-pink' : 'border-[#E3E3E3] focus:border-primary'
           }`}
         />
+        {priceError && <p className="text-xs text-accent-pink">{priceError}</p>}
         {isValid && Number(data.sessions_count) > 0 && (
           <span className="text-xs text-ink-soft" dir="ltr">
             {data.teacher_price} × {data.sessions_count} = {(Number(data.teacher_price) * Number(data.sessions_count)).toFixed(2)}

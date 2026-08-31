@@ -58,6 +58,17 @@ function mapPackageToWizardData(pkg) {
  * يملأ النموذج من الباقة الحالية ويستدعي update، وعرض (packageId + readOnly)
  * يقفز مباشرة لخطوة المراجعة كملخّص للقراءة فقط بلا أي استدعاء تعديل.
  */
+/**
+ * أي مفتاح خطأ من الباك اند (title, subject_id, schedules.0.date...) يعود
+ * لخطوة معينة في المعالج — يُستخدم لإعادة المستخدم تلقائياً لأول خطوة فيها
+ * حقل ناقص بعد فشل الحفظ في خطوة المراجعة (حيث لا تظهر هذه الحقول أصلاً).
+ */
+function fieldStepOf(key) {
+  if (key === 'teacher_price') return 3;
+  if (key === 'schedules' || key.startsWith('schedules.')) return 2;
+  return 1; // title, subject_id, session_format, capacity, curriculum_ids*, stage_ids*, sessions_count, discount_percent, description
+}
+
 export function AddPackageModal({ onClose, packageId, readOnly = false }) {
   const t = useT();
   const isEditing = !!packageId;
@@ -69,6 +80,11 @@ export function AddPackageModal({ onClose, packageId, readOnly = false }) {
   const [data, setData] = useState(INITIAL_DATA);
   const [hydrated, setHydrated] = useState(!isEditing);
 
+  const isPending = isEditing ? updatePackage.isPending : createPackage.isPending;
+  const activeMutation = isEditing ? updatePackage : createPackage;
+  const submitError = activeMutation.isError ? activeMutation.error : null;
+  const serverErrors = submitError?.errors ?? null;
+
   useEffect(() => {
     if (existingPackage && !hydrated) {
       setData(mapPackageToWizardData(existingPackage));
@@ -76,12 +92,27 @@ export function AddPackageModal({ onClose, packageId, readOnly = false }) {
     }
   }, [existingPackage, hydrated]);
 
-  const patchData = (patch) => setData((prev) => ({ ...prev, ...patch }));
+  // فشل الحفظ يحدث دوماً من خطوة المراجعة (الأخيرة) — بلا هذا، يبقى المستخدم
+  // على شاشة المراجعة يرى ملخصاً عاماً للأخطاء بلا أي حقل فعلي ليصلحه.
+  useEffect(() => {
+    if (!serverErrors) return;
+    const earliestStep = Math.min(...Object.keys(serverErrors).map(fieldStepOf));
+    setStep(earliestStep);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submitError]);
+
+  const patchData = (patch) => {
+    setData((prev) => ({ ...prev, ...patch }));
+    // خطأ الباك اند يبقى معروضاً بصرف النظر عن التعديل ما لم نُصفّه صراحة —
+    // بمجرد أن يعدّل المستخدم أي حقل، الفحص المحلي (touched) يتولى الإبراز
+    // بدلاً منه، فتصفيته هنا تمنع بقاء إطار أحمر لحقل أُصلح فعلاً.
+    if (activeMutation.isError) activeMutation.reset();
+  };
 
   const handleSaveDraft = () => {
     const payload = {
       title: data.title.trim(),
-      description: data.description || null,
+      description: data.description.trim(),
       subject_id: Number(data.subject_id),
       session_format: data.session_format,
       capacity: Number(data.capacity),
@@ -100,10 +131,6 @@ export function AddPackageModal({ onClose, packageId, readOnly = false }) {
       createPackage.mutate(payload, { onSuccess: () => onClose?.() });
     }
   };
-
-  const isPending = isEditing ? updatePackage.isPending : createPackage.isPending;
-  const activeMutation = isEditing ? updatePackage : createPackage;
-  const submitError = activeMutation.isError ? activeMutation.error : null;
 
   return (
     <div className="relative rounded-2xl bg-white p-6 shadow-card sm:p-8">
@@ -133,12 +160,26 @@ export function AddPackageModal({ onClose, packageId, readOnly = false }) {
         <>
           {!readOnly && <WizardStepIndicator steps={STEPS} currentStep={step} translationPrefix="dashboard.addPackage.steps" />}
 
-          {step === 1 && <PackageWizardBasicInfo data={data} onChange={patchData} onNext={() => setStep(2)} />}
+          {step === 1 && (
+            <PackageWizardBasicInfo data={data} onChange={patchData} onNext={() => setStep(2)} serverErrors={serverErrors} />
+          )}
           {step === 2 && (
-            <PackageWizardScheduling data={data} onChange={patchData} onNext={() => setStep(3)} onBack={() => setStep(1)} />
+            <PackageWizardScheduling
+              data={data}
+              onChange={patchData}
+              onNext={() => setStep(3)}
+              onBack={() => setStep(1)}
+              serverErrors={serverErrors}
+            />
           )}
           {step === 3 && (
-            <PackageWizardPricing data={data} onChange={patchData} onNext={() => setStep(4)} onBack={() => setStep(2)} />
+            <PackageWizardPricing
+              data={data}
+              onChange={patchData}
+              onNext={() => setStep(4)}
+              onBack={() => setStep(2)}
+              serverErrors={serverErrors}
+            />
           )}
           {step === 4 && (
             <PackageWizardReview

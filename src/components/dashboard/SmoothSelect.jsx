@@ -9,6 +9,8 @@ export function SmoothSelect({
   options,
   placeholder,
   className = "",
+  error = false,
+  errorMessage = null,
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
@@ -36,9 +38,14 @@ export function SmoothSelect({
       <div className="relative w-full">
         <button
           type="button"
+          aria-invalid={error}
           onClick={() => setOpen((v) => !v)}
           className={`flex w-full items-center justify-between gap-2 rounded-lg border bg-white px-3 py-3 text-sm transition-colors duration-150 ${
-            open ? "border-primary" : "border-[#E3E3E3] hover:border-primary/40"
+            error
+              ? "border-accent-pink"
+              : open
+                ? "border-primary"
+                : "border-[#E3E3E3] hover:border-primary/40"
           }`}
         >
           <ChevronDown
@@ -75,6 +82,7 @@ export function SmoothSelect({
           </div>
         )}
       </div>
+      {error && errorMessage && <p className="text-xs text-accent-pink">{errorMessage}</p>}
     </div>
   );
 }

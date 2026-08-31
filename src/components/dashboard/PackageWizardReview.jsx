@@ -1,45 +1,10 @@
 import { useTaxonomyList } from '@/hooks/useTaxonomy';
 import { ApiErrorList } from '@/components/ui';
+import { packageErrorLabel } from '@/lib/packageErrorLabel';
 import { useT } from '@/hooks/useT';
 
 const SESSION_FORMAT_LABELS = { individual: 'فردية', group: 'جماعية' };
 const WEEKDAY_LABELS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-
-/** Maps CreatePackageRequest/UpdatePackageRequest field paths to readable labels. */
-const PACKAGE_FIELD_LABELS = {
-  title: 'العنوان',
-  subject_id: 'المادة',
-  session_format: 'نوع الجلسات',
-  capacity: 'السعة',
-  curriculum_ids: 'المناهج',
-  stage_ids: 'المراحل',
-  sessions_count: 'عدد الجلسات',
-  discount_percent: 'نسبة الخصم',
-  description: 'الوصف',
-  schedules: 'الجدولة',
-  teacher_price: 'السعر',
-  status: 'حالة الباقة',
-};
-
-const SCHEDULE_SUBFIELD_LABELS = { day_of_week: 'اليوم', date: 'التاريخ', start_time: 'وقت البدء' };
-
-function packageErrorLabel(path) {
-  if (PACKAGE_FIELD_LABELS[path]) return PACKAGE_FIELD_LABELS[path];
-
-  const scheduleMatch = path.match(/^schedules\.(\d+)(?:\.(.+))?$/);
-  if (scheduleMatch) {
-    const [, index, sub] = scheduleMatch;
-    return `الجدولة #${Number(index) + 1}${sub ? ` - ${SCHEDULE_SUBFIELD_LABELS[sub] ?? sub}` : ''}`;
-  }
-
-  const curriculumMatch = path.match(/^curriculum_ids\.(\d+)$/);
-  if (curriculumMatch) return `المناهج #${Number(curriculumMatch[1]) + 1}`;
-
-  const stageMatch = path.match(/^stage_ids\.(\d+)$/);
-  if (stageMatch) return `المراحل #${Number(stageMatch[1]) + 1}`;
-
-  return path;
-}
 
 function SummaryField({ label, value }) {
   return (

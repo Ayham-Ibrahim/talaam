@@ -2,8 +2,19 @@ import { useState } from "react";
 import { Users, User } from "lucide-react";
 import { SmoothSelect } from "./SmoothSelect";
 import { MultiSelectChips } from "./MultiSelectChips";
+import { ApiErrorList } from "@/components/ui";
+import { packageErrorLabel, PACKAGE_FIELDS_WITH_INLINE_ERRORS, isScheduleErrorKey } from "@/lib/packageErrorLabel";
 import { useTaxonomyList } from "@/hooks/useTaxonomy";
 import { useT } from "@/hooks/useT";
+
+/** ما تبقّى من أخطاء الباك اند بعد استبعاد ما يُعرض أصلاً كإطار أحمر تحت حقله مباشرة (curriculum_ids, stage_ids, discount_percent, description...) */
+function remainingErrors(serverErrors) {
+  if (!serverErrors) return null;
+  const entries = Object.entries(serverErrors).filter(
+    ([key]) => !PACKAGE_FIELDS_WITH_INLINE_ERRORS.has(key) && key !== "teacher_price" && !isScheduleErrorKey(key)
+  );
+  return entries.length > 0 ? { errors: Object.fromEntries(entries) } : null;
+}
 
 /* Training centers never reach this wizard at all (they get their own course wizard) —
    so the only two real session_format values the backend accepts apply here. */
@@ -12,7 +23,7 @@ const SESSION_TYPES = [
   { key: "group", icon: Users, bg: "#FEEDEA", color: "#F74E28" },
 ];
 
-export function PackageWizardBasicInfo({ data, onChange, onNext }) {
+export function PackageWizardBasicInfo({ data, onChange, onNext, serverErrors }) {
   const t = useT();
   const [touched, setTouched] = useState(false);
 
@@ -32,11 +43,25 @@ export function PackageWizardBasicInfo({ data, onChange, onNext }) {
 
   const isGroup = data.session_format === "group";
   const capacityValid = isGroup ? Number(data.capacity) >= 2 : true;
+  // مسافات فقط تُعتبر فارغة — نفس معيار الباك اند (CreatePackageRequest يقلّمها قبل الفحص)
+  const descriptionValid = data.description.trim() !== "";
   const isValid =
     data.title.trim() !== "" &&
     data.subject_id !== "" &&
     Number(data.sessions_count) > 0 &&
-    capacityValid;
+    capacityValid &&
+    descriptionValid;
+
+  // خطأ الباك اند (بعد محاولة حفظ فعلية) له الأولوية دوماً على فحص الفرونت
+  // إند المحلي (قبل أي محاولة) — كلاهما يُعرَض بنفس الإطار الأحمر والرسالة
+  // أسفل الحقل، فلا يعرف المستخدم أبداً أين الخطأ تحديداً بدون ذلك.
+  const titleError = serverErrors?.title?.[0] ?? (touched && data.title.trim() === "" ? t("dashboard.addPackage.titleRequired") : null);
+  const subjectError = serverErrors?.subject_id?.[0] ?? (touched && data.subject_id === "" ? t("dashboard.addPackage.subjectRequired") : null);
+  const capacityError = serverErrors?.capacity?.[0] ?? (touched && !capacityValid ? t("dashboard.addPackage.capacityInvalid") : null);
+  const sessionsCountError =
+    serverErrors?.sessions_count?.[0] ?? (touched && !(Number(data.sessions_count) > 0) ? t("dashboard.addPackage.sessionsCountRequired") : null);
+  const descriptionError =
+    serverErrors?.description?.[0] ?? (touched && !descriptionValid ? t("dashboard.addPackage.descriptionRequired") : null);
 
   const handleNext = () => {
     setTouched(true);
@@ -59,8 +84,12 @@ export function PackageWizardBasicInfo({ data, onChange, onNext }) {
     });
   };
 
+  const otherErrors = remainingErrors(serverErrors);
+
   return (
     <div className="mt-8 flex flex-col items-end gap-6">
+      {otherErrors && <ApiErrorList error={otherErrors} labelFor={packageErrorLabel} className="w-full" />}
+
       <div className="flex w-full flex-col items-start gap-1.5">
         <label className="text-sm font-semibold text-primary">
           {t("dashboard.addPackage.titleLabel")}
@@ -70,12 +99,12 @@ export function PackageWizardBasicInfo({ data, onChange, onNext }) {
           value={data.title}
           onChange={(e) => onChange({ title: e.target.value })}
           placeholder={t("dashboard.addPackage.titlePlaceholder")}
+          aria-invalid={!!titleError}
           className={`w-full rounded-lg border bg-white px-3 py-3 text-right text-sm text-ink placeholder:text-[#AEAEB2] focus:outline-none ${
-            touched && data.title.trim() === ""
-              ? "border-accent-pink"
-              : "border-[#E3E3E3] focus:border-primary"
+            titleError ? "border-accent-pink" : "border-[#E3E3E3] focus:border-primary"
           }`}
         />
+        {titleError && <p className="text-xs text-accent-pink">{titleError}</p>}
       </div>
 
       <h3 className="w-full text-right text-base font-bold text-ink">
@@ -134,6 +163,8 @@ export function PackageWizardBasicInfo({ data, onChange, onNext }) {
           onChange={(v) => onChange({ subject_id: v })}
           options={subjectOptions}
           placeholder={t("dashboard.addPackage.selectPlaceholder")}
+          error={!!subjectError}
+          errorMessage={subjectError}
         />
 
         <div className="flex flex-col items-start gap-1.5">
@@ -147,12 +178,12 @@ export function PackageWizardBasicInfo({ data, onChange, onNext }) {
             disabled={!isGroup}
             value={data.capacity}
             onChange={(e) => onChange({ capacity: e.target.value })}
+            aria-invalid={!!capacityError}
             className={`w-full rounded-lg border bg-white px-3 py-3 text-right text-sm text-ink disabled:bg-[#F7F8FA] disabled:text-ink-soft focus:outline-none ${
-              touched && !capacityValid
-                ? "border-accent-pink"
-                : "border-[#E3E3E3] focus:border-primary"
+              capacityError ? "border-accent-pink" : "border-[#E3E3E3] focus:border-primary"
             }`}
           />
+          {capacityError && <p className="text-xs text-accent-pink">{capacityError}</p>}
         </div>
       </div>
 
@@ -186,12 +217,12 @@ export function PackageWizardBasicInfo({ data, onChange, onNext }) {
             value={data.sessions_count}
             onChange={(e) => onChange({ sessions_count: e.target.value })}
             placeholder={t("dashboard.addPackage.sessionsCountPlaceholder")}
+            aria-invalid={!!sessionsCountError}
             className={`w-full   rounded-lg border bg-white px-3 py-3 text-right text-sm text-ink placeholder:text-[#AEAEB2] focus:outline-none  ${
-              touched && !(Number(data.sessions_count) > 0)
-                ? "border-accent-pink"
-                : "border-[#E3E3E3] focus:border-primary"
+              sessionsCountError ? "border-accent-pink" : "border-[#E3E3E3] focus:border-primary"
             }`}
           />
+          {sessionsCountError && <p className="text-xs text-accent-pink">{sessionsCountError}</p>}
         </div>
 
         <div className="flex w-full flex-col items-start gap-1.5">
@@ -206,8 +237,12 @@ export function PackageWizardBasicInfo({ data, onChange, onNext }) {
             }
             placeholder={t("dashboard.addPackage.descriptionPlaceholder")}
             rows={4}
-            className="w-full rounded-lg border border-[#E3E3E3] px-3 py-2.5 resize-none bg-transparent text-right text-sm text-ink outline-none placeholder:text-[#AEAEB2]"
+            aria-invalid={!!descriptionError}
+            className={`w-full rounded-lg border px-3 py-2.5 resize-none bg-transparent text-right text-sm text-ink outline-none placeholder:text-[#AEAEB2] ${
+              descriptionError ? "border-accent-pink" : "border-[#E3E3E3]"
+            }`}
           />
+          {descriptionError && <p className="text-xs text-accent-pink">{descriptionError}</p>}
           <div className="text-left text-xs text-[#AEAEB2]">
             {data.description.length}/2000
           </div>

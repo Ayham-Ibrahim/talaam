@@ -11,7 +11,14 @@ import { useT } from '@/hooks/useT';
  *   المعلم العامة (availability_slots). الطالب يحدد التاريخ/الوقت لاحقاً عبر طلب
  *   حجز يوافق عليه المعلم (BookingService::requestIndividualBooking).
  */
-export function PackageWizardScheduling({ data, onChange, onNext, onBack }) {
+/** أول رسالة خطأ عائدة من الباك اند لأي مفتاح schedules أو schedules.* — بصرف النظر عن ترتيبها */
+function firstScheduleServerError(serverErrors) {
+  if (!serverErrors) return null;
+  const key = Object.keys(serverErrors).find((k) => k === 'schedules' || k.startsWith('schedules.'));
+  return key ? serverErrors[key]?.[0] ?? null : null;
+}
+
+export function PackageWizardScheduling({ data, onChange, onNext, onBack, serverErrors }) {
   const t = useT();
   const [touched, setTouched] = useState(false);
   const isIndividual = data.session_format === 'individual';
@@ -20,6 +27,8 @@ export function PackageWizardScheduling({ data, onChange, onNext, onBack }) {
   const isValid = isIndividual
     ? data.schedules.length > 0
     : data.schedules.length === sessionsCount && data.schedules.every((s) => s.start_time);
+
+  const scheduleError = firstScheduleServerError(serverErrors) ?? (touched && !isValid ? t('dashboard.addPackage.scheduleRequired') : null);
 
   const handleNext = () => {
     setTouched(true);
@@ -42,7 +51,7 @@ export function PackageWizardScheduling({ data, onChange, onNext, onBack }) {
           sessionsCount={sessionsCount}
         />
       )}
-      {touched && !isValid && <p className="text-sm text-accent-pink">{t('dashboard.addPackage.scheduleRequired')}</p>}
+      {scheduleError && <p className="text-sm text-accent-pink">{scheduleError}</p>}
 
       <div className="flex w-full items-center justify-between">
         <button

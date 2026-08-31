@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import { ApiErrorList } from '@/components/ui';
+import { ApiErrorList, PasswordInputActions } from '@/components/ui';
 import { useCreateStudentAccount } from '@/hooks/useAdmin';
 import { useT } from '@/hooks/useT';
 import {
@@ -28,6 +28,7 @@ export function AddStudentAccountModal({ onClose }) {
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [nameHasInvalidChars, setNameHasInvalidChars] = useState(false);
   const [phoneHasInvalidChars, setPhoneHasInvalidChars] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const createAccount = useCreateStudentAccount();
 
   const patch = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -224,18 +225,29 @@ export function AddStudentAccountModal({ onClose }) {
 
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-semibold text-ink">{t('dashboard.adminStudentImport.passwordLabel')}</span>
-            <input
-              type="password"
-              dir="ltr"
-              maxLength={255}
-              value={form.password}
-              onChange={patch('password')}
-              onBlur={() => touch('password')}
-              aria-invalid={!!passwordErrorKey}
-              className={`w-full rounded-btn border bg-surface p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
-                passwordErrorKey ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
-              }`}
-            />
+            <div className="flex items-center gap-2">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                dir="ltr"
+                maxLength={255}
+                value={form.password}
+                onChange={patch('password')}
+                onBlur={() => touch('password')}
+                aria-invalid={!!passwordErrorKey}
+                className={`w-full rounded-btn border bg-surface p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
+                  passwordErrorKey ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
+                }`}
+              />
+              <PasswordInputActions
+                visible={showPassword}
+                onToggleVisible={() => setShowPassword((v) => !v)}
+                onGenerate={(generated) => {
+                  setForm((prev) => ({ ...prev, password: generated }));
+                  setShowPassword(true);
+                  touch('password');
+                }}
+              />
+            </div>
             <span className={`text-xs ${passwordErrorKey ? 'text-accent-pink' : 'text-ink-soft'}`}>
               {passwordErrorKey ? t(passwordErrorKey) : t('dashboard.adminStudentImport.passwordHint')}
             </span>

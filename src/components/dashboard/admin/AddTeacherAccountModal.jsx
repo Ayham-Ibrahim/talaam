@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
-import { ApiErrorList } from '@/components/ui';
+import { ApiErrorList, PasswordInputActions } from '@/components/ui';
 import { TEACHER_TYPE_LABELS } from '@/services/teacherService';
 import { useCreateTeacherAccount } from '@/hooks/useAdmin';
 import { useT } from '@/hooks/useT';
@@ -32,6 +32,7 @@ export function AddTeacherAccountModal({ onClose, onSuccess }) {
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [nameHasInvalidChars, setNameHasInvalidChars] = useState(false);
   const [phoneHasInvalidChars, setPhoneHasInvalidChars] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const createAccount = useCreateTeacherAccount();
 
   const patch = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -258,18 +259,29 @@ export function AddTeacherAccountModal({ onClose, onSuccess }) {
 
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-semibold text-ink">{t('dashboard.adminTeachers.passwordLabel')}</span>
-            <input
-              type="password"
-              dir="ltr"
-              maxLength={255}
-              value={form.password}
-              onChange={patch('password')}
-              onBlur={() => touch('password')}
-              aria-invalid={!!passwordErrorKey}
-              className={`w-full rounded-btn border bg-surface p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
-                passwordErrorKey ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
-              }`}
-            />
+            <div className="flex items-center gap-2">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                dir="ltr"
+                maxLength={255}
+                value={form.password}
+                onChange={patch('password')}
+                onBlur={() => touch('password')}
+                aria-invalid={!!passwordErrorKey}
+                className={`w-full rounded-btn border bg-surface p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
+                  passwordErrorKey ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
+                }`}
+              />
+              <PasswordInputActions
+                visible={showPassword}
+                onToggleVisible={() => setShowPassword((v) => !v)}
+                onGenerate={(generated) => {
+                  setForm((prev) => ({ ...prev, password: generated }));
+                  setShowPassword(true);
+                  touch('password');
+                }}
+              />
+            </div>
             <span className={`text-xs ${passwordErrorKey ? 'text-accent-pink' : 'text-ink-soft'}`}>
               {passwordErrorKey ? t(passwordErrorKey) : t('dashboard.adminTeachers.passwordHint')}
             </span>

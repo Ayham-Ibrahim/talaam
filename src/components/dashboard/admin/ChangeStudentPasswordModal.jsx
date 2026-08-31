@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import { ApiErrorList } from '@/components/ui';
+import { ApiErrorList, PasswordInputActions } from '@/components/ui';
 import { useAdminResetStudentPassword } from '@/hooks/useAdminStudents';
 import { useT } from '@/hooks/useT';
 import { validatePassword } from '@/lib/accountFormValidation';
@@ -11,6 +11,7 @@ export function ChangeStudentPasswordModal({ student, onClose }) {
   const [password, setPassword] = useState('');
   const [touched, setTouched] = useState(false);
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const resetPassword = useAdminResetStudentPassword();
 
   const passwordValidation = validatePassword(password);
@@ -52,18 +53,29 @@ export function ChangeStudentPasswordModal({ student, onClose }) {
 
         <label className="flex flex-col gap-1.5 text-right">
           <span className="text-sm font-semibold text-ink">{t('dashboard.adminStudentImport.passwordLabel')}</span>
-          <input
-            type="password"
-            dir="ltr"
-            maxLength={255}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onBlur={() => setTouched(true)}
-            aria-invalid={!!errorKey}
-            className={`w-full rounded-btn border bg-surface p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
-              errorKey ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
-            }`}
-          />
+          <div className="flex items-center gap-2">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              dir="ltr"
+              maxLength={255}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onBlur={() => setTouched(true)}
+              aria-invalid={!!errorKey}
+              className={`w-full rounded-btn border bg-surface p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
+                errorKey ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
+              }`}
+            />
+            <PasswordInputActions
+              visible={showPassword}
+              onToggleVisible={() => setShowPassword((v) => !v)}
+              onGenerate={(generated) => {
+                setPassword(generated);
+                setShowPassword(true);
+                setTouched(true);
+              }}
+            />
+          </div>
           <span className={`text-xs ${errorKey ? 'text-accent-pink' : 'text-ink-soft'}`}>
             {errorKey ? t(errorKey) : t('dashboard.adminStudents.changePasswordHint')}
           </span>

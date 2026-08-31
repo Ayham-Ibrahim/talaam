@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Navigate } from 'react-router-dom';
-import { Camera, GraduationCap, KeyRound, UserRound, Trash2 } from 'lucide-react';
+import { Camera, GraduationCap, KeyRound, UserRound, Trash2, Eye, EyeOff } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import {
   StudentAcademicProfileFields,
@@ -10,7 +10,7 @@ import {
   isStudentAcademicFormValid,
   hasStudentAcademicFieldError,
 } from '@/components/dashboard/StudentAcademicProfileFields';
-import { ApiErrorList, Avatar, Skeleton } from '@/components/ui';
+import { ApiErrorList, Avatar, Skeleton, PasswordInputActions } from '@/components/ui';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { TimezoneField } from '@/components/dashboard/TimezoneField';
 import { useAuth } from '@/hooks/useAuth';
@@ -85,6 +85,9 @@ export function StudentSettingsPage() {
   const [academicHydrated, setAcademicHydrated] = useState(false);
   const [passwordForm, setPasswordForm] = useState({ current_password: '', password: '', password_confirmation: '' });
   const [passwordTouched, setPasswordTouched] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [basicBlurred, setBasicBlurred] = useState({ phone: false, whatsapp: false });
   const [basicHydrated, setBasicHydrated] = useState(false);
 
@@ -338,35 +341,59 @@ export function StudentSettingsPage() {
             <div className="grid grid-cols-1 gap-4 text-right sm:grid-cols-2">
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-semibold text-ink">{t('studentSettings.currentPasswordLabel')}</span>
-                <input
-                  type="password"
-                  dir="ltr"
-                  maxLength={255}
-                  value={passwordForm.current_password}
-                  onChange={(e) => setPasswordForm((prev) => ({ ...prev, current_password: e.target.value }))}
-                  className={`w-full rounded-btn border bg-white p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
-                    passwordTouched && passwordForm.current_password === ''
-                      ? 'border-accent-pink focus:ring-accent-pink/30'
-                      : 'border-line focus:border-primary focus:ring-primary/20'
-                  }`}
-                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type={showCurrentPassword ? 'text' : 'password'}
+                    dir="ltr"
+                    maxLength={255}
+                    value={passwordForm.current_password}
+                    onChange={(e) => setPasswordForm((prev) => ({ ...prev, current_password: e.target.value }))}
+                    className={`w-full rounded-btn border bg-white p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
+                      passwordTouched && passwordForm.current_password === ''
+                        ? 'border-accent-pink focus:ring-accent-pink/30'
+                        : 'border-line focus:border-primary focus:ring-primary/20'
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrentPassword((v) => !v)}
+                    title={showCurrentPassword ? t('common.hidePassword') : t('common.showPassword')}
+                    aria-label={showCurrentPassword ? t('common.hidePassword') : t('common.showPassword')}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-btn border border-line text-ink-soft hover:bg-line/40 hover:text-primary"
+                  >
+                    {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </label>
               <div />
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-semibold text-ink">{t('studentSettings.newPasswordLabel')}</span>
-                <input
-                  type="password"
-                  dir="ltr"
-                  maxLength={255}
-                  value={passwordForm.password}
-                  onChange={(e) => setPasswordForm((prev) => ({ ...prev, password: e.target.value }))}
-                  aria-invalid={passwordTouched && (passwordForm.password.length < 8 || passwordSameAsCurrent)}
-                  className={`w-full rounded-btn border bg-white p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
-                    passwordTouched && (passwordForm.password.length < 8 || passwordSameAsCurrent)
-                      ? 'border-accent-pink focus:ring-accent-pink/30'
-                      : 'border-line focus:border-primary focus:ring-primary/20'
-                  }`}
-                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type={showNewPassword ? 'text' : 'password'}
+                    dir="ltr"
+                    maxLength={255}
+                    value={passwordForm.password}
+                    onChange={(e) => setPasswordForm((prev) => ({ ...prev, password: e.target.value }))}
+                    aria-invalid={passwordTouched && (passwordForm.password.length < 8 || passwordSameAsCurrent)}
+                    className={`w-full rounded-btn border bg-white p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
+                      passwordTouched && (passwordForm.password.length < 8 || passwordSameAsCurrent)
+                        ? 'border-accent-pink focus:ring-accent-pink/30'
+                        : 'border-line focus:border-primary focus:ring-primary/20'
+                    }`}
+                  />
+                  <PasswordInputActions
+                    visible={showNewPassword}
+                    onToggleVisible={() => setShowNewPassword((v) => !v)}
+                    onGenerate={(generated) => {
+                      // نملأ التأكيد أيضاً بنفس القيمة — كلمة مرور مولَّدة عشوائياً
+                      // في حقل التأكيد وحده ستُنتج عدم تطابق دائماً وإلا.
+                      setPasswordForm((prev) => ({ ...prev, password: generated, password_confirmation: generated }));
+                      setShowNewPassword(true);
+                      setShowConfirmPassword(true);
+                    }}
+                  />
+                </div>
                 {passwordSameAsCurrent ? (
                   <span className="text-xs text-accent-pink">{t('studentSettings.passwordSameAsCurrent')}</span>
                 ) : (
@@ -375,18 +402,29 @@ export function StudentSettingsPage() {
               </label>
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-semibold text-ink">{t('studentSettings.confirmPasswordLabel')}</span>
-                <input
-                  type="password"
-                  dir="ltr"
-                  maxLength={255}
-                  value={passwordForm.password_confirmation}
-                  onChange={(e) => setPasswordForm((prev) => ({ ...prev, password_confirmation: e.target.value }))}
-                  className={`w-full rounded-btn border bg-white p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
-                    passwordTouched && passwordForm.password !== passwordForm.password_confirmation
-                      ? 'border-accent-pink focus:ring-accent-pink/30'
-                      : 'border-line focus:border-primary focus:ring-primary/20'
-                  }`}
-                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    dir="ltr"
+                    maxLength={255}
+                    value={passwordForm.password_confirmation}
+                    onChange={(e) => setPasswordForm((prev) => ({ ...prev, password_confirmation: e.target.value }))}
+                    className={`w-full rounded-btn border bg-white p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
+                      passwordTouched && passwordForm.password !== passwordForm.password_confirmation
+                        ? 'border-accent-pink focus:ring-accent-pink/30'
+                        : 'border-line focus:border-primary focus:ring-primary/20'
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((v) => !v)}
+                    title={showConfirmPassword ? t('common.hidePassword') : t('common.showPassword')}
+                    aria-label={showConfirmPassword ? t('common.hidePassword') : t('common.showPassword')}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-btn border border-line text-ink-soft hover:bg-line/40 hover:text-primary"
+                  >
+                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </label>
             </div>
 

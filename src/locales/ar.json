@@ -1,4 +1,9 @@
 {
+  "common": {
+    "generatePassword": "توليد كلمة مرور",
+    "showPassword": "إظهار كلمة المرور",
+    "hidePassword": "إخفاء كلمة المرور"
+  },
   "brand": {
     "name": "TAALAM",
     "tagline": "منصة تعليمية تربط الطلاب بأفضل المعلمين المعتمدين في مختلف المجالات التعليمية"
@@ -797,6 +802,12 @@
       },
       "titleLabel": "عنوان الباقة",
       "titlePlaceholder": "اكتب عنوان الباقة",
+      "titleRequired": "عنوان الباقة مطلوب",
+      "descriptionRequired": "الوصف حقل إلزامي ولا يمكن أن يكون فارغاً",
+      "subjectRequired": "يرجى اختيار المادة",
+      "capacityInvalid": "السعة غير صالحة لنوع الباقة المختار",
+      "sessionsCountRequired": "يرجى تحديد عدد الجلسات",
+      "priceRequired": "يرجى تحديد سعر الساعة",
       "subjectLabel": "المادة",
       "curriculumLabel": "المناهج",
       "stageLabel": "المرحلة الدراسية",
