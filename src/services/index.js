@@ -62,6 +62,8 @@ function mapStudentPackage(raw) {
     currency: raw.currency,
     discountPercent: raw.discount_percent,
     subject: raw.subject,
+    stages: (raw.stages ?? []).map((s) => s.name_ar),
+    grades: raw.grades ?? [],
     schedules,
   };
 }

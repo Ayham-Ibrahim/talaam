@@ -35,6 +35,7 @@
       "دعم على مدار الساعة"
     ],
     "topTeachers": "أفضل المعلمين",
+    "topTeachersMore": "المزيد",
     "educationTypesTitle": "أنواع التعليم في المنصة",
     "educationTypesSubtitle": "نوفر خيارات تعليمية متنوعة تناسب مختلف المراحل الدراسية والمهارات الأخرى",
     "educationTypes": [
@@ -337,6 +338,9 @@
     "moreThan": "أكثر من",
     "qualifications": "المؤهلات العلمية",
     "subjects": "المواد التي يدرسها",
+    "stages": "المراحل الدراسية التي يدرّسها",
+    "grades": "الصفوف الدراسية التي يدرّسها",
+    "gradePrefix": "الصف",
     "languages": "اللغات",
     "teachingMethods": "طريقة التدريس",
     "sessionTypes": "نوع الجلسة",
@@ -811,6 +815,8 @@
       "subjectLabel": "المادة",
       "curriculumLabel": "المناهج",
       "stageLabel": "المرحلة الدراسية",
+      "gradeLabel": "الصفوف الدراسية",
+      "gradeOptionLabel": "الصف",
       "selectPlaceholder": "يرجى الاختيار",
       "capacityLabel": "السعة (عدد الطلاب)",
       "sessionsCountLabel": "عدد الجلسات",
@@ -844,6 +850,8 @@
       "review": {
         "typeLabel": "نوع الباقة",
         "curriculumLabel": "المناهج",
+        "stageLabel": "المراحل",
+        "gradeLabel": "الصفوف",
         "subjectLabel": "المادة",
         "sessionsCountLabel": "عدد الجلسات",
         "sessionsUnit": "جلسات",
@@ -1125,7 +1133,13 @@
       "deleteModalMessage": "سيتم حذف هذا الحساب وكل وثائقه وبياناته نهائياً ولا يمكن التراجع عن ذلك. هل أنت متأكد من حذف",
       "deleteConfirm": "نعم، احذف الحساب",
       "deleting": "جارٍ الحذف...",
-      "deleteSuccess": "تم حذف حساب المعلم بنجاح"
+      "deleteSuccess": "تم حذف حساب المعلم بنجاح",
+      "changePassword": "تغيير كلمة المرور",
+      "changePasswordTitle": "تغيير كلمة مرور المعلم",
+      "changePasswordFor": "تعيين كلمة مرور جديدة للمعلم:",
+      "changePasswordHint": "8 أحرف على الأقل — سترسَل للمعلم عبر البريد الإلكتروني، وسيُسجَّل خروجه من كل الأجهزة الأخرى",
+      "changePasswordSubmit": "تغيير كلمة المرور",
+      "changingPassword": "جارٍ التغيير..."
     },
     "adminTeacherDetail": {
       "back": "العودة لقائمة المعلمين",

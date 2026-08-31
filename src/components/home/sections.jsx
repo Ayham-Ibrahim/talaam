@@ -287,6 +287,7 @@ export function WhyChooseUs() {
  */
 export function FeaturedTeachers() {
   const t = useT();
+  const navigate = useNavigate();
   const { data, isLoading, isError, refetch } = useFeaturedTeachers();
 
   // Defensive de-dupe by id — cheap, harmless if the API never sends
@@ -313,6 +314,17 @@ export function FeaturedTeachers() {
           {isLoading
             ? Array.from({ length: 5 }).map((_, i) => <TeacherCardSkeleton key={i} />)
             : teachers.map((teacher) => <TeacherCard key={teacher.id} teacher={teacher} />)}
+        </div>
+      )}
+      {!isError && (
+        <div className="mt-8 flex justify-center">
+          <button
+            type="button"
+            onClick={() => navigate("/search")}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-primary px-6 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-white"
+          >
+            {t("home.topTeachersMore")}
+          </button>
         </div>
       )}
     </section>

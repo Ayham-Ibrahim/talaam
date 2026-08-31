@@ -37,14 +37,44 @@ export const adminService = {
     return data.data;
   },
 
+  /**
+   * ترقيم الصفحات حقيقي من الباك اند (page/per_page) — لا يُجلب كل المعلمين
+   * دفعة واحدة ثم يُقصّ محلياً؛ كان هذا يحصر القائمة فعلياً بأول صفحة واحدة
+   * فقط (افتراضياً 20 صفاً) بصرف النظر عن العدد الحقيقي لكل نوع معلم،
+   * فتظهر أعداد أقل بكثير من الواقع (RULE، انظر AdminTeachersPage).
+   */
   async getTeachers(filters = {}) {
+    const { page = 1, per_page: perPage = 20, ...rest } = filters;
+
     if (config.useMocks) {
       await mockDelay(300);
-      const data = filterMockAdminTeachers(mockAdminTeachers, filters);
-      return { data, total: data.length };
+      const all = filterMockAdminTeachers(mockAdminTeachers, rest);
+      const start = (page - 1) * perPage;
+      return {
+        data: all.slice(start, start + perPage),
+        total: all.length,
+        currentPage: page,
+        lastPage: Math.max(1, Math.ceil(all.length / perPage)),
+      };
     }
-    const { data } = await client.get(endpoints.admin.teachers, { params: filters });
-    return { data: data.data, total: data.meta?.total ?? data.data.length };
+    // الباك اند يتوقع teacher_type/search — لا type/q (اسما الحقلين الداخليان في
+    // هذه الصفحة وفلترة المحاكاة) — راجع TeacherController::index. تحويل الاسم
+    // هنا فقط بدل تغييره في كل مكان آخر يستخدم filters.type/filters.q محلياً.
+    const { type, q, ...restParams } = rest;
+    const params = {
+      ...restParams,
+      page,
+      per_page: perPage,
+      ...(type ? { teacher_type: type } : {}),
+      ...(q ? { search: q } : {}),
+    };
+    const { data } = await client.get(endpoints.admin.teachers, { params });
+    return {
+      data: data.data,
+      total: data.meta?.total ?? data.data.length,
+      currentPage: data.meta?.current_page ?? page,
+      lastPage: data.meta?.last_page ?? 1,
+    };
   },
 
   /** الأدمن يضع كلمة مرور مباشرة — لا رابط دعوة، الحساب فعّال فوراً (انظر TeacherService::createByAdmin) */
@@ -134,6 +164,16 @@ export const adminService = {
     }
     const { data } = await client.delete(endpoints.admin.deleteTeacher(id));
     return data.data;
+  },
+
+  /** الأدمن يضع كلمة مرور جديدة مباشرة — بلا حاجة لمعرفة القديمة، تُرسَل للمعلم بالبريد (TeacherService::resetPasswordByAdmin) */
+  async resetTeacherPassword(teacherId, password) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return { message: 'تم تغيير كلمة مرور المعلم بنجاح' };
+    }
+    const { data } = await client.put(endpoints.teachers.resetPassword(teacherId), { password });
+    return { message: data.message };
   },
 
   /** رابط موقَّع صالح 15 دقيقة (VerificationDocumentController::downloadUrl) — لا مقابل مباشر في وضع المحاكاة */

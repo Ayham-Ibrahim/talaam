@@ -21,7 +21,7 @@ export function AdminTeachersPage() {
   const [page, setPage] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-  const { data, isLoading, isError, refetch } = useAdminTeachers(filters);
+  const { data, isLoading, isError, refetch } = useAdminTeachers({ ...filters, page, per_page: PAGE_SIZE });
 
   const handleAddSuccess = () => {
     setSuccessMessage(t('dashboard.adminTeachers.addSuccess'));
@@ -36,9 +36,8 @@ export function AdminTeachersPage() {
   if (!user) return <Navigate to="/login" replace />;
 
   const teachers = data?.data ?? [];
-  const totalPages = Math.max(1, Math.ceil(teachers.length / PAGE_SIZE));
-  const currentPage = Math.min(page, totalPages);
-  const pageTeachers = teachers.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const totalPages = data?.lastPage ?? 1;
+  const currentPage = data?.currentPage ?? page;
 
   return (
     <AdminDashboardLayout>
@@ -76,7 +75,7 @@ export function AdminTeachersPage() {
           <EmptyState title={t('dashboard.adminTeachers.empty')} />
         ) : (
           <>
-            <AdminTeachersTable teachers={pageTeachers} />
+            <AdminTeachersTable teachers={teachers} />
             <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
           </>
         )}

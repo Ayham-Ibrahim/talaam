@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, Trash2, X } from 'lucide-react';
+import { Eye, KeyRound, Trash2, X } from 'lucide-react';
 import { Avatar, ApiErrorList } from '@/components/ui';
 import { TeacherStatusBadge } from './TeacherStatusBadge';
+import { ChangeTeacherPasswordModal } from './ChangeTeacherPasswordModal';
 import { TEACHER_TYPE_LABELS } from '@/mocks/admin.mock';
 import { formatDate } from '@/lib/formatters';
 import { useDeleteTeacher } from '@/hooks/useAdmin';
@@ -62,6 +63,7 @@ function DeleteTeacherModal({ teacher, isPending, error, onConfirm, onClose }) {
 export function AdminTeachersTable({ teachers }) {
   const t = useT();
   const [deletingTeacher, setDeletingTeacher] = useState(null);
+  const [passwordModalTeacher, setPasswordModalTeacher] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const deleteTeacher = useDeleteTeacher();
 
@@ -120,6 +122,14 @@ export function AdminTeachersTable({ teachers }) {
                       <Eye size={18} />
                       {t('dashboard.adminTeachers.view')}
                     </Link>
+                    <button
+                      type="button"
+                      onClick={() => setPasswordModalTeacher(teacher)}
+                      className="inline-flex items-center gap-1.5 text-primary hover:opacity-70"
+                    >
+                      <KeyRound size={18} />
+                      {t('dashboard.adminTeachers.changePassword')}
+                    </button>
                     {/* الحذف متاح فقط لمعلم مرفوض (RULE، الباك اند يتحقق منها
                         أيضاً) — لا يملك حجوزات/مدفوعات حقيقية، فحذفه آمن نهائياً */}
                     {teacher.status === 'rejected' && (
@@ -151,6 +161,13 @@ export function AdminTeachersTable({ teachers }) {
           error={deleteTeacher.error}
           onConfirm={handleConfirmDelete}
           onClose={() => setDeletingTeacher(null)}
+        />
+      )}
+
+      {passwordModalTeacher && (
+        <ChangeTeacherPasswordModal
+          teacher={passwordModalTeacher}
+          onClose={() => setPasswordModalTeacher(null)}
         />
       )}
     </div>

@@ -16,6 +16,7 @@ const INITIAL_DATA = {
   subject_id: '',
   curriculum_ids: [],
   stage_ids: [],
+  grades: [],
   sessions_count: '',
   discount_percent: '',
   description: '',
@@ -34,6 +35,7 @@ const STEPS = [
 function mapPackageToWizardData(pkg) {
   const curriculumIds = Array.isArray(pkg.curriculum_ids) ? pkg.curriculum_ids : (pkg.curricula ?? []).map((c) => c.id);
   const stageIds = Array.isArray(pkg.stage_ids) ? pkg.stage_ids : (pkg.stages ?? []).map((s) => s.id);
+  const grades = Array.isArray(pkg.grades) ? pkg.grades : [];
   const schedules = (pkg.schedules ?? []).map((s) =>
     pkg.session_format === 'individual' ? { day_of_week: s.day_of_week } : { date: s.date, start_time: s.start_time }
   );
@@ -45,6 +47,7 @@ function mapPackageToWizardData(pkg) {
     subject_id: pkg.subject_id ?? '',
     curriculum_ids: curriculumIds,
     stage_ids: stageIds,
+    grades,
     sessions_count: pkg.sessions_count ?? '',
     discount_percent: pkg.discount_percent ?? '',
     description: pkg.description ?? '',
@@ -122,6 +125,7 @@ export function AddPackageModal({ onClose, packageId, readOnly = false }) {
       discount_percent: data.discount_percent ? Number(data.discount_percent) : null,
       curriculum_ids: data.curriculum_ids,
       stage_ids: data.stage_ids,
+      grades: data.grades,
       schedules: data.schedules,
     };
 

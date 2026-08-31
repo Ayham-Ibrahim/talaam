@@ -30,6 +30,8 @@ function PackageCard({ pkg, index, selected, onSelect }) {
   const isGroup = pkg.sessionFormat === 'group';
   const weekdays = t('booking.weekdays');
   const schedule = isGroup ? scheduleSummary(pkg.schedules, weekdays) : null;
+  const stages = pkg.stages ?? [];
+  const grades = pkg.grades ?? [];
 
   return (
     <div
@@ -66,6 +68,22 @@ function PackageCard({ pkg, index, selected, onSelect }) {
           {isGroup ? t('teacher.groupFormat') : t('teacher.individualFormat')}
         </span>
       </div>
+
+      {/* المرحلة/الصفوف التي تستهدفها هذه الباقة تحديداً — قد تختلف باقات نفس المعلم عن بعضها */}
+      {(stages.length > 0 || grades.length > 0) && (
+        <div className="flex flex-wrap items-center justify-end gap-1.5">
+          {stages.map((stage) => (
+            <span key={stage} className="rounded-pill bg-canvas px-2.5 py-1 text-[11px] font-semibold text-ink-soft">
+              {stage}
+            </span>
+          ))}
+          {grades.length > 0 && (
+            <span className="rounded-pill bg-canvas px-2.5 py-1 text-[11px] font-semibold text-ink-soft">
+              {t('teacher.gradePrefix')} {[...grades].sort((a, b) => a - b).join('، ')}
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Facts row: sessions count, duration, seats (group only) */}
       <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1 text-xs text-ink-soft">

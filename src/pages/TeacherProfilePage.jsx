@@ -97,6 +97,8 @@ export function TeacherProfilePage() {
 
           <InfoSection title={t('teacher.qualifications')} items={teacher.qualifications} />
           <InfoSection title={t('teacher.subjects')} items={teacher.subjects} colorfulDots />
+          <InfoSection title={t('teacher.stages')} items={teacher.stages} />
+          <InfoSection title={t('teacher.grades')} items={teacher.grades.map((g) => `${t('teacher.gradePrefix')} ${g}`)} />
           <InfoSection
             title={t('teacher.languages')}
             items={teacher.languages.map((l) => ({

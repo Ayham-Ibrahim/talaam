@@ -19,9 +19,12 @@ export function PackageWizardReview({ data, isPending, error, onSubmit, onBack, 
   const t = useT();
   const { data: subjects = [] } = useTaxonomyList('subjects');
   const { data: curricula = [] } = useTaxonomyList('curricula');
+  const { data: stages = [] } = useTaxonomyList('stages');
 
   const subjectLabel = subjects.find((s) => s.id === Number(data.subject_id))?.name_ar ?? '—';
   const curriculumLabels = curricula.filter((c) => data.curriculum_ids.includes(c.id)).map((c) => c.name_ar);
+  const stageLabels = stages.filter((s) => data.stage_ids.includes(s.id)).map((s) => s.name_ar);
+  const gradeLabels = [...data.grades].sort((a, b) => a - b).map((g) => `${t('dashboard.addPackage.gradeOptionLabel')} ${g}`);
 
   return (
     <div className="mt-8 flex flex-col gap-6">
@@ -41,6 +44,32 @@ export function PackageWizardReview({ data, isPending, error, onSubmit, onBack, 
           <div className="text-sm text-ink-soft">{t('dashboard.addPackage.review.curriculumLabel')}</div>
           <div className="mt-2 flex flex-wrap justify-center gap-2">
             {curriculumLabels.map((label) => (
+              <span key={label} className="rounded-pill bg-primary-light px-3 py-1 text-xs font-medium text-primary">
+                {label}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {stageLabels.length > 0 && (
+        <div className="rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card">
+          <div className="text-sm text-ink-soft">{t('dashboard.addPackage.review.stageLabel')}</div>
+          <div className="mt-2 flex flex-wrap justify-center gap-2">
+            {stageLabels.map((label) => (
+              <span key={label} className="rounded-pill bg-primary-light px-3 py-1 text-xs font-medium text-primary">
+                {label}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {gradeLabels.length > 0 && (
+        <div className="rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card">
+          <div className="text-sm text-ink-soft">{t('dashboard.addPackage.review.gradeLabel')}</div>
+          <div className="mt-2 flex flex-wrap justify-center gap-2">
+            {gradeLabels.map((label) => (
               <span key={label} className="rounded-pill bg-primary-light px-3 py-1 text-xs font-medium text-primary">
                 {label}
               </span>

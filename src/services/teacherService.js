@@ -61,6 +61,9 @@ function mapPublicProfile(raw) {
     subjects: (raw.subjects ?? []).map((s) => s.name_ar),
     curricula: (raw.curricula ?? []).map((c) => c.name_ar),
     languages: (raw.languages ?? []).map((l) => ({ code: l.code, label: l.name_ar })),
+    // مُشتقّة من باقاته الفعلية القابلة للحجز (PublicTeacherResource) — ليست حقلاً في ملفه الشخصي مباشرة
+    stages: (raw.stages ?? []).map((s) => s.name_ar),
+    grades: raw.grades ?? [],
     teachingMethods: raw.teaching_methods ?? [],
     rating: Number(raw.stats?.rating_avg ?? 0),
     reviewsCount: raw.stats?.reviews_count ?? 0,
@@ -88,6 +91,7 @@ export const teacherService = {
       teacher_type: filters.type === 'training' ? 'training_center' : (filters.type || undefined),
       subject_id: filters.subject || undefined,
       stage_id: filters.stage || undefined,
+      grade: filters.grade || undefined,
       language_id: filters.language || undefined,
       q: filters.q || undefined,
       min_rating: filters.minRating ?? undefined,

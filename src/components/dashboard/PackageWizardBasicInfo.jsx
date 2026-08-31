@@ -40,6 +40,12 @@ export function PackageWizardBasicInfo({ data, onChange, onNext, serverErrors })
     label: c.name_ar,
   }));
   const stageOptions = stages.map((s) => ({ value: s.id, label: s.name_ar }));
+  // لا جدول تصنيف للصفوف (بعكس المراحل) — أرقام صِرفة 1-12 ذاتية الوضوح، تماماً
+  // مثل حقل الصف عند تسجيل الطالب (Meta::filters().grades على نفس النمط).
+  const gradeOptions = Array.from({ length: 12 }, (_, i) => ({
+    value: i + 1,
+    label: `${t("dashboard.addPackage.gradeOptionLabel")} ${i + 1}`,
+  }));
 
   const isGroup = data.session_format === "group";
   const capacityValid = isGroup ? Number(data.capacity) >= 2 : true;
@@ -203,6 +209,16 @@ export function PackageWizardBasicInfo({ data, onChange, onNext, serverErrors })
           options={stageOptions}
           placeholder={t("dashboard.addPackage.selectPlaceholder")}
           max={20}
+        />
+      </div>
+      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+        <MultiSelectChips
+          label={t("dashboard.addPackage.gradeLabel")}
+          values={data.grades}
+          onChange={(v) => onChange({ grades: v })}
+          options={gradeOptions}
+          placeholder={t("dashboard.addPackage.selectPlaceholder")}
+          max={12}
         />
       </div>
       <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">

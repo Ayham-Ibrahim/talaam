@@ -44,6 +44,7 @@ export const endpoints = {
     availabilitySlot: (id, slotId) => `/teachers/${id}/availability-slots/${slotId}`,
     uploadDocument: (id) => `/teachers/${id}/verification-documents`,
     submitForVerification: (id) => `/teachers/${id}/submit-for-verification`,
+    resetPassword: (id) => `/teachers/${id}/password`,
   },
   bookings: {
     list: '/bookings',

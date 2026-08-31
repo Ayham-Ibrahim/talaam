@@ -32,6 +32,7 @@ export function SearchPage() {
       type: type ?? applied.level,
       subject: applied.subject ?? undefined,
       stage: applied.stage ?? undefined,
+      grade: applied.grade ?? undefined,
       language: applied.language ?? undefined,
       q: q || undefined,
       minPrice: applied.minPrice ?? undefined,

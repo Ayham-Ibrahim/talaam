@@ -3,6 +3,13 @@
 @tailwind utilities;
 
 @layer base {
+  /* The platform has no dark theme — this isn't cosmetic, it stops mobile
+     browsers (Chrome/Samsung Internet's "force dark") from auto-inverting
+     the page to match the device's OS dark-mode setting, which breaks the
+     hand-tuned light-only colors/contrast across the whole UI. */
+  :root {
+    color-scheme: light only;
+  }
   * {
     @apply border-line;
   }

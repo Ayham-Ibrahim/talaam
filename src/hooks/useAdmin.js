@@ -93,6 +93,12 @@ export function useDeleteTeacher() {
   });
 }
 
+export function useAdminResetTeacherPassword() {
+  return useMutation({
+    mutationFn: ({ teacherId, password }) => adminService.resetTeacherPassword(teacherId, password),
+  });
+}
+
 export function useDocumentDownloadUrl() {
   return useMutation({
     mutationFn: (documentId) => adminService.getDocumentDownloadUrl(documentId),

@@ -6,6 +6,7 @@ const PACKAGE_FIELD_LABELS = {
   capacity: 'السعة',
   curriculum_ids: 'المناهج',
   stage_ids: 'المراحل',
+  grades: 'الصفوف',
   sessions_count: 'عدد الجلسات',
   discount_percent: 'نسبة الخصم',
   description: 'الوصف',
@@ -30,6 +31,9 @@ export function packageErrorLabel(path) {
 
   const stageMatch = path.match(/^stage_ids\.(\d+)$/);
   if (stageMatch) return `المراحل #${Number(stageMatch[1]) + 1}`;
+
+  const gradeMatch = path.match(/^grades\.(\d+)$/);
+  if (gradeMatch) return `الصفوف #${Number(gradeMatch[1]) + 1}`;
 
   return path;
 }
