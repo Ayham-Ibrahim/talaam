@@ -1378,7 +1378,12 @@
       "markPaid": "تحديد كمدفوع",
       "allStatuses": "جميع الحالات",
       "empty": "لا توجد مستحقات مطابقة",
-      "cancel": "إلغاء"
+      "cancel": "إلغاء",
+      "downloadInvoice": "تنزيل الفاتورة",
+      "downloadFailed": "تعذّر تنزيل الفاتورة، حاول مرة أخرى",
+      "exportExcel": "تصدير Excel",
+      "exporting": "جارِ التصدير...",
+      "exportFailed": "تعذّر تصدير الملف، حاول مرة أخرى"
     },
     "adminStudentImport": {
       "title": "استيراد الطلاب",

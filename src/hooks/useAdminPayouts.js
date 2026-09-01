@@ -38,3 +38,15 @@ export function useMarkPayoutPaid() {
     onSuccess: invalidate,
   });
 }
+
+export function useDownloadPayoutInvoice() {
+  return useMutation({
+    mutationFn: (id) => adminPayoutsService.downloadInvoice(id),
+  });
+}
+
+export function useExportPayouts() {
+  return useMutation({
+    mutationFn: (filters) => adminPayoutsService.exportPayouts(filters),
+  });
+}

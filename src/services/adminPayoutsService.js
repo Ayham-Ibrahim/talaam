@@ -43,4 +43,26 @@ export const adminPayoutsService = {
     const { data } = await client.post(endpoints.admin.markPayoutPaid(id), { transfer_reference: transferReference });
     return data.data;
   },
+
+  /** PDF — متاح فقط لمستحقات approved/paid (PayoutController::downloadInvoice) */
+  async downloadInvoice(id) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return new Blob(['Demo mode — no real invoice available.'], { type: 'application/pdf' });
+    }
+    const { data } = await client.get(endpoints.admin.payoutInvoice(id), { responseType: 'blob' });
+    return data;
+  },
+
+  /** Excel لكل المستحقات المطابقة للفلتر الحالي (كل المعلمين، أو حالة معيّنة) */
+  async exportPayouts(filters = {}) {
+    if (config.useMocks) {
+      await mockDelay(500);
+      return new Blob(['Demo mode — no real export available.'], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+    }
+    const { data } = await client.get(endpoints.admin.exportPayouts, { params: filters, responseType: 'blob' });
+    return data;
+  },
 };

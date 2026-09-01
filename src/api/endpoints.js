@@ -147,6 +147,8 @@ export const endpoints = {
     generatePayout: (teacherId) => `/teachers/${teacherId}/payouts/generate`,
     approvePayout: (id) => `/payouts/${id}/approve`,
     markPayoutPaid: (id) => `/payouts/${id}/mark-paid`,
+    payoutInvoice: (id) => `/payouts/${id}/invoice`,
+    exportPayouts: '/payouts/export',
     studentsImport: '/students/import',
     teachersImport: '/teachers/import',
     importBatches: '/import-batches',
