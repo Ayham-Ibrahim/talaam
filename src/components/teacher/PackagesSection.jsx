@@ -3,6 +3,7 @@ import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useT } from '@/hooks/useT';
 import { useCurrencyStore } from '@/store';
 import { formatPrice } from '@/lib/currency';
+import { formatDate, isPastDate, lastScheduleDate } from '@/lib/formatters';
 
 // Rotating per-card accent (icon badge + price + outline button) drawn from the app's identity palette
 const PACKAGE_ACCENTS = [
@@ -13,12 +14,20 @@ const PACKAGE_ACCENTS = [
   { bg: '#E3F5EC', solid: '#2E9E6B' }, // green
 ];
 
-/** Compact weekday+time summary for a group package's fixed schedule, e.g. "إثنين 5:00، أربعاء 5:00" */
-function scheduleSummary(schedules, weekdays) {
+/**
+ * Group packages have no recurring weekly pattern — the teacher picks an
+ * explicit calendar date per session (GroupSessionDatesPicker), so
+ * `schedules` is a flat list of {date, start_time} sorted ascending. Shows
+ * the session count + the date range so the student can see at a glance
+ * when the cohort runs, e.g. "8 جلسات: 9 يوليو — 27 أغسطس".
+ */
+function scheduleSummary(schedules, sessionsCount) {
   if (!schedules?.length) return null;
-  return schedules
-    .map((s) => `${weekdays[s.day_of_week]} ${(s.start_time ?? '').slice(0, 5)}`)
-    .join('، ');
+  const dates = [...schedules].map((s) => s.date).filter(Boolean).sort();
+  if (!dates.length) return null;
+  const first = formatDate(dates[0]);
+  const last = formatDate(dates[dates.length - 1]);
+  return dates.length > 1 ? `${sessionsCount ?? dates.length} جلسات: ${first} — ${last}` : first;
 }
 
 function PackageCard({ pkg, index, selected, onSelect }) {
@@ -28,16 +37,23 @@ function PackageCard({ pkg, index, selected, onSelect }) {
   const hasDiscount = !!pkg.discountPercent;
   const originalPrice = hasDiscount ? Math.round(pkg.price / (1 - pkg.discountPercent / 100)) : null;
   const isGroup = pkg.sessionFormat === 'group';
-  const weekdays = t('booking.weekdays');
-  const schedule = isGroup ? scheduleSummary(pkg.schedules, weekdays) : null;
+  const schedule = isGroup ? scheduleSummary(pkg.schedules, pkg.sessionsCount) : null;
+  // Only group packages have real dated sessions before anyone books —
+  // individual packages are scheduled on demand at booking time, so "ended"
+  // has no meaning for them.
+  const isEnded = isGroup && isPastDate(lastScheduleDate(pkg.schedules));
   const stages = pkg.stages ?? [];
   const grades = pkg.grades ?? [];
 
   return (
     <div
       style={{ '--accent': accent.solid, '--accent-bg': accent.bg }}
-      className={`group flex flex-col gap-3 rounded-2xl border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift ${
-        selected ? 'border-[var(--accent)] bg-[var(--accent-bg)]/40' : 'border-line bg-white hover:border-[var(--accent)]'
+      className={`group flex flex-col gap-3 rounded-2xl border p-4 transition-all duration-200 ${
+        isEnded
+          ? 'opacity-60 border-line bg-canvas'
+          : `hover:-translate-y-0.5 hover:shadow-lift ${
+              selected ? 'border-[var(--accent)] bg-[var(--accent-bg)]/40' : 'border-line bg-white hover:border-[var(--accent)]'
+            }`
       }`}
     >
       <div className="flex items-start justify-between">
@@ -46,10 +62,16 @@ function PackageCard({ pkg, index, selected, onSelect }) {
         >
           <Medal size={22} className="text-[var(--accent)]" />
         </div>
-        {hasDiscount && (
-          <span className="rounded-pill bg-[#FEEDEA] px-2 py-1 text-xs font-bold text-[#F74E28]">
-            {t('teacher.discount')} {pkg.discountPercent}%
+        {isEnded ? (
+          <span className="rounded-pill bg-ink-soft/10 px-2 py-1 text-xs font-bold text-ink-soft">
+            {t('teacher.packageEnded')}
           </span>
+        ) : (
+          hasDiscount && (
+            <span className="rounded-pill bg-[#FEEDEA] px-2 py-1 text-xs font-bold text-[#F74E28]">
+              {t('teacher.discount')} {pkg.discountPercent}%
+            </span>
+          )
         )}
       </div>
 
@@ -122,14 +144,19 @@ function PackageCard({ pkg, index, selected, onSelect }) {
 
       <button
         type="button"
+        disabled={isEnded}
         onClick={() => onSelect(pkg)}
-        className={`w-full rounded-2xl border border-[var(--accent)] py-2.5 text-sm font-medium transition-colors duration-200 ${
-          selected
-            ? 'bg-[var(--accent)] text-white'
-            : 'bg-transparent text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white'
+        className={`w-full rounded-2xl border py-2.5 text-sm font-medium transition-colors duration-200 ${
+          isEnded
+            ? 'cursor-not-allowed border-line bg-line/30 text-ink-soft'
+            : `border-[var(--accent)] ${
+                selected
+                  ? 'bg-[var(--accent)] text-white'
+                  : 'bg-transparent text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white'
+              }`
         }`}
       >
-        {t('teacher.choosePackage')}
+        {isEnded ? t('teacher.packageEnded') : t('teacher.choosePackage')}
       </button>
     </div>
   );

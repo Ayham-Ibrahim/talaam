@@ -524,6 +524,28 @@ export const mockCalendarSessions = [
     countdown: { days: 3, hours: 2, minutes: 47 },
     canReschedule: true,
   },
+  /**
+   * Deliberately overlaps package 106's first group session
+   * (GROUP_SCHEDULE_UPCOMING in data.mock.js: 2026-09-08 18:00) so the
+   * cross-type conflict check (scheduleConflict.js) has something real to
+   * catch under mocks — an individual-package session already booked at the
+   * exact time a student would try to join that group package.
+   */
+  {
+    id: 209,
+    date: '2026-09-08',
+    type: 'individual',
+    packageTitle: 'باقة 5 جلسات',
+    status: 'upcoming',
+    teacherName: 'منى العلي',
+    teacherAvatar: null,
+    subject: 'الرياضيات',
+    time: '06:00',
+    period: 'م',
+    durationMinutes: 60,
+    countdown: { days: 7, hours: 0, minutes: 0 },
+    canReschedule: true,
+  },
 ];
 
 /** "الفواتير" page — solid-color status pills, unlike the light-bg pills used for sessions */

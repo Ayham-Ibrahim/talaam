@@ -1,12 +1,15 @@
+import { useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Award, Laptop, Package, FlaskConical, Video, CalendarDays, CheckCircle2, XCircle } from 'lucide-react';
+import { AlertTriangle, Award, Laptop, Package, FlaskConical, Video, CalendarDays, CheckCircle2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useCreateEnrollment } from '@/hooks/useEnrollment';
+import { useCalendarSessions } from '@/hooks/useDashboard';
 import { useT } from '@/hooks/useT';
 import { useCurrencyStore } from '@/store';
 import { formatPrice } from '@/lib/currency';
-import { formatDate } from '@/lib/formatters';
+import { formatDate, isPastDate } from '@/lib/formatters';
+import { findRecurringConflict } from '@/lib/scheduleConflict';
 
 function formatTime(t) {
   return t ? t.slice(0, 5) : t;
@@ -38,7 +41,20 @@ export function CourseEnrollWidget({ selectedCourse }) {
   const schedules = selectedCourse?.schedules ?? [];
   const createEnrollment = useCreateEnrollment(selectedCourse?.id);
 
-  const canSubmit = Boolean(selectedCourse);
+  // Student-side only — courses have no busy-slots endpoint (unlike
+  // packages' GET /packages/{id}/busy-slots) to advisory-check the training
+  // center's own schedule against, so a center-side conflict can currently
+  // only be caught by the backend's binding check at enrollment time.
+  const { data: myUpcomingSessions } = useCalendarSessions({ enabled: isAuthenticated });
+  const scheduleConflict = useMemo(
+    () => findRecurringConflict(myUpcomingSessions, selectedCourse?.startDate, selectedCourse?.endDate, schedules),
+    [myUpcomingSessions, selectedCourse?.startDate, selectedCourse?.endDate, schedules]
+  );
+
+  // Defense in depth — the course card already disables selecting an ended
+  // course, but a stale `selectedCourse` (e.g. held in state across a course
+  // list refresh) shouldn't be submittable either.
+  const canSubmit = Boolean(selectedCourse) && !isPastDate(selectedCourse?.endDate) && !scheduleConflict;
   const isPending = createEnrollment.isPending;
   const isSuccess = createEnrollment.isSuccess;
 
@@ -105,6 +121,13 @@ export function CourseEnrollWidget({ selectedCourse }) {
                 </li>
               ))}
             </ul>
+          )}
+
+          {scheduleConflict && (
+            <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-[#FF383C]">
+              <AlertTriangle size={13} />
+              {t('booking.ownTimeConflict')}
+            </p>
           )}
         </div>
       )}

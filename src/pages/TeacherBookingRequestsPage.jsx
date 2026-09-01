@@ -6,7 +6,7 @@ import { ApiErrorList, Avatar, EmptyState, ErrorState, Skeleton } from '@/compon
 import { useAuth } from '@/hooks/useAuth';
 import { usePendingBookingRequests, useApproveBookingRequest, useRejectBookingRequest } from '@/hooks/useBooking';
 import { useT } from '@/hooks/useT';
-import { formatDate } from '@/lib/formatters';
+import { formatDate, formatDateTime } from '@/lib/formatters';
 
 function RequestRow({ request, onApprove, onReject, isPending, error }) {
   const t = useT();
@@ -58,6 +58,20 @@ function RequestRow({ request, onApprove, onReject, isPending, error }) {
             {t('dashboard.bookingRequests.reject')}
           </button>
         </div>
+      </div>
+
+      {/* حتى يعرف المعلم لأي باقة ومن الطالب صاحب الطلب دون فتحه — الاسم
+          والعنوان وحدهما لا يكفيان عند تراكم عدة طلبات لنفس الباقة أو لنفس
+          الطالب في نفس اليوم. */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3 text-xs text-ink-soft">
+        {request.subject && (
+          <span>
+            {t('dashboard.bookingRequests.subjectLabel')}: {request.subject}
+          </span>
+        )}
+        <span>
+          {t('dashboard.bookingRequests.requestedAtLabel')}: {formatDateTime(request.createdAt)}
+        </span>
       </div>
 
       {/* كان فشل الموافقة/الرفض (تعارض جدول، حالة تغيّرت...) صامتاً تماماً من

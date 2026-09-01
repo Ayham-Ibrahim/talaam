@@ -114,17 +114,19 @@ export function useTeacherStudentDetails(id) {
   });
 }
 
-export function useCalendarSessions() {
+export function useCalendarSessions({ enabled = true } = {}) {
   return useQuery({
     queryKey: queryKeys.dashboard.calendarSessions(),
     queryFn: () => dashboardService.getCalendarSessions(),
+    enabled,
   });
 }
 
-export function useTeacherCalendarSessions() {
+export function useTeacherCalendarSessions({ enabled = true } = {}) {
   return useQuery({
     queryKey: queryKeys.dashboard.teacherCalendarSessions(),
     queryFn: () => dashboardService.getTeacherCalendarSessions(),
+    enabled,
   });
 }
 

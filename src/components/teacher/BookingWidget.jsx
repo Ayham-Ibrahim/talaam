@@ -3,15 +3,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { AlertTriangle, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock, Pencil, Trash2 } from 'lucide-react';
 import { Button, ApiErrorList } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
-import { useRequestIndividualBooking, useCreateGroupBooking, usePackageBusySlots } from '@/hooks/useBooking';
+import { useRequestIndividualBooking, useCreateGroupBooking, usePackageBusySlots, usePackageBusySlotsForDates } from '@/hooks/useBooking';
+import { useCalendarSessions } from '@/hooks/useDashboard';
 import { useT } from '@/hooks/useT';
 import { useCurrencyStore } from '@/store';
 import { formatPrice } from '@/lib/currency';
-
-/** يتقاطعان إن بدأ كل منهما قبل انتهاء الآخر — نفس منطق ScheduleConflictService::assertNoConflict بالضبط */
-function rangesOverlap(startA, endA, startB, endB) {
-  return startA < endB && startB < endA;
-}
+import { formatDate, isPastDate, lastScheduleDate } from '@/lib/formatters';
+import { rangesOverlap, findOwnConflict } from '@/lib/scheduleConflict';
 
 /** Backend TIME columns serialize as "H:i:s" — trim to "H:i" for display */
 function formatTime(t) {
@@ -98,6 +96,11 @@ export function BookingWidget({ selectedPackage }) {
   const { data: busySlots } = usePackageBusySlots(selectedPackage?.id, selectedDate ? toISODate(selectedDate) : null);
   const durationMinutes = selectedPackage?.durationPerSession ?? 60;
 
+  // الطالب نفسه قد يكون لديه جلسة أخرى (من دورة، أو باقة أخرى فردية/جماعية) في
+  // نفس الوقت — يشمل getCalendarSessions كل الأنواع معاً، على عكس busySlots
+  // أعلاه (خاص بمعلم هذه الباقة فقط). نفس تحفظ "استشاري فقط" ينطبق هنا أيضاً.
+  const { data: myUpcomingSessions } = useCalendarSessions({ enabled: isAuthenticated });
+
   const selectedTimeConflict = useMemo(() => {
     if (!selectedDate || !selectedTime || !busySlots?.length) return null;
     const [h, m] = selectedTime.split(':').map(Number);
@@ -108,6 +111,45 @@ export function BookingWidget({ selectedPackage }) {
     return busySlots.find((slot) => rangesOverlap(start, end, slot.start, slot.end)) ?? null;
   }, [selectedDate, selectedTime, busySlots, durationMinutes]);
 
+  const ownTimeConflict = useMemo(() => {
+    if (!selectedDate || !selectedTime) return null;
+    const [h, m] = selectedTime.split(':').map(Number);
+    const start = new Date(selectedDate);
+    start.setHours(h, m, 0, 0);
+    const end = new Date(start.getTime() + durationMinutes * 60000);
+    return findOwnConflict(myUpcomingSessions, start, end);
+  }, [selectedDate, selectedTime, myUpcomingSessions, durationMinutes]);
+
+  // Group packages have no per-date picker (the teacher's fixed dates are
+  // already set) — every one of them needs checking up front, both against
+  // the teacher's busy times and the student's own existing sessions, before
+  // the "join" button can be enabled at all.
+  const groupDatesISO = useMemo(
+    () => (isGroup ? [...new Set(schedules.map((s) => s.date).filter(Boolean))] : []),
+    [isGroup, schedules]
+  );
+  const { data: groupBusyByDate } = usePackageBusySlotsForDates(selectedPackage?.id, groupDatesISO);
+
+  const groupScheduleConflict = useMemo(() => {
+    if (!isGroup) return null;
+    for (const sch of schedules) {
+      if (!sch.date || !sch.start_time) continue;
+      const [h, m] = sch.start_time.split(':').map(Number);
+      const start = new Date(`${sch.date}T00:00:00`);
+      start.setHours(h, m, 0, 0);
+      const end = new Date(start.getTime() + durationMinutes * 60000);
+
+      const busy = groupBusyByDate?.find((d) => d.dateISO === sch.date)?.busySlots ?? [];
+      if (busy.some((slot) => rangesOverlap(start, end, slot.start, slot.end))) {
+        return { date: sch.date, reason: 'teacher' };
+      }
+      if (findOwnConflict(myUpcomingSessions, start, end)) {
+        return { date: sch.date, reason: 'own' };
+      }
+    }
+    return null;
+  }, [isGroup, schedules, groupBusyByDate, myUpcomingSessions, durationMinutes]);
+
   const monthLabel = new Intl.DateTimeFormat('ar', { month: 'long', year: 'numeric' }).format(viewDate);
   const cells = useMemo(() => buildMonthGrid(viewDate), [viewDate]);
 
@@ -115,7 +157,11 @@ export function BookingWidget({ selectedPackage }) {
   const filledCount = slots.filter(Boolean).length;
   const allSlotsFilled = filledCount === sessionsCount;
   const canSubmitIndividual = allSlotsFilled;
-  const canSubmitGroup = Boolean(selectedPackage) && schedules.length > 0;
+  // Defense in depth — the package card already disables selecting a group
+  // package whose last dated session has passed, but a stale
+  // `selectedPackage` shouldn't be submittable either.
+  const canSubmitGroup =
+    Boolean(selectedPackage) && schedules.length > 0 && !isPastDate(lastScheduleDate(schedules)) && !groupScheduleConflict;
   const isPending = requestIndividual.isPending || createGroup.isPending;
   const isSuccess = requestIndividual.isSuccess || createGroup.isSuccess;
 
@@ -133,7 +179,7 @@ export function BookingWidget({ selectedPackage }) {
   };
 
   const handleConfirmSlot = () => {
-    if (!selectedDate || !selectedTime || selectedTimeConflict) return;
+    if (!selectedDate || !selectedTime || selectedTimeConflict || ownTimeConflict) return;
     setSlots((prev) => {
       const next = [...prev];
       next[activeIndex] = { date: selectedDate, time: selectedTime };
@@ -211,13 +257,28 @@ export function BookingWidget({ selectedPackage }) {
             <p className="py-2 text-center text-sm text-ink-soft">{t('booking.noGroupSchedule')}</p>
           ) : (
             <ul className="flex flex-col gap-2">
-              {schedules.map((s) => (
-                <li key={s.id} className="flex items-center justify-end gap-2 rounded-xl border border-line px-3 py-2 text-sm text-ink">
-                  {weekdays[s.day_of_week]} · {formatTime(s.start_time)}–{formatTime(s.end_time)}
-                  <CalendarDays size={14} className="text-ink-soft" />
-                </li>
-              ))}
+              {schedules.map((s) => {
+                const hasConflict = groupScheduleConflict?.date === s.date;
+                return (
+                  <li
+                    key={s.id ?? s.date}
+                    className={`flex items-center justify-end gap-2 rounded-xl border px-3 py-2 text-sm ${
+                      hasConflict ? 'border-[#FF383C] bg-[#FDF0F0] text-[#FF383C]' : 'border-line text-ink'
+                    }`}
+                  >
+                    {formatDate(s.date)} · {formatTime(s.start_time)}
+                    <CalendarDays size={14} className={hasConflict ? 'text-[#FF383C]' : 'text-ink-soft'} />
+                  </li>
+                );
+              })}
             </ul>
+          )}
+
+          {groupScheduleConflict && (
+            <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-[#FF383C]">
+              <AlertTriangle size={13} />
+              {t(groupScheduleConflict.reason === 'own' ? 'booking.ownTimeConflict' : 'booking.timeUnavailable')}
+            </p>
           )}
         </div>
       )}
@@ -349,9 +410,9 @@ export function BookingWidget({ selectedPackage }) {
                     type="time"
                     value={selectedTime}
                     onChange={(e) => setSelectedTime(e.target.value)}
-                    aria-invalid={!!selectedTimeConflict}
+                    aria-invalid={!!(selectedTimeConflict || ownTimeConflict)}
                     className={`w-full rounded-lg border px-3 py-3 text-sm text-ink focus:outline-none ${
-                      selectedTimeConflict ? 'border-[#FF383C] focus:border-[#FF383C]' : 'border-[#E3E3E3] focus:border-primary'
+                      selectedTimeConflict || ownTimeConflict ? 'border-[#FF383C] focus:border-[#FF383C]' : 'border-[#E3E3E3] focus:border-primary'
                     }`}
                   />
 
@@ -370,13 +431,20 @@ export function BookingWidget({ selectedPackage }) {
                       {t('booking.timeUnavailable')}
                     </p>
                   )}
+
+                  {!selectedTimeConflict && ownTimeConflict && (
+                    <p className="flex items-center gap-1.5 text-xs font-semibold text-[#FF383C]">
+                      <AlertTriangle size={13} />
+                      {t('booking.ownTimeConflict')}
+                    </p>
+                  )}
                 </div>
               )}
 
               {selectedDate && selectedTime && (
                 <button
                   type="button"
-                  disabled={!!selectedTimeConflict}
+                  disabled={!!(selectedTimeConflict || ownTimeConflict)}
                   onClick={handleConfirmSlot}
                   className="w-full rounded-xl border-2 border-primary bg-primary/5 py-2.5 text-sm font-bold text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:border-line disabled:bg-line/20 disabled:text-ink-soft"
                 >

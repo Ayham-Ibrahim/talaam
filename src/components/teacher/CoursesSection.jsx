@@ -6,7 +6,7 @@ import { useFavorites, useToggleFavoriteCourse } from '@/hooks/useFavorites';
 import { useT } from '@/hooks/useT';
 import { useCurrencyStore } from '@/store';
 import { formatPrice } from '@/lib/currency';
-import { formatDate } from '@/lib/formatters';
+import { formatDate, isPastDate } from '@/lib/formatters';
 
 const COURSE_ACCENTS = [
   { bg: '#FDEAE3', solid: '#F74E28' },
@@ -31,17 +31,29 @@ function CourseCard({ course, index, selected, onSelect, isFavorite, onToggleFav
   const t = useT();
   const currency = useCurrencyStore((s) => s.currency);
   const accent = COURSE_ACCENTS[index % COURSE_ACCENTS.length];
+  const isEnded = isPastDate(course.endDate);
 
   return (
     <div
       style={{ '--accent': accent.solid, '--accent-bg': accent.bg }}
-      className={`group flex flex-col gap-3 rounded-2xl border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift ${
-        selected ? 'border-[var(--accent)] bg-[var(--accent-bg)]/40' : 'border-line bg-white hover:border-[var(--accent)]'
+      className={`group flex flex-col gap-3 rounded-2xl border p-4 transition-all duration-200 ${
+        isEnded
+          ? 'opacity-60 border-line bg-canvas'
+          : `hover:-translate-y-0.5 hover:shadow-lift ${
+              selected ? 'border-[var(--accent)] bg-[var(--accent-bg)]/40' : 'border-line bg-white hover:border-[var(--accent)]'
+            }`
       }`}
     >
       <div className="flex items-start justify-between gap-2 text-start">
         <div>
-          <h4 className="font-bold text-ink">{course.title}</h4>
+          <div className="flex flex-wrap items-center gap-2">
+            <h4 className="font-bold text-ink">{course.title}</h4>
+            {isEnded && (
+              <span className="rounded-pill bg-ink-soft/10 px-2 py-1 text-xs font-bold text-ink-soft">
+                {t('teacher.course.ended')}
+              </span>
+            )}
+          </div>
           <p className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-soft">
             <CalendarRange size={13} />
             {formatDate(course.startDate)} — {formatDate(course.endDate)}
@@ -64,14 +76,19 @@ function CourseCard({ course, index, selected, onSelect, isFavorite, onToggleFav
 
       <button
         type="button"
+        disabled={isEnded}
         onClick={() => onSelect(course)}
-        className={`w-full rounded-2xl border border-[var(--accent)] py-2.5 text-sm font-medium transition-colors duration-200 ${
-          selected
-            ? 'bg-[var(--accent)] text-white'
-            : 'bg-transparent text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white'
+        className={`w-full rounded-2xl border py-2.5 text-sm font-medium transition-colors duration-200 ${
+          isEnded
+            ? 'cursor-not-allowed border-line bg-line/30 text-ink-soft'
+            : `border-[var(--accent)] ${
+                selected
+                  ? 'bg-[var(--accent)] text-white'
+                  : 'bg-transparent text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white'
+              }`
         }`}
       >
-        {t('teacher.course.chooseCourse')}
+        {isEnded ? t('teacher.course.ended') : t('teacher.course.chooseCourse')}
       </button>
     </div>
   );

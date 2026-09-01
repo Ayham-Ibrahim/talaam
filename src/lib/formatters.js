@@ -19,6 +19,29 @@ export function formatCompact(n) {
   return '+' + new Intl.NumberFormat('en-US').format(n);
 }
 
+/**
+ * Latest date in a `[{date, ...}]` schedule list (e.g. a group package's
+ * explicit per-session calendar dates from GroupSessionDatesPicker), or null
+ * if the list is empty/undated. Individual packages have no `date` on their
+ * schedule entries (day_of_week-based availability instead) and correctly
+ * resolve to null here — they have no fixed "last session" before booking.
+ */
+export function lastScheduleDate(schedules) {
+  if (!schedules?.length) return null;
+  const dates = schedules.map((s) => s.date).filter(Boolean).sort();
+  return dates.length ? dates[dates.length - 1] : null;
+}
+
+/** True once the given ISO date's whole day has passed (today itself is not yet "past") */
+export function isPastDate(iso) {
+  if (!iso) return false;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return false;
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  return date < startOfToday;
+}
+
 /** Formats an ISO date string to Arabic long date */
 export function formatDate(iso) {
   if (!iso) return '';

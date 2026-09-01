@@ -307,6 +307,7 @@ export const bookingService = {
       studentName: booking.student?.user?.name ?? null,
       studentAvatar: booking.student?.user?.avatar_path ?? null,
       packageTitle: booking.package?.title ?? null,
+      subject: booking.package?.subject?.name_ar ?? null,
       // موعد مستقل لكل جلسة — requested_slots هو مصدر الحقيقة؛ الحجوزات القديمة
       // (قبل دعم عدة مواعيد) ليس لها إلا موعداً واحداً محفوظاً في العمودين القديمين.
       requestedSlots: booking.requested_slots?.length
@@ -790,6 +791,10 @@ function mapCalendarSessionRow(session) {
   return {
     id: session.id,
     date: session.scheduled_at ? session.scheduled_at.slice(0, 10) : null,
+    // Raw ISO instant (as opposed to `date`/`time`/`period` above, which are
+    // already localized for display) — needed to compute real overlap
+    // ranges for cross-package/course conflict checks (scheduleConflict.js).
+    scheduledAt: session.scheduled_at,
     type: sessionCategory(session),
     packageTitle: sessionPackageTitle(session),
     status,
@@ -815,6 +820,7 @@ function mapTeacherCalendarSessionRow(session) {
   return {
     id: session.id,
     date: session.scheduled_at ? session.scheduled_at.slice(0, 10) : null,
+    scheduledAt: session.scheduled_at,
     type: sessionCategory(session),
     packageTitle: sessionPackageTitle(session),
     status,
