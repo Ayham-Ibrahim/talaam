@@ -1030,9 +1030,8 @@ export const dashboardService = {
     const bookings = bookingsRes.data.data;
     const enrollments = enrollmentsRes.data.data;
 
-    const now = new Date();
     const upcoming = sessions
-      .filter((s) => mapSessionStatus(s.status) === 'upcoming' && new Date(s.scheduled_at) > now)
+      .filter((s) => mapSessionStatus(s.status, s.scheduled_at, s.duration_min) === 'upcoming')
       .sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at));
     // ساعات التعلّم = مجموع مدد الجلسات التي انعقدت فعلاً. لا شيء في الباك اند
     // يضبط class_sessions.status='completed'، فالاعتماد عليه وحده يُبقيها صفراً
