@@ -51,8 +51,8 @@ export function AdminListingDetailPage() {
   const activeModalMutation = modal === 'reject' ? rejectListing : disableListing;
   const manualBookingMutation = listing?.kind === 'course' ? createManualEnrollment : createManualBooking;
 
-  const handleManualBookingConfirm = ({ studentId, reason }) => {
-    const payload = { student_id: studentId, reason };
+  const handleManualBookingConfirm = ({ studentId, reason, slots }) => {
+    const payload = { student_id: studentId, reason, ...(slots ? { slots } : {}) };
     const mutation = listing.kind === 'course' ? createManualEnrollment : createManualBooking;
     const args =
       listing.kind === 'course' ? { courseId: id, payload } : { packageId: id, payload };
@@ -130,6 +130,7 @@ export function AdminListingDetailPage() {
 
       {manualBookingOpen && (
         <ManualBookingModal
+          listing={listing}
           isPending={isBooking}
           error={manualBookingMutation.isError ? manualBookingMutation.error : null}
           onConfirm={handleManualBookingConfirm}

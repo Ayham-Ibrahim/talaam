@@ -107,7 +107,10 @@ export function AdminComplaintsPage() {
               value={rescheduleStatus}
               onChange={setRescheduleStatus}
               placeholder={t('dashboard.adminComplaints.allStatuses')}
-              options={Object.entries(RESCHEDULE_STATUS_STYLES).map(([value, style]) => ({ value, label: style.label }))}
+              options={[
+                { value: '', label: t('dashboard.adminComplaints.allStatuses') },
+                ...Object.entries(RESCHEDULE_STATUS_STYLES).map(([value, style]) => ({ value, label: style.label })),
+              ]}
             />
 
             {rescheduleQuery.isError ? (

@@ -2,18 +2,28 @@ import { useState } from 'react';
 import { Search, User, X } from 'lucide-react';
 import { useAdminStudentSearch } from '@/hooks/useAdminStudents';
 import { ApiErrorList } from '@/components/ui';
+import { AdminSlotPicker } from './AdminSlotPicker';
 import { useT } from '@/hooks/useT';
 
-const MANUAL_BOOKING_FIELD_LABELS = { student_id: 'الطالب', reason: 'السبب' };
+const MANUAL_BOOKING_FIELD_LABELS = { student_id: 'الطالب', reason: 'السبب', slots: 'المواعيد' };
+
+function toISODate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
 
 /**
  * Books a package (or enrolls in a course) on a student's behalf — for technical
  * issues or complaint resolutions per policy. Mirrors CreateManualBookingRequest /
- * CreateManualEnrollmentRequest exactly: student_id + mandatory reason only.
- * Packages always use the teacher's own fixed schedule (no admin-chosen date);
- * courses enroll into the whole existing date range.
+ * CreateManualEnrollmentRequest: student_id + mandatory reason, plus `slots`
+ * (date+time per session) for individual-format packages specifically — those
+ * have no fixed schedule of their own (BookingService::createManualBooking
+ * rejects the request outright without them, RULE). Group packages and
+ * courses already use a fixed schedule/date range, so no slot picker for them.
  */
-export function ManualBookingModal({ isPending, error, onConfirm, onClose }) {
+export function ManualBookingModal({ listing, isPending, error, onConfirm, onClose }) {
   const t = useT();
   const [query, setQuery] = useState('');
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -22,7 +32,12 @@ export function ManualBookingModal({ isPending, error, onConfirm, onClose }) {
 
   const { data: results = [] } = useAdminStudentSearch(query);
 
-  const isValid = selectedStudent !== null && reason.trim() !== '';
+  const needsSlots = listing?.kind === 'package' && listing?.sessionFormat === 'individual';
+  const sessionsCount = listing?.sessionsCount ?? 1;
+  const [slots, setSlots] = useState(() => Array(sessionsCount).fill(null));
+  const filledSlotsCount = slots.filter(Boolean).length;
+
+  const isValid = selectedStudent !== null && reason.trim() !== '' && (!needsSlots || filledSlotsCount === sessionsCount);
 
   const handleConfirm = () => {
     setTouched(true);
@@ -30,12 +45,13 @@ export function ManualBookingModal({ isPending, error, onConfirm, onClose }) {
     onConfirm({
       studentId: selectedStudent.id,
       reason: reason.trim(),
+      slots: needsSlots ? slots.map((s) => ({ date: toISODate(s.date), start_time: s.time })) : undefined,
     });
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-lift" onClick={(e) => e.stopPropagation()}>
+      <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-lift" onClick={(e) => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
           <button
             type="button"
@@ -122,6 +138,24 @@ export function ManualBookingModal({ isPending, error, onConfirm, onClose }) {
           <div className="text-left text-xs text-ink-soft/70">{reason.length}/500</div>
           {touched && reason.trim() === '' && <span className="text-xs text-accent-pink">{t('dashboard.adminManualBooking.reasonRequired')}</span>}
         </label>
+
+        {needsSlots && (
+          <div className="mt-4">
+            <span className="mb-1.5 block text-right text-sm font-semibold text-ink">
+              {t('dashboard.adminManualBooking.slotsLabel')}
+            </span>
+            <AdminSlotPicker
+              packageId={listing.id}
+              schedules={listing.schedules ?? []}
+              sessionsCount={sessionsCount}
+              slots={slots}
+              onChange={setSlots}
+            />
+            {touched && filledSlotsCount !== sessionsCount && (
+              <span className="mt-1.5 block text-xs text-accent-pink">{t('dashboard.adminManualBooking.slotsRequired')}</span>
+            )}
+          </div>
+        )}
 
         <div className="mt-6 flex gap-3">
           <button

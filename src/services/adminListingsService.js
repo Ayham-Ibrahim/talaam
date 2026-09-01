@@ -25,6 +25,8 @@ function mapListing(raw, kind) {
     subjectName: kind === 'course' ? (raw.course_field ?? null) : (raw.subject ?? null),
     sessionsCount: kind === 'course' ? raw.total_sessions : raw.sessions_count,
     sessionFormat: raw.session_format ?? null,
+    // فردية فقط تحتاجها فعلياً — لتغذية اختيار مواعيد الحجز اليدوي (ManualBookingModal/AdminSlotPicker)
+    schedules: kind === 'course' ? [] : (raw.schedules ?? []),
     capacity: kind === 'course' ? raw.max_seats : raw.capacity,
     submittedAt: raw.submitted_at,
     teacherPrice: kind === 'course' ? raw.provider_price : raw.teacher_price,

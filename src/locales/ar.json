@@ -1470,6 +1470,8 @@
       "studentSearchPlaceholder": "ابحث بالاسم أو البريد الإلكتروني",
       "studentRequired": "يرجى اختيار طالب",
       "scheduledAtLabel": "موعد الجلسة",
+      "slotsLabel": "مواعيد الجلسات",
+      "slotsRequired": "يرجى تحديد موعد لكل جلسة من جلسات الباقة",
       "reasonLabel": "السبب (إلزامي)",
       "reasonPlaceholder": "مثال: تعويض عن مشكلة تقنية، تسوية شكوى رقم...",
       "reasonRequired": "السبب مطلوب — يُسجَّل في سجل التدقيق",
