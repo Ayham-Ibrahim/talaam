@@ -9,7 +9,7 @@ import { useAuthStore } from '@/store';
  */
 export const client = axios.create({
   baseURL: config.apiBaseUrl,
-  timeout: 15000,
+  timeout: 120000,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
