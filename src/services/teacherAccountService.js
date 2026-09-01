@@ -1,6 +1,7 @@
 import { config } from '@/config/env';
 import { client, mockDelay } from '@/api/client';
 import { endpoints } from '@/api/endpoints';
+import { assertFileWithinLimits } from '@/lib/fileValidation';
 
 /**
  * إجراءات المعلم على حسابه الخاص أثناء إكمال الملف الشخصي: تحديث البيانات،
@@ -32,6 +33,13 @@ export const teacherAccountService = {
       await mockDelay(400);
       return { id: Date.now(), type, status: 'pending' };
     }
+    assertFileWithinLimits(file, {
+      maxBytes: 5 * 1024 * 1024,
+      mimeTypes: ['image/jpeg', 'image/png', 'application/pdf'],
+      field: 'file',
+      sizeMessage: 'حجم الملف أكبر من الحد المسموح (5 ميغابايت كحد أقصى)',
+      typeMessage: 'صيغة الملف غير مدعومة — يُسمح فقط بصورة (JPG/PNG) أو PDF',
+    });
     const form = new FormData();
     form.append('type', type);
     form.append('file', file);

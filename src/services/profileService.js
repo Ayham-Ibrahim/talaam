@@ -1,6 +1,7 @@
 import { config } from '@/config/env';
 import { client, mockDelay } from '@/api/client';
 import { endpoints } from '@/api/endpoints';
+import { assertFileWithinLimits } from '@/lib/fileValidation';
 
 /** إجراءات المستخدم الحالي على حسابه الخاص، بصرف النظر عن دوره (ProfileController) */
 export const profileService = {
@@ -9,6 +10,13 @@ export const profileService = {
       await mockDelay(400);
       return { avatar_path: URL.createObjectURL(file) };
     }
+    assertFileWithinLimits(file, {
+      maxBytes: 5 * 1024 * 1024,
+      mimeTypes: ['image/jpeg', 'image/png'],
+      field: 'avatar',
+      sizeMessage: 'حجم الصورة أكبر من الحد المسموح (5 ميغابايت كحد أقصى)',
+      typeMessage: 'صيغة الصورة غير مدعومة — يُسمح فقط بصورة JPG أو PNG',
+    });
     const form = new FormData();
     form.append('avatar', file);
     const { data } = await client.post(endpoints.profile.uploadAvatar, form, {
