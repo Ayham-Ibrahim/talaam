@@ -9,12 +9,13 @@ export function ComplaintsTable({ complaints, onResolve, onEscalate, isActing })
 
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
-      <table className="w-full min-w-[820px] text-sm">
+      <table className="w-full min-w-[980px] text-sm">
         <thead>
           <tr className="border-b border-line">
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminComplaints.colStudent')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminComplaints.colTeacher')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminComplaints.colSubject')}</th>
+            <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminComplaints.colMessage')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminComplaints.colDate')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminComplaints.colStatus')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminComplaints.colActions')}</th>
@@ -26,6 +27,11 @@ export function ComplaintsTable({ complaints, onResolve, onEscalate, isActing })
               <td className="px-4 py-4 text-right font-semibold text-ink">{c.studentName}</td>
               <td className="px-4 py-4 text-right text-ink-soft">{c.teacherName}</td>
               <td className="px-4 py-4 text-right text-ink-soft">{c.subjectName}</td>
+              <td className="max-w-[260px] px-4 py-4 text-right text-ink-soft">
+                <span className="line-clamp-2" title={c.description}>
+                  {c.description || '—'}
+                </span>
+              </td>
               <td className="px-4 py-4 text-right text-ink-soft">{formatDate(c.createdAt)}</td>
               <td className="px-4 py-4 text-right">
                 <ComplaintStatusBadge status={c.status} />
