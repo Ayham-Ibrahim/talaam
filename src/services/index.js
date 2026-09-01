@@ -783,6 +783,23 @@ function mapUpcomingSessionRow(session) {
   };
 }
 
+/** GET /class-sessions row → teacher dashboard "upcoming sessions" widget row (join_url_teacher, not _student) */
+function mapTeacherUpcomingSessionRow(session) {
+  const { time, period } = formatSessionTime(session.scheduled_at);
+  return {
+    id: session.id,
+    subject: sessionSubject(session),
+    sessionType: SESSION_TYPE_LABELS[sessionCategory(session)],
+    date: formatSessionDate(session.scheduled_at),
+    day: formatSessionDay(session.scheduled_at),
+    time,
+    period,
+    durationMinutes: session.duration_min,
+    countdown: computeCountdown(session.scheduled_at),
+    joinUrl: canJoinSession(session, session.join_url_teacher ?? null) ? session.join_url_teacher : null,
+  };
+}
+
 /** GET /class-sessions row → calendar day-cell row */
 function mapCalendarSessionRow(session) {
   const hasPendingReschedule = hasPendingRescheduleRequest(session);
@@ -1050,17 +1067,25 @@ export const dashboardService = {
       teacherId ? client.get(endpoints.teachers.detail(teacherId)) : Promise.resolve(null),
     ]);
     const packages = packagesRes.data.data;
+    const activePackages = packages.filter((p) => p.status === 'active');
     const teacherStats = teacherRes?.data.data.stats;
 
     return {
       stats: {
         averageRating: teacherStats?.rating_avg ?? null,
         teachingHours: teacherStats?.teaching_hours ?? null,
-        activePackagesCount: packages.filter((p) => p.status === 'active').length,
+        activePackagesCount: activePackages.length,
         totalStudents: teacherStats?.total_students ?? null,
       },
-      upcomingSessions: sessionsRes.data.data,
-      activePackages: packages.filter((p) => p.status === 'active'),
+      upcomingSessions: sessionsRes.data.data.map(mapTeacherUpcomingSessionRow),
+      activePackages: activePackages.map((p) => ({
+        id: p.id,
+        packageTitle: p.title,
+        sessionType: p.session_format,
+        subject: p.subject,
+        curriculum: (p.curricula ?? []).map((c) => c.name_ar).join('، ') || null,
+        sessionsCount: p.sessions_count,
+      })),
     };
   },
 
@@ -1176,18 +1201,55 @@ export const dashboardService = {
       await mockDelay(300);
       return { stats: mockTeacherStudentStats, students: mockTeacherStudents };
     }
-    const [bookingsRes, enrollmentsRes] = await Promise.all([
-      client.get(endpoints.bookings.list),
-      client.get(endpoints.enrollments.list),
+    const [bookingsRes, enrollmentsRes, sessionsRes] = await Promise.all([
+      client.get(endpoints.bookings.list, { params: { per_page: 100 } }),
+      client.get(endpoints.enrollments.list, { params: { per_page: 100 } }),
+      // أقرب جلسة قادمة لكل طالب — sort=asc يجعل أول ظهور لهذا الطالب عبر كل
+      // الجلسات هو الأقرب زمنياً دائماً، فتُستخدَم كـ "next session" لسطره.
+      client.get(endpoints.classSessions.list, { params: { status: 'scheduled', sort: 'asc', per_page: 100 } }),
     ]);
-    const bookingStudents = bookingsRes.data.data;
-    const enrollmentStudents = enrollmentsRes.data.data;
-    const byStudentId = new Map();
-    [...bookingStudents, ...enrollmentStudents].forEach((record) => {
-      if (!byStudentId.has(record.student_id)) byStudentId.set(record.student_id, record);
+    const bookingRecords = bookingsRes.data.data;
+    const enrollmentRecords = enrollmentsRes.data.data;
+    const sessions = sessionsRes.data.data;
+
+    const nextSessionByStudentId = new Map();
+    sessions.forEach((session) => {
+      (session.attendees ?? []).forEach((attendee) => {
+        if (!nextSessionByStudentId.has(attendee.student_id)) {
+          nextSessionByStudentId.set(attendee.student_id, session);
+        }
+      });
     });
 
-    return { stats: null, students: [...byStudentId.values()] };
+    const byStudentId = new Map();
+    const registerRecord = (record, isCourse) => {
+      if (byStudentId.has(record.student_id)) return;
+      const nextSession = nextSessionByStudentId.get(record.student_id);
+      const nextScheduled = nextSession?.scheduled_at ? new Date(nextSession.scheduled_at) : null;
+      byStudentId.set(record.student_id, {
+        id: record.student_id,
+        studentName: record.student?.user?.name ?? null,
+        packageTitle: isCourse ? (record.course?.title ?? null) : (record.package?.title ?? null),
+        subject: isCourse ? (record.course?.subject?.name_ar ?? null) : (record.package?.subject?.name_ar ?? null),
+        type: isCourse ? 'training' : (record.package?.session_format ?? null),
+        nextSessionDay: nextScheduled ? new Intl.DateTimeFormat('ar', { weekday: 'long' }).format(nextScheduled) : null,
+        nextSessionDate: nextScheduled ? new Intl.DateTimeFormat('ar', { day: 'numeric', month: 'long' }).format(nextScheduled) : null,
+        time: nextScheduled ? new Intl.DateTimeFormat('ar', { hour: 'numeric', minute: '2-digit' }).format(nextScheduled) : null,
+      });
+    };
+    bookingRecords.forEach((record) => registerRecord(record, false));
+    enrollmentRecords.forEach((record) => registerRecord(record, true));
+
+    const students = [...byStudentId.values()];
+    return {
+      stats: {
+        total: students.length,
+        individual: students.filter((s) => s.type === 'individual').length,
+        group: students.filter((s) => s.type === 'group').length,
+        training: students.filter((s) => s.type === 'training').length,
+      },
+      students,
+    };
   },
 
   /**
