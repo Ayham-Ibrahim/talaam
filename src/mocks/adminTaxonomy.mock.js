@@ -7,7 +7,7 @@
 export const TAXONOMY_TYPES = [
   { key: 'curricula', label: 'المناهج', hasCode: true, hasEducationType: false },
   { key: 'stages', label: 'المراحل الدراسية', hasCode: true, hasEducationType: true },
-  { key: 'subjects', label: 'المواد', hasCode: true, hasEducationType: false },
+  { key: 'subjects', label: 'المواد', hasCode: true, hasEducationType: true },
   { key: 'universities', label: 'الجامعات', hasCode: false, hasEducationType: false },
   { key: 'majors', label: 'التخصصات', hasCode: false, hasEducationType: false },
   { key: 'course_fields', label: 'مجالات الدورات', hasCode: true, hasEducationType: false },
