@@ -92,6 +92,9 @@ export const endpoints = {
     resetPassword: (id) => `/students/${id}/password`,
   },
   taxonomy: (type) => `/taxonomy/${type}`,
+  complaints: {
+    create: '/complaints',
+  },
   meta: {
     filters: '/meta/filters',
     stats: '/meta/stats',

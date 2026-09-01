@@ -59,7 +59,10 @@ export function TeacherSettingsPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-6">
-        <div className="rounded-2xl bg-white p-6 shadow-card">
+        {/* مخفي بطلب صريح — المنطقة الزمنية تبقى تلقائية دوماً (اكتشاف صامت من App.jsx عبر
+            useSyncTimezone) بلا خيار تثبيت يدوي ظاهر للمعلم. الكتلة كاملة (الحالة والدالة أعلاه
+            ما زالت موجودة بلا تغيير) أُبقيت هنا كتعليق لإعادة التفعيل لاحقاً بسهولة. */}
+        {/* <div className="rounded-2xl bg-white p-6 shadow-card">
           <h2 className="flex items-center gap-2 font-bold text-ink">
             <Globe size={20} className="text-primary" />
             {t('studentSettings.timezoneLabel')}
@@ -84,7 +87,7 @@ export function TeacherSettingsPage() {
           >
             {updateProfile.isPending ? t('studentSettings.saving') : t('studentSettings.save')}
           </button>
-        </div>
+        </div> */}
 
         <div className="rounded-2xl bg-white p-6 shadow-card">
           <h2 className="flex items-center gap-2 font-bold text-ink">

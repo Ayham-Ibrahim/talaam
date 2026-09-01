@@ -289,11 +289,14 @@ export function StudentSettingsPage() {
               />
             </div>
 
-            <TimezoneField
+            {/* مخفي بطلب صريح — إبقاء المنطقة الزمنية تلقائية دوماً (اكتشاف صامت من App.jsx عبر
+                useSyncTimezone) بلا خيار تثبيت يدوي ظاهر للمستخدم. الحقل والحالة والحمولة أدناه
+                (basicForm.timezone/timezoneAuto) أُبقيت كما هي لإعادة التفعيل لاحقاً بسهولة. */}
+            {/* <TimezoneField
               timezone={basicForm.timezone}
               auto={basicForm.timezoneAuto}
               onChange={({ auto, timezone }) => setBasicForm((prev) => ({ ...prev, timezoneAuto: auto, timezone }))}
-            />
+            /> */}
 
             <button
               type="button"

@@ -291,7 +291,31 @@
       "message": "Message",
       "messagePlaceholder": "Please enter your message"
     },
-    "submit": "Send"
+    "submit": "Send",
+    "categoryLabel": "Issue Type",
+    "categoryPlaceholder": "Select the issue type",
+    "categories": {
+      "session_quality": "Session Quality",
+      "teacher_no_show": "Teacher No-Show",
+      "technical_issue": "Technical Issue",
+      "payment_issue": "Payment Issue",
+      "schedule_issue": "Scheduling Issue",
+      "other": "Other"
+    },
+    "categoryRequired": "Please select an issue type",
+    "nameRequired": "Full name is required",
+    "nameTooLong": "Name is too long",
+    "nameInvalid": "Name must contain letters only, no digits or symbols",
+    "emailRequired": "Email is required",
+    "emailTooLong": "Email is too long",
+    "emailInvalid": "Please enter a valid email address",
+    "messageRequired": "Please write your message",
+    "messageTooLong": "Message must not exceed 500 characters",
+    "submitting": "Sending...",
+    "success": "Your message has been sent. Our support team will get back to you soon.",
+    "loginRequiredTitle": "Please log in first",
+    "loginRequiredHint": "To send your message and follow up with our support team, please log in as a student or teacher.",
+    "loginCta": "Log In"
   },
   "search": {
     "heroTitle": "Find the Right Teacher for You",

@@ -32,6 +32,10 @@ const EDUCATION_TYPES = [
 
 const ACADEMIC_LEVELS = ['diploma', 'bachelor', 'master'];
 const TRAINING_LEVELS = ['beginner', 'intermediate', 'advanced'];
+// لا جدول تصنيف للصفوف (بعكس المراحل) — أرقام صِرفة 1-12، بلا ربط بالمرحلة
+// المختارة (الباك اند: integer|min:1|max:12 بلا أي شرط على stage_id). نفس
+// نمط MetaController::filters().grades وPackageWizardBasicInfo.jsx.
+const GRADE_OPTIONS = Array.from({ length: 12 }, (_, i) => String(i + 1));
 
 /** الباك اند يُعيد birth_date كـ ISO كامل ("2005-03-10T00:00:00Z") — نأخذ جزء التاريخ فقط ليقبله <input type="date"> وتصحّ المقارنة. */
 export function toDateInputValue(value) {
@@ -58,30 +62,31 @@ export function isGradeValid(grade) {
   return Number.isInteger(n) && n >= 1 && n <= 12;
 }
 
-/** يُبقي الأرقام فقط أثناء الكتابة في حقل الصف. */
-export function sanitizeGradeInput(raw) {
-  return String(raw).replace(/[^\d]/g, '');
-}
-
-/** هاتف ولي الأمر: أرقام فقط (نفس قاعدة الهاتف). اختياري. */
+/** هاتف ولي الأمر: إلزامي، أرقام فقط (نفس قاعدة الهاتف). الباك اند: required. */
 export function isGuardianPhoneValid(phone) {
-  return !phone || validatePhone(sanitizePhone(String(phone))) === null;
+  return !!phone && validatePhone(sanitizePhone(String(phone))) === null;
 }
 
-/** اسم ولي الأمر: أحرف فقط بلا أرقام أو رموز (نفس قاعدة الاسم في الباك اند). اختياري. */
+/** اسم ولي الأمر: إلزامي، أحرف فقط بلا أرقام أو رموز (نفس قاعدة الاسم في الباك اند). الباك اند: required. */
 export function isGuardianNameValid(name) {
-  return !String(name ?? '').trim() || validateName(String(name)) === null;
+  return String(name ?? '').trim() !== '' && validateName(String(name)) === null;
 }
 
-/** الحقول الإلزامية لنوع التعليم المختار فقط — لتلميح "أكمل الحقول المطلوبة". */
+/**
+ * الحقول الإلزامية لنوع التعليم المختار، بالإضافة لاسم وهاتف ولي الأمر
+ * الإلزاميين بصرف النظر عن نوع التعليم — لتلميح "أكمل الحقول المطلوبة".
+ */
 export function studentAcademicRequiredFieldsFilled(form) {
-  return form.education_type === 'school'
-    ? form.curriculum_id !== '' && form.stage_id !== ''
-    : form.education_type === 'university'
-      ? form.university_id !== '' && form.major_id !== '' && form.academic_level !== ''
-      : form.education_type === 'training'
-        ? form.course_field_id !== '' && form.level !== ''
-        : false;
+  const typeSpecificFilled =
+    form.education_type === 'school'
+      ? form.curriculum_id !== '' && form.stage_id !== ''
+      : form.education_type === 'university'
+        ? form.university_id !== '' && form.major_id !== '' && form.academic_level !== ''
+        : form.education_type === 'training'
+          ? form.course_field_id !== '' && form.level !== ''
+          : false;
+
+  return typeSpecificFilled && form.guardian_name.trim() !== '' && form.guardian_phone !== '';
 }
 
 /** خطأ في أي حقل حر (تاريخ ميلاد/صف/اسم وهاتف ولي الأمر) — لتعطيل زر الحفظ، مستقل عن اكتمال الحقول الإلزامية. */
@@ -124,8 +129,12 @@ export function StudentAcademicProfileFields({ form, setForm, touched }) {
   // الميلاد/هاتف ولي الأمر لها رسائلها الخاصة تحت كل حقل مباشرةً.
   const requiredFieldsValid = studentAcademicRequiredFieldsFilled(form);
   const gradeError = !isGradeValid(form.grade);
-  const guardianNameError = !isGuardianNameValid(form.guardian_name);
-  const guardianPhoneError = !isGuardianPhoneValid(form.guardian_phone);
+  // قبل أول محاولة حفظ (touched=false)، حقل ولي الأمر الفارغ لا يُعرَض كخطأ —
+  // إلزاميته الجديدة لا يجب أن تُخيف المستخدم برسالة حمراء قبل أن يحاول الكتابة أصلاً.
+  const guardianNameError = touched && !isGuardianNameValid(form.guardian_name);
+  const guardianPhoneError = touched && !isGuardianPhoneValid(form.guardian_phone);
+  const guardianNameEmpty = form.guardian_name.trim() === '';
+  const guardianPhoneEmpty = form.guardian_phone === '';
 
   const { data: curricula = [] } = useTaxonomyList(form.education_type === 'school' ? 'curricula' : null);
   const { data: stages = [] } = useTaxonomyList(form.education_type === 'school' ? 'stages' : null);
@@ -173,24 +182,15 @@ export function StudentAcademicProfileFields({ form, setForm, touched }) {
             options={stages.map((s) => ({ value: s.id, label: s.name_ar }))}
             placeholder="—"
           />
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-semibold text-ink">{t('completeProfile.gradeLabel')}</span>
-            <input
-              type="number"
-              inputMode="numeric"
-              min="1"
-              max="12"
-              value={form.grade}
-              onChange={(e) => setForm((prev) => ({ ...prev, grade: sanitizeGradeInput(e.target.value) }))}
-              aria-invalid={gradeError}
-              className={`w-full rounded-btn border bg-white p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
-                gradeError
-                  ? 'border-accent-pink focus:border-accent-pink focus:ring-accent-pink/20'
-                  : 'border-line focus:border-primary focus:ring-primary/20'
-              }`}
-            />
-            {gradeError && <span className="text-xs text-accent-pink">{t('completeProfile.gradeInvalid')}</span>}
-          </label>
+          <SmoothSelect
+            label={t('completeProfile.gradeLabel')}
+            value={form.grade}
+            onChange={(v) => setForm((prev) => ({ ...prev, grade: v }))}
+            options={GRADE_OPTIONS.map((g) => ({ value: g, label: `${t('completeProfile.gradeOptionLabel')} ${g}` }))}
+            placeholder="—"
+            error={gradeError}
+            errorMessage={t('completeProfile.gradeInvalid')}
+          />
         </>
       )}
 
@@ -274,7 +274,9 @@ export function StudentAcademicProfileFields({ form, setForm, touched }) {
               }`}
             />
             {guardianNameError && (
-              <span className="text-xs text-accent-pink">{t('completeProfile.guardianNameInvalid')}</span>
+              <span className="text-xs text-accent-pink">
+                {t(guardianNameEmpty ? 'completeProfile.guardianNameRequired' : 'completeProfile.guardianNameInvalid')}
+              </span>
             )}
           </label>
           <label className="flex flex-col gap-1.5">
@@ -294,7 +296,9 @@ export function StudentAcademicProfileFields({ form, setForm, touched }) {
               }`}
             />
             {guardianPhoneError && (
-              <span className="text-xs text-accent-pink">{t('completeProfile.guardianPhoneInvalid')}</span>
+              <span className="text-xs text-accent-pink">
+                {t(guardianPhoneEmpty ? 'completeProfile.guardianPhoneRequired' : 'completeProfile.guardianPhoneInvalid')}
+              </span>
             )}
           </label>
         </>

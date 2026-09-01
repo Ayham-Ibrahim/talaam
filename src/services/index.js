@@ -440,6 +440,22 @@ export const rescheduleService = {
   },
 };
 
+export const complaintService = {
+  /**
+   * Student or teacher files a complaint/support request (e.g. from the
+   * "تواصل معنا" contact form) — always lands in the admin's Complaints
+   * queue and notifies every active admin (ComplaintService::file).
+   */
+  async create({ category, description }) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return { id: Math.floor(Math.random() * 100000), status: 'open' };
+    }
+    const { data } = await client.post(endpoints.complaints.create, { category, description });
+    return data.data;
+  },
+};
+
 /**
  * GET /favorites row → mirrors FavoriteResource's unified {type, teacher|course} shape.
  * `kind` is the outer teacher-vs-course discriminator; for teacher rows, `type` is
@@ -748,6 +764,7 @@ function mapSessionListRow(session) {
     teacherName: sessionTeacherName(session),
     teacherAvatar: sessionTeacherAvatar(session),
     subject: sessionSubject(session),
+    packageTitle: sessionPackageTitle(session),
     day: formatSessionDay(session.scheduled_at),
     date: formatSessionDate(session.scheduled_at),
     time,

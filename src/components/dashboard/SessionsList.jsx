@@ -36,6 +36,7 @@ function SessionRow({ session, isEven, onReschedule }) {
           {session.sessionType}
         </span>
       </td>
+      <td className="px-4 py-4 text-center text-ink">{session.packageTitle ?? '—'}</td>
       <td className="px-4 py-4 text-center text-ink">
         <div className="font-semibold">{session.day}</div>
         <div className="text-xs text-ink-soft">{session.date}</div>
@@ -134,11 +135,12 @@ export function SessionsList({ sessions }) {
       )}
 
       <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
-        <table className="w-full min-w-[860px] text-sm">
+        <table className="w-full min-w-[980px] text-sm">
           <thead>
             <tr className="border-b border-line">
               <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.sessionsTable.teacher')}</th>
               <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.sessionsTable.type')}</th>
+              <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.sessionsTable.package')}</th>
               <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.sessionsTable.date')}</th>
               <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.sessionsTable.time')}</th>
               <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.sessionsTable.status')}</th>

@@ -50,6 +50,32 @@ function mapRescheduleRequest(request) {
   };
 }
 
+const COMPLAINT_CATEGORY_LABELS = {
+  session_quality: 'جودة الجلسة',
+  teacher_no_show: 'عدم حضور المعلم',
+  technical_issue: 'مشكلة تقنية',
+  payment_issue: 'مشكلة في الدفع',
+  schedule_issue: 'مشكلة في الموعد/الجدول',
+  other: 'أخرى',
+};
+
+/**
+ * الشكوى قد تُقدَّم من طالب أو معلم (مثلاً عبر نموذج "تواصل معنا" العام)، وقد
+ * لا ترتبط بأي حجز/جلسة إطلاقاً (شكوى عامة بلا subject_id) — فكل حقل هنا له
+ * سلسلة fallback بدل قيمة فارغة تكسر عرض الجدول.
+ */
+function mapComplaint(complaint) {
+  const bookingPackage = complaint.booking?.package ?? complaint.session?.booking?.package;
+  return {
+    ...complaint,
+    studentName: complaint.student?.user?.name ?? null,
+    teacherName: complaint.teacher?.user?.name ?? complaint.booking?.teacher?.user?.name ?? complaint.session?.teacher?.user?.name ?? null,
+    subjectName: bookingPackage?.subject?.name_ar ?? COMPLAINT_CATEGORY_LABELS[complaint.category] ?? complaint.category,
+    createdAt: complaint.createdAt ?? complaint.created_at ?? null,
+    resolutionType: complaint.resolutionType ?? complaint.resolution_type ?? null,
+  };
+}
+
 /**
  * Admin service for the two SLA/decision queues: complaints (24h SLA,
  * resolution has no refund options per platform policy) and reschedule
@@ -63,7 +89,7 @@ export const adminComplaintsService = {
       return { data, total: data.length };
     }
     const { data } = await client.get(endpoints.admin.complaints, { params: filters });
-    return { data: data.data, total: data.meta?.total ?? data.data.length };
+    return { data: data.data.map(mapComplaint), total: data.meta?.total ?? data.data.length };
   },
 
   async getComplaintDetail(id) {
