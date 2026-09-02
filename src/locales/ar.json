@@ -1071,6 +1071,7 @@
       "studentImport": "استيراد الطلاب",
       "teacherImport": "استيراد المعلمين",
       "importBatches": "سجل الاستيراد",
+      "notificationLogs": "سجل الإشعارات",
       "settings": "الإعدادات وسجل التدقيق"
     },
     "adminOverview": {
