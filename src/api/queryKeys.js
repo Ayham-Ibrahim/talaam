@@ -66,6 +66,7 @@ export const queryKeys = {
     payouts: (filters) => ['admin', 'payouts', filters],
     settings: () => ['admin', 'settings'],
     auditLog: (filters) => ['admin', 'audit-log', filters],
+    notificationLogs: (filters) => ['admin', 'notification-logs', filters],
     reviews: (filters) => ['admin', 'reviews', filters],
   },
 };

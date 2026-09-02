@@ -156,6 +156,7 @@ export const endpoints = {
     settings: '/admin/settings',
     updateSetting: (key) => `/admin/settings/${key}`,
     auditLog: '/admin/audit-log',
+    notificationLogs: '/admin/notification-logs',
     reviews: '/reviews',
     hideReview: (id) => `/reviews/${id}/hide`,
     unhideReview: (id) => `/reviews/${id}/unhide`,

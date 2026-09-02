@@ -23,6 +23,7 @@ import { AdminListingDetailPage } from '@/pages/AdminListingDetailPage';
 import { AdminComplaintsPage } from '@/pages/AdminComplaintsPage';
 import { AdminTaxonomyPage } from '@/pages/AdminTaxonomyPage';
 import { AdminPayoutsPage } from '@/pages/AdminPayoutsPage';
+import { AdminNotificationLogsPage } from '@/pages/AdminNotificationLogsPage';
 import { AdminStudentImportPage } from '@/pages/AdminStudentImportPage';
 import { AdminTeacherImportPage } from '@/pages/AdminTeacherImportPage';
 import { AdminImportBatchesPage } from '@/pages/AdminImportBatchesPage';
@@ -153,6 +154,14 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="admin">
               <AdminPayoutsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/notification-logs"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminNotificationLogsPage />
             </ProtectedRoute>
           }
         />

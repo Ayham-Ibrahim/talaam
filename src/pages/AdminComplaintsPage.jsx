@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { ComplaintsTable } from '@/components/dashboard/admin/ComplaintsTable';
+import { ComplaintDetailsModal } from '@/components/dashboard/admin/ComplaintDetailsModal';
 import { ResolveComplaintModal } from '@/components/dashboard/admin/ResolveComplaintModal';
 import { RescheduleRequestsTable } from '@/components/dashboard/admin/RescheduleRequestsTable';
 import { ApproveRescheduleModal } from '@/components/dashboard/admin/ApproveRescheduleModal';
@@ -97,6 +98,7 @@ export function AdminComplaintsPage() {
                 isActing={isActing}
                 onResolve={(complaint) => setModal({ type: 'resolve', complaint })}
                 onEscalate={(complaint) => setModal({ type: 'escalate', complaint })}
+                onView={(complaint) => setModal({ type: 'viewComplaint', complaint })}
               />
             )}
           </div>
@@ -135,6 +137,8 @@ export function AdminComplaintsPage() {
           </div>
         )}
       </div>
+
+      {modal?.type === 'viewComplaint' && <ComplaintDetailsModal complaint={modal.complaint} onClose={closeModal} />}
 
       {modal?.type === 'resolve' && (
         <ResolveComplaintModal

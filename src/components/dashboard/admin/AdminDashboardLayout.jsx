@@ -8,6 +8,7 @@ import {
   Home,
   ListTree,
   LogOut,
+  Mail,
   MessageSquareWarning,
   Package,
   Settings,
@@ -36,6 +37,7 @@ const NAV_ITEMS = [
   { key: 'studentImport', icon: FileSpreadsheet, path: '/dashboard/admin/student-import' },
   { key: 'teacherImport', icon: FileSpreadsheet, path: '/dashboard/admin/teacher-import' },
   { key: 'importBatches', icon: History, path: '/dashboard/admin/import-batches' },
+  { key: 'notificationLogs', icon: Mail, path: '/dashboard/admin/notification-logs' },
   { key: 'settings', icon: Settings, path: '/dashboard/admin/settings' },
 ];
 

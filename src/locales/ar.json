@@ -1314,7 +1314,13 @@
       "notePlaceholder": "اكتب تفاصيل القرار هنا...",
       "resolvedAs": "تم الحل بـ",
       "confirm": "تأكيد",
-      "cancel": "إلغاء"
+      "cancel": "إلغاء",
+      "viewDetails": "عرض التفاصيل",
+      "detailsTitle": "تفاصيل الشكوى",
+      "categoryLabel": "نوع المشكلة",
+      "messageLabel": "الرسالة",
+      "senderNameLabel": "اسم المُرسِل",
+      "senderEmailLabel": "بريد المُرسِل"
     },
     "adminReschedule": {
       "colOriginal": "الموعد الأصلي (بتوقيت الطالب)",
@@ -1385,6 +1391,18 @@
       "exportExcel": "تصدير Excel",
       "exporting": "جارِ التصدير...",
       "exportFailed": "تعذّر تصدير الملف، حاول مرة أخرى"
+    },
+    "adminNotificationLogs": {
+      "title": "سجل الإشعارات",
+      "subtitle": "تابع نجاح أو فشل إرسال كل بريد/إشعار — مثل بريد الترحيب عند استيراد طلاب أو معلمين",
+      "searchPlaceholder": "ابحث بالاسم أو البريد الإلكتروني",
+      "allStatuses": "جميع الحالات",
+      "colRecipient": "المستلم",
+      "colEvent": "نوع الحدث",
+      "colChannel": "القناة",
+      "colDate": "التاريخ",
+      "colStatus": "الحالة",
+      "empty": "لا توجد سجلات مطابقة"
     },
     "adminStudentImport": {
       "title": "استيراد الطلاب",

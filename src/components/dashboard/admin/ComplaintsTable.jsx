@@ -1,10 +1,10 @@
-import { ArrowUpCircle, CheckCircle2 } from 'lucide-react';
+import { ArrowUpCircle, CheckCircle2, Eye } from 'lucide-react';
 import { ComplaintStatusBadge } from './ComplaintStatusBadge';
 import { RESOLUTION_TYPE_LABELS } from '@/mocks/adminComplaints.mock';
 import { formatDate } from '@/lib/formatters';
 import { useT } from '@/hooks/useT';
 
-export function ComplaintsTable({ complaints, onResolve, onEscalate, isActing }) {
+export function ComplaintsTable({ complaints, onResolve, onEscalate, onView, isActing }) {
   const t = useT();
 
   return (
@@ -28,9 +28,7 @@ export function ComplaintsTable({ complaints, onResolve, onEscalate, isActing })
               <td className="px-4 py-4 text-right text-ink-soft">{c.teacherName}</td>
               <td className="px-4 py-4 text-right text-ink-soft">{c.subjectName}</td>
               <td className="max-w-[260px] px-4 py-4 text-right text-ink-soft">
-                <span className="line-clamp-2" title={c.description}>
-                  {c.description || '—'}
-                </span>
+                <span className="line-clamp-2">{c.message || '—'}</span>
               </td>
               <td className="px-4 py-4 text-right text-ink-soft">{formatDate(c.createdAt)}</td>
               <td className="px-4 py-4 text-right">
@@ -42,30 +40,40 @@ export function ComplaintsTable({ complaints, onResolve, onEscalate, isActing })
                 )}
               </td>
               <td className="px-4 py-4 text-right">
-                {c.status !== 'resolved' && (
-                  <div className="flex items-center justify-end gap-3">
-                    <button
-                      type="button"
-                      disabled={isActing}
-                      onClick={() => onResolve(c)}
-                      className="flex items-center gap-1.5 text-sm font-medium text-success hover:opacity-70 disabled:opacity-50"
-                    >
-                      {t('dashboard.adminComplaints.resolve')}
-                      <CheckCircle2 size={16} />
-                    </button>
-                    {c.status !== 'escalated' && (
+                <div className="flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => onView(c)}
+                    title={t('dashboard.adminComplaints.viewDetails')}
+                    className="flex items-center gap-1.5 text-sm font-medium text-ink-soft hover:opacity-70"
+                  >
+                    <Eye size={16} />
+                  </button>
+                  {c.status !== 'resolved' && (
+                    <>
                       <button
                         type="button"
                         disabled={isActing}
-                        onClick={() => onEscalate(c)}
-                        className="flex items-center gap-1.5 text-sm font-medium text-accent-pink hover:opacity-70 disabled:opacity-50"
+                        onClick={() => onResolve(c)}
+                        className="flex items-center gap-1.5 text-sm font-medium text-success hover:opacity-70 disabled:opacity-50"
                       >
-                        {t('dashboard.adminComplaints.escalate')}
-                        <ArrowUpCircle size={16} />
+                        {t('dashboard.adminComplaints.resolve')}
+                        <CheckCircle2 size={16} />
                       </button>
-                    )}
-                  </div>
-                )}
+                      {c.status !== 'escalated' && (
+                        <button
+                          type="button"
+                          disabled={isActing}
+                          onClick={() => onEscalate(c)}
+                          className="flex items-center gap-1.5 text-sm font-medium text-accent-pink hover:opacity-70 disabled:opacity-50"
+                        >
+                          {t('dashboard.adminComplaints.escalate')}
+                          <ArrowUpCircle size={16} />
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
               </td>
             </tr>
           ))}

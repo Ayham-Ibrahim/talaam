@@ -60,17 +60,43 @@ const COMPLAINT_CATEGORY_LABELS = {
 };
 
 /**
+ * نموذج "تواصل معنا" العام (ContactPage.jsx) لا يملك أعمدة name/email مستقلة
+ * على Complaint، فيُدرجهما كترويسة ثابتة أعلى description قبل الرسالة الفعلية
+ * (بالضبط: "الاسم الكامل: X\nالبريد الالكتروني: Y\n\n{الرسالة}"). عرض description
+ * الخام في جدول مضغوط يُظهر هذه الترويسة قبل الرسالة الفعلية فيبتلعها القص —
+ * هذا يفصلهما كي يظهر نص الشكوى الحقيقي مباشرة، مع إبقاء اسم/بريد المُرسِل
+ * متاحَين في نافذة التفاصيل. شكاوى الطالب المباشرة (لا ترويسة) تمر دون تغيير.
+ */
+const CONTACT_FORM_PREFIX_PATTERN = /^الاسم الكامل:\s*([\s\S]*?)\nالبريد الالكتروني:\s*([\s\S]*?)\n\n([\s\S]*)$/;
+
+function parseComplaintDescription(description) {
+  if (!description) return { senderName: null, senderEmail: null, message: '' };
+
+  const match = description.match(CONTACT_FORM_PREFIX_PATTERN);
+  if (!match) return { senderName: null, senderEmail: null, message: description };
+
+  const [, senderName, senderEmail, message] = match;
+  return { senderName: senderName.trim(), senderEmail: senderEmail.trim(), message: message.trim() };
+}
+
+/**
  * الشكوى قد تُقدَّم من طالب أو معلم (مثلاً عبر نموذج "تواصل معنا" العام)، وقد
  * لا ترتبط بأي حجز/جلسة إطلاقاً (شكوى عامة بلا subject_id) — فكل حقل هنا له
  * سلسلة fallback بدل قيمة فارغة تكسر عرض الجدول.
  */
 function mapComplaint(complaint) {
   const bookingPackage = complaint.booking?.package ?? complaint.session?.booking?.package;
+  const { senderName, senderEmail, message } = parseComplaintDescription(complaint.description);
+
   return {
     ...complaint,
     studentName: complaint.student?.user?.name ?? null,
     teacherName: complaint.teacher?.user?.name ?? complaint.booking?.teacher?.user?.name ?? complaint.session?.teacher?.user?.name ?? null,
     subjectName: bookingPackage?.subject?.name_ar ?? COMPLAINT_CATEGORY_LABELS[complaint.category] ?? complaint.category,
+    categoryLabel: COMPLAINT_CATEGORY_LABELS[complaint.category] ?? complaint.category,
+    message,
+    senderName,
+    senderEmail,
     createdAt: complaint.createdAt ?? complaint.created_at ?? null,
     resolutionType: complaint.resolutionType ?? complaint.resolution_type ?? null,
   };
