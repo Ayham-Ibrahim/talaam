@@ -3,6 +3,7 @@ import { Navigate, useParams, Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
 import { TeacherProfileSummaryCard } from '@/components/dashboard/admin/TeacherProfileSummaryCard';
+import { AdminTeacherProfileEditor } from '@/components/dashboard/admin/AdminTeacherProfileEditor';
 import { VerificationDocumentsList } from '@/components/dashboard/admin/VerificationDocumentsList';
 import { TeacherBadgesPanel } from '@/components/dashboard/admin/TeacherBadgesPanel';
 import { ReasonModal } from '@/components/dashboard/admin/ReasonModal';
@@ -28,6 +29,7 @@ export function AdminTeacherDetailPage() {
   const { id } = useParams();
   const { data, isLoading, isError, refetch } = useAdminTeacherDetail(id);
   const [modal, setModal] = useState(null); // { type: 'rejectTeacher' | 'suspendTeacher' | 'rejectDocument', documentId? }
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'profile'
 
   const approveTeacher = useApproveTeacher(id);
   const rejectTeacher = useRejectTeacher(id);
@@ -110,40 +112,61 @@ export function AdminTeacherDetailPage() {
       ) : !data?.teacher ? (
         <ErrorState message={t('dashboard.adminTeacherDetail.notFound')} />
       ) : (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_3fr]">
-          <div className="flex flex-col gap-6">
-            <TeacherProfileSummaryCard
-              teacher={data.teacher}
-              isActing={isActing}
-              actionError={teacherActionError}
-              actions={{
-                onApprove: () => approveTeacher.mutate(id),
-                onReject: () => setModal({ type: 'rejectTeacher' }),
-                onSuspend: () => setModal({ type: 'suspendTeacher' }),
-                onReactivate: () => reactivateTeacher.mutate(id),
-              }}
-            />
-            <TeacherBadgesPanel
-              awards={data.badgeAwards}
-              catalog={data.badgeCatalog}
-              isActing={isActing}
-              onGrant={(badgeId) => grantBadge.mutate(badgeId)}
-              onRevoke={(awardId) => revokeBadge.mutate(awardId)}
-            />
+        <>
+          <div className="mb-6 flex justify-end gap-2 border-b border-line/60">
+            {['overview', 'profile'].map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setActiveTab(tab)}
+                className={`border-b-2 px-4 py-2.5 text-sm font-bold transition-colors ${
+                  activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-ink-soft hover:text-ink'
+                }`}
+              >
+                {t(`dashboard.adminTeacherDetail.tabs.${tab}`)}
+              </button>
+            ))}
           </div>
 
-          <div>
-            <h3 className="mb-3 text-right text-base font-bold text-ink">{t('dashboard.adminTeacherDetail.documentsTitle')}</h3>
-            <VerificationDocumentsList
-              documents={data.documents}
-              isActing={isActing}
-              isLoadingFile={documentDownloadUrl.isPending}
-              onApprove={(documentId) => approveDocument.mutate(documentId)}
-              onReject={(documentId) => setModal({ type: 'rejectDocument', documentId })}
-              onViewFile={handleViewFile}
-            />
-          </div>
-        </div>
+          {activeTab === 'overview' ? (
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_3fr]">
+              <div className="flex flex-col gap-6">
+                <TeacherProfileSummaryCard
+                  teacher={data.teacher}
+                  isActing={isActing}
+                  actionError={teacherActionError}
+                  actions={{
+                    onApprove: () => approveTeacher.mutate(id),
+                    onReject: () => setModal({ type: 'rejectTeacher' }),
+                    onSuspend: () => setModal({ type: 'suspendTeacher' }),
+                    onReactivate: () => reactivateTeacher.mutate(id),
+                  }}
+                />
+                <TeacherBadgesPanel
+                  awards={data.badgeAwards}
+                  catalog={data.badgeCatalog}
+                  isActing={isActing}
+                  onGrant={(badgeId) => grantBadge.mutate(badgeId)}
+                  onRevoke={(awardId) => revokeBadge.mutate(awardId)}
+                />
+              </div>
+
+              <div>
+                <h3 className="mb-3 text-right text-base font-bold text-ink">{t('dashboard.adminTeacherDetail.documentsTitle')}</h3>
+                <VerificationDocumentsList
+                  documents={data.documents}
+                  isActing={isActing}
+                  isLoadingFile={documentDownloadUrl.isPending}
+                  onApprove={(documentId) => approveDocument.mutate(documentId)}
+                  onReject={(documentId) => setModal({ type: 'rejectDocument', documentId })}
+                  onViewFile={handleViewFile}
+                />
+              </div>
+            </div>
+          ) : (
+            <AdminTeacherProfileEditor teacherId={id} teacher={data.teacher} documents={data.documents} />
+          )}
+        </>
       )}
 
       {modal && (

@@ -48,6 +48,22 @@ export function useUploadVerificationDocument(id) {
   });
 }
 
+export function useAddVideo(id) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => teacherAccountService.addVideo(id, payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: myTeacherKey(id) }),
+  });
+}
+
+export function useRemoveVideo(id) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (videoId) => teacherAccountService.removeVideo(videoId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: myTeacherKey(id) }),
+  });
+}
+
 /** ينقل status من active_unverified إلى pending_verification — يحدّث user المخزَّن كي يتوقف حارس التوجيه فوراً بلا إعادة تسجيل دخول */
 export function useSubmitForVerification(id) {
   const queryClient = useQueryClient();

@@ -57,4 +57,22 @@ export const teacherAccountService = {
     const { data } = await client.post(endpoints.teachers.submitForVerification(id));
     return data.data;
   },
+
+  async addVideo(id, { youtubeId, title }) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return { id: Date.now(), youtube_id: youtubeId, title };
+    }
+    const { data } = await client.post(endpoints.teachers.videos(id), { youtube_id: youtubeId, title: title || null });
+    return data.data;
+  },
+
+  async removeVideo(videoId) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return true;
+    }
+    const { data } = await client.delete(endpoints.teachers.video(videoId));
+    return data.data;
+  },
 };

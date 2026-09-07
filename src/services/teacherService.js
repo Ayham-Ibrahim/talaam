@@ -70,6 +70,8 @@ function mapPublicProfile(raw) {
     studentsCount: raw.stats?.total_students ?? null,
     introVideoUrl: raw.intro_video_path,
     introVideoDuration: raw.intro_video_seconds ? formatDuration(raw.intro_video_seconds) : null,
+    introYoutubeId: raw.intro_youtube_id ?? null,
+    videos: (raw.videos ?? []).map((v) => ({ id: v.id, youtubeId: v.youtube_id, title: v.title })),
   };
 }
 

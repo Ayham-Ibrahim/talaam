@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Check, Play, Star } from "lucide-react";
 import { FavoriteButton } from "@/components/ui";
+import { YoutubeModal } from "@/components/common/YoutubeModal";
 import { useT } from "@/hooks/useT";
 
 const BADGE_ICONS = {
@@ -11,6 +13,7 @@ const BADGE_ICONS = {
 
 export function TeacherProfileHeader({ teacher, isFavorite, onToggleFavorite }) {
   const t = useT();
+  const [showIntroVideo, setShowIntroVideo] = useState(false);
 
   return (
     <div className="relative overflow-hidden rounded-card bg-[linear-gradient(89.95deg,#4B6898_3.11%,#243757_98.69%)] shadow-soft">
@@ -37,24 +40,31 @@ export function TeacherProfileHeader({ teacher, isFavorite, onToggleFavorite }) 
           {onToggleFavorite && (
             <FavoriteButton active={isFavorite} onClick={onToggleFavorite} className="absolute left-3 top-3" />
           )}
-          <button
-            type="button"
-            className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-pill bg-black/40 py-1  px-2.5 backdrop-blur-sm transition-colors hover:bg-black/55"
-            aria-label={t("teacher.intro")}
-          >
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white">
-              <Play size={12} className="fill-primary text-primary" />
-            </span>
-            <div className="text-[11px] flex flex-col items-start  font-medium text-white">
-              <span>{t("teacher.intro")} </span>
-              <span>
-                {" "}
-                {teacher.introVideoDuration &&
-                  `· ${teacher.introVideoDuration}`}
+          {teacher.introYoutubeId && (
+            <button
+              type="button"
+              onClick={() => setShowIntroVideo(true)}
+              className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-pill bg-black/40 py-1  px-2.5 backdrop-blur-sm transition-colors hover:bg-black/55"
+              aria-label={t("teacher.intro")}
+            >
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white">
+                <Play size={12} className="fill-primary text-primary" />
               </span>
-            </div>
-          </button>
+              <div className="text-[11px] flex flex-col items-start  font-medium text-white">
+                <span>{t("teacher.intro")} </span>
+                <span>
+                  {" "}
+                  {teacher.introVideoDuration &&
+                    `· ${teacher.introVideoDuration}`}
+                </span>
+              </div>
+            </button>
+          )}
         </div>
+
+        {showIntroVideo && (
+          <YoutubeModal youtubeId={teacher.introYoutubeId} onClose={() => setShowIntroVideo(false)} />
+        )}
 
         {/* Text column */}
         <div className="flex-1 px-6 py-8 text-start sm:px-10 sm:py-10">

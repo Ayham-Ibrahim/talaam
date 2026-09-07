@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { TeacherProfileHeader } from '@/components/teacher/TeacherProfileHeader';
-import { InfoSection } from '@/components/teacher/TeacherInfoSections';
+import { InfoSection, VideosSection } from '@/components/teacher/TeacherInfoSections';
 import { PackagesSection } from '@/components/teacher/PackagesSection';
 import { CoursesSection } from '@/components/teacher/CoursesSection';
 import { RatingReviews } from '@/components/teacher/RatingReviews';
@@ -109,6 +109,7 @@ export function TeacherProfilePage() {
             }))}
           />
           <InfoSection title={t('teacher.teachingMethods')} items={teacher.teachingMethods} />
+          <VideosSection title={t('teacher.videos')} videos={teacher.videos} />
 
           {isCenter ? (
             <CoursesSection

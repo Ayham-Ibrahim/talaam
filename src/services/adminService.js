@@ -1,6 +1,7 @@
 import { config } from '@/config/env';
 import { client, mockDelay } from '@/api/client';
 import { endpoints } from '@/api/endpoints';
+import { assertFileWithinLimits } from '@/lib/fileValidation';
 import {
   mockAdminTeachers,
   filterMockAdminTeachers,
@@ -220,6 +221,100 @@ export const adminService = {
       return true;
     }
     const { data } = await client.post(endpoints.admin.revokeBadge(awardId));
+    return data.data;
+  },
+
+  /**
+   * الأدمن يكمل ملف المعلم نيابة عنه (نفس مسار TeacherController::update
+   * الذي يستخدمه المعلم لنفسه — TeacherPolicy::update مفتوحة للأدمن أصلاً)،
+   * لحالة معلم دُعي أو استُورد ولم يُكمل ملفه بنفسه بعد.
+   */
+  async updateTeacherProfile(id, payload) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return updateMockTeacher(id, payload);
+    }
+    const { data } = await client.put(endpoints.teachers.update(id), payload);
+    return data.data;
+  },
+
+  /** نفس تحقق الحجم/الصيغة المطبَّق في رفع المعلم لوثيقته بنفسه (teacherAccountService) */
+  async uploadTeacherDocument(id, type, file) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return { id: Date.now(), type, status: 'pending' };
+    }
+    assertFileWithinLimits(file, {
+      maxBytes: 5 * 1024 * 1024,
+      mimeTypes: ['image/jpeg', 'image/png', 'application/pdf'],
+      field: 'file',
+      sizeMessage: 'حجم الملف أكبر من الحد المسموح (5 ميغابايت كحد أقصى)',
+      typeMessage: 'صيغة الملف غير مدعومة — يُسمح فقط بصورة (JPG/PNG) أو PDF',
+    });
+    const form = new FormData();
+    form.append('type', type);
+    form.append('file', file);
+    const { data } = await client.post(endpoints.teachers.uploadDocument(id), form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return data.data;
+  },
+
+  /** ينقل status من active_unverified إلى pending_verification — التوسيع في VerificationDocumentPolicy/TeacherPolicy يسمح للأدمن بنفس المسار */
+  async submitTeacherForVerification(id) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return updateMockTeacher(id, { status: 'pending_verification' });
+    }
+    const { data } = await client.post(endpoints.teachers.submitForVerification(id));
+    return data.data;
+  },
+
+  /** الأدمن يرفع صورة معلم نيابة عنه — مسار مستقل عن /me/avatar (ذاك مقيَّد بالمستخدم الحالي دوماً) */
+  async uploadTeacherAvatar(id, file) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return updateMockTeacher(id, {});
+    }
+    assertFileWithinLimits(file, {
+      maxBytes: 5 * 1024 * 1024,
+      mimeTypes: ['image/jpeg', 'image/png'],
+      field: 'avatar',
+      sizeMessage: 'حجم الصورة أكبر من الحد المسموح (5 ميغابايت كحد أقصى)',
+      typeMessage: 'صيغة الصورة غير مدعومة — يُسمح فقط بصورة JPG أو PNG',
+    });
+    const form = new FormData();
+    form.append('avatar', file);
+    const { data } = await client.post(endpoints.teachers.avatar(id), form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return data.data;
+  },
+
+  async deleteTeacherAvatar(id) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return updateMockTeacher(id, {});
+    }
+    const { data } = await client.delete(endpoints.teachers.avatar(id));
+    return data.data;
+  },
+
+  async addTeacherVideo(id, { youtubeId, title }) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return { id: Date.now(), youtube_id: youtubeId, title };
+    }
+    const { data } = await client.post(endpoints.teachers.videos(id), { youtube_id: youtubeId, title: title || null });
+    return data.data;
+  },
+
+  async removeTeacherVideo(videoId) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return true;
+    }
+    const { data } = await client.delete(endpoints.teachers.video(videoId));
     return data.data;
   },
 };

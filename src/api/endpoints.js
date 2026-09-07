@@ -45,6 +45,9 @@ export const endpoints = {
     uploadDocument: (id) => `/teachers/${id}/verification-documents`,
     submitForVerification: (id) => `/teachers/${id}/submit-for-verification`,
     resetPassword: (id) => `/teachers/${id}/password`,
+    avatar: (id) => `/teachers/${id}/avatar`,
+    videos: (id) => `/teachers/${id}/videos`,
+    video: (id) => `/teacher-videos/${id}`,
   },
   bookings: {
     list: '/bookings',

@@ -11,7 +11,10 @@ import {
   useUpdateMyTeacherProfile,
   useUploadVerificationDocument,
   useSubmitForVerification,
+  useAddVideo,
+  useRemoveVideo,
 } from '@/hooks/useTeacherAccount';
+import { TeacherVideosEditor } from '@/components/teacher/TeacherVideosEditor';
 import { useUploadAvatar, useDeleteAvatar } from '@/hooks/useProfile';
 import { useTaxonomyList } from '@/hooks/useTaxonomy';
 import { QUALIFICATION_LABELS, EXPERIENCE_LABELS } from '@/services/teacherService';
@@ -70,6 +73,8 @@ export function CompleteTeacherProfilePage() {
   const updateProfile = useUpdateMyTeacherProfile(teacherId);
   const uploadDocument = useUploadVerificationDocument(teacherId);
   const submitForVerification = useSubmitForVerification(teacherId);
+  const addVideo = useAddVideo(teacherId);
+  const removeVideo = useRemoveVideo(teacherId);
   const uploadAvatar = useUploadAvatar();
   const deleteAvatar = useDeleteAvatar();
 
@@ -220,6 +225,21 @@ export function CompleteTeacherProfilePage() {
         },
       },
     );
+  };
+
+  /**
+   * تحديث مستقل عن حفظ الملف الشخصي الرئيسي — يُرسِل حقول المركز التدريبي
+   * الإلزامية (display_name_en/commercial_register) بقيمها الحالية دون تغيير
+   * حين يكون المعلم مركزاً تدريبياً، وإلا يرفضها الباك اند (UpdateTeacherProfileRequest
+   * تشترطهما مهما كان الحقل المُرسَل فعلياً) رغم أنها لم تتغيّر أصلاً.
+   */
+  const handleSaveIntro = (value) => {
+    updateProfile.mutate({
+      intro_youtube_id: value || null,
+      ...(isTrainingCenter
+        ? { display_name_en: form.display_name_en, commercial_register: form.commercial_register }
+        : {}),
+    });
   };
 
   const handleAvatarChange = (e) => {
@@ -403,6 +423,20 @@ export function CompleteTeacherProfilePage() {
                   {profileSuccessMessage}
                 </div>
               )}
+
+              <div className="mt-8 border-t border-line/60 pt-6">
+                <TeacherVideosEditor
+                  introYoutubeId={teacher?.intro_youtube_id}
+                  videos={(teacher?.videos ?? []).map((v) => ({ id: v.id, youtubeId: v.youtube_id, title: v.title }))}
+                  onSaveIntro={handleSaveIntro}
+                  isSavingIntro={updateProfile.isPending}
+                  onAddVideo={(payload, opts) => addVideo.mutate(payload, opts)}
+                  isAddingVideo={addVideo.isPending}
+                  addVideoError={addVideo.isError ? addVideo.error : null}
+                  onRemoveVideo={(id) => removeVideo.mutate(id)}
+                  removingVideoId={removeVideo.isPending ? removeVideo.variables : null}
+                />
+              </div>
               </>
               )}
 

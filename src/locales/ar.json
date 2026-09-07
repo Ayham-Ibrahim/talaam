@@ -367,6 +367,7 @@
     "gradePrefix": "الصف",
     "languages": "اللغات",
     "teachingMethods": "طريقة التدريس",
+    "videos": "فيديوهات",
     "sessionTypes": "نوع الجلسة",
     "packages": "الباقات والاسعار",
     "choosePackage": "اختر الباقة",
@@ -479,6 +480,22 @@
     "rescheduleSubmitted": "تم استلام طلب تغيير موعد الجلسة، بانتظار مراجعة الإدارة",
     "rescheduleSubmittedForReview": "طلب تغيير موعد جلسة جديد بانتظار مراجعتك",
     "documentRejected": "تم رفض إحدى وثائقك الثبوتية"
+  },
+  "teacherVideos": {
+    "sectionTitle": "الفيديو التعريفي والفيديوهات",
+    "sectionHint": "تظهر في بروفايلك للطلاب عبر مشغّل يوتيوب مضمَّن ضمن المنصة",
+    "introLabel": "الفيديو التعريفي",
+    "introHint": "رابط يوتيوب واحد يظهر في أعلى بروفايلك — الصق الرابط بأي صيغة (watch, youtu.be, shorts)",
+    "preview": "معاينة",
+    "save": "حفظ",
+    "saving": "جارٍ الحفظ…",
+    "videosLabel": "فيديوهات إضافية",
+    "empty": "لا توجد فيديوهات مضافة بعد",
+    "untitled": "فيديو بلا عنوان",
+    "remove": "حذف",
+    "titlePlaceholder": "عنوان الفيديو (اختياري)",
+    "add": "إضافة",
+    "adding": "جارٍ الإضافة…"
   },
   "completeProfile": {
     "studentTitle": "أكمل ملفك الشخصي",
@@ -1177,6 +1194,10 @@
     },
     "adminTeacherDetail": {
       "back": "العودة لقائمة المعلمين",
+      "tabs": {
+        "overview": "نظرة عامة",
+        "profile": "الملف الشخصي"
+      },
       "profileTitle": "بيانات المعلم",
       "email": "البريد الإلكتروني",
       "phone": "رقم الهاتف",
@@ -1212,7 +1233,35 @@
       "grantBadge": "منح شارة",
       "revokeBadge": "سحب",
       "awardedAt": "مُنحت بتاريخ",
-      "notFound": "لم يتم العثور على المعلم"
+      "notFound": "لم يتم العثور على المعلم",
+      "profileEditor": {
+        "title": "إكمال الملف الشخصي نيابة عن المعلم",
+        "subtitle": "لمعلم لم يُكمل ملفه أو يرفع وثائقه بعد — يمكنك إكمالها واعتماده دون انتظاره",
+        "removePhoto": "حذف الصورة",
+        "uploadingPhoto": "جارٍ رفع الصورة…",
+        "bioLabel": "نبذة عن المعلم",
+        "qualificationLabel": "المؤهل العلمي",
+        "experienceLabel": "سنوات الخبرة",
+        "subjectsLabel": "المواد",
+        "curriculumLabel": "المناهج",
+        "languagesLabel": "اللغات",
+        "displayNameEnLabel": "اسم المركز بالإنجليزية",
+        "displayNameEnInvalid": "أحرف فقط بلا أرقام",
+        "commercialRegisterLabel": "السجل التجاري",
+        "saveProfile": "حفظ الملف الشخصي",
+        "saving": "جارٍ الحفظ…",
+        "saveSuccess": "تم حفظ الملف الشخصي بنجاح",
+        "documentsTitle": "الوثائق الثبوتية",
+        "documentMissing": "لم تُرفع بعد",
+        "documentTypeLabel": "نوع الوثيقة",
+        "documentFileLabel": "الملف",
+        "upload": "رفع",
+        "uploading": "جارٍ الرفع…",
+        "documentUploaded": "تم رفع الوثيقة بنجاح",
+        "submitForReview": "إرسال طلب التوثيق",
+        "submitting": "جارٍ الإرسال…",
+        "submitHint": "أكمل النبذة وارفع الوثائق الثلاث المطلوبة (هوية، شهادة أكاديمية، شهادة خبرة) أولاً"
+      }
     },
     "reasonModal": {
       "rejectTeacherTitle": "سبب رفض طلب المعلم",

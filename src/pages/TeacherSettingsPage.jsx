@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { CalendarCheck, Globe } from 'lucide-react';
+import { CalendarCheck, Globe, Video } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { TimezoneField } from '@/components/dashboard/TimezoneField';
+import { TeacherVideosEditor } from '@/components/teacher/TeacherVideosEditor';
 import { ApiErrorList, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useUpdateProfile } from '@/hooks/useProfile';
 import { useAvailabilityDays, useAddAvailabilityDay, useRemoveAvailabilityDay } from '@/hooks/useAvailability';
+import { useMyTeacher, useUpdateMyTeacherProfile, useAddVideo, useRemoveVideo } from '@/hooks/useTeacherAccount';
 import { useT } from '@/hooks/useT';
 
 const DAY_KEYS = [0, 1, 2, 3, 4, 5, 6];
@@ -28,6 +30,26 @@ export function TeacherSettingsPage() {
   const addDay = useAddAvailabilityDay(teacherId);
   const removeDay = useRemoveAvailabilityDay(teacherId);
   const updateProfile = useUpdateProfile();
+
+  const isTrainingCenter = user?.teacherType === 'training_center';
+  const { data: teacher } = useMyTeacher(teacherId);
+  const updateTeacherProfile = useUpdateMyTeacherProfile(teacherId);
+  const addVideo = useAddVideo(teacherId);
+  const removeVideo = useRemoveVideo(teacherId);
+
+  /**
+   * تحديث مستقل — يُرسِل حقول المركز التدريبي الإلزامية بقيمها الحالية دون
+   * تغيير حين يكون المعلم مركزاً تدريبياً، وإلا يرفضها الباك اند رغم أنها لم
+   * تتغيّر أصلاً (نفس منطق CompleteTeacherProfilePage::handleSaveIntro تماماً).
+   */
+  const handleSaveIntro = (value) => {
+    updateTeacherProfile.mutate({
+      intro_youtube_id: value || null,
+      ...(isTrainingCenter
+        ? { display_name_en: teacher?.display_name_en, commercial_register: teacher?.commercial_register }
+        : {}),
+    });
+  };
 
   const [timezoneForm, setTimezoneForm] = useState({ timezone: '', timezoneAuto: true });
 
@@ -129,6 +151,30 @@ export function TeacherSettingsPage() {
             </div>
           )}
         </div>
+
+        {teacherId && (
+          <div className="rounded-2xl bg-white p-6 shadow-card">
+            <h2 className="flex items-center gap-2 font-bold text-ink">
+              <Video size={20} className="text-primary" />
+              {t('teacherVideos.sectionTitle')}
+            </h2>
+            <p className="mt-1 text-sm text-ink-soft">{t('teacherVideos.sectionHint')}</p>
+
+            <div className="mt-4">
+              <TeacherVideosEditor
+                introYoutubeId={teacher?.intro_youtube_id}
+                videos={(teacher?.videos ?? []).map((v) => ({ id: v.id, youtubeId: v.youtube_id, title: v.title }))}
+                onSaveIntro={handleSaveIntro}
+                isSavingIntro={updateTeacherProfile.isPending}
+                onAddVideo={(payload, opts) => addVideo.mutate(payload, opts)}
+                isAddingVideo={addVideo.isPending}
+                addVideoError={addVideo.isError ? addVideo.error : null}
+                onRemoveVideo={(id) => removeVideo.mutate(id)}
+                removingVideoId={removeVideo.isPending ? removeVideo.variables : null}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

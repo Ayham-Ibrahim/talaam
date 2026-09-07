@@ -136,3 +136,65 @@ export function useRevokeBadge(teacherId) {
     onSuccess: invalidate,
   });
 }
+
+/**
+ * إكمال ملف المعلم واعتماده من الأدمن دون انتظاره — نفس مسارات
+ * teacherAccountService التي يستخدمها المعلم لنفسه، لكن بمفاتيح كاش الأدمن
+ * (queryKeys.admin.teacherDetail) بدل myTeacherKey، وبلا أي أثر جانبي على
+ * حالة مصادقة الأدمن نفسه (خلاف useMyTeacher المخصَّص لجلسة المعلم فقط).
+ */
+export function useAdminUpdateTeacherProfile(id) {
+  const invalidate = useInvalidateTeacher(id);
+  return useMutation({
+    mutationFn: (payload) => adminService.updateTeacherProfile(id, payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useAdminUploadDocument(id) {
+  const invalidate = useInvalidateTeacher(id);
+  return useMutation({
+    mutationFn: ({ type, file }) => adminService.uploadTeacherDocument(id, type, file),
+    onSuccess: invalidate,
+  });
+}
+
+export function useAdminSubmitForVerification(id) {
+  const invalidate = useInvalidateTeacher(id);
+  return useMutation({
+    mutationFn: () => adminService.submitTeacherForVerification(id),
+    onSuccess: invalidate,
+  });
+}
+
+export function useAdminUploadTeacherAvatar(id) {
+  const invalidate = useInvalidateTeacher(id);
+  return useMutation({
+    mutationFn: (file) => adminService.uploadTeacherAvatar(id, file),
+    onSuccess: invalidate,
+  });
+}
+
+export function useAdminDeleteTeacherAvatar(id) {
+  const invalidate = useInvalidateTeacher(id);
+  return useMutation({
+    mutationFn: () => adminService.deleteTeacherAvatar(id),
+    onSuccess: invalidate,
+  });
+}
+
+export function useAdminAddVideo(id) {
+  const invalidate = useInvalidateTeacher(id);
+  return useMutation({
+    mutationFn: (payload) => adminService.addTeacherVideo(id, payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useAdminRemoveVideo(id) {
+  const invalidate = useInvalidateTeacher(id);
+  return useMutation({
+    mutationFn: (videoId) => adminService.removeTeacherVideo(videoId),
+    onSuccess: invalidate,
+  });
+}
