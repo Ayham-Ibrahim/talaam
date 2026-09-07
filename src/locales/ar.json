@@ -498,6 +498,7 @@
     "adding": "جارٍ الإضافة…"
   },
   "completeProfile": {
+    "optional": "اختياري",
     "studentTitle": "أكمل ملفك الشخصي",
     "studentHint": "خطوة أخيرة قبل استخدام حسابك — اختر نوع التعليم وأكمل بياناته",
     "teacherTitle": "أكمل ملفك الشخصي وارفع وثائق التوثيق",
@@ -673,7 +674,23 @@
     "resetSuccessTitle": "تم تغيير كلمة المرور بنجاح",
     "resetSuccessHint": "يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة",
     "goToLogin": "الذهاب لتسجيل الدخول",
-    "invalidResetLink": "رابط إعادة التعيين غير صالح — يرجى طلب رابط جديد"
+    "invalidResetLink": "رابط إعادة التعيين غير صالح — يرجى طلب رابط جديد",
+    "dontHaveAccount": "انت طالب وليس لديك حساب؟",
+    "registerNow": "سجّل الآن",
+    "alreadyHaveAccount": "لديك حساب بالفعل؟",
+    "registerTitle": "إنشاء حساب طالب",
+    "registerSubtitle": "أنشئ حسابك كطالب وابدأ رحلتك التعليمية",
+    "nameLabel": "الاسم الكامل",
+    "namePlaceholder": "أدخل اسمك الكامل",
+    "nameRequired": "الاسم مطلوب",
+    "nameInvalid": "الاسم يجب أن يحتوي على أحرف فقط",
+    "nameTooLong": "الاسم طويل جداً (الحد الأقصى 150 حرفاً)",
+    "phoneLabel": "رقم الهاتف",
+    "phonePlaceholder": "+9665xxxxxxxx",
+    "phoneInvalid": "صيغة رقم الهاتف غير صحيحة",
+    "phoneTooLong": "رقم الهاتف طويل جداً",
+    "registerSubmit": "إنشاء الحساب",
+    "registerSubmitting": "جارٍ إنشاء الحساب..."
   },
   "dashboard": {
     "welcome": "مرحباً",

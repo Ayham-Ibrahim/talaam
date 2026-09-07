@@ -2,7 +2,7 @@ export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const PHONE_PATTERN = /^\+?\d{7,24}$/;
 
 const NAME_ALLOWED_INPUT_PATTERN = /^[\p{L}\p{M}\s'-]*$/u;
-const NAME_VALIDATION_PATTERN = /^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$/u;
+export const NAME_VALIDATION_PATTERN = /^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$/u;
 const NAME_ALLOWED_CHARACTER_PATTERN = /[\p{L}\p{M}\s'-]/u;
 const ARABIC_INDIC_DIGITS = '٠١٢٣٤٥٦٧٨٩';
 const EASTERN_ARABIC_DIGITS = '۰۱۲۳۴۵۶۷۸۹';

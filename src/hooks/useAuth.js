@@ -11,6 +11,18 @@ export function useAuth() {
   return { user, isAuthenticated, updateUser };
 }
 
+/** الباك اند يُنشئ الحساب ويُعيد توكناً صالحاً فوراً (نفس شكل استجابة login) — دخول تلقائي بلا خطوة تسجيل دخول منفصلة بعد التسجيل */
+export function useRegisterStudent() {
+  const login = useAuthStore((s) => s.login);
+
+  return useMutation({
+    mutationFn: (payload) => authService.registerStudent(payload),
+    onSuccess: (data) => {
+      login({ user: data.user, token: data.token }, true);
+    },
+  });
+}
+
 export function useLogin() {
   const login = useAuthStore((s) => s.login);
 

@@ -4,6 +4,7 @@
  */
 export const endpoints = {
   auth: {
+    registerStudent: '/auth/register/student',
     login: '/auth/login',
     logout: '/auth/logout',
     me: '/auth/me',

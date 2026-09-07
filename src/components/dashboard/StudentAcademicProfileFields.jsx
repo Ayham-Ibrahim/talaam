@@ -62,21 +62,30 @@ export function isGradeValid(grade) {
   return Number.isInteger(n) && n >= 1 && n <= 12;
 }
 
-/** هاتف ولي الأمر: إلزامي، أرقام فقط (نفس قاعدة الهاتف). الباك اند: required. */
-export function isGuardianPhoneValid(phone) {
-  return !!phone && validatePhone(sanitizePhone(String(phone))) === null;
+/**
+ * هاتف ولي الأمر: إلزامي في UpdateStudentProfileRequest (إكمال ملف بعد إنشاء
+ * الأدمن للحساب) لكن اختياري في RegisterStudentRequest (تسجيل ذاتي جديد) —
+ * requireGuardian يفرّق بين السياقين. القيمة الفارغة صالحة فقط حين لا يكون
+ * إلزامياً؛ الصيغة (إن أُدخلت قيمة) تُتحقَّق دوماً بصرف النظر عن الإلزامية.
+ */
+export function isGuardianPhoneValid(phone, requireGuardian = true) {
+  if (!phone) return !requireGuardian;
+  return validatePhone(sanitizePhone(String(phone))) === null;
 }
 
-/** اسم ولي الأمر: إلزامي، أحرف فقط بلا أرقام أو رموز (نفس قاعدة الاسم في الباك اند). الباك اند: required. */
-export function isGuardianNameValid(name) {
-  return String(name ?? '').trim() !== '' && validateName(String(name)) === null;
+/** اسم ولي الأمر: نفس منطق isGuardianPhoneValid أعلاه بالضبط — إلزامي أو اختياري حسب السياق. */
+export function isGuardianNameValid(name, requireGuardian = true) {
+  const trimmed = String(name ?? '').trim();
+  if (trimmed === '') return !requireGuardian;
+  return validateName(trimmed) === null;
 }
 
 /**
- * الحقول الإلزامية لنوع التعليم المختار، بالإضافة لاسم وهاتف ولي الأمر
- * الإلزاميين بصرف النظر عن نوع التعليم — لتلميح "أكمل الحقول المطلوبة".
+ * الحقول الإلزامية لنوع التعليم المختار، بالإضافة لاسم وهاتف ولي الأمر —
+ * إلزاميان افتراضياً (UpdateStudentProfileRequest)، اختياريان صراحةً عبر
+ * requireGuardian=false (RegisterStudentRequest، التسجيل الذاتي الجديد).
  */
-export function studentAcademicRequiredFieldsFilled(form) {
+export function studentAcademicRequiredFieldsFilled(form, requireGuardian = true) {
   const typeSpecificFilled =
     form.education_type === 'school'
       ? form.curriculum_id !== '' && form.stage_id !== ''
@@ -86,21 +95,23 @@ export function studentAcademicRequiredFieldsFilled(form) {
           ? form.course_field_id !== '' && form.level !== ''
           : false;
 
-  return typeSpecificFilled && form.guardian_name.trim() !== '' && form.guardian_phone !== '';
+  const guardianFilled = !requireGuardian || (form.guardian_name.trim() !== '' && form.guardian_phone !== '');
+
+  return typeSpecificFilled && guardianFilled;
 }
 
 /** خطأ في أي حقل حر (تاريخ ميلاد/صف/اسم وهاتف ولي الأمر) — لتعطيل زر الحفظ، مستقل عن اكتمال الحقول الإلزامية. */
-export function hasStudentAcademicFieldError(form) {
+export function hasStudentAcademicFieldError(form, requireGuardian = true) {
   return (
     !isBirthDateValid(form.birth_date) ||
     !isGradeValid(form.grade) ||
-    !isGuardianNameValid(form.guardian_name) ||
-    !isGuardianPhoneValid(form.guardian_phone)
+    !isGuardianNameValid(form.guardian_name, requireGuardian) ||
+    !isGuardianPhoneValid(form.guardian_phone, requireGuardian)
   );
 }
 
-export function isStudentAcademicFormValid(form) {
-  return studentAcademicRequiredFieldsFilled(form) && !hasStudentAcademicFieldError(form);
+export function isStudentAcademicFormValid(form, requireGuardian = true) {
+  return studentAcademicRequiredFieldsFilled(form, requireGuardian) && !hasStudentAcademicFieldError(form, requireGuardian);
 }
 
 export function buildStudentAcademicPayload(form) {
@@ -123,16 +134,16 @@ export function buildStudentAcademicPayload(form) {
   return payload;
 }
 
-export function StudentAcademicProfileFields({ form, setForm, touched }) {
+export function StudentAcademicProfileFields({ form, setForm, touched, requireGuardian = true }) {
   const t = useT();
   // تلميح "أكمل الحقول المطلوبة" يخص الحقول الإلزامية فقط — أخطاء الصف/تاريخ
   // الميلاد/هاتف ولي الأمر لها رسائلها الخاصة تحت كل حقل مباشرةً.
-  const requiredFieldsValid = studentAcademicRequiredFieldsFilled(form);
+  const requiredFieldsValid = studentAcademicRequiredFieldsFilled(form, requireGuardian);
   const gradeError = !isGradeValid(form.grade);
   // قبل أول محاولة حفظ (touched=false)، حقل ولي الأمر الفارغ لا يُعرَض كخطأ —
   // إلزاميته الجديدة لا يجب أن تُخيف المستخدم برسالة حمراء قبل أن يحاول الكتابة أصلاً.
-  const guardianNameError = touched && !isGuardianNameValid(form.guardian_name);
-  const guardianPhoneError = touched && !isGuardianPhoneValid(form.guardian_phone);
+  const guardianNameError = touched && !isGuardianNameValid(form.guardian_name, requireGuardian);
+  const guardianPhoneError = touched && !isGuardianPhoneValid(form.guardian_phone, requireGuardian);
   const guardianNameEmpty = form.guardian_name.trim() === '';
   const guardianPhoneEmpty = form.guardian_phone === '';
 
@@ -260,7 +271,10 @@ export function StudentAcademicProfileFields({ form, setForm, touched }) {
             )}
           </label>
           <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-semibold text-ink">{t('completeProfile.guardianNameLabel')}</span>
+            <span className="text-sm font-semibold text-ink">
+              {t('completeProfile.guardianNameLabel')}
+              {!requireGuardian && <span className="text-ink-soft"> ({t('completeProfile.optional')})</span>}
+            </span>
             <input
               type="text"
               maxLength={150}
@@ -280,7 +294,10 @@ export function StudentAcademicProfileFields({ form, setForm, touched }) {
             )}
           </label>
           <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-semibold text-ink">{t('completeProfile.guardianPhoneLabel')}</span>
+            <span className="text-sm font-semibold text-ink">
+              {t('completeProfile.guardianPhoneLabel')}
+              {!requireGuardian && <span className="text-ink-soft"> ({t('completeProfile.optional')})</span>}
+            </span>
             <input
               type="tel"
               inputMode="tel"

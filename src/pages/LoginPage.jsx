@@ -174,6 +174,13 @@ export function LoginPage() {
               <Button type="submit" disabled={login.isPending} className="w-full justify-center py-3">
                 {login.isPending ? t('auth.submitting') : t('auth.submit')}
               </Button>
+
+              <p className="text-center text-sm text-ink-soft">
+                {t('auth.dontHaveAccount')}{' '}
+                <Link to="/register" className="font-medium text-primary hover:opacity-70">
+                  {t('auth.registerNow')}
+                </Link>
+              </p>
             </form>
           </motion.div>
         </div>

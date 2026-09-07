@@ -24,6 +24,12 @@ export function withTeacherType(user) {
  * without touching the login page or the store.
  */
 export const authService = {
+  /** بلا فرع محاكاة — هذه الشاشة مبنية مباشرة ضد الباك الحقيقي فقط (نفس اختيار teacherAccountService) */
+  async registerStudent(payload) {
+    const { data } = await client.post(endpoints.auth.registerStudent, payload);
+    return { ...data.data, user: withTeacherType(data.data.user) };
+  },
+
   async login({ email, password }) {
     if (config.useMocks) {
       await mockDelay(500);
