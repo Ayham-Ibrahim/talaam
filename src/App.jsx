@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppRouter } from "@/routes/AppRouter";
 import { LogoIntro } from "@/components/ui/LogoIntro";
+import { ElfsightChat } from "@/components/common/ElfsightChat";
 import { CursorLight } from "@/motion/ambient/AmbientEngine";
 import { useEffect, useState } from "react";
 import { useLocaleStore } from "@/store";
@@ -88,6 +89,7 @@ export default function App() {
         <TimezoneAutoSync />
         <AppRouter />
       </div>
+      {introFinished && <ElfsightChat />}
     </QueryClientProvider>
   );
 }
