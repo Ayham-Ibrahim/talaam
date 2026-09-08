@@ -38,6 +38,7 @@
     "topTeachersMore": "المزيد",
     "educationTypesTitle": "أنواع التعليم في المنصة",
     "educationTypesSubtitle": "نوفر خيارات تعليمية متنوعة تناسب مختلف المراحل الدراسية والمهارات الأخرى",
+    "educationTypesCta": "استعرض المعلمين",
     "educationTypes": [
       {
         "icon": "school",

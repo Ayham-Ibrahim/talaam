@@ -17,7 +17,10 @@ export function SearchPage() {
   const t = useT();
   const [searchParams] = useSearchParams();
 
-  const [type, setType] = useState(null);
+  // يدعم الدخول المباشر برابط مُفلتَر مسبقاً (مثلاً بطاقات "أنواع التعليم" في
+  // الصفحة الرئيسية: /search?type=school) — القيمة الأولية فقط، لا تتزامن مع
+  // الرابط بعدها؛ اختيار المستخدم اليدوي من الأزرار هو مصدر الحقيقة لاحقاً.
+  const [type, setType] = useState(() => searchParams.get('type'));
   const [q, setQ] = useState(searchParams.get('q') ?? '');
   const [draft, setDraft] = useState(DEFAULT_DRAFT);
   const [applied, setApplied] = useState(DEFAULT_DRAFT);

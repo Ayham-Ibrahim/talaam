@@ -40,8 +40,9 @@ import {
   BadgeCheck,
   FileText,
   Share2,
+  ArrowLeft,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   TeacherCard,
   TeacherCardSkeleton,
@@ -62,6 +63,12 @@ const EDUCATION_TYPE_STYLES = {
   school: { from: "#8FE6F7", to: "#39A5C9" },
   university: { from: "#7C9CD6", to: "#2F4A78" },
   courses: { from: "#E96FA6", to: "#8C0642" },
+};
+/** يطابق CATEGORY_TYPES في SearchHero.jsx (وقيمة teacher_type في الباك اند) — "courses" هنا هو "training" هناك فقط اختلاف تسمية الأيقونة */
+const EDUCATION_TYPE_SEARCH_PARAM = {
+  school: "school",
+  university: "university",
+  courses: "training",
 };
 
 export function EducationTypes() {
@@ -108,41 +115,55 @@ export function EducationTypes() {
         {types.map((type) => {
           const Icon = EDUCATION_TYPE_ICONS[type.icon] || School;
           const style = EDUCATION_TYPE_STYLES[type.icon];
+          const searchType = EDUCATION_TYPE_SEARCH_PARAM[type.icon];
           return (
-            <AnimatedCard
+            <Link
               key={type.icon}
-              tilt={true}
-              className="education-type-card flex flex-col items-center gap-2 rounded-2xl bg-white px-4 pb-6 pt-2 text-center shadow-card transition-shadow duration-200 hover:shadow-lift group"
+              to={`/search?type=${searchType}`}
+              aria-label={`${type.title} — ${t("home.educationTypesCta")}`}
+              className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
             >
-              <div className="relative h-[100px] w-[100px]">
-                {/* Back squircle — solid gradient, peeking out top-right */}
-                <div
-                  className="absolute right-0 top-1 h-[78%] w-[78%] rounded-[22%] shadow-md transition-transform duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                  style={{
-                    background: `linear-gradient(135deg, ${style.from}, ${style.to})`,
-                  }}
-                />
+              <AnimatedCard
+                tilt={true}
+                className="education-type-card flex cursor-pointer flex-col items-center gap-2 rounded-2xl bg-white px-4 pb-6 pt-2 text-center shadow-card transition-shadow duration-200 hover:shadow-lift group"
+              >
+                <div className="relative h-[100px] w-[100px]">
+                  {/* Back squircle — solid gradient, peeking out top-right */}
+                  <div
+                    className="absolute right-0 top-1 h-[78%] w-[78%] rounded-[22%] shadow-md transition-transform duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                    style={{
+                      background: `linear-gradient(135deg, ${style.from}, ${style.to})`,
+                    }}
+                  />
 
-                {/* Front squircle — frosted glass, holding the glyph */}
-                <motion.div
-                  transition={{ duration: 0.3 }}
-                  className="absolute bottom-2 left-3 flex h-[78%] w-[78%] items-center justify-center rounded-[22%] border border-[2px] border-white/50 shadow-lg backdrop-blur-sm transition-transform duration-300 group-hover:-translate-y-1"
-                  style={{
-                    background: `linear-gradient(135deg, ${style.from}CC 0%, ${style.to}55 50%)`,
-                  }}
-                >
-                  <Icon size={34} className="text-white drop-shadow" />
-                </motion.div>
-              </div>
-              <div className="flex flex-col items-center gap-1 group-hover:-translate-y-0.5 transition-transform duration-300">
-                <h3 className="font-cairo text-xl font-bold text-ink">
-                  {type.title}
-                </h3>
-                <p className="font-cairo text-base leading-loose text-ink-soft">
-                  {type.desc}
-                </p>
-              </div>
-            </AnimatedCard>
+                  {/* Front squircle — frosted glass, holding the glyph */}
+                  <motion.div
+                    transition={{ duration: 0.3 }}
+                    className="absolute bottom-2 left-3 flex h-[78%] w-[78%] items-center justify-center rounded-[22%] border border-[2px] border-white/50 shadow-lg backdrop-blur-sm transition-transform duration-300 group-hover:-translate-y-1"
+                    style={{
+                      background: `linear-gradient(135deg, ${style.from}CC 0%, ${style.to}55 50%)`,
+                    }}
+                  >
+                    <Icon size={34} className="text-white drop-shadow" />
+                  </motion.div>
+                </div>
+                <div className="flex flex-col items-center gap-1 group-hover:-translate-y-0.5 transition-transform duration-300">
+                  <h3 className="font-cairo text-xl font-bold text-ink">
+                    {type.title}
+                  </h3>
+                  <p className="font-cairo text-base leading-loose text-ink-soft">
+                    {type.desc}
+                  </p>
+                  <span
+                    className="mt-1 flex items-center gap-1.5 font-cairo text-sm font-bold opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                    style={{ color: style.to }}
+                  >
+                    {t("home.educationTypesCta")}
+                    <ArrowLeft size={14} className="transition-transform duration-300 group-hover:-translate-x-1" />
+                  </span>
+                </div>
+              </AnimatedCard>
+            </Link>
           );
         })}
       </div>
