@@ -65,7 +65,10 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
 
   const showProfileForm = rawStatus === 'invited' || rawStatus === 'active_unverified';
   const showDocumentUpload = rawStatus !== 'verified' && rawStatus !== 'rejected';
-  const showSubmitButton = rawStatus === 'active_unverified';
+  // "invited" مقبولة أيضاً — معلم مستورَد/مدعوّ لم يقبل دعوته بعد (بلا كلمة
+  // مرور، لا طريق له ليصل إلى active_unverified بنفسه)؛ الباك اند
+  // (TeacherService::submitForVerification) يقبل الحالتين معاً لهذا السبب تحديداً.
+  const showSubmitButton = rawStatus === 'invited' || rawStatus === 'active_unverified';
   // الصورة والفيديوهات ليست جزءاً من متطلبات التوثيق — تُعرَض دوماً بصرف
   // النظر عن حالة المعلم (خلافاً لبقية أقسام هذا المكوّن)، فالتبويب لا يبقى
   // فارغاً تماماً لمعلم موثَّق بالفعل.
