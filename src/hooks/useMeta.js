@@ -34,10 +34,10 @@ export function useRatingSummary(teacherId) {
   });
 }
 
-export function useFilters() {
+export function useFilters(educationType) {
   return useQuery({
-    queryKey: queryKeys.meta.filters(),
-    queryFn: () => metaService.getFilters(),
+    queryKey: queryKeys.meta.filters(educationType),
+    queryFn: () => metaService.getFilters(educationType),
     staleTime: 30 * 60 * 1000,
   });
 }

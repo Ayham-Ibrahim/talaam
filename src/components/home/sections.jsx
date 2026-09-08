@@ -64,8 +64,8 @@ const EDUCATION_TYPE_STYLES = {
   university: { from: "#7C9CD6", to: "#2F4A78" },
   courses: { from: "#E96FA6", to: "#8C0642" },
 };
-/** يطابق CATEGORY_TYPES في SearchHero.jsx (وقيمة teacher_type في الباك اند) — "courses" هنا هو "training" هناك فقط اختلاف تسمية الأيقونة */
-const EDUCATION_TYPE_SEARCH_PARAM = {
+/** أيقونة البطاقة ("courses") → شريحة نوع التعليم في الرابط ("training") المطابقة لـ education_type في الباك اند */
+const EDUCATION_TYPE_SLUG = {
   school: "school",
   university: "university",
   courses: "training",
@@ -115,11 +115,11 @@ export function EducationTypes() {
         {types.map((type) => {
           const Icon = EDUCATION_TYPE_ICONS[type.icon] || School;
           const style = EDUCATION_TYPE_STYLES[type.icon];
-          const searchType = EDUCATION_TYPE_SEARCH_PARAM[type.icon];
+          const slug = EDUCATION_TYPE_SLUG[type.icon];
           return (
             <Link
               key={type.icon}
-              to={`/search?type=${searchType}`}
+              to={`/teaching/${slug}`}
               aria-label={`${type.title} — ${t("home.educationTypesCta")}`}
               className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
             >

@@ -529,12 +529,18 @@ export const favoriteService = {
 };
 
 export const metaService = {
-  async getFilters() {
+  /**
+   * `educationType` (school|university|training) قصر المواد/المراحل/الصفوف على
+   * نوع تعليم واحد — تستخدمه صفحات /teaching/:type. بدونه: كل القوائم كالسابق.
+   */
+  async getFilters(educationType) {
     if (config.useMocks) {
       await mockDelay(200);
       return mockFilters;
     }
-    const { data } = await client.get(endpoints.meta.filters);
+    const { data } = await client.get(endpoints.meta.filters, {
+      params: { education_type: educationType || undefined },
+    });
     return data.data;
   },
 

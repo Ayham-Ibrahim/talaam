@@ -16,7 +16,7 @@ export const queryKeys = {
     ratingSummary: (id) => ['teachers', id, 'rating-summary'],
   },
   meta: {
-    filters: () => ['meta', 'filters'],
+    filters: (educationType) => ['meta', 'filters', educationType ?? 'all'],
     stats: () => ['meta', 'stats'],
   },
   taxonomy: (type) => ['taxonomy', type],

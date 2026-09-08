@@ -32,6 +32,7 @@
     "topTeachers": "Top Teachers",
     "educationTypesTitle": "Types of Education on the Platform",
     "educationTypesSubtitle": "We offer diverse learning options that fit different academic stages and other skills",
+    "educationTypesCta": "Browse teachers",
     "educationTypes": [
       {
         "icon": "school",
@@ -347,6 +348,46 @@
       "3.0 and above",
       "2.0 and above"
     ]
+  },
+  "teachingType": {
+    "backToHome": "Back to home",
+    "exploreCta": "Browse teachers",
+    "teachersHeading": "Certified teachers",
+    "teachersSubheading": "Pick your teacher and start learning",
+    "teacherWord": "teacher",
+    "resultsCount": "certified teachers",
+    "filterTitle": "Filter teachers",
+    "subject": "Subject",
+    "specialization": "Specialization / Curriculum",
+    "rating": "Minimum rating",
+    "select": "All",
+    "apply": "Apply filters",
+    "reset": "Reset",
+    "ratingOptions": [
+      "4.5 and above",
+      "4.0 and above",
+      "3.0 and above",
+      "2.0 and above"
+    ],
+    "empty": "No matching teachers",
+    "emptyHint": "Try adjusting the filters or resetting them",
+    "types": {
+      "school": {
+        "title": "School Education",
+        "description": "Private lessons for every school stage with certified teachers to help students excel in every subject, across all curricula.",
+        "tagline": "From primary to secondary"
+      },
+      "university": {
+        "title": "University Education",
+        "description": "Specialized learning sessions for various university majors, supervised by top academics and experts.",
+        "tagline": "For every university major"
+      },
+      "training": {
+        "title": "Training Courses",
+        "description": "Develop your professional and technical skills through training courses supervised by top experts and specialists.",
+        "tagline": "Professional & technical skills"
+      }
+    }
   },
   "teacher": {
     "verified": "Certified Teacher",
