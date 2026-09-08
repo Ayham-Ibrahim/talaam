@@ -11,10 +11,10 @@ export const profileService = {
       return { avatar_path: URL.createObjectURL(file) };
     }
     assertFileWithinLimits(file, {
-      maxBytes: 5 * 1024 * 1024,
+      maxBytes: 15 * 1024 * 1024,
       mimeTypes: ['image/jpeg', 'image/png'],
       field: 'avatar',
-      sizeMessage: 'حجم الصورة أكبر من الحد المسموح (5 ميغابايت كحد أقصى)',
+      sizeMessage: 'حجم الصورة أكبر من الحد المسموح (15 ميغابايت كحد أقصى)',
       typeMessage: 'صيغة الصورة غير مدعومة — يُسمح فقط بصورة JPG أو PNG',
     });
     const form = new FormData();

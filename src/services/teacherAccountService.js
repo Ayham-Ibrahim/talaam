@@ -34,10 +34,10 @@ export const teacherAccountService = {
       return { id: Date.now(), type, status: 'pending' };
     }
     assertFileWithinLimits(file, {
-      maxBytes: 5 * 1024 * 1024,
+      maxBytes: 15 * 1024 * 1024,
       mimeTypes: ['image/jpeg', 'image/png', 'application/pdf'],
       field: 'file',
-      sizeMessage: 'حجم الملف أكبر من الحد المسموح (5 ميغابايت كحد أقصى)',
+      sizeMessage: 'حجم الملف أكبر من الحد المسموح (15 ميغابايت كحد أقصى)',
       typeMessage: 'صيغة الملف غير مدعومة — يُسمح فقط بصورة (JPG/PNG) أو PDF',
     });
     const form = new FormData();
