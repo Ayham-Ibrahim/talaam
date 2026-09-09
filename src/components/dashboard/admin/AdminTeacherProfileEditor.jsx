@@ -3,6 +3,8 @@ import { UploadCloud, Check, FileText, UserCog, Camera, Trash2 } from 'lucide-re
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { MultiSelectChips } from '@/components/dashboard/MultiSelectChips';
 import { TeacherVideosEditor } from '@/components/teacher/TeacherVideosEditor';
+import { TeacherFaqEditor } from '@/components/teacher/TeacherFaqEditor';
+import { TeacherExperienceEditor } from '@/components/teacher/TeacherExperienceEditor';
 import { ApiErrorList, Avatar } from '@/components/ui';
 import {
   useAdminUpdateTeacherProfile,
@@ -12,6 +14,10 @@ import {
   useAdminDeleteTeacherAvatar,
   useAdminAddVideo,
   useAdminRemoveVideo,
+  useAdminAddFaq,
+  useAdminRemoveFaq,
+  useAdminAddExperience,
+  useAdminRemoveExperience,
 } from '@/hooks/useAdmin';
 import { useTaxonomyList } from '@/hooks/useTaxonomy';
 import { QUALIFICATION_LABELS, EXPERIENCE_LABELS } from '@/services/teacherService';
@@ -81,6 +87,10 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
   const deleteAvatar = useAdminDeleteTeacherAvatar(teacherId);
   const addVideo = useAdminAddVideo(teacherId);
   const removeVideo = useAdminRemoveVideo(teacherId);
+  const addFaq = useAdminAddFaq(teacherId);
+  const removeFaq = useAdminRemoveFaq(teacherId);
+  const addExperience = useAdminAddExperience(teacherId);
+  const removeExperience = useAdminRemoveExperience(teacherId);
 
   const [form, setForm] = useState({
     bio: '',
@@ -458,6 +468,40 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
               addVideoError={addVideo.isError ? addVideo.error : null}
               onRemoveVideo={(id) => removeVideo.mutate(id)}
               removingVideoId={removeVideo.isPending ? removeVideo.variables : null}
+            />
+          </div>
+        </div>
+      )}
+
+      {showMediaSection && (
+        <div className="mt-8 border-t border-line/60 pt-6">
+          <h4 className="text-right text-sm font-bold text-ink">{t('teacherFaqs.listLabel')}</h4>
+          <p className="mt-1 text-right text-xs text-ink-soft">{t('teacherFaqs.sectionHint')}</p>
+          <div className="mt-3">
+            <TeacherFaqEditor
+              faqs={teacher.faqs ?? []}
+              onAdd={(payload, opts) => addFaq.mutate(payload, opts)}
+              isAdding={addFaq.isPending}
+              addError={addFaq.isError ? addFaq.error : null}
+              onRemove={(id) => removeFaq.mutate(id)}
+              removingId={removeFaq.isPending ? removeFaq.variables : null}
+            />
+          </div>
+        </div>
+      )}
+
+      {showMediaSection && (
+        <div className="mt-8 border-t border-line/60 pt-6">
+          <h4 className="text-right text-sm font-bold text-ink">{t('teacherExperiences.listLabel')}</h4>
+          <p className="mt-1 text-right text-xs text-ink-soft">{t('teacherExperiences.sectionHint')}</p>
+          <div className="mt-3">
+            <TeacherExperienceEditor
+              experiences={teacher.experiences ?? []}
+              onAdd={(payload, opts) => addExperience.mutate(payload, opts)}
+              isAdding={addExperience.isPending}
+              addError={addExperience.isError ? addExperience.error : null}
+              onRemove={(id) => removeExperience.mutate(id)}
+              removingId={removeExperience.isPending ? removeExperience.variables : null}
             />
           </div>
         </div>

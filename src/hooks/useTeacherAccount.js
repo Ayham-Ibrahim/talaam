@@ -64,6 +64,38 @@ export function useRemoveVideo(id) {
   });
 }
 
+export function useAddFaq(id) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => teacherAccountService.addFaq(id, payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: myTeacherKey(id) }),
+  });
+}
+
+export function useRemoveFaq(id) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (faqId) => teacherAccountService.removeFaq(faqId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: myTeacherKey(id) }),
+  });
+}
+
+export function useAddExperience(id) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => teacherAccountService.addExperience(id, payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: myTeacherKey(id) }),
+  });
+}
+
+export function useRemoveExperience(id) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (experienceId) => teacherAccountService.removeExperience(experienceId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: myTeacherKey(id) }),
+  });
+}
+
 /** ينقل status من active_unverified إلى pending_verification — يحدّث user المخزَّن كي يتوقف حارس التوجيه فوراً بلا إعادة تسجيل دخول */
 export function useSubmitForVerification(id) {
   const queryClient = useQueryClient();

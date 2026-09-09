@@ -198,3 +198,35 @@ export function useAdminRemoveVideo(id) {
     onSuccess: invalidate,
   });
 }
+
+export function useAdminAddFaq(id) {
+  const invalidate = useInvalidateTeacher(id);
+  return useMutation({
+    mutationFn: (payload) => adminService.addTeacherFaq(id, payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useAdminRemoveFaq(id) {
+  const invalidate = useInvalidateTeacher(id);
+  return useMutation({
+    mutationFn: (faqId) => adminService.removeTeacherFaq(faqId),
+    onSuccess: invalidate,
+  });
+}
+
+export function useAdminAddExperience(id) {
+  const invalidate = useInvalidateTeacher(id);
+  return useMutation({
+    mutationFn: (payload) => adminService.addTeacherExperience(id, payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useAdminRemoveExperience(id) {
+  const invalidate = useInvalidateTeacher(id);
+  return useMutation({
+    mutationFn: (experienceId) => adminService.removeTeacherExperience(experienceId),
+    onSuccess: invalidate,
+  });
+}

@@ -317,4 +317,40 @@ export const adminService = {
     const { data } = await client.delete(endpoints.teachers.video(videoId));
     return data.data;
   },
+
+  async addTeacherFaq(id, { question, answer }) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return { id: Date.now(), question, answer };
+    }
+    const { data } = await client.post(endpoints.teachers.faqs(id), { question, answer });
+    return data.data;
+  },
+
+  async removeTeacherFaq(faqId) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return true;
+    }
+    const { data } = await client.delete(endpoints.teachers.faq(faqId));
+    return data.data;
+  },
+
+  async addTeacherExperience(id, { title, period }) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return { id: Date.now(), title, period };
+    }
+    const { data } = await client.post(endpoints.teachers.experiences(id), { title, period });
+    return data.data;
+  },
+
+  async removeTeacherExperience(experienceId) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return true;
+    }
+    const { data } = await client.delete(endpoints.teachers.experience(experienceId));
+    return data.data;
+  },
 };

@@ -22,6 +22,7 @@ const DEFAULT_FILTERS = {
   curriculum: null,
   language: null,
   minPrice: null,
+  maxPrice: null,
   minRating: null,
 };
 
@@ -47,6 +48,7 @@ export function TeachingTypePage() {
       curriculum: selected.curriculum ?? undefined,
       language: selected.language ?? undefined,
       minPrice: selected.minPrice ?? undefined,
+      maxPrice: selected.maxPrice ?? undefined,
       minRating: selected.minRating ?? undefined,
       sort: "rating",
     }),

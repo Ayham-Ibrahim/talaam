@@ -171,15 +171,15 @@ export function PackagesSection({ packages, isLoading, isError, refetch, selecte
       {isError ? (
         <ErrorState onRetry={refetch} />
       ) : isLoading ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-44 rounded-2xl" />
           ))}
         </div>
       ) : packages.length === 0 ? (
         <EmptyState title={t('teacher.packagesEmpty')} />
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {packages.map((pkg, i) => (
             <PackageCard key={pkg.id} pkg={pkg} index={i} selected={pkg.id === selectedPackageId} onSelect={onSelect} />
           ))}

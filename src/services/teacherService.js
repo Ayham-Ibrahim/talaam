@@ -72,6 +72,11 @@ function mapPublicProfile(raw) {
     introVideoDuration: raw.intro_video_seconds ? formatDuration(raw.intro_video_seconds) : null,
     introYoutubeId: raw.intro_youtube_id ?? null,
     videos: (raw.videos ?? []).map((v) => ({ id: v.id, youtubeId: v.youtube_id, title: v.title })),
+    faqs: (raw.faqs ?? []).map((f) => ({ id: f.id, question: f.question, answer: f.answer })),
+    experiences: (raw.experiences ?? []).map((e) => ({ id: e.id, title: e.title, period: e.period })),
+    // شارات إنجاز حقيقية يمنحها الأدمن (Badge/BadgeAward) — لا علاقة لها بـ
+    // teacher.badges القديمة (كانت دوماً undefined، لا مصدر بيانات فعلياً)
+    badges: (raw.badges ?? []).map((b) => ({ id: b.award_id, code: b.code, name: b.name_ar, icon: b.icon })),
   };
 }
 
@@ -99,6 +104,7 @@ export const teacherService = {
       q: filters.q || undefined,
       min_rating: filters.minRating ?? undefined,
       min_price: filters.minPrice ?? undefined,
+      max_price: filters.maxPrice ?? undefined,
       per_page: filters.perPage || undefined,
     };
     const { data } = await client.get(endpoints.teachers.search, { params });

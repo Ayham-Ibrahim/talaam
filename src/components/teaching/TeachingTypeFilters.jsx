@@ -9,9 +9,8 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { SmoothSelect } from "@/components/dashboard/SmoothSelect";
+import { PriceRangeInputs } from "@/components/search/PriceRangeInputs";
 import { useT } from "@/hooks/useT";
-import { useCurrencyStore } from "@/store";
-import { formatPrice } from "@/lib/currency";
 
 const RATING_VALUES = [4.5, 4.0, 3.0, 2.0];
 
@@ -23,9 +22,6 @@ const RATING_VALUES = [4.5, 4.0, 3.0, 2.0];
  */
 export function TeachingTypeFilters({ meta, value, onChange, onReset, hideHeading = false }) {
   const t = useT();
-  const currency = useCurrencyStore((s) => s.currency);
-  const priceMin = meta?.priceRange?.min ?? 50;
-  const priceMax = meta?.priceRange?.max ?? 550;
   const ratingLabels = t("teachingType.ratingOptions");
   const allOption = { value: "", label: t("teachingType.select") };
 
@@ -73,28 +69,12 @@ export function TeachingTypeFilters({ meta, value, onChange, onReset, hideHeadin
           </div>
         ))}
 
-        {/* السعر — الحد الأدنى */}
-        <div>
-          <div className="mb-2 flex items-center justify-between text-sm font-bold text-ink">
-            <span>{t("search.price")}</span>
-            <span className="text-xs font-medium text-ink-soft">{formatPrice(priceMax, currency)}</span>
-          </div>
-          <input
-            type="range"
-            min={priceMin}
-            max={priceMax}
-            step={5}
-            value={value.minPrice ?? priceMin}
-            onChange={(e) => {
-              const next = Number(e.target.value);
-              onChange("minPrice", next <= priceMin ? null : next);
-            }}
-            className="w-full accent-primary"
-          />
-          <div className="mt-1 text-xs font-medium text-ink-soft">
-            {t("search.fromPrefix")} {formatPrice(value.minPrice ?? priceMin, currency)}
-          </div>
-        </div>
+        <PriceRangeInputs
+          minPrice={value.minPrice}
+          maxPrice={value.maxPrice}
+          onChangeMin={(v) => onChange("minPrice", v)}
+          onChangeMax={(v) => onChange("maxPrice", v)}
+        />
 
         {/* التقييم */}
         <div>

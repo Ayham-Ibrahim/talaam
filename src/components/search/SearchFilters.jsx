@@ -1,9 +1,8 @@
 import { SlidersHorizontal, Layers, Bookmark, BookOpen, GraduationCap, Globe, Clock3, RotateCcw, Star } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
+import { PriceRangeInputs } from '@/components/search/PriceRangeInputs';
 import { useT } from '@/hooks/useT';
-import { useCurrencyStore } from '@/store';
-import { formatPrice } from '@/lib/currency';
 
 const RATING_VALUES = [4.5, 4.0, 3.0, 2.0];
 
@@ -31,9 +30,6 @@ function FilterSelect({ icon: Icon, label, options = [], value, onChange, placeh
  */
 export function SearchFilters({ meta, draft, onChange, onApply, onReset, hideHeading = false }) {
   const t = useT();
-  const currency = useCurrencyStore((s) => s.currency);
-  const priceMin = meta?.priceRange?.min ?? 50;
-  const priceMax = meta?.priceRange?.max ?? 550;
   const ratingOptions = t('search.ratingOptions');
 
   return (
@@ -94,25 +90,12 @@ export function SearchFilters({ meta, draft, onChange, onApply, onReset, hideHea
           onChange={(v) => onChange('availability', v)}
         />
 
-        {/* Price range */}
-        <div>
-          <div className="mb-2 flex items-center justify-between text-sm font-bold text-ink">
-            <span>{t('search.price')}</span>
-            <span className="text-xs font-medium text-ink-soft">{formatPrice(priceMax, currency)}</span>
-          </div>
-          <input
-            type="range"
-            min={priceMin}
-            max={priceMax}
-            step={5}
-            value={draft.minPrice ?? priceMin}
-            onChange={(e) => onChange('minPrice', Number(e.target.value))}
-            className="w-full accent-primary"
-          />
-          <div className="mt-1 text-xs font-medium text-ink-soft">
-            {t('search.fromPrefix')} {formatPrice(draft.minPrice ?? priceMin, currency)}
-          </div>
-        </div>
+        <PriceRangeInputs
+          minPrice={draft.minPrice}
+          maxPrice={draft.maxPrice}
+          onChangeMin={(v) => onChange('minPrice', v)}
+          onChangeMax={(v) => onChange('maxPrice', v)}
+        />
 
         {/* Rating */}
         <div>

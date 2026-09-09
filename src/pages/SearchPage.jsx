@@ -11,38 +11,36 @@ import { useTeachers } from '@/hooks/useTeachers';
 import { useFilters } from '@/hooks/useMeta';
 import { useT } from '@/hooks/useT';
 
-const DEFAULT_DRAFT = { level: null, grade: null, subject: null, stage: null, language: null, availability: null, minPrice: null, minRating: null };
+const DEFAULT_DRAFT = { level: null, grade: null, subject: null, stage: null, language: null, availability: null, minPrice: null, maxPrice: null, minRating: null };
 
 export function SearchPage() {
   const t = useT();
   const [searchParams] = useSearchParams();
 
   // يدعم الدخول المباشر برابط مُفلتَر مسبقاً (مثلاً بطاقات "أنواع التعليم" في
-  // الصفحة الرئيسية: /search?type=school) — القيمة الأولية فقط، لا تتزامن مع
-  // الرابط بعدها؛ اختيار المستخدم اليدوي من الأزرار هو مصدر الحقيقة لاحقاً.
-  const [type, setType] = useState(() => searchParams.get('type'));
+  // الصفحة الرئيسية: /search?type=school) — القيمة الأولية فقط عبر دالة lazy
+  // init، لا تتزامن مع الرابط بعدها؛ اختيار المستخدم اليدوي هو مصدر الحقيقة لاحقاً.
   const [q, setQ] = useState(searchParams.get('q') ?? '');
-  const [draft, setDraft] = useState(DEFAULT_DRAFT);
-  const [applied, setApplied] = useState(DEFAULT_DRAFT);
+  const [draft, setDraft] = useState(() => ({ ...DEFAULT_DRAFT, level: searchParams.get('type') }));
+  const [applied, setApplied] = useState(() => ({ ...DEFAULT_DRAFT, level: searchParams.get('type') }));
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const { data: meta } = useFilters();
 
   const filters = useMemo(
     () => ({
-      // `type` (hero pills) and `applied.level` (sidebar select) both drive the
-      // same teacher_type filter — the hero pill wins when both are set.
-      type: type ?? applied.level,
+      type: applied.level ?? undefined,
       subject: applied.subject ?? undefined,
       stage: applied.stage ?? undefined,
       grade: applied.grade ?? undefined,
       language: applied.language ?? undefined,
       q: q || undefined,
       minPrice: applied.minPrice ?? undefined,
+      maxPrice: applied.maxPrice ?? undefined,
       minRating: applied.minRating ?? undefined,
       sort: 'rating',
     }),
-    [type, q, applied]
+    [q, applied]
   );
 
   const { data, isLoading, isError, refetch } = useTeachers(filters);
@@ -58,8 +56,16 @@ export function SearchPage() {
   const handleReset = () => {
     setDraft(DEFAULT_DRAFT);
     setApplied(DEFAULT_DRAFT);
-    setType(null);
     setFiltersOpen(false);
+  };
+  // شرائح "أنواع التعليم" بأعلى الصفحة (SearchHero) تكتب لنفس draft.level/applied.level
+  // اللذين تتحكم بهما قائمة "المستوى" بالفلاتر الجانبية مباشرةً — لا حالة
+  // "type" منفصلة متعارضة كما كان سابقاً (كانت شرائح الهيرو تتجاهل بصمت أي
+  // اختيار مختلف من القائمة الجانبية لأن قيمتها كانت تسبقها دوماً بالأولوية).
+  // تُطبَّق فوراً (بلا انتظار زر "تطبيق") كي تبقى شرائح الهيرو "فورية" كسابق عهدها.
+  const handleSelectType = (value) => {
+    setDraft((prev) => ({ ...prev, level: value }));
+    setApplied((prev) => ({ ...prev, level: value }));
   };
 
   return (
@@ -80,7 +86,7 @@ export function SearchPage() {
           </div>
 
           <div className="flex-1">
-            <SearchHero activeType={type} onSelectType={setType} />
+            <SearchHero activeType={applied.level} onSelectType={handleSelectType} />
 
             {/* Mobile-only filter toggle + collapsible drawer */}
             <div className="mt-4 lg:hidden">

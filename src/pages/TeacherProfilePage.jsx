@@ -2,6 +2,12 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { TeacherProfileHeader } from '@/components/teacher/TeacherProfileHeader';
+import { TeacherStatsRow } from '@/components/teacher/TeacherStatsRow';
+import { TeacherAboutSection } from '@/components/teacher/TeacherAboutSection';
+import { TeacherExperienceSection } from '@/components/teacher/TeacherExperienceSection';
+import { WeeklyAvailabilityPreview } from '@/components/teacher/WeeklyAvailabilityPreview';
+import { TeacherFAQSection } from '@/components/teacher/TeacherFAQSection';
+import { TeacherFinalCta } from '@/components/teacher/TeacherFinalCta';
 import { InfoSection, VideosSection } from '@/components/teacher/TeacherInfoSections';
 import { PackagesSection } from '@/components/teacher/PackagesSection';
 import { CoursesSection } from '@/components/teacher/CoursesSection';
@@ -58,6 +64,10 @@ export function TeacherProfilePage() {
   const selectedPackage = packages?.find((p) => p.id === selectedPackageId) ?? null;
   const selectedCourse = courses?.find((c) => c.id === selectedCourseId) ?? null;
 
+  const handleBookClick = () => {
+    document.getElementById('booking-widget')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   if (teacherLoading) {
     return (
       <PageContainer>
@@ -90,25 +100,49 @@ export function TeacherProfilePage() {
         </Link>
       </div>
 
-      <div className="container-app mt-4 grid grid-cols-1 gap-6 pb-16 lg:grid-cols-[1fr_400px]">
+      <div className="container-app mt-4 grid grid-cols-1 gap-6 pb-8 lg:grid-cols-[1fr_400px]">
         {/* Main content */}
         <div>
-          <TeacherProfileHeader teacher={teacher} isFavorite={isFavorite} onToggleFavorite={handleToggleFavorite} />
-
-          <InfoSection title={t('teacher.qualifications')} items={teacher.qualifications} />
-          <InfoSection title={t('teacher.subjects')} items={teacher.subjects} colorfulDots />
-          <InfoSection title={t('teacher.stages')} items={teacher.stages} />
-          <InfoSection title={t('teacher.grades')} items={teacher.grades.map((g) => `${t('teacher.gradePrefix')} ${g}`)} />
-          <InfoSection
-            title={t('teacher.languages')}
-            items={teacher.languages.map((l) => ({
-              label: l.label,
-              flag: LANGUAGE_FLAGS[l.code] && (
-                <img src={LANGUAGE_FLAGS[l.code]} alt={l.label} className="h-4 w-4 rounded-full object-cover" />
-              ),
-            }))}
+          <TeacherProfileHeader
+            teacher={teacher}
+            isFavorite={isFavorite}
+            onToggleFavorite={handleToggleFavorite}
+            onBookClick={handleBookClick}
           />
-          <InfoSection title={t('teacher.teachingMethods')} items={teacher.teachingMethods} />
+
+          <TeacherStatsRow teacher={teacher} />
+
+          <TeacherAboutSection teacher={teacher} />
+
+          <TeacherExperienceSection experiences={teacher.experiences} />
+
+          <div className="mt-6">
+            <InfoSection title={t('teacher.qualifications')} items={teacher.qualifications} />
+          </div>
+
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <InfoSection title={t('teacher.subjects')} items={teacher.subjects} colorfulDots />
+            <InfoSection title={t('teacher.curricula')} items={teacher.curricula} />
+          </div>
+
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <InfoSection title={t('teacher.stages')} items={teacher.stages} />
+            <InfoSection title={t('teacher.grades')} items={teacher.grades.map((g) => `${t('teacher.gradePrefix')} ${g}`)} />
+          </div>
+
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <InfoSection title={t('teacher.teachingMethods')} items={teacher.teachingMethods} />
+            <InfoSection
+              title={t('teacher.languages')}
+              items={teacher.languages.map((l) => ({
+                label: l.label,
+                flag: LANGUAGE_FLAGS[l.code] && (
+                  <img src={LANGUAGE_FLAGS[l.code]} alt={l.label} className="h-4 w-4 rounded-full object-cover" />
+                ),
+              }))}
+            />
+          </div>
+
           <VideosSection title={t('teacher.videos')} videos={teacher.videos} />
 
           {isCenter ? (
@@ -131,6 +165,8 @@ export function TeacherProfilePage() {
             />
           )}
 
+          <WeeklyAvailabilityPreview weekdays={t('booking.weekdays')} />
+
           <RatingReviews
             summary={ratingSummary}
             reviews={reviews ?? []}
@@ -138,10 +174,18 @@ export function TeacherProfilePage() {
             isError={reviewsError}
             refetch={refetchReviews}
           />
+
+          <TeacherFAQSection faqs={teacher.faqs} />
         </div>
 
         {/* Booking / enrollment widget */}
-        {isCenter ? <CourseEnrollWidget selectedCourse={selectedCourse} /> : <BookingWidget selectedPackage={selectedPackage} />}
+        <div id="booking-widget">
+          {isCenter ? <CourseEnrollWidget selectedCourse={selectedCourse} /> : <BookingWidget selectedPackage={selectedPackage} />}
+        </div>
+      </div>
+
+      <div className="container-app pb-16">
+        <TeacherFinalCta onBookClick={handleBookClick} />
       </div>
     </PageContainer>
   );

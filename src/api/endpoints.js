@@ -49,6 +49,10 @@ export const endpoints = {
     avatar: (id) => `/teachers/${id}/avatar`,
     videos: (id) => `/teachers/${id}/videos`,
     video: (id) => `/teacher-videos/${id}`,
+    faqs: (id) => `/teachers/${id}/faqs`,
+    faq: (id) => `/teacher-faqs/${id}`,
+    experiences: (id) => `/teachers/${id}/experiences`,
+    experience: (id) => `/teacher-experiences/${id}`,
   },
   bookings: {
     list: '/bookings',

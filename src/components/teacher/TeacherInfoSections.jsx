@@ -10,7 +10,7 @@ export function InfoSection({ title, items = [], colorfulDots = false }) {
   if (!items.length) return null;
 
   return (
-    <div className="mt-6 rounded-2xl bg-white p-5 shadow-card">
+    <div className="h-full rounded-2xl bg-white p-5 shadow-card">
       <h3 className="mb-3 text-start font-bold text-ink">{title}</h3>
       <div className="flex flex-wrap justify-start gap-2">
         {items.map((item, i) => {

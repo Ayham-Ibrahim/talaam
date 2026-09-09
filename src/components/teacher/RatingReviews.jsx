@@ -40,38 +40,44 @@ export function RatingReviews({ summary, reviews, isLoading, isError, refetch })
     <div className="mt-8">
       <h3 className="mb-4 text-start font-bold text-ink">{t('teacher.rating')}</h3>
 
-      <div className="flex flex-col-reverse items-center gap-6 rounded-2xl bg-white p-5 shadow-card sm:flex-row">
-        <div className="w-full flex-1 space-y-1.5">
-          {[5, 4, 3, 2, 1].map((star) => (
-            <RatingBar key={star} star={star} percent={summary?.distribution?.[star] ?? 0} />
-          ))}
-        </div>
-        <div className="shrink-0 text-center">
+      {/*
+        بطاقة الملخّص أولاً في الـDOM كي تظهر باتجاه بداية القراءة (يمين
+        الصفحة في RTL)، وقائمة المراجعات ثانياً — تطابق تخطيط الصورة المرجعية.
+        بطاقة الملخّص "sticky" على الشاشات الكبيرة فقط كي تبقى مرئية أثناء
+        تمرير قائمة مراجعات طويلة.
+      */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[280px_1fr]">
+        <div className="h-fit rounded-2xl bg-white p-5 text-center shadow-card lg:sticky lg:top-20">
           <div className="text-4xl font-bold text-ink">{summary?.average ?? 0}</div>
           <StarRating value={summary?.average ?? 0} showValue={false} size={18} className="mt-1 justify-center" />
           <div className="mt-1 text-xs text-ink-soft">
             {formatNumber(summary?.total ?? 0)} {t('teacher.reviews')}
           </div>
+          <div className="mt-4 space-y-1.5 text-start">
+            {[5, 4, 3, 2, 1].map((star) => (
+              <RatingBar key={star} star={star} percent={summary?.distribution?.[star] ?? 0} />
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div className="mt-5 space-y-4">
-        {reviews.length === 0 ? (
-          <EmptyState title={t('teacher.reviewsEmpty')} />
-        ) : (
-          reviews.map((review) => (
-            <div key={review.id} className="rounded-2xl bg-white p-4 shadow-card">
-              <div className="flex items-center justify-between">
-                <StarRating value={review.rating} showValue={false} size={14} />
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-ink">{review.studentName}</span>
-                  <Avatar name={review.studentName} src={review.studentAvatar} size="sm" />
+        <div className="space-y-4">
+          {reviews.length === 0 ? (
+            <EmptyState title={t('teacher.reviewsEmpty')} />
+          ) : (
+            reviews.map((review) => (
+              <div key={review.id} className="rounded-2xl bg-white p-4 shadow-card">
+                <div className="flex items-center justify-between">
+                  <StarRating value={review.rating} showValue={false} size={14} />
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-ink">{review.studentName}</span>
+                    <Avatar name={review.studentName} src={review.studentAvatar} size="sm" />
+                  </div>
                 </div>
+                <p className="mt-2 text-start text-sm text-ink-soft">{review.comment}</p>
               </div>
-              <p className="mt-2 text-start text-sm text-ink-soft">{review.comment}</p>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
