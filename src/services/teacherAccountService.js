@@ -75,4 +75,22 @@ export const teacherAccountService = {
     const { data } = await client.delete(endpoints.teachers.video(videoId));
     return data.data;
   },
+
+  async addExperience(id, { title, period }) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return { id: Date.now(), title, period };
+    }
+    const { data } = await client.post(endpoints.teachers.experiences(id), { title, period });
+    return data.data;
+  },
+
+  async removeExperience(experienceId) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return true;
+    }
+    const { data } = await client.delete(endpoints.teachers.experience(experienceId));
+    return data.data;
+  },
 };

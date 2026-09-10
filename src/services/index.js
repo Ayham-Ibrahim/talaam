@@ -186,25 +186,22 @@ export const reviewService = {
   },
 
   /**
-   * No dedicated rating-summary endpoint exists — the distribution (%/star) isn't
-   * derivable from teacher.stats alone, so it's computed here from the same
-   * reviews-for-teacher page (capped at the latest 100). average/total prefer the
-   * DB-exact teacher.stats values when the caller has them; this is a fallback.
+   * Exact rating summary — average, total, and per-star distribution (%),
+   * computed server-side from ALL of the teacher's visible reviews
+   * (GET /teachers/{id}/rating-summary → ReviewController::ratingSummaryForTeacher).
+   * Recomputed on every rate/edit/hide via ReviewObserver.
    */
   async getRatingSummary(teacherId) {
     if (config.useMocks) {
       await mockDelay(250);
       return mockRatingSummary;
     }
-    const { data } = await client.get(endpoints.teachers.reviews(teacherId), { params: { per_page: 100 } });
-    const reviews = data.data;
-    const total = reviews.length;
-    const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-    reviews.forEach((r) => { counts[r.rating] = (counts[r.rating] ?? 0) + 1; });
-    const distribution = {};
-    [1, 2, 3, 4, 5].forEach((star) => { distribution[star] = total ? Math.round((counts[star] / total) * 100) : 0; });
-    const average = total ? reviews.reduce((sum, r) => sum + r.rating, 0) / total : 0;
-    return { average: Math.round(average * 10) / 10, total, distribution };
+    const { data } = await client.get(endpoints.teachers.ratingSummary(teacherId));
+    return {
+      average: data.data.average ?? 0,
+      total: data.data.total ?? 0,
+      distribution: data.data.distribution ?? { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+    };
   },
 
   /** تقييمات الطالب الحالي لنفسه — MyReviewResource (ReviewController::myReviews) */
@@ -767,6 +764,9 @@ function mapSessionListRow(session) {
     scheduledAt: session.scheduled_at,
     category,
     status,
+    // Backend's own status enum (unmapped) — needed where "was this really
+    // completed" matters, e.g. gating the student review action.
+    rawStatus: session.status,
     sessionType: SESSION_TYPE_LABELS[category],
     teacherName: sessionTeacherName(session),
     teacherAvatar: sessionTeacherAvatar(session),

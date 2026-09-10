@@ -41,6 +41,7 @@ export const endpoints = {
     packages: (id) => `/teachers/${id}/packages`,
     courses: (id) => `/teachers/${id}/courses`,
     reviews: (id) => `/teachers/${id}/reviews`,
+    ratingSummary: (id) => `/teachers/${id}/rating-summary`,
     availabilitySlots: (id) => `/teachers/${id}/availability-slots`,
     availabilitySlot: (id, slotId) => `/teachers/${id}/availability-slots/${slotId}`,
     uploadDocument: (id) => `/teachers/${id}/verification-documents`,
@@ -49,6 +50,8 @@ export const endpoints = {
     avatar: (id) => `/teachers/${id}/avatar`,
     videos: (id) => `/teachers/${id}/videos`,
     video: (id) => `/teacher-videos/${id}`,
+    experiences: (id) => `/teachers/${id}/experiences`,
+    experience: (id) => `/teacher-experiences/${id}`,
   },
   bookings: {
     list: '/bookings',

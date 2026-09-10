@@ -61,84 +61,108 @@ export function TeacherProfileHeader({ teacher, isFavorite, onToggleFavorite }) 
     ),
   ].filter(Boolean);
 
+  const photoSrc = teacher.avatar || "/teacher.webp";
+
+  const textContent = (
+    <>
+      {teacher.isVerified && (
+        <span className="inline-flex items-center gap-1 rounded-2xl bg-white px-2.5 py-1 text-xs font-semibold text-[#34C759]">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#34C759]">
+            <Check size={11} className="text-white" strokeWidth={3} />
+          </span>
+          {t("teacher.verified")}
+        </span>
+      )}
+
+      <h1 className="mt-2 text-[26px] font-bold leading-[1.35] text-white sm:text-[32px]">{teacher.name}</h1>
+      <p className="text-lg font-bold text-white sm:text-xl">{teacher.typeLabel}</p>
+
+      {infoBits.length > 0 && (
+        <div className="mt-2.5 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-base font-medium text-white">
+          {infoBits.map((bit, i) => (
+            <span key={i} className="flex items-center gap-4">
+              {i > 0 && <span className="h-3.5 w-px bg-white/70" />}
+              {bit}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {badges.length > 0 && (
+        <div className="mt-4 flex flex-wrap justify-end gap-4">
+          {badges.map((badge) => (
+            <span
+              key={badge.label}
+              className="inline-flex items-center gap-1 rounded-2xl bg-[#FAFAFA] p-2 text-xs font-medium text-[#1E1E1E]"
+            >
+              {badge.label}
+              <span className="text-sm leading-none">{badge.icon ?? "🏅"}</span>
+            </span>
+          ))}
+        </div>
+      )}
+    </>
+  );
+
   return (
     <div>
-      {/* ── Gradient hero ────────────────────────────────────────────── */}
+      {/* ── Gradient hero — Figma "Frame 8" (1360×285) ────────────────── */}
       <div
-        className="relative overflow-hidden rounded-[24px] shadow-[0px_1px_5px_rgba(0,0,0,0.1)]"
+        className="relative overflow-hidden rounded-[24px] shadow-[0px_1px_5px_rgba(0,0,0,0.1)] lg:min-h-[285px]"
         style={{ background: HERO_GRADIENT }}
       >
-        {/* Soft white glow */}
-        <div className="pointer-events-none absolute -left-20 top-4 h-[420px] w-[60%] rounded-full bg-white/40 blur-[160px]" />
-        {/* Rotated decorative shape behind the photo */}
+        {/* Ellipse 2 — soft white glow behind the text (left 140 / top 31 / 756×512 / blur 200) */}
+        <div className="pointer-events-none absolute left-[10%] top-[11%] h-[512px] w-[56%] rounded-full bg-white/50 blur-[200px]" />
+
+        {/* Rectangle 157948 — rotated shape behind the photo
+            (left 1026 / top 79 / 246×214 / rotate 13.44°) */}
         <div
-          className="pointer-events-none absolute -right-6 top-14 hidden h-[214px] w-[246px] rotate-[13deg] rounded-[32px] sm:block"
+          className="pointer-events-none absolute right-[6.5%] top-[27.7%] hidden aspect-[246/214] w-[18.1%] rotate-[13.44deg] rounded-[32px] lg:block"
           style={{ background: SHAPE_GRADIENT }}
         />
 
-        <div className="relative flex flex-col items-stretch sm:flex-row">
-          {/* Photo — first in DOM so it lands on the right in RTL */}
-          <div className="relative z-10 h-56 w-full shrink-0 self-end sm:h-[300px] sm:w-[300px] lg:h-[320px] lg:w-[360px]">
-            <img
-              src={teacher.avatar || "/teacher.webp"}
-              alt={teacher.name}
-              decoding="async"
-              className="h-full w-full object-cover object-top"
+        {/* image 10 — teacher photo (left 1017 / top 3 / 287×305, clipped by the card) */}
+        <div className="absolute right-[4.1%] top-0 hidden h-full w-[21.1%] lg:block">
+          <img
+            src={photoSrc}
+            alt={teacher.name}
+            decoding="async"
+            className="h-full w-full object-cover object-top"
+          />
+          {onToggleFavorite && (
+            <FavoriteButton
+              active={isFavorite}
+              onClick={onToggleFavorite}
+              className="absolute left-3 top-3 z-20"
             />
-            {onToggleFavorite && (
-              <FavoriteButton
-                active={isFavorite}
-                onClick={onToggleFavorite}
-                className="absolute left-3 top-3"
-              />
-            )}
-          </div>
+          )}
+        </div>
 
-          {/* Text column — right-aligned */}
-          <div className="relative z-10 flex flex-1 flex-col items-end px-6 py-7 text-end sm:px-10 sm:py-8">
-            {teacher.isVerified && (
-              <span className="inline-flex items-center gap-1 rounded-2xl bg-white px-2.5 py-1 text-xs font-semibold text-[#34C759]">
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#34C759]">
-                  <Check size={11} className="text-white" strokeWidth={3} />
-                </span>
-                {t("teacher.verified")}
-              </span>
-            )}
+        {/* Mobile / tablet: photo stacked on top */}
+        <div className="relative h-52 w-full overflow-hidden sm:h-64 lg:hidden">
+          <img
+            src={photoSrc}
+            alt={teacher.name}
+            decoding="async"
+            className="h-full w-full object-cover object-top"
+          />
+          {onToggleFavorite && (
+            <FavoriteButton
+              active={isFavorite}
+              onClick={onToggleFavorite}
+              className="absolute left-3 top-3 z-20"
+            />
+          )}
+        </div>
 
-            <h1 className="mt-2 text-[26px] font-bold leading-tight text-white sm:text-[32px]">
-              {teacher.name}
-            </h1>
-            <p className="mt-1 text-lg font-bold text-white sm:text-xl">{teacher.typeLabel}</p>
-
-            {infoBits.length > 0 && (
-              <div className="mt-4 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-base font-medium text-white">
-                {infoBits.map((bit, i) => (
-                  <span key={i} className="flex items-center gap-4">
-                    {i > 0 && <span className="h-3.5 w-px bg-white/60" />}
-                    {bit}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {badges.length > 0 && (
-              <div className="mt-4 flex flex-wrap justify-end gap-3">
-                {badges.map((badge) => (
-                  <span
-                    key={badge.label}
-                    className="inline-flex items-center gap-1.5 rounded-2xl bg-[#FAFAFA] px-2.5 py-2 text-xs font-medium text-[#1E1E1E]"
-                  >
-                    {badge.label}
-                    <span className="text-sm leading-none">{badge.icon ?? "🏅"}</span>
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
+        {/* Frame 17 — text block: normal flow on mobile, absolute bottom-right on desktop
+            (Figma: right 357 / bottom 20 / width 719) */}
+        <div className="relative z-10 flex flex-col items-end px-6 pb-7 pt-6 text-end sm:px-8 lg:absolute lg:inset-x-0 lg:bottom-5 lg:p-0 lg:pe-[26.25%] lg:ps-8">
+          {textContent}
         </div>
       </div>
 
-      {/* ── Stats card ──────────────────────────────────────────────── */}
+      {/* ── Stats card — Figma "Frame 38" (1360×96, #F9F9FE) ─────────── */}
       {stats.length > 0 && (
         <div className="mt-4 flex flex-wrap items-center justify-between gap-6 rounded-[24px] bg-[#F9F9FE] px-6 py-6 sm:px-10">
           {stats.map(({ icon: Icon, label, value }) => (

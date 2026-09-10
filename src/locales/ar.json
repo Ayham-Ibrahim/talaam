@@ -642,6 +642,15 @@
     "saving": "جارٍ الحفظ...",
     "save": "حفظ ومتابعة"
   },
+  "teacherSettings": {
+    "profileTitle": "الملف الشخصي",
+    "profileHint": "هذه البيانات تظهر للطلاب في صفحة ملفك العام",
+    "locationPlaceholder": "مثال: الأردن - عمّان - حي الطويل",
+    "addTagPlaceholder": "أضف عنصراً ثم اضغط Enter",
+    "expTitlePlaceholder": "المسمى — مثال: مدرس في مدارس خاصة",
+    "expPeriodPlaceholder": "الفترة — 2019 - 2022",
+    "addExperience": "إضافة"
+  },
   "studentSettings": {
     "basicInfoTitle": "البيانات الأساسية",
     "basicInfoHint": "الاسم، وسائل التواصل، والصورة الشخصية",

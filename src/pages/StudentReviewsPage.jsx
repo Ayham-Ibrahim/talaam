@@ -12,7 +12,7 @@ import { useT } from '@/hooks/useT';
 export function StudentReviewsPage() {
   const t = useT();
   const { user } = useAuth();
-  const { data: sessions, isLoading: sessionsLoading, isError: sessionsError, refetch: refetchSessions } = useSessions();
+  const { data: sessionsPage, isLoading: sessionsLoading, isError: sessionsError, refetch: refetchSessions } = useSessions({ per_page: 100 });
   const { data: reviews, isLoading: reviewsLoading, isError: reviewsError, refetch: refetchReviews } = useMyReviews();
   const createReview = useCreateReview();
   const updateReview = useUpdateReview();
@@ -21,8 +21,9 @@ export function StudentReviewsPage() {
 
   const reviewedSessionIds = useMemo(() => new Set((reviews ?? []).map((r) => r.classSessionId)), [reviews]);
   const reviewableSessions = useMemo(
-    () => (sessions ?? []).filter((s) => s.status === 'attended' && !reviewedSessionIds.has(s.id)),
-    [sessions, reviewedSessionIds]
+    // Backend allows a review only for a genuinely `completed` session (ReviewService::create)
+    () => (sessionsPage?.data ?? []).filter((s) => s.rawStatus === 'completed' && !reviewedSessionIds.has(s.id)),
+    [sessionsPage, reviewedSessionIds]
   );
 
   if (!user) return <Navigate to="/login" replace />;

@@ -60,13 +60,6 @@ export function TeacherProfilePage() {
   const selectedPackage = packages?.find((p) => p.id === selectedPackageId) ?? null;
   const selectedCourse = courses?.find((c) => c.id === selectedCourseId) ?? null;
 
-  // "نوع الجلسة" isn't a teacher field — it's whatever formats his bookable packages
-  // offer. Individual first (the design's accent chip), then group.
-  const packageFormats = new Set((packages ?? []).map((p) => p.sessionFormat).filter(Boolean));
-  const sessionTypes = ['individual', 'group']
-    .filter((f) => packageFormats.has(f))
-    .map((f) => t(`teacher.sessionFormatShort.${f}`));
-
   if (teacherLoading) {
     return (
       <PageContainer>
@@ -109,7 +102,7 @@ export function TeacherProfilePage() {
 
         <TeacherCredentialsSection teacher={teacher} />
 
-        <TeacherTeachingScopeSection teacher={teacher} sessionTypes={sessionTypes} />
+        <TeacherTeachingScopeSection teacher={teacher} />
 
         <VideosSection title={t('teacher.videos')} videos={teacher.videos} />
 

@@ -4,6 +4,7 @@ import { CalendarCheck, Globe, Video } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { TimezoneField } from '@/components/dashboard/TimezoneField';
 import { TeacherVideosEditor } from '@/components/teacher/TeacherVideosEditor';
+import { TeacherProfileEditorCard } from '@/components/teacher/TeacherProfileEditorCard';
 import { ApiErrorList, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useUpdateProfile } from '@/hooks/useProfile';
@@ -81,6 +82,14 @@ export function TeacherSettingsPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-6">
+        {teacherId && teacher && (
+          <TeacherProfileEditorCard
+            teacherId={teacherId}
+            teacher={teacher}
+            isTrainingCenter={isTrainingCenter}
+          />
+        )}
+
         {/* مخفي بطلب صريح — المنطقة الزمنية تبقى تلقائية دوماً (اكتشاف صامت من App.jsx عبر
             useSyncTimezone) بلا خيار تثبيت يدوي ظاهر للمعلم. الكتلة كاملة (الحالة والدالة أعلاه
             ما زالت موجودة بلا تغيير) أُبقيت هنا كتعليق لإعادة التفعيل لاحقاً بسهولة. */}

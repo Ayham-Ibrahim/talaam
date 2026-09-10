@@ -471,6 +471,15 @@
     "emptyHint": "Start adding teachers and courses for quick access",
     "exploreTeachers": "Explore Teachers"
   },
+  "teacherSettings": {
+    "profileTitle": "Public profile",
+    "profileHint": "This information is shown to students on your public profile page",
+    "locationPlaceholder": "e.g. Jordan - Amman - Al Taweel",
+    "addTagPlaceholder": "Type an item, then press Enter",
+    "expTitlePlaceholder": "Title — e.g. Teacher at private schools",
+    "expPeriodPlaceholder": "Period — 2019 - 2022",
+    "addExperience": "Add"
+  },
   "studentSettings": {
     "basicInfoTitle": "Basic Info",
     "basicInfoHint": "Name, contact info, and profile photo",
