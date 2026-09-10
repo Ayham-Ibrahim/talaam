@@ -10,9 +10,9 @@ export function InfoSection({ title, items = [], colorfulDots = false }) {
   if (!items.length) return null;
 
   return (
-    <div className="mt-6 rounded-2xl bg-white p-5 shadow-card">
-      <h3 className="mb-3 text-start font-bold text-ink">{title}</h3>
-      <div className="flex flex-wrap justify-start gap-2">
+    <div className="mt-6 rounded-2xl bg-white p-5 text-start shadow-card sm:flex sm:items-start sm:gap-6">
+      <h3 className="mb-3 font-bold text-ink sm:mb-0 sm:w-52 sm:shrink-0 sm:pt-1.5">{title}</h3>
+      <div className="flex flex-1 flex-wrap justify-start gap-2">
         {items.map((item, i) => {
           const isObject = typeof item === "object" && item !== null;
           const label = isObject ? item.label : item;

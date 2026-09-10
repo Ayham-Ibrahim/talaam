@@ -1,120 +1,159 @@
-import { useState } from "react";
-import { Check, Play, Star } from "lucide-react";
+import { BookText, CalendarDays, Check, GraduationCap, Layers, MapPin, Star } from "lucide-react";
 import { FavoriteButton } from "@/components/ui";
-import { YoutubeModal } from "@/components/common/YoutubeModal";
 import { useT } from "@/hooks/useT";
 
-const BADGE_ICONS = {
-  0: "🎓", // مؤهلات مراجعة
-  1: "🛡️", // فحص أمني
-  2: "🥇", // معلم مميز
-  3: "🏅", // مركز معتمد
-};
+const fmt = (n) => (n == null ? null : Number(n).toLocaleString("en-US"));
+const HERO_GRADIENT = "linear-gradient(89.95deg, #9E074A 3.11%, #243757 98.69%)";
+const SHAPE_GRADIENT = "linear-gradient(180deg, #C962B3 0%, #8C74C5 100%)";
 
 export function TeacherProfileHeader({ teacher, isFavorite, onToggleFavorite }) {
   const t = useT();
-  const [showIntroVideo, setShowIntroVideo] = useState(false);
+
+  const badges = (teacher.badges ?? [])
+    .map((b) => (typeof b === "string" ? { label: b, icon: "🏅" } : b))
+    .slice(0, 4);
+
+  const teachingType = teacher.teachingMethods?.slice(0, 2).join(" / ") || teacher.typeLabel;
+
+  const stats = [
+    teacher.completedSessions > 0 && {
+      icon: Layers,
+      label: t("teacher.stats.completedSessions"),
+      value: `+${fmt(teacher.completedSessions)}`,
+    },
+    (teacher.experienceShort || teacher.experienceLabel) && {
+      icon: CalendarDays,
+      label: t("teacher.stats.experience"),
+      value: teacher.experienceShort || teacher.experienceLabel,
+    },
+    teachingType && {
+      icon: BookText,
+      label: t("teacher.stats.teachingType"),
+      value: teachingType,
+    },
+    teacher.satisfactionRate != null && {
+      icon: GraduationCap,
+      label: t("teacher.stats.retention"),
+      value: `${teacher.satisfactionRate}%`,
+    },
+  ].filter(Boolean);
+
+  const infoBits = [
+    teacher.reviewsCount > 0 && (
+      <span key="rating" className="inline-flex items-center gap-1.5">
+        <Star size={20} className="fill-[#FF8D28] text-[#FF8D28]" />
+        <span>
+          {String(teacher.rating).replace(".", ",")} ({fmt(teacher.reviewsCount)} {t("teacher.reviews")})
+        </span>
+      </span>
+    ),
+    teacher.experienceLabel && (
+      <span key="exp" className="inline-flex items-center gap-1.5">
+        <CalendarDays size={20} className="shrink-0" />
+        {teacher.experienceLabel}
+      </span>
+    ),
+    teacher.city && (
+      <span key="loc" className="inline-flex items-center gap-1.5">
+        <MapPin size={20} className="shrink-0" />
+        {teacher.city}
+      </span>
+    ),
+  ].filter(Boolean);
 
   return (
-    <div className="relative overflow-hidden rounded-card bg-[linear-gradient(89.95deg,#4B6898_3.11%,#243757_98.69%)] shadow-soft">
-      {/* Soft glow behind the text */}
-      <div className="pointer-events-none absolute -left-10 top-6 h-64 w-[50%] max-w-md rounded-full bg-white/60 blur-[150px]" />
+    <div>
+      {/* ── Gradient hero ────────────────────────────────────────────── */}
+      <div
+        className="relative overflow-hidden rounded-[24px] shadow-[0px_1px_5px_rgba(0,0,0,0.1)]"
+        style={{ background: HERO_GRADIENT }}
+      >
+        {/* Soft white glow */}
+        <div className="pointer-events-none absolute -left-20 top-4 h-[420px] w-[60%] rounded-full bg-white/40 blur-[160px]" />
+        {/* Rotated decorative shape behind the photo */}
+        <div
+          className="pointer-events-none absolute -right-6 top-14 hidden h-[214px] w-[246px] rotate-[13deg] rounded-[32px] sm:block"
+          style={{ background: SHAPE_GRADIENT }}
+        />
 
-      <div className="relative flex flex-col items-stretch sm:flex-row">
-        {/* Photo — first in DOM so it renders on the right in RTL, matching the design */}
-        <div className="relative h-48 w-full shrink-0 sm:h-72 sm:w-[300px] lg:h-80 lg:w-[360px]">
-          {teacher.avatar ? (
+        <div className="relative flex flex-col items-stretch sm:flex-row">
+          {/* Photo — first in DOM so it lands on the right in RTL */}
+          <div className="relative z-10 h-56 w-full shrink-0 self-end sm:h-[300px] sm:w-[300px] lg:h-[320px] lg:w-[360px]">
             <img
-              src={teacher.avatar}
-              alt={teacher.name}
-              className="h-full w-full object-contain object-top"
-            />
-          ) : (
-            <img
-              src="/teacher.webp"
+              src={teacher.avatar || "/teacher.webp"}
               alt={teacher.name}
               decoding="async"
               className="h-full w-full object-cover object-top"
             />
-          )}
-          {onToggleFavorite && (
-            <FavoriteButton active={isFavorite} onClick={onToggleFavorite} className="absolute left-3 top-3" />
-          )}
-          {teacher.introYoutubeId && (
-            <button
-              type="button"
-              onClick={() => setShowIntroVideo(true)}
-              className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-pill bg-black/40 py-1  px-2.5 backdrop-blur-sm transition-colors hover:bg-black/55"
-              aria-label={t("teacher.intro")}
-            >
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white">
-                <Play size={12} className="fill-primary text-primary" />
-              </span>
-              <div className="text-[11px] flex flex-col items-start  font-medium text-white">
-                <span>{t("teacher.intro")} </span>
-                <span>
-                  {" "}
-                  {teacher.introVideoDuration &&
-                    `· ${teacher.introVideoDuration}`}
-                </span>
-              </div>
-            </button>
-          )}
-        </div>
-
-        {showIntroVideo && (
-          <YoutubeModal youtubeId={teacher.introYoutubeId} onClose={() => setShowIntroVideo(false)} />
-        )}
-
-        {/* Text column */}
-        <div className="flex-1 px-6 py-8 text-start sm:px-10 sm:py-10">
-          {teacher.isVerified && (
-            <span className="inline-flex items-center gap-1 rounded-pill bg-white px-2 py-1 text-xs font-semibold text-[#34C759]">
-              {t("teacher.verified")}
-              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#34C759]">
-                <Check size={11} className="text-white" strokeWidth={3} />
-              </span>
-            </span>
-          )}
-
-          <h1 className="mt-2 text-2xl font-bold text-[#1E1E1E] sm:text-3xl">
-            {teacher.name}
-          </h1>
-          <p className="mt-0.5 font-bold text-[#B00852]">{teacher.typeLabel}</p>
-
-          <div className="mt-3 flex flex-wrap items-center justify-start gap-4">
-            <span className="inline-flex items-center gap-1 text-sm font-medium text-white">
-              <Star size={16} className="fill-star text-star" />
-              {teacher.rating} ({teacher.reviewsCount}
-              {t("teacher.reviews")})
-            </span>
-            {teacher.experienceLabel && (
-              <>
-                <span className="h-3.5 w-px bg-white/60" />
-                <span className="text-sm font-medium text-white">{teacher.experienceLabel}</span>
-              </>
+            {onToggleFavorite && (
+              <FavoriteButton
+                active={isFavorite}
+                onClick={onToggleFavorite}
+                className="absolute left-3 top-3"
+              />
             )}
           </div>
 
-          <div className="mt-3 flex flex-wrap justify-start gap-2">
-            {teacher.badges?.slice(0, 4).map((badge, i) => (
-              <span
-                key={badge}
-                className="inline-flex items-center gap-1.5 rounded-pill bg-[#FAFAFA] px-2.5 py-2 text-xs font-medium text-[#1E1E1E]"
-              >
-                {badge}
-                <span className="text-sm leading-none">
-                  {BADGE_ICONS[i] ?? "🏅"}
+          {/* Text column — right-aligned */}
+          <div className="relative z-10 flex flex-1 flex-col items-end px-6 py-7 text-end sm:px-10 sm:py-8">
+            {teacher.isVerified && (
+              <span className="inline-flex items-center gap-1 rounded-2xl bg-white px-2.5 py-1 text-xs font-semibold text-[#34C759]">
+                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#34C759]">
+                  <Check size={11} className="text-white" strokeWidth={3} />
                 </span>
+                {t("teacher.verified")}
               </span>
-            ))}
-          </div>
+            )}
 
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-white">
-            {teacher.bio}
-          </p>
+            <h1 className="mt-2 text-[26px] font-bold leading-tight text-white sm:text-[32px]">
+              {teacher.name}
+            </h1>
+            <p className="mt-1 text-lg font-bold text-white sm:text-xl">{teacher.typeLabel}</p>
+
+            {infoBits.length > 0 && (
+              <div className="mt-4 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-base font-medium text-white">
+                {infoBits.map((bit, i) => (
+                  <span key={i} className="flex items-center gap-4">
+                    {i > 0 && <span className="h-3.5 w-px bg-white/60" />}
+                    {bit}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {badges.length > 0 && (
+              <div className="mt-4 flex flex-wrap justify-end gap-3">
+                {badges.map((badge) => (
+                  <span
+                    key={badge.label}
+                    className="inline-flex items-center gap-1.5 rounded-2xl bg-[#FAFAFA] px-2.5 py-2 text-xs font-medium text-[#1E1E1E]"
+                  >
+                    {badge.label}
+                    <span className="text-sm leading-none">{badge.icon ?? "🏅"}</span>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* ── Stats card ──────────────────────────────────────────────── */}
+      {stats.length > 0 && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-6 rounded-[24px] bg-[#F9F9FE] px-6 py-6 sm:px-10">
+          {stats.map(({ icon: Icon, label, value }) => (
+            <div key={label} className="flex flex-1 items-center justify-end gap-4">
+              <div className="flex flex-col items-end text-end">
+                <span className="text-base font-medium text-[#1E1E1E] sm:text-lg">{label}</span>
+                <span className="text-lg font-bold text-[#1E1E1E] sm:text-xl">{value}</span>
+              </div>
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#EDF0F5]">
+                <Icon size={28} strokeWidth={1.6} className="text-[#4B6898]" />
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

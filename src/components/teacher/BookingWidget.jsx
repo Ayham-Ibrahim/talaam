@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { AlertTriangle, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock, Pencil, Trash2 } from 'lucide-react';
+import { AlertTriangle, CalendarDays, CheckCircle2, Clock, Pencil, Trash2 } from 'lucide-react';
 import { Button, ApiErrorList } from '@/components/ui';
+import { AvailabilityCalendar } from '@/components/teacher/AvailabilityCalendar';
 import { useAuth } from '@/hooks/useAuth';
 import { useRequestIndividualBooking, useCreateGroupBooking, usePackageBusySlots, usePackageBusySlotsForDates } from '@/hooks/useBooking';
 import { useCalendarSessions } from '@/hooks/useDashboard';
@@ -22,27 +23,11 @@ function startOfDay(date) {
   return d;
 }
 
-function formatHHmm(date) {
-  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-}
-
 function toISODate(date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
-}
-
-function buildMonthGrid(viewDate) {
-  const year = viewDate.getFullYear();
-  const month = viewDate.getMonth();
-  const firstDay = new Date(year, month, 1);
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const cells = Array.from({ length: firstDay.getDay() }, () => null);
-  for (let day = 1; day <= daysInMonth; day++) {
-    cells.push(new Date(year, month, day));
-  }
-  return cells;
 }
 
 /**
@@ -52,13 +37,12 @@ function buildMonthGrid(viewDate) {
  *   تلقائياً على الجميع)، ويقدّم طلب حجز واحد يحمل كل هذه المواعيد معاً. لا دفع
  *   الآن — بانتظار موافقة المعلم، وبعدها يظهر زر "أكمل الدفع" في لوحة الطالب.
  */
-export function BookingWidget({ selectedPackage }) {
+export function BookingWidget({ selectedPackage, stacked = false }) {
   const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
   const currency = useCurrencyStore((s) => s.currency);
-  const weekdays = t('booking.weekdays');
   const today = useMemo(() => startOfDay(new Date()), []);
 
   const isGroup = selectedPackage?.sessionFormat === 'group';
@@ -120,6 +104,23 @@ export function BookingWidget({ selectedPackage }) {
     return findOwnConflict(myUpcomingSessions, start, end);
   }, [selectedDate, selectedTime, myUpcomingSessions, durationMinutes]);
 
+  // Per-slot status for the availability grid — mirrors the two conflict memos
+  // above but evaluated for an arbitrary "HH:mm" against the selected date.
+  const slotStatus = useCallback(
+    (time) => {
+      if (!selectedDate) return 'available';
+      const [h, m] = time.split(':').map(Number);
+      const start = new Date(selectedDate);
+      start.setHours(h, m, 0, 0);
+      if (start.getTime() <= Date.now()) return 'past';
+      const end = new Date(start.getTime() + durationMinutes * 60000);
+      if (busySlots?.some((slot) => rangesOverlap(start, end, slot.start, slot.end))) return 'busy';
+      if (findOwnConflict(myUpcomingSessions, start, end)) return 'own';
+      return 'available';
+    },
+    [selectedDate, durationMinutes, busySlots, myUpcomingSessions],
+  );
+
   // Group packages have no per-date picker (the teacher's fixed dates are
   // already set) — every one of them needs checking up front, both against
   // the teacher's busy times and the student's own existing sessions, before
@@ -149,9 +150,6 @@ export function BookingWidget({ selectedPackage }) {
     }
     return null;
   }, [isGroup, schedules, groupBusyByDate, myUpcomingSessions, durationMinutes]);
-
-  const monthLabel = new Intl.DateTimeFormat('ar', { month: 'long', year: 'numeric' }).format(viewDate);
-  const cells = useMemo(() => buildMonthGrid(viewDate), [viewDate]);
 
   const isEditingSlot = activeIndex < sessionsCount;
   const filledCount = slots.filter(Boolean).length;
@@ -226,7 +224,13 @@ export function BookingWidget({ selectedPackage }) {
   };
 
   return (
-    <div className="flex h-fit flex-col gap-5 rounded-card bg-white p-5 shadow-card lg:sticky lg:top-24">
+    <div
+      className={
+        stacked
+          ? 'mt-8 flex flex-col gap-5 rounded-card bg-white p-5 shadow-card sm:p-6 [&>*]:mx-auto [&>*]:w-full [&>*]:max-w-2xl'
+          : 'flex h-fit flex-col gap-5 rounded-card bg-white p-5 shadow-card lg:sticky lg:top-24'
+      }
+    >
       <h2 className="text-start font-bold text-ink">{t('booking.title')}</h2>
 
       {/* Selected package */}
@@ -334,111 +338,30 @@ export function BookingWidget({ selectedPackage }) {
 
           {isEditingSlot && (
             <>
-              <div>
-                <h3 className="mb-2 flex items-center justify-between text-start text-sm font-bold text-ink">
-                  <span>{t('booking.availableDaysTitle')}</span>
-                  {sessionsCount > 1 && (
-                    <span className="text-xs font-medium text-primary">
-                      {t('booking.sessionLabel')} {activeIndex + 1} {t('booking.ofLabel')} {sessionsCount}
-                    </span>
-                  )}
-                </h3>
-                {allowedDays.length === 0 ? (
-                  <p className="py-2 text-center text-sm text-ink-soft">{t('booking.noSlotsAvailable')}</p>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {allowedDays.map((d) => (
-                      <span key={d} className="rounded-pill bg-primary-light px-3 py-1 text-xs font-bold text-primary">
-                        {weekdays[d]}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {allowedDays.length > 0 && (
-                <div>
-                  <h3 className="mb-2 text-start text-sm font-bold text-ink">{t('booking.chooseDate')}</h3>
-                  <div className="flex items-center justify-between">
-                    <button type="button" onClick={handleNextMonth} aria-label={t('booking.nextMonth')} className="rounded-full p-1.5 hover:bg-line/50">
-                      <ChevronLeft size={16} className="text-ink-soft" />
-                    </button>
-                    <span className="text-sm font-bold text-ink">{monthLabel}</span>
-                    <button type="button" onClick={handlePrevMonth} aria-label={t('booking.prevMonth')} className="rounded-full p-1.5 hover:bg-line/50">
-                      <ChevronRight size={16} className="text-ink-soft" />
-                    </button>
-                  </div>
-
-                  <div className="mt-3 grid grid-cols-7 gap-1 text-center text-xs text-ink-soft">
-                    {weekdays.map((d) => (
-                      <span key={d}>{d}</span>
-                    ))}
-                  </div>
-                  <div className="mt-1 grid grid-cols-7 gap-1">
-                    {cells.map((date, i) => {
-                      if (!date) return <span key={i} />;
-                      const isPast = date < today;
-                      const matchesAllowedDay = allowedDays.includes(date.getDay());
-                      const isDisabled = isPast || !matchesAllowedDay;
-                      const isSelected = selectedDate && toISODate(date) === toISODate(selectedDate);
-                      return (
-                        <button
-                          key={i}
-                          type="button"
-                          disabled={isDisabled}
-                          onClick={() => handleSelectDate(date)}
-                          className={`mx-auto flex h-9 w-9 items-center justify-center rounded-full text-sm transition-colors ${
-                            isSelected
-                              ? 'bg-primary font-bold text-white'
-                              : isDisabled
-                                ? 'cursor-not-allowed text-line'
-                                : 'text-ink hover:bg-line/50'
-                          }`}
-                        >
-                          {date.getDate()}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+              {sessionsCount > 1 && (
+                <p className="text-start text-xs font-medium text-primary">
+                  {t('booking.sessionLabel')} {activeIndex + 1} {t('booking.ofLabel')} {sessionsCount}
+                </p>
               )}
 
-              {selectedDate && (
-                <div className="flex flex-col items-start gap-1.5">
-                  <label className="text-sm font-semibold text-primary">{t('booking.chooseTime')}</label>
-                  <input
-                    type="time"
-                    value={selectedTime}
-                    onChange={(e) => setSelectedTime(e.target.value)}
-                    aria-invalid={!!(selectedTimeConflict || ownTimeConflict)}
-                    className={`w-full rounded-lg border px-3 py-3 text-sm text-ink focus:outline-none ${
-                      selectedTimeConflict || ownTimeConflict ? 'border-[#FF383C] focus:border-[#FF383C]' : 'border-[#E3E3E3] focus:border-primary'
-                    }`}
-                  />
-
-                  {busySlots?.length > 0 && (
-                    <p className="text-xs text-ink-soft">
-                      {t('booking.unavailableTimesLabel')}{' '}
-                      {busySlots
-                        .map((slot) => `${formatHHmm(slot.start)}–${formatHHmm(slot.end)}`)
-                        .join('، ')}
-                    </p>
-                  )}
-
-                  {selectedTimeConflict && (
-                    <p className="flex items-center gap-1.5 text-xs font-semibold text-[#FF383C]">
-                      <AlertTriangle size={13} />
-                      {t('booking.timeUnavailable')}
-                    </p>
-                  )}
-
-                  {!selectedTimeConflict && ownTimeConflict && (
-                    <p className="flex items-center gap-1.5 text-xs font-semibold text-[#FF383C]">
-                      <AlertTriangle size={13} />
-                      {t('booking.ownTimeConflict')}
-                    </p>
-                  )}
-                </div>
+              {allowedDays.length === 0 ? (
+                <p className="py-2 text-center text-sm text-ink-soft">{t('booking.noSlotsAvailable')}</p>
+              ) : (
+                <AvailabilityCalendar
+                  allowedDays={allowedDays}
+                  viewDate={viewDate}
+                  onPrevMonth={handlePrevMonth}
+                  onNextMonth={handleNextMonth}
+                  today={today}
+                  selectedDate={selectedDate}
+                  onSelectDate={(date) => {
+                    handleSelectDate(date);
+                    setSelectedTime('');
+                  }}
+                  selectedTime={selectedTime}
+                  onSelectTime={setSelectedTime}
+                  slotStatus={slotStatus}
+                />
               )}
 
               {selectedDate && selectedTime && (

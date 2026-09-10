@@ -30,7 +30,7 @@ function FactRow({ active, icon: Icon, label }) {
  * package — the student never picks a date/time, only reviews the center's own
  * structured facts (certificate/materials/etc.) and confirms.
  */
-export function CourseEnrollWidget({ selectedCourse }) {
+export function CourseEnrollWidget({ selectedCourse, stacked = false }) {
   const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
@@ -72,7 +72,13 @@ export function CourseEnrollWidget({ selectedCourse }) {
   };
 
   return (
-    <div className="flex h-fit flex-col gap-5 rounded-card bg-white p-5 shadow-card lg:sticky lg:top-24">
+    <div
+      className={
+        stacked
+          ? 'mt-8 flex flex-col gap-5 rounded-card bg-white p-5 shadow-card sm:p-6 [&>*]:mx-auto [&>*]:w-full [&>*]:max-w-2xl'
+          : 'flex h-fit flex-col gap-5 rounded-card bg-white p-5 shadow-card lg:sticky lg:top-24'
+      }
+    >
       <h2 className="text-start font-bold text-ink">{t('teacher.course.enrollTitle')}</h2>
 
       <div>

@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { TeacherProfileHeader } from '@/components/teacher/TeacherProfileHeader';
-import { InfoSection, VideosSection } from '@/components/teacher/TeacherInfoSections';
+import { TeacherAboutSection } from '@/components/teacher/TeacherAboutSection';
+import { TeacherCredentialsSection } from '@/components/teacher/TeacherCredentialsSection';
+import { TeacherTeachingScopeSection } from '@/components/teacher/TeacherTeachingScopeSection';
+import { VideosSection } from '@/components/teacher/TeacherInfoSections';
 import { PackagesSection } from '@/components/teacher/PackagesSection';
 import { CoursesSection } from '@/components/teacher/CoursesSection';
 import { RatingReviews } from '@/components/teacher/RatingReviews';
@@ -15,7 +18,6 @@ import { useTeacher } from '@/hooks/useTeachers';
 import { usePackages, useCourses, useRatingSummary, useReviews } from '@/hooks/useMeta';
 import { useT } from '@/hooks/useT';
 
-const LANGUAGE_FLAGS = { ar: '/ar.png', en: '/en.png' };
 
 export function TeacherProfilePage() {
   const t = useT();
@@ -58,6 +60,13 @@ export function TeacherProfilePage() {
   const selectedPackage = packages?.find((p) => p.id === selectedPackageId) ?? null;
   const selectedCourse = courses?.find((c) => c.id === selectedCourseId) ?? null;
 
+  // "نوع الجلسة" isn't a teacher field — it's whatever formats his bookable packages
+  // offer. Individual first (the design's accent chip), then group.
+  const packageFormats = new Set((packages ?? []).map((p) => p.sessionFormat).filter(Boolean));
+  const sessionTypes = ['individual', 'group']
+    .filter((f) => packageFormats.has(f))
+    .map((f) => t(`teacher.sessionFormatShort.${f}`));
+
   if (teacherLoading) {
     return (
       <PageContainer>
@@ -90,28 +99,22 @@ export function TeacherProfilePage() {
         </Link>
       </div>
 
-      <div className="container-app mt-4 grid grid-cols-1 gap-6 pb-16 lg:grid-cols-[1fr_400px]">
-        {/* Main content */}
-        <div>
-          <TeacherProfileHeader teacher={teacher} isFavorite={isFavorite} onToggleFavorite={handleToggleFavorite} />
+      {/* Full-width stacked layout — heading, then every section below it at
+          full container width; the booking/enrollment panel sits inline after
+          the packages instead of as a side rail. */}
+      <div className="container-app mt-4 pb-16">
+        <TeacherProfileHeader teacher={teacher} isFavorite={isFavorite} onToggleFavorite={handleToggleFavorite} />
 
-          <InfoSection title={t('teacher.qualifications')} items={teacher.qualifications} />
-          <InfoSection title={t('teacher.subjects')} items={teacher.subjects} colorfulDots />
-          <InfoSection title={t('teacher.stages')} items={teacher.stages} />
-          <InfoSection title={t('teacher.grades')} items={teacher.grades.map((g) => `${t('teacher.gradePrefix')} ${g}`)} />
-          <InfoSection
-            title={t('teacher.languages')}
-            items={teacher.languages.map((l) => ({
-              label: l.label,
-              flag: LANGUAGE_FLAGS[l.code] && (
-                <img src={LANGUAGE_FLAGS[l.code]} alt={l.label} className="h-4 w-4 rounded-full object-cover" />
-              ),
-            }))}
-          />
-          <InfoSection title={t('teacher.teachingMethods')} items={teacher.teachingMethods} />
-          <VideosSection title={t('teacher.videos')} videos={teacher.videos} />
+        <TeacherAboutSection teacher={teacher} />
 
-          {isCenter ? (
+        <TeacherCredentialsSection teacher={teacher} />
+
+        <TeacherTeachingScopeSection teacher={teacher} sessionTypes={sessionTypes} />
+
+        <VideosSection title={t('teacher.videos')} videos={teacher.videos} />
+
+        {isCenter ? (
+          <>
             <CoursesSection
               courses={courses ?? []}
               isLoading={coursesLoading}
@@ -120,7 +123,10 @@ export function TeacherProfilePage() {
               selectedCourseId={selectedCourseId}
               onSelect={(course) => setSelectedCourseId(course.id)}
             />
-          ) : (
+            <CourseEnrollWidget selectedCourse={selectedCourse} stacked />
+          </>
+        ) : (
+          <>
             <PackagesSection
               packages={packages ?? []}
               isLoading={packagesLoading}
@@ -129,19 +135,17 @@ export function TeacherProfilePage() {
               selectedPackageId={selectedPackageId}
               onSelect={(pkg) => setSelectedPackageId(pkg.id)}
             />
-          )}
+            <BookingWidget selectedPackage={selectedPackage} stacked />
+          </>
+        )}
 
-          <RatingReviews
-            summary={ratingSummary}
-            reviews={reviews ?? []}
-            isLoading={reviewsLoading || summaryLoading}
-            isError={reviewsError}
-            refetch={refetchReviews}
-          />
-        </div>
-
-        {/* Booking / enrollment widget */}
-        {isCenter ? <CourseEnrollWidget selectedCourse={selectedCourse} /> : <BookingWidget selectedPackage={selectedPackage} />}
+        <RatingReviews
+          summary={ratingSummary}
+          reviews={reviews ?? []}
+          isLoading={reviewsLoading || summaryLoading}
+          isError={reviewsError}
+          refetch={refetchReviews}
+        />
       </div>
     </PageContainer>
   );

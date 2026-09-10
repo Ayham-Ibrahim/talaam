@@ -1,190 +1,260 @@
-import { BookOpen, CalendarDays, Layers, Medal, Users } from 'lucide-react';
+import { useState } from 'react';
+import { CalendarDays, Check, Clock, Layers, X } from 'lucide-react';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useT } from '@/hooks/useT';
 import { useCurrencyStore } from '@/store';
-import { formatPrice } from '@/lib/currency';
+import { convertPrice } from '@/lib/currency';
 import { formatDate, isPastDate, lastScheduleDate } from '@/lib/formatters';
 
-// Rotating per-card accent (icon badge + price + outline button) drawn from the app's identity palette
-const PACKAGE_ACCENTS = [
-  { bg: '#FDEAE3', solid: '#F74E28' }, // orange
-  { bg: '#EBE5FC', solid: '#7E57C2' }, // purple
-  { bg: '#E3F1FD', solid: '#2F80ED' }, // blue
-  { bg: '#F7E6EE', solid: '#B00852' }, // pink/red
-  { bg: '#E3F5EC', solid: '#2E9E6B' }, // green
-];
+const CURRENCY_SYMBOL = { USD: '$', EUR: '€', GBP: '£' };
+
+/** "50 $" — number then symbol, matching the design */
+function priceLabel(amountUSD, code) {
+  const value = convertPrice(amountUSD ?? 0, code).toLocaleString('en-US');
+  return `${value} ${CURRENCY_SYMBOL[code] ?? code}`;
+}
 
 /**
  * Group packages have no recurring weekly pattern — the teacher picks an
- * explicit calendar date per session (GroupSessionDatesPicker), so
- * `schedules` is a flat list of {date, start_time} sorted ascending. Shows
- * the session count + the date range so the student can see at a glance
- * when the cohort runs, e.g. "8 جلسات: 9 يوليو — 27 أغسطس".
+ * explicit calendar date per session, so `schedules` is a flat list of
+ * {date, start_time} sorted ascending.
  */
-function scheduleSummary(schedules, sessionsCount) {
-  if (!schedules?.length) return null;
-  const dates = [...schedules].map((s) => s.date).filter(Boolean).sort();
-  if (!dates.length) return null;
-  const first = formatDate(dates[0]);
-  const last = formatDate(dates[dates.length - 1]);
-  return dates.length > 1 ? `${sessionsCount ?? dates.length} جلسات: ${first} — ${last}` : first;
+function scheduleDates(schedules) {
+  return [...(schedules ?? [])].map((s) => s.date).filter(Boolean).sort();
 }
 
-function PackageCard({ pkg, index, selected, onSelect }) {
-  const t = useT();
-  const currency = useCurrencyStore((s) => s.currency);
-  const accent = PACKAGE_ACCENTS[index % PACKAGE_ACCENTS.length];
-  const hasDiscount = !!pkg.discountPercent;
-  const originalPrice = hasDiscount ? Math.round(pkg.price / (1 - pkg.discountPercent / 100)) : null;
-  const isGroup = pkg.sessionFormat === 'group';
-  const schedule = isGroup ? scheduleSummary(pkg.schedules, pkg.sessionsCount) : null;
-  // Only group packages have real dated sessions before anyone books —
-  // individual packages are scheduled on demand at booking time, so "ended"
-  // has no meaning for them.
-  const isEnded = isGroup && isPastDate(lastScheduleDate(pkg.schedules));
-  const stages = pkg.stages ?? [];
-  const grades = pkg.grades ?? [];
+/* ─────────────────────────── Details modal ─────────────────────────── */
 
+function DetailRow({ icon: Icon, children }) {
   return (
-    <div
-      style={{ '--accent': accent.solid, '--accent-bg': accent.bg }}
-      className={`group flex flex-col gap-3 rounded-2xl border p-4 transition-all duration-200 ${
-        isEnded
-          ? 'opacity-60 border-line bg-canvas'
-          : `hover:-translate-y-0.5 hover:shadow-lift ${
-              selected ? 'border-[var(--accent)] bg-[var(--accent-bg)]/40' : 'border-line bg-white hover:border-[var(--accent)]'
-            }`
-      }`}
-    >
-      <div className="flex items-start justify-between">
-        <div
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--accent-bg)] transition-transform duration-200 group-hover:scale-110"
-        >
-          <Medal size={22} className="text-[var(--accent)]" />
-        </div>
-        {isEnded ? (
-          <span className="rounded-pill bg-ink-soft/10 px-2 py-1 text-xs font-bold text-ink-soft">
-            {t('teacher.packageEnded')}
-          </span>
-        ) : (
-          hasDiscount && (
-            <span className="rounded-pill bg-[#FEEDEA] px-2 py-1 text-xs font-bold text-[#F74E28]">
-              {t('teacher.discount')} {pkg.discountPercent}%
-            </span>
-          )
-        )}
-      </div>
-
-      <div className="text-start">
-        <h4 className="font-bold text-ink">{pkg.title}</h4>
-        {pkg.description && <p className="mt-0.5 line-clamp-2 text-xs text-ink-soft">{pkg.description}</p>}
-      </div>
-
-      {/* Subject + format pills */}
-      <div className="flex flex-wrap items-center justify-end gap-1.5">
-        {pkg.subject && (
-          <span className="rounded-pill bg-canvas px-2.5 py-1 text-[11px] font-semibold text-ink-soft">{pkg.subject}</span>
-        )}
-        <span className="inline-flex items-center gap-1 rounded-pill bg-[var(--accent-bg)] px-2.5 py-1 text-[11px] font-semibold text-[var(--accent)]">
-          {isGroup ? <Users size={11} /> : <BookOpen size={11} />}
-          {isGroup ? t('teacher.groupFormat') : t('teacher.individualFormat')}
-        </span>
-      </div>
-
-      {/* المرحلة/الصفوف التي تستهدفها هذه الباقة تحديداً — قد تختلف باقات نفس المعلم عن بعضها */}
-      {(stages.length > 0 || grades.length > 0) && (
-        <div className="flex flex-wrap items-center justify-end gap-1.5">
-          {stages.map((stage) => (
-            <span key={stage} className="rounded-pill bg-canvas px-2.5 py-1 text-[11px] font-semibold text-ink-soft">
-              {stage}
-            </span>
-          ))}
-          {grades.length > 0 && (
-            <span className="rounded-pill bg-canvas px-2.5 py-1 text-[11px] font-semibold text-ink-soft">
-              {t('teacher.gradePrefix')} {[...grades].sort((a, b) => a - b).join('، ')}
-            </span>
-          )}
-        </div>
-      )}
-
-      {/* Facts row: sessions count, duration, seats (group only) */}
-      <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1 text-xs text-ink-soft">
-        {pkg.durationPerSession != null && (
-          <span>
-            {pkg.durationPerSession} {t('teacher.sessionMinutes')}
-          </span>
-        )}
-        {pkg.sessionsCount != null && (
-          <span className="inline-flex items-center gap-1">
-            <Layers size={12} />
-            {pkg.sessionsCount} {t('teacher.sessionsCountLabel')}
-          </span>
-        )}
-        {isGroup && pkg.capacity != null && (
-          <span className="inline-flex items-center gap-1">
-            <Users size={12} />
-            {pkg.enrolledCount ?? 0}/{pkg.capacity} {t('teacher.seatsLabel')}
-          </span>
-        )}
-      </div>
-
-      {schedule && (
-        <div className="flex items-start justify-end gap-1.5 text-xs text-ink-soft">
-          <span className="text-end">{schedule}</span>
-          <CalendarDays size={12} className="mt-0.5 shrink-0" />
-        </div>
-      )}
-
-      <div className="flex items-baseline justify-end gap-2">
-        {hasDiscount && (
-          <span className="text-sm text-ink-soft line-through">{formatPrice(originalPrice, currency)}</span>
-        )}
-        <span className="text-2xl font-bold text-[var(--accent)]">{formatPrice(pkg.price, currency)}</span>
-      </div>
-
-      <button
-        type="button"
-        disabled={isEnded}
-        onClick={() => onSelect(pkg)}
-        className={`w-full rounded-2xl border py-2.5 text-sm font-medium transition-colors duration-200 ${
-          isEnded
-            ? 'cursor-not-allowed border-line bg-line/30 text-ink-soft'
-            : `border-[var(--accent)] ${
-                selected
-                  ? 'bg-[var(--accent)] text-white'
-                  : 'bg-transparent text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white'
-              }`
-        }`}
-      >
-        {isEnded ? t('teacher.packageEnded') : t('teacher.choosePackage')}
-      </button>
+    <div className="flex items-center justify-end gap-2 text-sm text-[#626262]">
+      <span className="text-end">{children}</span>
+      {Icon && <Icon size={15} className="shrink-0 text-ink-soft" />}
     </div>
   );
 }
 
+function PackageDetailsModal({ pkg, onClose }) {
+  const t = useT();
+  const currency = useCurrencyStore((s) => s.currency);
+  const isGroup = pkg.sessionFormat === 'group';
+  const dates = isGroup ? scheduleDates(pkg.schedules) : [];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
+      <div
+        className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 text-start shadow-lift"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="إغلاق"
+            className="rounded-full p-1 text-ink-soft hover:bg-line/50"
+          >
+            <X size={18} />
+          </button>
+          <div className="text-end">
+            <h3 className="text-lg font-bold text-[#1E1E1E]">{pkg.title}</h3>
+            {pkg.subject && <p className="text-sm font-medium text-[#626262]">{pkg.subject}</p>}
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-wrap justify-end gap-2">
+          <span
+            className={`rounded-3xl px-3 py-1.5 text-xs font-medium ${
+              isGroup ? 'bg-[#E9F8FC] text-[#6BCEEE]' : 'bg-[#FEEDEA] text-[#F74E28]'
+            }`}
+          >
+            {t(`teacher.packageBadge.${isGroup ? 'group' : 'individual'}`)}
+          </span>
+          {pkg.curricula?.map((c) => (
+            <span key={c} className="rounded-3xl bg-[#EDF0F5] px-3 py-1.5 text-xs font-semibold text-[#4B6898]">
+              {c}
+            </span>
+          ))}
+        </div>
+
+        <div className="mt-4 space-y-2 border-t border-line pt-4">
+          {pkg.sessionsCount != null && (
+            <DetailRow icon={Layers}>
+              {pkg.sessionsCount} {t('teacher.sessionsCountLabel')}
+            </DetailRow>
+          )}
+          {pkg.durationPerSession != null && (
+            <DetailRow icon={Clock}>
+              {pkg.durationPerSession} {t('teacher.sessionMinutes')}
+            </DetailRow>
+          )}
+          {isGroup && pkg.capacity != null && (
+            <DetailRow icon={CalendarDays}>
+              {pkg.enrolledCount ?? 0}/{pkg.capacity} {t('teacher.seatsReservedSuffix')}
+            </DetailRow>
+          )}
+          {pkg.stages?.map((s) => <DetailRow key={s}>{s}</DetailRow>)}
+          {pkg.grades?.length > 0 && (
+            <DetailRow>
+              {t('teacher.gradePrefix')} {[...pkg.grades].sort((a, b) => a - b).join('، ')}
+            </DetailRow>
+          )}
+        </div>
+
+        {dates.length > 0 && (
+          <div className="mt-4 border-t border-line pt-4">
+            <h4 className="mb-2 text-end text-sm font-bold text-ink">{t('teacher.scheduleLabel')}</h4>
+            <ul className="space-y-1 text-end text-sm text-[#626262]">
+              {dates.map((d) => (
+                <li key={d}>{formatDate(d)}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {pkg.description && (
+          <p className="mt-4 whitespace-pre-line border-t border-line pt-4 text-end text-sm leading-relaxed text-[#626262]">
+            {pkg.description}
+          </p>
+        )}
+
+        <div className="mt-5 flex items-center justify-between border-t border-line pt-4">
+          <span className="text-2xl font-bold text-[#4B6898]">{priceLabel(pkg.price, currency)}</span>
+          <span className="text-sm font-bold text-ink">{t('booking.total')}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────── Card ─────────────────────────────── */
+
+function PackageCard({ pkg, selected, onSelect, onDetails }) {
+  const t = useT();
+  const currency = useCurrencyStore((s) => s.currency);
+  const isGroup = pkg.sessionFormat === 'group';
+  const isEnded = isGroup && isPastDate(lastScheduleDate(pkg.schedules));
+
+  const capacity = pkg.capacity ?? 0;
+  const enrolled = Math.min(pkg.enrolledCount ?? 0, capacity);
+  const reservedPct = capacity > 0 ? Math.round((enrolled / capacity) * 100) : 0;
+
+  return (
+    <div
+      className={`relative flex min-h-[306px] flex-col rounded-2xl bg-white p-4 shadow-[0px_1px_5px_rgba(0,0,0,0.1)] transition ${
+        isEnded ? 'opacity-60' : ''
+      } ${selected ? 'ring-2 ring-[#4B6898]' : ''}`}
+    >
+      {/* Session-type badge — top-left */}
+      <span
+        className={`absolute left-4 top-4 inline-flex min-w-[72px] items-center justify-center rounded-3xl px-3 py-2 text-sm ${
+          isGroup ? 'bg-[#E9F8FC] text-[#6BCEEE]' : 'bg-[#FEEDEA] text-[#F74E28]'
+        }`}
+      >
+        {t(`teacher.packageBadge.${isGroup ? 'group' : 'individual'}`)}
+      </span>
+
+      {/* Title + subject + curriculum chips — right aligned */}
+      <div className="flex flex-col items-end gap-4">
+        <div className="flex w-full flex-col items-end pl-[84px]">
+          <h4 className="text-lg font-bold leading-[34px] text-[#1E1E1E]">{pkg.title}</h4>
+          {pkg.subject && (
+            <p className="text-lg font-medium leading-[34px] text-[#626262]">{pkg.subject}</p>
+          )}
+        </div>
+
+        {pkg.curricula?.length > 0 && (
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {pkg.curricula.map((c) => (
+              <span
+                key={c}
+                className="rounded-3xl bg-[#EDF0F5] px-3.5 py-2 text-sm font-semibold text-[#4B6898]"
+              >
+                {c}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Bottom block — pinned to the card bottom, price above the buttons */}
+      <div className="mt-auto flex flex-col gap-2 pt-4">
+        <div className="flex min-h-[45px] flex-col items-end justify-end gap-2">
+          {isGroup && capacity > 0 && (
+            <>
+              <span className="w-full text-end text-sm text-[#4B6898]">
+                {enrolled}/{capacity} {t('teacher.seatsReservedSuffix')}
+              </span>
+              <div className="relative h-[11px] w-full overflow-hidden rounded-lg bg-[#F2F2F7]">
+                <div
+                  className="absolute right-0 top-0 h-full rounded-lg bg-[#4B6898]"
+                  style={{ width: `${reservedPct}%` }}
+                />
+              </div>
+            </>
+          )}
+          <span dir="ltr" className="text-2xl font-bold leading-none text-[#4B6898]">
+            {isEnded ? t('teacher.packageEnded') : priceLabel(pkg.price, currency)}
+          </span>
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            type="button"
+            disabled={isEnded}
+            onClick={() => onSelect(pkg)}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-2xl border border-[#4B6898] bg-[#4B6898] py-3 text-sm text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {selected && <Check size={15} strokeWidth={3} />}
+            {isGroup ? t('teacher.bookSeat') : t('teacher.choosePackage')}
+          </button>
+          <button
+            type="button"
+            onClick={() => onDetails(pkg)}
+            className="flex-1 rounded-2xl border border-[#4B6898] py-3 text-sm text-[#4B6898] transition-colors hover:bg-[#4B6898]/5"
+          >
+            {t('teacher.viewDetails')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ───────────────────────────── Section ───────────────────────────── */
+
 export function PackagesSection({ packages, isLoading, isError, refetch, selectedPackageId, onSelect }) {
   const t = useT();
+  const [detailsPkg, setDetailsPkg] = useState(null);
 
   return (
     <div className="mt-8">
-      <h3 className="mb-3 text-start font-bold text-ink">{t('teacher.packages')}</h3>
+      <h3 className="mb-3 text-start text-lg font-bold text-[#1E1E1E]">{t('teacher.packages')}</h3>
+
       {isError ? (
         <ErrorState onRetry={refetch} />
       ) : isLoading ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-44 rounded-2xl" />
+            <Skeleton key={i} className="h-[306px] rounded-2xl" />
           ))}
         </div>
       ) : packages.length === 0 ? (
         <EmptyState title={t('teacher.packagesEmpty')} />
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {packages.map((pkg, i) => (
-            <PackageCard key={pkg.id} pkg={pkg} index={i} selected={pkg.id === selectedPackageId} onSelect={onSelect} />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {packages.map((pkg) => (
+            <PackageCard
+              key={pkg.id}
+              pkg={pkg}
+              selected={pkg.id === selectedPackageId}
+              onSelect={onSelect}
+              onDetails={setDetailsPkg}
+            />
           ))}
         </div>
       )}
+
+      {detailsPkg && <PackageDetailsModal pkg={detailsPkg} onClose={() => setDetailsPkg(null)} />}
     </div>
   );
 }
