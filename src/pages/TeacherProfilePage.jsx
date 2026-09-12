@@ -2,13 +2,10 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { TeacherProfileHeader } from '@/components/teacher/TeacherProfileHeader';
-import { TeacherStatsRow } from '@/components/teacher/TeacherStatsRow';
 import { TeacherAboutSection } from '@/components/teacher/TeacherAboutSection';
-import { TeacherExperienceSection } from '@/components/teacher/TeacherExperienceSection';
-import { WeeklyAvailabilityPreview } from '@/components/teacher/WeeklyAvailabilityPreview';
-import { TeacherFAQSection } from '@/components/teacher/TeacherFAQSection';
-import { TeacherFinalCta } from '@/components/teacher/TeacherFinalCta';
-import { InfoSection, VideosSection } from '@/components/teacher/TeacherInfoSections';
+import { TeacherCredentialsSection } from '@/components/teacher/TeacherCredentialsSection';
+import { TeacherTeachingScopeSection } from '@/components/teacher/TeacherTeachingScopeSection';
+import { VideosSection } from '@/components/teacher/TeacherInfoSections';
 import { PackagesSection } from '@/components/teacher/PackagesSection';
 import { CoursesSection } from '@/components/teacher/CoursesSection';
 import { RatingReviews } from '@/components/teacher/RatingReviews';
@@ -21,7 +18,6 @@ import { useTeacher } from '@/hooks/useTeachers';
 import { usePackages, useCourses, useRatingSummary, useReviews } from '@/hooks/useMeta';
 import { useT } from '@/hooks/useT';
 
-const LANGUAGE_FLAGS = { ar: '/ar.png', en: '/en.png' };
 
 export function TeacherProfilePage() {
   const t = useT();
@@ -64,10 +60,6 @@ export function TeacherProfilePage() {
   const selectedPackage = packages?.find((p) => p.id === selectedPackageId) ?? null;
   const selectedCourse = courses?.find((c) => c.id === selectedCourseId) ?? null;
 
-  const handleBookClick = () => {
-    document.getElementById('booking-widget')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
   if (teacherLoading) {
     return (
       <PageContainer>
@@ -100,52 +92,22 @@ export function TeacherProfilePage() {
         </Link>
       </div>
 
-      <div className="container-app mt-4 grid grid-cols-1 gap-6 pb-8 lg:grid-cols-[1fr_400px]">
-        {/* Main content */}
-        <div>
-          <TeacherProfileHeader
-            teacher={teacher}
-            isFavorite={isFavorite}
-            onToggleFavorite={handleToggleFavorite}
-            onBookClick={handleBookClick}
-          />
+      {/* Full-width stacked layout — heading, then every section below it at
+          full container width; the booking/enrollment panel sits inline after
+          the packages instead of as a side rail. */}
+      <div className="container-app mt-4 pb-16">
+        <TeacherProfileHeader teacher={teacher} isFavorite={isFavorite} onToggleFavorite={handleToggleFavorite} />
 
-          <TeacherStatsRow teacher={teacher} />
+        <TeacherAboutSection teacher={teacher} />
 
-          <TeacherAboutSection teacher={teacher} />
+        <TeacherCredentialsSection teacher={teacher} />
 
-          <TeacherExperienceSection experiences={teacher.experiences} />
+        <TeacherTeachingScopeSection teacher={teacher} />
 
-          <div className="mt-6">
-            <InfoSection title={t('teacher.qualifications')} items={teacher.qualifications} />
-          </div>
+        <VideosSection title={t('teacher.videos')} videos={teacher.videos} />
 
-          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <InfoSection title={t('teacher.subjects')} items={teacher.subjects} colorfulDots />
-            <InfoSection title={t('teacher.curricula')} items={teacher.curricula} />
-          </div>
-
-          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <InfoSection title={t('teacher.stages')} items={teacher.stages} />
-            <InfoSection title={t('teacher.grades')} items={teacher.grades.map((g) => `${t('teacher.gradePrefix')} ${g}`)} />
-          </div>
-
-          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <InfoSection title={t('teacher.teachingMethods')} items={teacher.teachingMethods} />
-            <InfoSection
-              title={t('teacher.languages')}
-              items={teacher.languages.map((l) => ({
-                label: l.label,
-                flag: LANGUAGE_FLAGS[l.code] && (
-                  <img src={LANGUAGE_FLAGS[l.code]} alt={l.label} className="h-4 w-4 rounded-full object-cover" />
-                ),
-              }))}
-            />
-          </div>
-
-          <VideosSection title={t('teacher.videos')} videos={teacher.videos} />
-
-          {isCenter ? (
+        {isCenter ? (
+          <>
             <CoursesSection
               courses={courses ?? []}
               isLoading={coursesLoading}
@@ -154,7 +116,10 @@ export function TeacherProfilePage() {
               selectedCourseId={selectedCourseId}
               onSelect={(course) => setSelectedCourseId(course.id)}
             />
-          ) : (
+            <CourseEnrollWidget selectedCourse={selectedCourse} stacked />
+          </>
+        ) : (
+          <>
             <PackagesSection
               packages={packages ?? []}
               isLoading={packagesLoading}
@@ -163,29 +128,17 @@ export function TeacherProfilePage() {
               selectedPackageId={selectedPackageId}
               onSelect={(pkg) => setSelectedPackageId(pkg.id)}
             />
-          )}
+            <BookingWidget selectedPackage={selectedPackage} stacked />
+          </>
+        )}
 
-          <WeeklyAvailabilityPreview weekdays={t('booking.weekdays')} />
-
-          <RatingReviews
-            summary={ratingSummary}
-            reviews={reviews ?? []}
-            isLoading={reviewsLoading || summaryLoading}
-            isError={reviewsError}
-            refetch={refetchReviews}
-          />
-
-          <TeacherFAQSection faqs={teacher.faqs} />
-        </div>
-
-        {/* Booking / enrollment widget */}
-        <div id="booking-widget">
-          {isCenter ? <CourseEnrollWidget selectedCourse={selectedCourse} /> : <BookingWidget selectedPackage={selectedPackage} />}
-        </div>
-      </div>
-
-      <div className="container-app pb-16">
-        <TeacherFinalCta onBookClick={handleBookClick} />
+        <RatingReviews
+          summary={ratingSummary}
+          reviews={reviews ?? []}
+          isLoading={reviewsLoading || summaryLoading}
+          isError={reviewsError}
+          refetch={refetchReviews}
+        />
       </div>
     </PageContainer>
   );

@@ -41,6 +41,7 @@ export const endpoints = {
     packages: (id) => `/teachers/${id}/packages`,
     courses: (id) => `/teachers/${id}/courses`,
     reviews: (id) => `/teachers/${id}/reviews`,
+    ratingSummary: (id) => `/teachers/${id}/rating-summary`,
     availabilitySlots: (id) => `/teachers/${id}/availability-slots`,
     availabilitySlot: (id, slotId) => `/teachers/${id}/availability-slots/${slotId}`,
     uploadDocument: (id) => `/teachers/${id}/verification-documents`,

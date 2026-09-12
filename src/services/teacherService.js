@@ -16,6 +16,14 @@ export const EXPERIENCE_LABELS = {
   over_5: 'أكثر من 5 سنوات خبرة',
 };
 
+/** Compact form for the profile-header stats strip (no wrap) */
+export const EXPERIENCE_LABELS_SHORT = {
+  under_1: 'أقل من سنة',
+  '1_3': '1 - 3 سنوات',
+  '3_5': '3 - 5 سنوات',
+  over_5: '+5 سنوات',
+};
+
 export const QUALIFICATION_LABELS = {
   bachelor: 'بكالوريوس',
   master: 'ماجستير',
@@ -57,7 +65,9 @@ function mapPublicProfile(raw) {
     bio: raw.bio,
     city: raw.city,
     qualifications: raw.qualification ? [QUALIFICATION_LABELS[raw.qualification] ?? raw.qualification] : [],
+    experiences: (raw.experiences ?? []).map((e) => ({ id: e.id, title: e.title, period: e.period })),
     experienceLabel: raw.experience_years ? (EXPERIENCE_LABELS[raw.experience_years] ?? raw.experience_years) : null,
+    experienceShort: raw.experience_years ? (EXPERIENCE_LABELS_SHORT[raw.experience_years] ?? raw.experience_years) : null,
     subjects: (raw.subjects ?? []).map((s) => s.name_ar),
     curricula: (raw.curricula ?? []).map((c) => c.name_ar),
     languages: (raw.languages ?? []).map((l) => ({ code: l.code, label: l.name_ar })),
@@ -65,9 +75,13 @@ function mapPublicProfile(raw) {
     stages: (raw.stages ?? []).map((s) => s.name_ar),
     grades: raw.grades ?? [],
     teachingMethods: raw.teaching_methods ?? [],
+    examPrep: raw.exam_prep ?? [],
+    badges: (raw.badges ?? []).map((b) => ({ label: b.name_ar, icon: b.icon })),
     rating: Number(raw.stats?.rating_avg ?? 0),
     reviewsCount: raw.stats?.reviews_count ?? 0,
     studentsCount: raw.stats?.total_students ?? null,
+    completedSessions: raw.stats?.completed_sessions ?? null,
+    satisfactionRate: raw.stats?.satisfaction_rate ?? null,
     introVideoUrl: raw.intro_video_path,
     introVideoDuration: raw.intro_video_seconds ? formatDuration(raw.intro_video_seconds) : null,
     introYoutubeId: raw.intro_youtube_id ?? null,
