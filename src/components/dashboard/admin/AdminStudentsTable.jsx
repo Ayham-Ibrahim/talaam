@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { KeyRound } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Eye, KeyRound } from 'lucide-react';
 import { Avatar } from '@/components/ui';
 import { ChangeStudentPasswordModal } from './ChangeStudentPasswordModal';
 import { formatDate } from '@/lib/formatters';
@@ -66,14 +67,23 @@ export function AdminStudentsTable({ students }) {
               </td>
               <td className="px-4 py-4 text-right text-ink-soft">{formatDate(student.createdAt)}</td>
               <td className="px-4 py-4 text-right">
-                <button
-                  type="button"
-                  onClick={() => setPasswordModalStudent(student)}
-                  className="inline-flex items-center gap-1.5 text-primary hover:opacity-70"
-                >
-                  <KeyRound size={16} />
-                  {t('dashboard.adminStudents.changePassword')}
-                </button>
+                <div className="flex flex-wrap items-center justify-end gap-3">
+                  <Link
+                    to={`/dashboard/admin/students/${student.id}`}
+                    className="inline-flex items-center gap-1.5 text-primary hover:opacity-70"
+                  >
+                    <Eye size={16} />
+                    {t('dashboard.adminStudents.view')}
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setPasswordModalStudent(student)}
+                    className="inline-flex items-center gap-1.5 text-primary hover:opacity-70"
+                  >
+                    <KeyRound size={16} />
+                    {t('dashboard.adminStudents.changePassword')}
+                  </button>
+                </div>
               </td>
             </tr>
           ))}

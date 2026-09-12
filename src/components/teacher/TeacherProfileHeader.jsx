@@ -92,7 +92,7 @@ export function TeacherProfileHeader({ teacher, isFavorite, onToggleFavorite }) 
         <div className="mt-4 flex flex-wrap justify-end gap-4">
           {badges.map((badge) => (
             <span
-              key={badge.label}
+              key={badge.id ?? badge.label}
               className="inline-flex items-center gap-1 rounded-2xl bg-[#FAFAFA] p-2 text-xs font-medium text-[#1E1E1E]"
             >
               {badge.label}

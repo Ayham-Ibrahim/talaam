@@ -99,6 +99,7 @@ export const endpoints = {
     detail: (id) => `/students/${id}`,
     update: (id) => `/students/${id}`,
     resetPassword: (id) => `/students/${id}/password`,
+    avatar: (id) => `/students/${id}/avatar`,
   },
   taxonomy: (type) => `/taxonomy/${type}`,
   complaints: {

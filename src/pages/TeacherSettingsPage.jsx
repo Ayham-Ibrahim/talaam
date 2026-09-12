@@ -1,15 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { CalendarCheck, Globe, Video } from 'lucide-react';
+import { CalendarCheck, Globe, Video, HelpCircle } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { TimezoneField } from '@/components/dashboard/TimezoneField';
 import { TeacherVideosEditor } from '@/components/teacher/TeacherVideosEditor';
+import { TeacherFaqEditor } from '@/components/teacher/TeacherFaqEditor';
 import { TeacherProfileEditorCard } from '@/components/teacher/TeacherProfileEditorCard';
 import { ApiErrorList, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useUpdateProfile } from '@/hooks/useProfile';
 import { useAvailabilityDays, useAddAvailabilityDay, useRemoveAvailabilityDay } from '@/hooks/useAvailability';
-import { useMyTeacher, useUpdateMyTeacherProfile, useAddVideo, useRemoveVideo } from '@/hooks/useTeacherAccount';
+import {
+  useMyTeacher,
+  useUpdateMyTeacherProfile,
+  useAddVideo,
+  useRemoveVideo,
+  useAddFaq,
+  useRemoveFaq,
+} from '@/hooks/useTeacherAccount';
 import { useT } from '@/hooks/useT';
 
 const DAY_KEYS = [0, 1, 2, 3, 4, 5, 6];
@@ -37,6 +45,8 @@ export function TeacherSettingsPage() {
   const updateTeacherProfile = useUpdateMyTeacherProfile(teacherId);
   const addVideo = useAddVideo(teacherId);
   const removeVideo = useRemoveVideo(teacherId);
+  const addFaq = useAddFaq(teacherId);
+  const removeFaq = useRemoveFaq(teacherId);
 
   /**
    * تحديث مستقل — يُرسِل حقول المركز التدريبي الإلزامية بقيمها الحالية دون
@@ -180,6 +190,27 @@ export function TeacherSettingsPage() {
                 addVideoError={addVideo.isError ? addVideo.error : null}
                 onRemoveVideo={(id) => removeVideo.mutate(id)}
                 removingVideoId={removeVideo.isPending ? removeVideo.variables : null}
+              />
+            </div>
+          </div>
+        )}
+
+        {teacherId && (
+          <div className="rounded-2xl bg-white p-6 shadow-card">
+            <h2 className="flex items-center gap-2 font-bold text-ink">
+              <HelpCircle size={20} className="text-primary" />
+              {t('teacherFaqs.listLabel')}
+            </h2>
+            <p className="mt-1 text-sm text-ink-soft">{t('teacherFaqs.sectionHint')}</p>
+
+            <div className="mt-4">
+              <TeacherFaqEditor
+                faqs={teacher?.faqs ?? []}
+                onAdd={(payload, opts) => addFaq.mutate(payload, opts)}
+                isAdding={addFaq.isPending}
+                addError={addFaq.isError ? addFaq.error : null}
+                onRemove={(id) => removeFaq.mutate(id)}
+                removingId={removeFaq.isPending ? removeFaq.variables : null}
               />
             </div>
           </div>

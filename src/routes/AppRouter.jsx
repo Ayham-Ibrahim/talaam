@@ -20,6 +20,7 @@ import { AdminDashboardPage } from '@/pages/AdminDashboardPage';
 import { AdminTeachersPage } from '@/pages/AdminTeachersPage';
 import { AdminStudentsPage } from '@/pages/AdminStudentsPage';
 import { AdminTeacherDetailPage } from '@/pages/AdminTeacherDetailPage';
+import { AdminStudentDetailPage } from '@/pages/AdminStudentDetailPage';
 import { AdminListingsPage } from '@/pages/AdminListingsPage';
 import { AdminListingDetailPage } from '@/pages/AdminListingDetailPage';
 import { AdminComplaintsPage } from '@/pages/AdminComplaintsPage';
@@ -118,6 +119,14 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="admin">
               <AdminTeacherDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/students/:id"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminStudentDetailPage />
             </ProtectedRoute>
           }
         />

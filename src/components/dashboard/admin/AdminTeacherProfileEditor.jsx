@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { UploadCloud, Check, FileText, UserCog, Camera, Trash2 } from 'lucide-react';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { MultiSelectChips } from '@/components/dashboard/MultiSelectChips';
+import { TagChipsInput } from '@/components/dashboard/TagChipsInput';
 import { TeacherVideosEditor } from '@/components/teacher/TeacherVideosEditor';
 import { TeacherFaqEditor } from '@/components/teacher/TeacherFaqEditor';
 import { TeacherExperienceEditor } from '@/components/teacher/TeacherExperienceEditor';
@@ -32,13 +33,23 @@ const DOCUMENT_TYPE_OPTIONS = Object.entries(DOCUMENT_TYPE_LABELS).map(([value, 
 /** يطابق Teacher::REQUIRED_DOCUMENT_TYPES في الباك تماماً (نفس ثابت CompleteTeacherProfilePage) */
 const REQUIRED_DOCUMENT_TYPES = ['identity', 'academic', 'experience'];
 
+// نفس الاقتراحات تماماً المستخدَمة في TeacherProfileEditorCard (تحرير المعلم لنفسه)
+// — تكرار مقصود مؤقتاً حتى تُستخرَج لملف مشترك.
+const TEACHING_METHOD_SUGGESTIONS = [
+  'شرح مباشر', 'حل واجبات', 'تدريب امتحانات', 'تدريب عملي', 'مشاريع', 'مراجعة', 'خطة فردية',
+];
+const EXAM_PREP_SUGGESTIONS = ['SAT', 'ACT', 'IB', 'IGCSE', 'GCSE', 'A-Level', 'AP', 'TOEFL', 'IELTS', 'EmSAT'];
+
 const PROFILE_FIELD_LABELS = {
   bio: 'نبذة عن المعلم',
   qualification: 'المؤهل العلمي',
   experience_years: 'سنوات الخبرة',
+  city: 'الموقع',
   subject_ids: 'المواد',
   curriculum_ids: 'المناهج',
   language_ids: 'اللغات',
+  teaching_methods: 'طريقة التدريس',
+  exam_prep: 'التحضير للامتحانات',
   display_name_en: 'الاسم بالإنجليزية',
   commercial_register: 'السجل التجاري',
 };
@@ -69,7 +80,10 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
   const isTrainingCenter = teacher.type === 'training_center';
   const rawStatus = teacher.rawStatus;
 
-  const showProfileForm = rawStatus === 'invited' || rawStatus === 'active_unverified';
+  // كان مقصوراً سابقاً على invited/active_unverified فقط (إكمال ملف لم يُكمله
+  // المعلم بعد) — الآن يظهر دوماً، فالأدمن يحتاج تعديل بيانات معلم موثَّق
+  // بالفعل أيضاً تماماً كما يستطيع المعلم نفسه عبر TeacherProfileEditorCard.
+  const showProfileForm = true;
   const showDocumentUpload = rawStatus !== 'verified' && rawStatus !== 'rejected';
   // "invited" مقبولة أيضاً — معلم مستورَد/مدعوّ لم يقبل دعوته بعد (بلا كلمة
   // مرور، لا طريق له ليصل إلى active_unverified بنفسه)؛ الباك اند
@@ -96,9 +110,12 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
     bio: '',
     qualification: '',
     experience_years: '',
+    city: '',
     subject_ids: [],
     curriculum_ids: [],
     language_ids: [],
+    teaching_methods: [],
+    exam_prep: [],
     display_name_en: '',
     commercial_register: '',
   });
@@ -119,9 +136,12 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
         bio: teacher.bio ?? '',
         qualification: teacher.qualification ?? '',
         experience_years: teacher.experienceYears ?? '',
+        city: teacher.city ?? '',
         subject_ids: (teacher.subjects ?? []).map((s) => s.id),
         curriculum_ids: (teacher.curricula ?? []).map((c) => c.id),
         language_ids: (teacher.languages ?? []).map((l) => l.id),
+        teaching_methods: teacher.teachingMethods ?? [],
+        exam_prep: teacher.examPrep ?? [],
         display_name_en: teacher.displayNameEn ?? '',
         commercial_register: teacher.commercialRegister ?? '',
       });
@@ -168,9 +188,12 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
         bio: form.bio || null,
         qualification: form.qualification || null,
         experience_years: form.experience_years || null,
+        city: form.city || null,
         subject_ids: form.subject_ids,
         curriculum_ids: form.curriculum_ids,
         language_ids: form.language_ids,
+        teaching_methods: form.teaching_methods,
+        exam_prep: form.exam_prep,
         ...(isTrainingCenter
           ? { display_name_en: form.display_name_en, commercial_register: form.commercial_register }
           : {}),
@@ -294,6 +317,19 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
               />
             </div>
 
+            <label className="flex flex-col gap-1.5">
+              <span className="text-sm font-semibold text-ink">
+                {t('dashboard.adminTeacherDetail.profileEditor.cityLabel')}
+              </span>
+              <input
+                type="text"
+                maxLength={80}
+                value={form.city}
+                onChange={patch('city')}
+                className="w-full rounded-btn border border-line bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </label>
+
             <MultiSelectChips
               label={t('dashboard.adminTeacherDetail.profileEditor.subjectsLabel')}
               values={form.subject_ids}
@@ -317,6 +353,21 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
               options={languages.map((l) => ({ value: l.id, label: l.name_ar }))}
               placeholder="—"
               max={20}
+            />
+
+            <TagChipsInput
+              label={t('dashboard.adminTeacherDetail.profileEditor.teachingMethodsLabel')}
+              values={form.teaching_methods}
+              onChange={(v) => setForm((prev) => ({ ...prev, teaching_methods: v }))}
+              suggestions={TEACHING_METHOD_SUGGESTIONS}
+              placeholder={t('teacherSettings.addTagPlaceholder')}
+            />
+            <TagChipsInput
+              label={t('dashboard.adminTeacherDetail.profileEditor.examPrepLabel')}
+              values={form.exam_prep}
+              onChange={(v) => setForm((prev) => ({ ...prev, exam_prep: v }))}
+              suggestions={EXAM_PREP_SUGGESTIONS}
+              placeholder={t('teacherSettings.addTagPlaceholder')}
             />
 
             {isTrainingCenter && (

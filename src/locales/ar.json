@@ -563,6 +563,32 @@
     "add": "إضافة",
     "adding": "جارٍ الإضافة…"
   },
+  "teacherFaqs": {
+    "listLabel": "الأسئلة الشائعة",
+    "sectionHint": "أضف أسئلة شائعة عن عملك وأجب عنها — تظهر مباشرة في بروفايلك العام للطلاب",
+    "empty": "لا توجد أسئلة مضافة بعد",
+    "remove": "حذف",
+    "questionLabel": "السؤال",
+    "questionPlaceholder": "مثال: هل الحصص مباشرة أم مسجّلة؟",
+    "answerLabel": "الإجابة",
+    "answerPlaceholder": "أجب عن السؤال بوضوح ليظهر للطلاب في بروفايلك",
+    "add": "إضافة سؤال",
+    "adding": "جارٍ الإضافة…",
+    "maxReached": "وصلت للحد الأقصى لعدد الأسئلة — احذف سؤالاً قديماً لإضافة آخر"
+  },
+  "teacherExperiences": {
+    "listLabel": "الخبرات السابقة",
+    "sectionHint": "أضف خبراتك المهنية السابقة (جهة العمل والفترة) — تظهر في بروفايلك العام للطلاب",
+    "empty": "لا توجد خبرات مضافة بعد",
+    "remove": "حذف",
+    "titleLabel": "المسمى",
+    "titlePlaceholder": "مثال: مدرس في مدارس خاصة بدبي",
+    "periodLabel": "الفترة",
+    "periodPlaceholder": "مثال: 2019 - 2022",
+    "add": "إضافة خبرة",
+    "adding": "جارٍ الإضافة…",
+    "maxReached": "وصلت للحد الأقصى لعدد الخبرات — احذف خبرة قديمة لإضافة أخرى"
+  },
   "completeProfile": {
     "optional": "اختياري",
     "studentTitle": "أكمل ملفك الشخصي",
@@ -1216,12 +1242,26 @@
       "active": "نشط",
       "inactive": "معطَّل",
       "empty": "لا يوجد طلاب مطابقون",
+      "view": "عرض",
       "changePassword": "تغيير كلمة المرور",
       "changePasswordTitle": "تغيير كلمة مرور الطالب",
       "changePasswordFor": "تعيين كلمة مرور جديدة للطالب:",
       "changePasswordHint": "8 أحرف على الأقل — سترسَل للطالب عبر البريد الإلكتروني، وسيُسجَّل خروجه من كل الأجهزة الأخرى",
       "changePasswordSubmit": "تغيير كلمة المرور",
       "changingPassword": "جارٍ التغيير..."
+    },
+    "adminStudentDetail": {
+      "back": "العودة لقائمة الطلاب",
+      "notFound": "تعذّر العثور على هذا الطالب",
+      "profileEditor": {
+        "title": "الملف الأكاديمي (نيابة عن الطالب)",
+        "subtitle": "عدّل بياناته الأكاديمية كما لو كان هو من يعدّلها — نفس الحقول التي يملأها بنفسه",
+        "removePhoto": "حذف الصورة",
+        "uploadingPhoto": "جارٍ رفع الصورة…",
+        "saveProfile": "حفظ الملف الأكاديمي",
+        "saving": "جارٍ الحفظ…",
+        "saveSuccess": "تم حفظ الملف الأكاديمي بنجاح"
+      }
     },
     "adminTeachers": {
       "title": "إدارة المعلمين",
@@ -1327,16 +1367,19 @@
       "awardedAt": "مُنحت بتاريخ",
       "notFound": "لم يتم العثور على المعلم",
       "profileEditor": {
-        "title": "إكمال الملف الشخصي نيابة عن المعلم",
-        "subtitle": "لمعلم لم يُكمل ملفه أو يرفع وثائقه بعد — يمكنك إكمالها واعتماده دون انتظاره",
+        "title": "الملف الشخصي (نيابة عن المعلم)",
+        "subtitle": "عدّل بيانات ملفه الشخصي كما لو كان هو من يعدّلها — تظهر مباشرة في بروفايله العام",
         "removePhoto": "حذف الصورة",
         "uploadingPhoto": "جارٍ رفع الصورة…",
         "bioLabel": "نبذة عن المعلم",
         "qualificationLabel": "المؤهل العلمي",
         "experienceLabel": "سنوات الخبرة",
+        "cityLabel": "الموقع",
         "subjectsLabel": "المواد",
         "curriculumLabel": "المناهج",
         "languagesLabel": "اللغات",
+        "teachingMethodsLabel": "طريقة التدريس",
+        "examPrepLabel": "التحضير للامتحانات",
         "displayNameEnLabel": "اسم المركز بالإنجليزية",
         "displayNameEnInvalid": "أحرف فقط بلا أرقام",
         "commercialRegisterLabel": "السجل التجاري",
