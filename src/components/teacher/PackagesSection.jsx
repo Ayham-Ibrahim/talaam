@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CalendarDays, Check, Clock, Layers, X } from 'lucide-react';
+import { BookOpen, CalendarDays, Check, Clock, Layers, Users, X } from 'lucide-react';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useT } from '@/hooks/useT';
 import { useCurrencyStore } from '@/store';
@@ -7,6 +7,16 @@ import { convertPrice } from '@/lib/currency';
 import { formatDate, isPastDate, lastScheduleDate } from '@/lib/formatters';
 
 const CURRENCY_SYMBOL = { USD: '$', EUR: '€', GBP: '£' };
+
+/** Rotating gradient palette — assigned by card position, so it's varied per card but stable across re-renders */
+const CARD_GRADIENTS = [
+  'linear-gradient(135deg, #5B8DEF 0%, #3D63C9 100%)',
+  'linear-gradient(135deg, #8B7BEA 0%, #4E3FB0 100%)',
+  'linear-gradient(135deg, #EA7BA0 0%, #F0A868 100%)',
+  'linear-gradient(135deg, #34C3B8 0%, #2E8FC0 100%)',
+  'linear-gradient(135deg, #E0607A 0%, #B33B63 100%)',
+  'linear-gradient(135deg, #6DC0E0 0%, #4A6FE0 100%)',
+];
 
 /** "50 $" — number then symbol, matching the design */
 function priceLabel(amountUSD, code) {
@@ -128,7 +138,7 @@ function PackageDetailsModal({ pkg, onClose }) {
 
 /* ─────────────────────────────── Card ─────────────────────────────── */
 
-function PackageCard({ pkg, selected, onSelect, onDetails }) {
+function PackageCard({ pkg, index, selected, onSelect, onDetails }) {
   const t = useT();
   const currency = useCurrencyStore((s) => s.currency);
   const isGroup = pkg.sessionFormat === 'group';
@@ -137,72 +147,78 @@ function PackageCard({ pkg, selected, onSelect, onDetails }) {
   const capacity = pkg.capacity ?? 0;
   const enrolled = Math.min(pkg.enrolledCount ?? 0, capacity);
   const reservedPct = capacity > 0 ? Math.round((enrolled / capacity) * 100) : 0;
+  const gradient = CARD_GRADIENTS[index % CARD_GRADIENTS.length];
 
   return (
     <div
-      className={`relative flex min-h-[306px] flex-col rounded-2xl bg-white p-4 shadow-[0px_1px_5px_rgba(0,0,0,0.1)] transition ${
-        isEnded ? 'opacity-60' : ''
-      } ${selected ? 'ring-2 ring-[#4B6898]' : ''}`}
+      style={{ background: gradient }}
+      className={`relative flex min-h-[290px] flex-col rounded-2xl p-5 text-start shadow-[0_6px_20px_rgba(0,0,0,0.15)] transition ${
+        isEnded ? 'opacity-60 grayscale-[30%]' : ''
+      } ${selected ? 'ring-4 ring-white/80' : ''}`}
     >
-      {/* Session-type badge — top-left */}
-      <span
-        className={`absolute left-4 top-4 inline-flex min-w-[72px] items-center justify-center rounded-3xl px-3 py-2 text-sm ${
-          isGroup ? 'bg-[#E9F8FC] text-[#6BCEEE]' : 'bg-[#FEEDEA] text-[#F74E28]'
-        }`}
-      >
+      {/* Session-type badge */}
+      <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs font-semibold text-white ring-1 ring-white/30 backdrop-blur-sm">
+        {isGroup ? <Users size={13} /> : <BookOpen size={13} />}
         {t(`teacher.packageBadge.${isGroup ? 'group' : 'individual'}`)}
       </span>
 
-      {/* Title + subject + curriculum chips — right aligned */}
-      <div className="flex flex-col items-end gap-4">
-        <div className="flex w-full flex-col items-end pl-[84px]">
-          <h4 className="text-lg font-bold leading-[34px] text-[#1E1E1E]">{pkg.title}</h4>
-          {pkg.subject && (
-            <p className="text-lg font-medium leading-[34px] text-[#626262]">{pkg.subject}</p>
-          )}
-        </div>
+      {/* Title + subject — no attendee avatars, just the package's own data */}
+      <div className="mt-4">
+        <h4 className="text-lg font-bold leading-snug text-white">{pkg.title}</h4>
+        {pkg.subject && <p className="text-sm font-medium text-white/75">{pkg.subject}</p>}
+      </div>
 
-        {pkg.curricula?.length > 0 && (
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            {pkg.curricula.map((c) => (
-              <span
-                key={c}
-                className="rounded-3xl bg-[#EDF0F5] px-3.5 py-2 text-sm font-semibold text-[#4B6898]"
-              >
-                {c}
-              </span>
-            ))}
-          </div>
+      {/* Sessions / duration line — replaces the reference's "N Files" row */}
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm font-medium text-white/90">
+        {pkg.sessionsCount != null && (
+          <span className="inline-flex items-center gap-1.5">
+            <Layers size={15} />
+            {pkg.sessionsCount} {t('teacher.sessionsCountLabel')}
+          </span>
+        )}
+        {pkg.durationPerSession != null && (
+          <span className="inline-flex items-center gap-1.5">
+            <Clock size={15} />
+            {pkg.durationPerSession} {t('teacher.sessionMinutes')}
+          </span>
         )}
       </div>
 
-      {/* Bottom block — pinned to the card bottom, price above the buttons */}
-      <div className="mt-auto flex flex-col gap-2 pt-4">
-        <div className="flex min-h-[45px] flex-col items-end justify-end gap-2">
-          {isGroup && capacity > 0 && (
-            <>
-              <span className="w-full text-end text-sm text-[#4B6898]">
-                {enrolled}/{capacity} {t('teacher.seatsReservedSuffix')}
-              </span>
-              <div className="relative h-[11px] w-full overflow-hidden rounded-lg bg-[#F2F2F7]">
-                <div
-                  className="absolute right-0 top-0 h-full rounded-lg bg-[#4B6898]"
-                  style={{ width: `${reservedPct}%` }}
-                />
-              </div>
-            </>
-          )}
-          <span dir="ltr" className="text-2xl font-bold leading-none text-[#4B6898]">
-            {isEnded ? t('teacher.packageEnded') : priceLabel(pkg.price, currency)}
+      {/* Group seats — replaces the reference's "Teacher: Name" line with real, varying data */}
+      {isGroup && capacity > 0 && (
+        <div className="mt-3">
+          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-white/90">
+            <CalendarDays size={15} />
+            {enrolled}/{capacity} {t('teacher.seatsReservedSuffix')}
           </span>
+          <div className="relative mt-1.5 h-[7px] w-full overflow-hidden rounded-full bg-white/20">
+            <div className="absolute right-0 top-0 h-full rounded-full bg-white" style={{ width: `${reservedPct}%` }} />
+          </div>
         </div>
+      )}
+
+      {pkg.curricula?.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {pkg.curricula.map((c) => (
+            <span key={c} className="rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium text-white/85">
+              {c}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Bottom block — pinned to the card bottom, price above the buttons */}
+      <div className="mt-auto flex flex-col gap-3 pt-4">
+        <span dir="ltr" className="text-2xl font-bold leading-none text-white">
+          {isEnded ? t('teacher.packageEnded') : priceLabel(pkg.price, currency)}
+        </span>
 
         <div className="flex gap-2">
           <button
             type="button"
             disabled={isEnded}
             onClick={() => onSelect(pkg)}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-2xl border border-[#4B6898] bg-[#4B6898] py-3 text-sm text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-2xl bg-white py-3 text-sm font-semibold text-[#1E1E1E] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {selected && <Check size={15} strokeWidth={3} />}
             {isGroup ? t('teacher.bookSeat') : t('teacher.choosePackage')}
@@ -210,7 +226,7 @@ function PackageCard({ pkg, selected, onSelect, onDetails }) {
           <button
             type="button"
             onClick={() => onDetails(pkg)}
-            className="flex-1 rounded-2xl border border-[#4B6898] py-3 text-sm text-[#4B6898] transition-colors hover:bg-[#4B6898]/5"
+            className="flex-1 rounded-2xl border border-white/60 py-3 text-sm text-white transition-colors hover:bg-white/10"
           >
             {t('teacher.viewDetails')}
           </button>
@@ -235,17 +251,18 @@ export function PackagesSection({ packages, isLoading, isError, refetch, selecte
       ) : isLoading ? (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-[306px] rounded-2xl" />
+            <Skeleton key={i} className="h-[290px] rounded-2xl" />
           ))}
         </div>
       ) : packages.length === 0 ? (
         <EmptyState title={t('teacher.packagesEmpty')} />
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {packages.map((pkg) => (
+          {packages.map((pkg, i) => (
             <PackageCard
               key={pkg.id}
               pkg={pkg}
+              index={i}
               selected={pkg.id === selectedPackageId}
               onSelect={onSelect}
               onDetails={setDetailsPkg}

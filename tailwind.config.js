@@ -52,9 +52,38 @@ export default {
         shimmer: {
           '100%': { transform: 'translateX(-100%)' },
         },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        'glow-pulse': {
+          '0%, 100%': {
+            boxShadow: '0 0 16px 2px rgba(56,224,255,0.55), 0 0 32px 10px rgba(56,224,255,0.25)',
+          },
+          '50%': {
+            boxShadow: '0 0 24px 6px rgba(56,224,255,0.85), 0 0 48px 18px rgba(99,102,241,0.35)',
+          },
+        },
+        'spin-slow': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        'wave-move': {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+        'flare-pulse': {
+          '0%, 100%': { opacity: '0.55', transform: 'scale(1)' },
+          '50%': { opacity: '0.9', transform: 'scale(1.12)' },
+        },
       },
       animation: {
         'fade-in': 'fade-in 0.4s ease-out',
+        float: 'float 4s ease-in-out infinite',
+        'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
+        'spin-slow': 'spin-slow 7s linear infinite',
+        'wave-move': 'wave-move 14s linear infinite',
+        'flare-pulse': 'flare-pulse 5s ease-in-out infinite',
       },
     },
   },

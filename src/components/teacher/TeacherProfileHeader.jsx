@@ -1,33 +1,102 @@
-import { BookText, CalendarDays, Check, GraduationCap, Layers, MapPin, Star } from "lucide-react";
+import {
+  BookOpen,
+  CalendarCheck,
+  Check,
+  Globe,
+  GraduationCap,
+  Layers,
+  MapPin,
+  MessageCircle,
+  ShieldCheck,
+  Star,
+  Video,
+} from "lucide-react";
 import { FavoriteButton } from "@/components/ui";
 import { useT } from "@/hooks/useT";
 
 const fmt = (n) => (n == null ? null : Number(n).toLocaleString("en-US"));
-const HERO_GRADIENT = "linear-gradient(89.95deg, #9E074A 3.11%, #243757 98.69%)";
-const SHAPE_GRADIENT = "linear-gradient(180deg, #C962B3 0%, #8C74C5 100%)";
+
+/** Deep-navy banner — the base the neon glow/wave layers sit on */
+const NEON_GRADIENT = "linear-gradient(135deg, #060B24 0%, #0E1A4D 45%, #17237E 78%, #1B2E9C 100%)";
+/** Rotating ring "shine" — cyan → indigo → transparent, spun by animate-spin-slow */
+const RING_SHINE = "conic-gradient(from 0deg, transparent 0%, #38E0FF 12%, transparent 30%, transparent 60%, #8B7BFF 76%, transparent 92%)";
+
+/** One glowing bubble floating around the photo — purely decorative, teaching-themed */
+function FloatingIcon({ Icon, style, delay, size = 40 }) {
+  return (
+    <div
+      className="absolute flex items-center justify-center rounded-full bg-gradient-to-br from-[#3AD8FF] to-[#6C63FF] shadow-[0_0_18px_rgba(56,216,255,0.65)] motion-safe:animate-float"
+      style={{ width: size, height: size, animationDelay: `${delay}s`, ...style }}
+    >
+      <Icon size={size * 0.45} className="text-white" strokeWidth={2} />
+    </div>
+  );
+}
+
+const FLOATING_ICONS = [
+  { Icon: GraduationCap, style: { left: "48%", top: "-6%" }, delay: 0, size: 44 },
+  { Icon: Video, style: { left: "88%", top: "6%" }, delay: 0.6, size: 40 },
+  { Icon: Star, style: { left: "98%", top: "42%" }, delay: 1.2, size: 36 },
+  { Icon: MessageCircle, style: { left: "86%", top: "80%" }, delay: 1.8, size: 38 },
+  { Icon: BookOpen, style: { left: "46%", top: "96%" }, delay: 0.9, size: 42 },
+  { Icon: Globe, style: { left: "6%", top: "80%" }, delay: 1.5, size: 36 },
+  { Icon: ShieldCheck, style: { left: "-6%", top: "40%" }, delay: 0.3, size: 40 },
+  { Icon: CalendarCheck, style: { left: "8%", top: "6%" }, delay: 2.1, size: 36 },
+];
+
+/** One gentle, rounded swell — reused by every wave layer, just phase/opacity/speed differ */
+const WAVE_PATH =
+  "M0,50 C180,92 360,8 540,50 C720,92 900,8 1080,50 C1260,92 1350,26 1440,50 L1440,150 L0,150 Z";
+
+/** A single scrolling wave band — two copies of the same path so it loops seamlessly */
+function WaveRow({ colorClass, duration, bottom, reverse }) {
+  const swell = (
+    <svg viewBox="0 0 1440 150" preserveAspectRatio="none" className="h-full w-[1440px] shrink-0" aria-hidden="true">
+      <path d={WAVE_PATH} fill="currentColor" />
+    </svg>
+  );
+  return (
+    <div
+      className={`absolute inset-x-0 flex h-full w-[2880px] motion-safe:animate-wave-move ${colorClass}`}
+      style={{ bottom, animationDuration: duration, animationDirection: reverse ? "reverse" : "normal" }}
+    >
+      {swell}
+      {swell}
+    </div>
+  );
+}
+
+/** Soft, layered "multi-wave" strip — three translucent bands of the same swell, stacked
+ * at different heights/opacities and drifting at different speeds for a natural, non-mechanical feel. */
+function WaveLayer() {
+  return (
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-7 overflow-hidden sm:h-9">
+      <WaveRow colorClass="text-white/20" duration="24s" bottom="6px" />
+      <WaveRow colorClass="text-white/45" duration="17s" bottom="3px" reverse />
+      <WaveRow colorClass="text-canvas" duration="30s" bottom="0px" />
+    </div>
+  );
+}
 
 export function TeacherProfileHeader({ teacher, isFavorite, onToggleFavorite }) {
   const t = useT();
 
-  const badges = (teacher.badges ?? [])
-    .map((b) => (typeof b === "string" ? { label: b, icon: "🏅" } : b))
-    .slice(0, 4);
-
   const teachingType = teacher.teachingMethods?.slice(0, 2).join(" / ") || teacher.typeLabel;
 
-  const stats = [
+  // The 4 feature-bullets under the title — real teacher data, styled like the reference's icon+label row
+  const bullets = [
+    (teacher.experienceShort || teacher.experienceLabel) && {
+      icon: CalendarCheck,
+      label: t("teacher.stats.experience"),
+      value: teacher.experienceShort || teacher.experienceLabel,
+    },
     teacher.completedSessions > 0 && {
       icon: Layers,
       label: t("teacher.stats.completedSessions"),
       value: `+${fmt(teacher.completedSessions)}`,
     },
-    (teacher.experienceShort || teacher.experienceLabel) && {
-      icon: CalendarDays,
-      label: t("teacher.stats.experience"),
-      value: teacher.experienceShort || teacher.experienceLabel,
-    },
     teachingType && {
-      icon: BookText,
+      icon: BookOpen,
       label: t("teacher.stats.teachingType"),
       value: teachingType,
     },
@@ -38,146 +107,109 @@ export function TeacherProfileHeader({ teacher, isFavorite, onToggleFavorite }) 
     },
   ].filter(Boolean);
 
-  const infoBits = [
-    teacher.reviewsCount > 0 && (
-      <span key="rating" className="inline-flex items-center gap-1.5">
-        <Star size={20} className="fill-[#FF8D28] text-[#FF8D28]" />
-        <span>
-          {String(teacher.rating).replace(".", ",")} ({fmt(teacher.reviewsCount)} {t("teacher.reviews")})
-        </span>
-      </span>
-    ),
-    teacher.experienceLabel && (
-      <span key="exp" className="inline-flex items-center gap-1.5">
-        <CalendarDays size={20} className="shrink-0" />
-        {teacher.experienceLabel}
-      </span>
-    ),
-    teacher.city && (
-      <span key="loc" className="inline-flex items-center gap-1.5">
-        <MapPin size={20} className="shrink-0" />
-        {teacher.city}
-      </span>
-    ),
+  const subtitleBits = [
+    teacher.typeLabel && { icon: BookOpen, text: teacher.typeLabel },
+    teacher.reviewsCount > 0 && {
+      icon: Star,
+      text: `${String(teacher.rating).replace(".", ",")} (${fmt(teacher.reviewsCount)} ${t("teacher.reviews")})`,
+      iconClass: "fill-[#FFC94A] text-[#FFC94A]",
+    },
+    teacher.city && { icon: MapPin, text: teacher.city },
   ].filter(Boolean);
 
-  const photoSrc = teacher.avatar || "/teacher.webp";
-
-  const textContent = (
-    <>
-      {teacher.isVerified && (
-        <span className="inline-flex items-center gap-1 rounded-2xl bg-white px-2.5 py-1 text-xs font-semibold text-[#34C759]">
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#34C759]">
-            <Check size={11} className="text-white" strokeWidth={3} />
-          </span>
-          {t("teacher.verified")}
-        </span>
-      )}
-
-      <h1 className="mt-2 text-[26px] font-bold leading-[1.35] text-white sm:text-[32px]">{teacher.name}</h1>
-      <p className="text-lg font-bold text-white sm:text-xl">{teacher.typeLabel}</p>
-
-      {infoBits.length > 0 && (
-        <div className="mt-2.5 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-base font-medium text-white">
-          {infoBits.map((bit, i) => (
-            <span key={i} className="flex items-center gap-4">
-              {i > 0 && <span className="h-3.5 w-px bg-white/70" />}
-              {bit}
-            </span>
-          ))}
-        </div>
-      )}
-
-      {badges.length > 0 && (
-        <div className="mt-4 flex flex-wrap justify-end gap-4">
-          {badges.map((badge) => (
-            <span
-              key={badge.label}
-              className="inline-flex items-center gap-1 rounded-2xl bg-[#FAFAFA] p-2 text-xs font-medium text-[#1E1E1E]"
-            >
-              {badge.label}
-              <span className="text-sm leading-none">{badge.icon ?? "🏅"}</span>
-            </span>
-          ))}
-        </div>
-      )}
-    </>
-  );
-
   return (
-    <div>
-      {/* ── Gradient hero — Figma "Frame 8" (1360×285) ────────────────── */}
-      <div
-        className="relative overflow-hidden rounded-[24px] shadow-[0px_1px_5px_rgba(0,0,0,0.1)] lg:min-h-[285px]"
-        style={{ background: HERO_GRADIENT }}
-      >
-        {/* Ellipse 2 — soft white glow behind the text (left 140 / top 31 / 756×512 / blur 200) */}
-        <div className="pointer-events-none absolute left-[10%] top-[11%] h-[512px] w-[56%] rounded-full bg-white/50 blur-[200px]" />
+    <div
+      dir="ltr"
+      className="relative overflow-hidden rounded-[28px] shadow-[0_8px_40px_rgba(15,23,90,0.35)]"
+      style={{ background: NEON_GRADIENT }}
+    >
+      {/* Ambient color blobs for depth */}
+      <div className="pointer-events-none absolute -top-16 right-10 h-64 w-64 rounded-full bg-[#5B4CFF]/30 blur-[80px]" />
+      <div className="pointer-events-none absolute bottom-0 left-1/3 h-56 w-56 rounded-full bg-[#00C2FF]/20 blur-[90px]" />
 
-        {/* Rectangle 157948 — rotated shape behind the photo
-            (left 1026 / top 79 / 246×214 / rotate 13.44°) */}
-        <div
-          className="pointer-events-none absolute right-[6.5%] top-[27.7%] hidden aspect-[246/214] w-[18.1%] rotate-[13.44deg] rounded-[32px] lg:block"
-          style={{ background: SHAPE_GRADIENT }}
-        />
+      {/* "Flash light" flare on the very left edge */}
+      <div className="pointer-events-none absolute -left-16 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-white/25 blur-[70px] motion-safe:animate-flare-pulse" />
 
-        {/* image 10 — teacher photo (left 1017 / top 3 / 287×305, clipped by the card) */}
-        <div className="absolute right-[4.1%] top-0 hidden h-full w-[21.1%] lg:block">
-          <img
-            src={photoSrc}
-            alt={teacher.name}
-            decoding="async"
-            className="h-full w-full object-cover object-top"
-          />
-          {onToggleFavorite && (
-            <FavoriteButton
-              active={isFavorite}
-              onClick={onToggleFavorite}
-              className="absolute left-3 top-3 z-20"
-            />
+      <div className="relative z-10 flex flex-col items-stretch gap-8 p-6 pb-9 sm:p-10 sm:pb-12 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
+        {/* ── Text column — left side, as in the reference ─────────────── */}
+        <div className="flex flex-1 flex-col items-start gap-4 text-left">
+          <div className="flex w-full items-center justify-between">
+            {teacher.isVerified && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#0E1A4D] backdrop-blur-sm">
+                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#2E9E6B]">
+                  <Check size={11} className="text-white" strokeWidth={3} />
+                </span>
+                {t("teacher.verified")}
+              </span>
+            )}
+            {onToggleFavorite && (
+              <FavoriteButton active={isFavorite} onClick={onToggleFavorite} className="!bg-white/15 [&_svg]:!text-white" />
+            )}
+          </div>
+
+          <div>
+            <h1 className="text-[28px] font-bold leading-tight text-white sm:text-[36px]">{teacher.name}</h1>
+            {subtitleBits.length > 0 && (
+              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm font-medium text-white/75 sm:text-base">
+                {subtitleBits.map(({ icon: Icon, text, iconClass }, i) => (
+                  <span key={i} className="flex items-center gap-3.5">
+                    {i > 0 && <span className="h-3.5 w-px bg-white/25" />}
+                    <span className="inline-flex items-center gap-1.5">
+                      <Icon size={16} className={iconClass ?? "text-[#5FE4FF]"} strokeWidth={2} />
+                      {text}
+                    </span>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {bullets.length > 0 && (
+            <div className="mt-1 grid grid-cols-2 gap-x-6 gap-y-4 sm:flex sm:flex-wrap sm:gap-x-8">
+              {bullets.map(({ icon: Icon, label, value }) => (
+                <div key={label} className="flex items-center gap-2.5">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-[#5FE4FF] ring-1 ring-white/20">
+                    <Icon size={18} strokeWidth={2} />
+                  </span>
+                  <span className="flex flex-col leading-tight">
+                    <span className="text-sm font-bold text-white">{value}</span>
+                    <span className="text-xs text-white/60">{label}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
-        {/* Mobile / tablet: photo stacked on top */}
-        <div className="relative h-52 w-full overflow-hidden sm:h-64 lg:hidden">
-          <img
-            src={photoSrc}
-            alt={teacher.name}
-            decoding="async"
-            className="h-full w-full object-cover object-top"
-          />
-          {onToggleFavorite && (
-            <FavoriteButton
-              active={isFavorite}
-              onClick={onToggleFavorite}
-              className="absolute left-3 top-3 z-20"
-            />
-          )}
-        </div>
+        {/* ── Photo column — neon ring + floating teaching icons, right side ── */}
+        <div className="relative mx-auto h-[220px] w-[220px] shrink-0 sm:h-[260px] sm:w-[260px] lg:mx-0 lg:me-6">
+          {/* soft outer bloom, pulses */}
+          <div className="absolute inset-[-14px] rounded-full bg-[#38E0FF]/25 blur-3xl motion-safe:animate-glow-pulse" />
 
-        {/* Frame 17 — text block: normal flow on mobile, absolute bottom-right on desktop
-            (Figma: right 357 / bottom 20 / width 719) */}
-        <div className="relative z-10 flex flex-col items-end px-6 pb-7 pt-6 text-end sm:px-8 lg:absolute lg:inset-x-0 lg:bottom-5 lg:p-0 lg:pe-[26.25%] lg:ps-8">
-          {textContent}
+          {/* floating teaching-icon bubbles */}
+          <div className="absolute inset-0 hidden sm:block">
+            {FLOATING_ICONS.map((f, i) => (
+              <FloatingIcon key={i} {...f} />
+            ))}
+          </div>
+
+          {/* rotating neon ring */}
+          <div className="absolute inset-0 rounded-full motion-safe:animate-spin-slow" style={{ background: RING_SHINE }} />
+          {/* thin bright ring against the photo */}
+          <div className="absolute inset-[6px] rounded-full bg-white/90" />
+          {/* photo */}
+          <div className="absolute inset-[10px] overflow-hidden rounded-full">
+            <img
+              src={teacher.avatar || "/teacher.webp"}
+              alt={teacher.name}
+              decoding="async"
+              className="h-full w-full object-cover object-top"
+            />
+          </div>
         </div>
       </div>
 
-      {/* ── Stats card — Figma "Frame 38" (1360×96, #F9F9FE) ─────────── */}
-      {stats.length > 0 && (
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-6 rounded-[24px] bg-[#F9F9FE] px-6 py-6 sm:px-10">
-          {stats.map(({ icon: Icon, label, value }) => (
-            <div key={label} className="flex flex-1 items-center justify-end gap-4">
-              <div className="flex flex-col items-end text-end">
-                <span className="text-base font-medium text-[#1E1E1E] sm:text-lg">{label}</span>
-                <span className="text-lg font-bold text-[#1E1E1E] sm:text-xl">{value}</span>
-              </div>
-              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#EDF0F5]">
-                <Icon size={28} strokeWidth={1.6} className="text-[#4B6898]" />
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
+      <WaveLayer />
     </div>
   );
 }
