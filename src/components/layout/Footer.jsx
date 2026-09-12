@@ -1,14 +1,20 @@
-import {
-  Phone,
-  Mail,
-  MessageCircle,
-  Twitter,
-  Facebook,
-  Instagram,
-} from "lucide-react";
+import { Phone, Mail, Facebook, Instagram, Youtube } from "lucide-react";
+import { TikTokIcon, WhatsAppIcon } from "@/components/icons/SocialIcons";
 import { Logo } from "./Logo";
 import { useT } from "@/hooks/useT";
 import { SplitWords } from "@/motion/scroll/SplitWords";
+
+// رقم الهاتف/واتساب الرسمي الوحيد — يُستخدَم للعرض وللرابطين (tel:/wa.me) معاً.
+const PHONE_DISPLAY = "+971 52 942 6077";
+const PHONE_DIGITS = "971529426077"; // بلا + ولا فراغات — الصيغة التي يتطلبها wa.me
+const EMAIL = "TAALAM@gmail.com";
+
+const SOCIAL_LINKS = [
+  { Icon: Facebook, href: "https://www.facebook.com/profile.php?id=61562033186054", label: "Facebook" },
+  { Icon: Instagram, href: "https://www.instagram.com/taalam.2024/", label: "Instagram" },
+  { Icon: TikTokIcon, href: "https://www.tiktok.com/@t3allem.edu", label: "TikTok" },
+  { Icon: Youtube, href: "https://youtube.com/@t3allemedu", label: "YouTube" },
+];
 
 export function Footer() {
   const t = useT();
@@ -100,25 +106,40 @@ export function Footer() {
               {t("footer.contact")}
             </SplitWords>
             <ul className="space-y-3 text-sm text-ink-soft">
-              <li className="flex items-center gap-2 ">
+              <li className="flex items-center gap-2">
                 <Phone size={15} />
-                <span dir="ltr">966625651651</span>
+                <a href={`tel:+${PHONE_DIGITS}`} dir="ltr" className="hover:text-ink transition-colors">
+                  {PHONE_DISPLAY}
+                </a>
               </li>
-              <li className="flex items-center gap-2 ">
-                <Mail size={15} /> <span>TAALAM@gmail.com</span>
+              <li className="flex items-center gap-2">
+                <Mail size={15} />
+                <a href={`mailto:${EMAIL}`} className="hover:text-ink transition-colors">
+                  {EMAIL}
+                </a>
               </li>
-              <li className="flex items-center gap-2 ">
-                <MessageCircle size={15} />{" "}
-                <span dir="ltr">+9653654154156</span>{" "}
+              <li className="flex items-center gap-2">
+                <WhatsAppIcon size={15} />
+                <a
+                  href={`https://wa.me/${PHONE_DIGITS}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  dir="ltr"
+                  className="hover:text-ink transition-colors"
+                >
+                  {PHONE_DISPLAY}
+                </a>
               </li>
             </ul>
             <div className="flex gap-3 mt-4 ">
-              {[Twitter, Facebook, Instagram].map((Icon, i) => (
+              {SOCIAL_LINKS.map(({ Icon, href, label }) => (
                 <a
-                  key={i}
-                  href="#"
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-11 h-11 rounded-full bg-canvas flex items-center justify-center hover:bg-line/60 transition-colors"
-                  aria-label="social"
+                  aria-label={label}
                 >
                   <Icon size={16} className="text-ink-soft" />
                 </a>
