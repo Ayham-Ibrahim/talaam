@@ -1,4 +1,11 @@
 {
+  "imageCrop": {
+    "title": "Crop photo",
+    "hint": "Drag the photo to center it, and use the zoom slider to adjust the crop",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving..."
+  },
   "brand": {
     "name": "TAALAM",
     "tagline": "An educational platform connecting students with the best certified teachers across every field of study"
@@ -486,6 +493,8 @@
     "expTitlePlaceholder": "Title — e.g. Teacher at private schools",
     "expPeriodPlaceholder": "Period — 2019 - 2022",
     "addExperience": "Add",
+    "avatarTitle": "Profile photo",
+    "avatarHint": "This photo is shown to students on your public profile",
     "philosophyQuotePlaceholder": "e.g. Great teaching isn't measured by how much you know, but by how well students can use it.",
     "philosophyTextPlaceholder": "Briefly describe your teaching approach and what makes it stand out...",
     "thankYouHint": "Leave blank to show a ready-made default message at the end of your profile."

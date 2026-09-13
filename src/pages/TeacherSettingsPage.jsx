@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { CalendarCheck, Globe, Video, HelpCircle } from 'lucide-react';
+import { Camera, CalendarCheck, Globe, Video, HelpCircle, Trash2, UserRound } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { TimezoneField } from '@/components/dashboard/TimezoneField';
 import { TeacherVideosEditor } from '@/components/teacher/TeacherVideosEditor';
 import { TeacherFaqEditor } from '@/components/teacher/TeacherFaqEditor';
 import { TeacherProfileEditorCard } from '@/components/teacher/TeacherProfileEditorCard';
-import { ApiErrorList, ErrorState, Skeleton } from '@/components/ui';
+import { ApiErrorList, Avatar, ErrorState, Skeleton } from '@/components/ui';
+import { ImageCropModal } from '@/components/ui/ImageCropModal';
 import { useAuth } from '@/hooks/useAuth';
-import { useUpdateProfile } from '@/hooks/useProfile';
+import { useUpdateProfile, useUploadAvatar, useDeleteAvatar } from '@/hooks/useProfile';
 import { useAvailabilityDays, useAddAvailabilityDay, useRemoveAvailabilityDay } from '@/hooks/useAvailability';
 import {
   useMyTeacher,
@@ -39,6 +40,19 @@ export function TeacherSettingsPage() {
   const addDay = useAddAvailabilityDay(teacherId);
   const removeDay = useRemoveAvailabilityDay(teacherId);
   const updateProfile = useUpdateProfile();
+  const uploadAvatar = useUploadAvatar();
+  const deleteAvatar = useDeleteAvatar();
+  const [cropFile, setCropFile] = useState(null);
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) setCropFile(file);
+    e.target.value = '';
+  };
+
+  const handleCropConfirm = (croppedFile) => {
+    uploadAvatar.mutate(croppedFile, { onSuccess: () => setCropFile(null) });
+  };
 
   const isTrainingCenter = user?.teacherType === 'training_center';
   const { data: teacher } = useMyTeacher(teacherId);
@@ -92,6 +106,48 @@ export function TeacherSettingsPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-6">
+        <div className="rounded-2xl bg-white p-6 shadow-card">
+          <h2 className="flex items-center gap-2 font-bold text-ink">
+            <UserRound size={20} className="text-primary" />
+            {t('teacherSettings.avatarTitle')}
+          </h2>
+          <p className="mt-1 text-sm text-ink-soft">{t('teacherSettings.avatarHint')}</p>
+
+          <div className="mt-4 flex items-center gap-4">
+            <div className="relative">
+              <Avatar name={user.name} src={user.avatar} size="lg" />
+              <label className="absolute -bottom-1 -left-1 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-primary text-white shadow-card hover:bg-primary-hover">
+                <Camera size={13} />
+                <input type="file" accept="image/png,image/jpeg" onChange={handleAvatarChange} className="hidden" />
+              </label>
+              {user.avatar && (
+                <button
+                  type="button"
+                  onClick={() => deleteAvatar.mutate()}
+                  disabled={deleteAvatar.isPending}
+                  title={t('studentSettings.removePhoto')}
+                  className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-white text-accent-pink shadow-card hover:bg-accent-pink/10 disabled:opacity-50"
+                >
+                  <Trash2 size={13} />
+                </button>
+              )}
+            </div>
+            {uploadAvatar.isPending && <span className="text-xs text-ink-soft">{t('studentSettings.uploading')}</span>}
+            {deleteAvatar.isPending && <span className="text-xs text-ink-soft">{t('studentSettings.deletingAvatar')}</span>}
+          </div>
+          {uploadAvatar.isError && <ApiErrorList error={uploadAvatar.error} labelFor={() => null} className="mt-2" />}
+          {deleteAvatar.isError && <ApiErrorList error={deleteAvatar.error} labelFor={() => null} className="mt-2" />}
+        </div>
+
+        {cropFile && (
+          <ImageCropModal
+            file={cropFile}
+            onCancel={() => setCropFile(null)}
+            onConfirm={handleCropConfirm}
+            isSaving={uploadAvatar.isPending}
+          />
+        )}
+
         {teacherId && teacher && (
           <TeacherProfileEditorCard
             teacherId={teacherId}

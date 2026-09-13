@@ -1,5 +1,9 @@
-import { BookOpen } from "lucide-react";
+import { useState } from "react";
+import { Award } from "lucide-react";
 import { useT } from "@/hooks/useT";
+
+/** Same neon navy used across the header/philosophy sections — kept for one consistent "identity" family */
+const NEON_GRADIENT = "linear-gradient(135deg, #0E1A4D 0%, #17237E 60%, #1B2E9C 100%)";
 
 const LANGUAGE_FLAGS = { ar: "/ar.png", en: "/en.png" };
 const NEUTRAL_DOT = "#C7D0DF";
@@ -32,34 +36,59 @@ function Chip({ label, dot, dotSize = 14, flag, textColor = "#1E1E1E" }) {
   );
 }
 
-/** Subjects card — a plain row list (icon + name), no trailing label/chevron, one shared icon for every subject */
-function SubjectsCard({ title, subjects }) {
+/** One qualification, styled as a dark "achievement badge" card — decorative ruler ticks, no invented stats */
+function QualificationBadgeCard({ label }) {
+  const t = useT();
+  const [badgeMissing, setBadgeMissing] = useState(false);
+
+  return (
+    <div
+      className="relative overflow-hidden rounded-2xl p-4 text-start shadow-[0_8px_20px_rgba(15,23,90,0.25)]"
+      style={{ background: NEON_GRADIENT }}
+    >
+      <div className="relative z-10 max-w-[75%]">
+        <span className="text-xs font-medium text-white/55">{t("teacher.qualificationBadge")}</span>
+        <h4 className="mt-0.5 truncate text-base font-bold text-white">{label}</h4>
+      </div>
+
+      {/* Badge icon — opposite corner from the text; falls back to a plain award glyph until the SVG asset exists */}
+      <span className="absolute end-3 top-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-[#5FE4FF] ring-1 ring-white/20">
+        {badgeMissing ? (
+          <Award size={20} />
+        ) : (
+          <img
+            src="/qualification-badge.svg"
+            alt=""
+            aria-hidden="true"
+            className="h-6 w-6 object-contain"
+            onError={() => setBadgeMissing(true)}
+          />
+        )}
+      </span>
+
+      {/* Decorative ruler ticks — pure texture, no data claim */}
+      <div className="relative z-10 mt-4 flex h-4 items-end gap-[3px]" aria-hidden="true">
+        {Array.from({ length: 24 }).map((_, i) => (
+          <span
+            key={i}
+            className="w-[2px] rounded-full bg-[#5FE4FF]/50"
+            style={{ height: i % 4 === 0 ? "100%" : i % 2 === 0 ? "65%" : "40%" }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Qualifications card — a grid of dark achievement-badge cards, one per qualification */
+function QualificationsCard({ title, qualifications }) {
   return (
     <div className="relative flex-1 overflow-hidden rounded-[24px] bg-white p-5 text-start shadow-[0px_1px_5px_rgba(0,0,0,0.1)] sm:p-6">
       <h3 className="text-lg font-bold text-[#2D2D2D]">{title}</h3>
-
-      <div className="mt-3 flex flex-col divide-y divide-[#F0F0F5] pe-24 sm:pe-32">
-        {subjects.map((s) => (
-          <div key={s} className="flex items-center gap-3 py-2.5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-purple/10 text-accent-purple">
-              <BookOpen size={18} />
-            </span>
-            <span className="text-sm font-bold text-[#2D2D2D]">{s}</span>
-          </div>
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {qualifications.map((q) => (
+          <QualificationBadgeCard key={q} label={q} />
         ))}
-      </div>
-
-      {/* Decorative illustration — full PNG visible (object-contain), inset with a small margin on every side */}
-      <div className="pointer-events-none absolute inset-y-3 end-3 w-24 sm:inset-y-4 sm:end-4 sm:w-32">
-        <img
-          src="/desk-lamp-illustration.png"
-          alt=""
-          aria-hidden="true"
-          className="h-full w-full object-contain"
-          onError={(e) => {
-            e.currentTarget.parentElement.style.display = "none";
-          }}
-        />
       </div>
     </div>
   );
@@ -120,15 +149,15 @@ function ScopeCard({ title, children }) {
 
 /**
  * Teaching-scope cards, matching the Figma: each taxonomy is its own white
- * rounded card. Row 1 = المواد / اللغات, row 2 = المراحل الدراسية / التحضير
- * للامتحانات / المناهج. Cards with no data are dropped.
+ * rounded card. Row 1 = المؤهلات العلمية / اللغات, row 2 = المراحل الدراسية /
+ * التحضير للامتحانات / المناهج. Cards with no data are dropped.
  */
 export function TeacherTeachingScopeSection({ teacher }) {
   const t = useT();
 
   const row1 = [
-    teacher.subjects?.length > 0 && (
-      <SubjectsCard key="subjects" title={t("teacher.subjects")} subjects={teacher.subjects} />
+    teacher.qualifications?.length > 0 && (
+      <QualificationsCard key="qualifications" title={t("teacher.qualifications")} qualifications={teacher.qualifications} />
     ),
     teacher.languages?.length > 0 && (
       <LanguagesCard key="languages" title={t("teacher.languages")} languages={teacher.languages} />

@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Award, BookOpen, Building2, GraduationCap } from "lucide-react";
+import { BookOpen, Building2, GraduationCap } from "lucide-react";
 import { useT } from "@/hooks/useT";
 
 /** Rotating icon + soft pastel per timeline entry — purely decorative, same rhythm as the reference's alternating cards */
@@ -11,48 +10,34 @@ const EXP_PALETTE = [
 
 const CURRENT_RE = /الآن|الان|حالياً|حاليا|present|current/i;
 
-/** Same neon navy used across the header/philosophy sections — kept for one consistent "identity" family */
-const NEON_GRADIENT = "linear-gradient(135deg, #0E1A4D 0%, #17237E 60%, #1B2E9C 100%)";
-
-/** One qualification, styled as a dark "achievement badge" card — decorative ruler ticks, no invented stats */
-function QualificationBadgeCard({ label }) {
-  const t = useT();
-  const [badgeMissing, setBadgeMissing] = useState(false);
-
+/** Subjects card — a plain row list (icon + name), no trailing label/chevron, one shared icon for every subject */
+function SubjectsCard({ title, subjects }) {
   return (
-    <div
-      className="relative overflow-hidden rounded-2xl p-4 text-start shadow-[0_8px_20px_rgba(15,23,90,0.25)]"
-      style={{ background: NEON_GRADIENT }}
-    >
-      <div className="relative z-10 max-w-[75%]">
-        <span className="text-xs font-medium text-white/55">{t("teacher.qualificationBadge")}</span>
-        <h4 className="mt-0.5 truncate text-base font-bold text-white">{label}</h4>
+    <div className="relative overflow-hidden rounded-[28px] bg-white p-5 text-start shadow-[0_10px_30px_rgba(17,24,39,0.06)] sm:p-6">
+      <h3 className="text-lg font-bold text-[#1E1E1E]">{title}</h3>
+
+      <div className="mt-3 flex flex-col divide-y divide-[#F0F0F5] pe-24 sm:pe-32">
+        {subjects.map((s) => (
+          <div key={s} className="flex items-center gap-3 py-2.5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-purple/10 text-accent-purple">
+              <BookOpen size={18} />
+            </span>
+            <span className="text-sm font-bold text-[#2D2D2D]">{s}</span>
+          </div>
+        ))}
       </div>
 
-      {/* Badge icon — opposite corner from the text; falls back to a plain award glyph until the SVG asset exists */}
-      <span className="absolute end-3 top-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-[#5FE4FF] ring-1 ring-white/20">
-        {badgeMissing ? (
-          <Award size={20} />
-        ) : (
-          <img
-            src="/qualification-badge.svg"
-            alt=""
-            aria-hidden="true"
-            className="h-6 w-6 object-contain"
-            onError={() => setBadgeMissing(true)}
-          />
-        )}
-      </span>
-
-      {/* Decorative ruler ticks — pure texture, no data claim */}
-      <div className="relative z-10 mt-4 flex h-4 items-end gap-[3px]" aria-hidden="true">
-        {Array.from({ length: 24 }).map((_, i) => (
-          <span
-            key={i}
-            className="w-[2px] rounded-full bg-[#5FE4FF]/50"
-            style={{ height: i % 4 === 0 ? "100%" : i % 2 === 0 ? "65%" : "40%" }}
-          />
-        ))}
+      {/* Decorative illustration — full PNG visible (object-contain), inset with a small margin on every side */}
+      <div className="pointer-events-none absolute inset-y-3 end-3 w-24 sm:inset-y-4 sm:end-4 sm:w-32">
+        <img
+          src="/desk-lamp-illustration.png"
+          alt=""
+          aria-hidden="true"
+          className="h-full w-full object-contain"
+          onError={(e) => {
+            e.currentTarget.parentElement.style.display = "none";
+          }}
+        />
       </div>
     </div>
   );
@@ -60,20 +45,20 @@ function QualificationBadgeCard({ label }) {
 
 /**
  * Third profile section — previous experience as a connected timeline,
- * alongside a decorative academic-qualifications card. Full-width row; on
- * desktop the two cards sit side by side, otherwise they stack.
+ * alongside the subjects list. Full-width row; on desktop the two cards sit
+ * side by side, otherwise they stack.
  */
 export function TeacherCredentialsSection({ teacher }) {
   const t = useT();
 
   const experiences = teacher.experiences ?? [];
-  const qualifications = teacher.qualifications ?? [];
+  const subjects = teacher.subjects ?? [];
 
   const hasExperiences = experiences.length > 0;
-  const hasQualifications = qualifications.length > 0;
-  if (!hasExperiences && !hasQualifications) return null;
+  const hasSubjects = subjects.length > 0;
+  if (!hasExperiences && !hasSubjects) return null;
 
-  const twoUp = hasExperiences && hasQualifications;
+  const twoUp = hasExperiences && hasSubjects;
 
   return (
     <div className={`mt-6 grid gap-6 ${twoUp ? "lg:grid-cols-2" : ""}`}>
@@ -120,17 +105,7 @@ export function TeacherCredentialsSection({ teacher }) {
         </section>
       )}
 
-      {hasQualifications && (
-        <section className="rounded-[28px] bg-white p-5 text-start shadow-[0_10px_30px_rgba(17,24,39,0.06)] sm:p-6">
-          <h3 className="text-lg font-bold text-[#1E1E1E]">{t("teacher.qualifications")}</h3>
-
-          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {qualifications.map((q) => (
-              <QualificationBadgeCard key={q} label={q} />
-            ))}
-          </div>
-        </section>
-      )}
+      {hasSubjects && <SubjectsCard title={t("teacher.subjects")} subjects={subjects} />}
     </div>
   );
 }
