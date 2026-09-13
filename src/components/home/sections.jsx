@@ -331,7 +331,7 @@ export function FeaturedTeachers() {
       {isError ? (
         <ErrorState onRetry={refetch} />
       ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
           {isLoading
             ? Array.from({ length: 5 }).map((_, i) => <TeacherCardSkeleton key={i} />)
             : teachers.map((teacher) => <TeacherCard key={teacher.id} teacher={teacher} />)}

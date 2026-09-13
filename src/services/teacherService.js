@@ -50,6 +50,10 @@ function mapSearchResult(raw) {
     city: raw.city,
     rating: Number(raw.rating_avg ?? 0),
     reviewsCount: raw.reviews_count ?? 0,
+    qualification: raw.qualification ? (QUALIFICATION_LABELS[raw.qualification] ?? raw.qualification) : null,
+    experienceShort: raw.experience_years ? (EXPERIENCE_LABELS_SHORT[raw.experience_years] ?? raw.experience_years) : null,
+    stages: raw.stages ?? [],
+    completedSessions: raw.completed_sessions ?? null,
   };
 }
 
