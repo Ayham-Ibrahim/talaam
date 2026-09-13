@@ -37,7 +37,7 @@ function toISODate(date) {
  *   تلقائياً على الجميع)، ويقدّم طلب حجز واحد يحمل كل هذه المواعيد معاً. لا دفع
  *   الآن — بانتظار موافقة المعلم، وبعدها يظهر زر "أكمل الدفع" في لوحة الطالب.
  */
-export function BookingWidget({ selectedPackage, stacked = false }) {
+export function BookingWidget({ selectedPackage, bare = false }) {
   const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
@@ -224,14 +224,8 @@ export function BookingWidget({ selectedPackage, stacked = false }) {
   };
 
   return (
-    <div
-      className={
-        stacked
-          ? 'mt-8 flex flex-col gap-5 rounded-card bg-white p-5 shadow-card sm:p-6 [&>*]:mx-auto [&>*]:w-full [&>*]:max-w-2xl'
-          : 'flex h-fit flex-col gap-5 rounded-card bg-white p-5 shadow-card lg:sticky lg:top-24'
-      }
-    >
-      <h2 className="text-start font-bold text-ink">{t('booking.title')}</h2>
+    <div className={bare ? 'flex flex-col gap-5' : 'flex h-fit flex-col gap-5 rounded-card bg-white p-5 shadow-card lg:sticky lg:top-24'}>
+      {!bare && <h2 className="text-start font-bold text-ink">{t('booking.title')}</h2>}
 
       {/* Selected package */}
       <div>

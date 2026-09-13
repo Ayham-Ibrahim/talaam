@@ -401,9 +401,15 @@
     "about": "About the teacher",
     "availability": "Availability",
     "previousExperience": "Previous experience",
+    "experienceCurrent": "Current",
+    "experienceCompleted": "Past",
     "showMore": "Show more",
     "showLess": "Show less",
     "watchIntro": "Watch the intro video",
+    "philosophyTitle": "My Teaching Philosophy",
+    "thankYouTitle": "Thank You for Visiting",
+    "defaultThankYouLine1": "Thank you for visiting my profile.",
+    "defaultThankYouLine2": "I invite you to join our first session together so we can get to know your needs and prepare a study plan that truly fits you, so we can achieve excellence together.",
     "stats": {
       "satisfaction": "Satisfaction",
       "retention": "Returning students",
@@ -413,6 +419,7 @@
       "location": "Location"
     },
     "qualifications": "Academic Qualifications",
+    "qualificationBadge": "Academic qualification",
     "subjects": "Subjects I teach",
     "curricula": "Curricula",
     "stages": "Educational stages",
@@ -478,7 +485,10 @@
     "addTagPlaceholder": "Type an item, then press Enter",
     "expTitlePlaceholder": "Title — e.g. Teacher at private schools",
     "expPeriodPlaceholder": "Period — 2019 - 2022",
-    "addExperience": "Add"
+    "addExperience": "Add",
+    "philosophyQuotePlaceholder": "e.g. Great teaching isn't measured by how much you know, but by how well students can use it.",
+    "philosophyTextPlaceholder": "Briefly describe your teaching approach and what makes it stand out...",
+    "thankYouHint": "Leave blank to show a ready-made default message at the end of your profile."
   },
   "studentSettings": {
     "basicInfoTitle": "Basic Info",

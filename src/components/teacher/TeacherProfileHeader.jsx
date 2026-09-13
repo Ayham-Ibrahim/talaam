@@ -44,40 +44,6 @@ const FLOATING_ICONS = [
   { Icon: CalendarCheck, style: { left: "8%", top: "6%" }, delay: 2.1, size: 36 },
 ];
 
-/** One gentle, rounded swell — reused by every wave layer, just phase/opacity/speed differ */
-const WAVE_PATH =
-  "M0,50 C180,92 360,8 540,50 C720,92 900,8 1080,50 C1260,92 1350,26 1440,50 L1440,150 L0,150 Z";
-
-/** A single scrolling wave band — two copies of the same path so it loops seamlessly */
-function WaveRow({ colorClass, duration, bottom, reverse }) {
-  const swell = (
-    <svg viewBox="0 0 1440 150" preserveAspectRatio="none" className="h-full w-[1440px] shrink-0" aria-hidden="true">
-      <path d={WAVE_PATH} fill="currentColor" />
-    </svg>
-  );
-  return (
-    <div
-      className={`absolute inset-x-0 flex h-full w-[2880px] motion-safe:animate-wave-move ${colorClass}`}
-      style={{ bottom, animationDuration: duration, animationDirection: reverse ? "reverse" : "normal" }}
-    >
-      {swell}
-      {swell}
-    </div>
-  );
-}
-
-/** Soft, layered "multi-wave" strip — three translucent bands of the same swell, stacked
- * at different heights/opacities and drifting at different speeds for a natural, non-mechanical feel. */
-function WaveLayer() {
-  return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-7 overflow-hidden sm:h-9">
-      <WaveRow colorClass="text-white/20" duration="24s" bottom="6px" />
-      <WaveRow colorClass="text-white/45" duration="17s" bottom="3px" reverse />
-      <WaveRow colorClass="text-canvas" duration="30s" bottom="0px" />
-    </div>
-  );
-}
-
 export function TeacherProfileHeader({ teacher, isFavorite, onToggleFavorite }) {
   const t = useT();
 
@@ -119,7 +85,6 @@ export function TeacherProfileHeader({ teacher, isFavorite, onToggleFavorite }) 
 
   return (
     <div
-      dir="ltr"
       className="relative overflow-hidden rounded-[28px] shadow-[0_8px_40px_rgba(15,23,90,0.35)]"
       style={{ background: NEON_GRADIENT }}
     >
@@ -131,8 +96,8 @@ export function TeacherProfileHeader({ teacher, isFavorite, onToggleFavorite }) 
       <div className="pointer-events-none absolute -left-16 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-white/25 blur-[70px] motion-safe:animate-flare-pulse" />
 
       <div className="relative z-10 flex flex-col items-stretch gap-8 p-6 pb-9 sm:p-10 sm:pb-12 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
-        {/* ── Text column — left side, as in the reference ─────────────── */}
-        <div className="flex flex-1 flex-col items-start gap-4 text-left">
+        {/* ── Text column — start side (left in English, right in Arabic) ─── */}
+        <div className="flex flex-1 flex-col items-start gap-4 text-start">
           <div className="flex w-full items-center justify-between">
             {teacher.isVerified && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#0E1A4D] backdrop-blur-sm">
@@ -208,8 +173,6 @@ export function TeacherProfileHeader({ teacher, isFavorite, onToggleFavorite }) 
           </div>
         </div>
       </div>
-
-      <WaveLayer />
     </div>
   );
 }

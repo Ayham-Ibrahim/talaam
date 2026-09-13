@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { CirclePlay, X } from "lucide-react";
+import { Clock3, Play, PlayCircle, Quote, X } from "lucide-react";
 import { YoutubeModal } from "@/components/common/YoutubeModal";
 import { useT } from "@/hooks/useT";
-
-const CARD = "rounded-[24px] shadow-[0px_1px_5px_rgba(0,0,0,0.1)]";
 
 /** Lightweight overlay for an uploaded (non-YouTube) intro video */
 function VideoModal({ src, onClose }) {
@@ -47,40 +45,58 @@ export function TeacherAboutSection({ teacher }) {
     : teacher.avatar || null;
 
   return (
-    <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-stretch">
-      {/* Bio — right in RTL */}
+    <div className="mt-4 flex flex-col gap-6 rounded-[28px] bg-white p-6 shadow-[0_10px_30px_rgba(17,24,39,0.06)] ring-1 ring-black/[0.03] sm:p-8 lg:flex-row lg:items-stretch">
+      {/* Bio — end side (right in Arabic, left in English) */}
       {bio && (
-        <div className={`flex-1 bg-white px-6 py-4 text-end sm:px-8 ${CARD}`}>
-          <h3 className="text-lg font-bold text-[#2D2D2D]">{t("teacher.about")}</h3>
-          <p className="mt-2 whitespace-pre-line text-[15px] leading-[32px] text-[#626262] sm:text-lg sm:leading-[34px]">
+        <div className="flex-1 text-start">
+          <div className="flex items-center justify-start gap-3">
+            <h3 className="text-lg font-bold text-[#1E1E1E] sm:text-xl">{t("teacher.about")}</h3>
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#5FE4FF]/15 text-[#1FB8D6]">
+              <Quote size={18} className="fill-[#5FE4FF]/25" />
+            </span>
+          </div>
+          <p className="mt-4 whitespace-pre-line text-[15px] leading-[1.9] text-[#5B5B5B] sm:text-base">
             {bio}
           </p>
         </div>
       )}
 
-      {/* Intro video — left in RTL, equal-width card */}
+      {/* Intro video — inline within the same card, start side, no longer a separate card */}
       {hasVideo && (
         <button
           type="button"
           onClick={() => setShowVideo(true)}
           aria-label={t("teacher.watchIntro")}
-          className={`group relative block min-h-[240px] flex-1 overflow-hidden bg-[#272727] ${CARD}`}
+          className="group relative block min-h-[220px] flex-1 overflow-hidden rounded-2xl bg-[#1E1E1E] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(17,24,39,0.22)] lg:max-w-[340px]"
         >
           {poster && (
             <img
               src={poster}
               alt=""
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
               }}
             />
           )}
-          <span className="absolute inset-0 bg-[#272727]/50 transition-colors group-hover:bg-[#272727]/40" />
+          {/* cinematic gradient — darker at the edges, clear in the middle for the play button */}
+          <span className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/40 transition-colors group-hover:from-black/80" />
+
+          {teacher.introVideoDuration && (
+            <span className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
+              <Clock3 size={12} />
+              {teacher.introVideoDuration}
+            </span>
+          )}
+
           <span className="absolute inset-0 flex items-center justify-center">
-            <CirclePlay size={48} strokeWidth={1.5} className="text-white transition-transform group-hover:scale-110" />
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-[0_10px_28px_rgba(0,0,0,0.35)] transition-transform duration-300 group-hover:scale-110">
+              <Play size={22} className="ms-1 fill-[#1FB8D6] text-[#1FB8D6]" />
+            </span>
           </span>
-          <span className="absolute bottom-4 right-6 text-lg font-medium text-white">
+
+          <span className="absolute bottom-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-sm font-medium text-white ring-1 ring-white/25 backdrop-blur-sm">
+            <PlayCircle size={14} />
             {t("teacher.watchIntro")}
           </span>
         </button>

@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Star } from 'lucide-react';
-import { Avatar, EmptyState, ErrorState, Skeleton } from '@/components/ui';
+import { Avatar, ErrorState, Skeleton } from '@/components/ui';
 import { useT } from '@/hooks/useT';
 
 const ORANGE = '#F74E28';
@@ -46,7 +47,7 @@ function SummaryCard({ summary, t }) {
 
   return (
     <div className="shrink-0 rounded-3xl bg-white px-4 py-4 shadow-[0px_1px_5px_rgba(0,0,0,0.1)] sm:px-8 lg:w-[42%]">
-      <h3 className="mb-3 text-end text-base font-bold text-[#2D2D2D]">{t('teacher.rating')}</h3>
+      <h3 className="mb-3 text-start text-base font-bold text-[#2D2D2D]">{t('teacher.rating')}</h3>
 
       <div className="flex items-center justify-between gap-6">
         <div className="flex shrink-0 flex-col items-start gap-1.5">
@@ -70,24 +71,27 @@ function SummaryCard({ summary, t }) {
 function ReviewCard({ review }) {
   return (
     <div className="rounded-2xl bg-white p-4 shadow-[0px_1px_5px_rgba(0,0,0,0.1)]">
-      <div className="flex flex-col items-end gap-1.5">
+      <div className="flex flex-col items-start gap-1.5">
         <div className="flex items-center gap-2">
-          <div className="flex flex-col items-end gap-0.5">
+          <Avatar name={review.studentName} src={review.studentAvatar} size="sm" />
+          <div className="flex flex-col items-start gap-0.5">
             <span className="text-sm font-semibold text-[#2D2D2D]">{review.studentName}</span>
             <Stars value={review.rating} size={16} />
           </div>
-          <Avatar name={review.studentName} src={review.studentAvatar} size="sm" />
         </div>
         {review.comment && (
-          <p className="max-w-[320px] text-end text-xs leading-[22px] text-[#777777]">{review.comment}</p>
+          <p className="max-w-[320px] text-start text-xs leading-[22px] text-[#777777]">{review.comment}</p>
         )}
       </div>
     </div>
   );
 }
 
+const REVIEWS_PAGE_SIZE = 3;
+
 export function RatingReviews({ summary, reviews, isLoading, isError, refetch }) {
   const t = useT();
+  const [visibleCount, setVisibleCount] = useState(REVIEWS_PAGE_SIZE);
 
   if (isError) {
     return (
@@ -107,6 +111,8 @@ export function RatingReviews({ summary, reviews, isLoading, isError, refetch })
     );
   }
 
+  if (reviews.length === 0) return null;
+
   return (
     <div className="mt-8 flex flex-col gap-4 lg:flex-row">
       {/* Summary — right in RTL */}
@@ -114,10 +120,17 @@ export function RatingReviews({ summary, reviews, isLoading, isError, refetch })
 
       {/* Review cards — left in RTL */}
       <div className="flex flex-1 flex-col gap-2.5">
-        {reviews.length === 0 ? (
-          <EmptyState title={t('teacher.reviewsEmpty')} />
-        ) : (
-          reviews.map((review) => <ReviewCard key={review.id} review={review} />)
+        {reviews.slice(0, visibleCount).map((review) => (
+          <ReviewCard key={review.id} review={review} />
+        ))}
+        {visibleCount < reviews.length && (
+          <button
+            type="button"
+            onClick={() => setVisibleCount((c) => c + REVIEWS_PAGE_SIZE)}
+            className="mt-1 self-center rounded-pill border border-line bg-white px-5 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-canvas"
+          >
+            {t('teacher.showMore')}
+          </button>
         )}
       </div>
     </div>

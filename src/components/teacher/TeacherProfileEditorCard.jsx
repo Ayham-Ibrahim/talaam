@@ -26,6 +26,9 @@ const EXAM_PREP_SUGGESTIONS = ['SAT', 'ACT', 'IB', 'IGCSE', 'GCSE', 'A-Level', '
 
 const FIELD_LABELS = {
   bio: 'نبذة عني',
+  teaching_philosophy_quote: 'مقولة عن فلسفتك في التدريس',
+  teaching_philosophy_text: 'فلسفتي في التدريس',
+  thank_you_message: 'رسالة الشكر في نهاية الملف الشخصي',
   qualification: 'المؤهل العلمي',
   experience_years: 'سنوات الخبرة',
   city: 'الموقع',
@@ -74,7 +77,7 @@ function ExperiencesEditor({ teacherId, experiences }) {
               >
                 <Trash2 size={15} />
               </button>
-              <span className="text-end text-ink">
+              <span className="text-start text-ink">
                 {exp.title}
                 {exp.period ? ` (${exp.period})` : ''}
               </span>
@@ -137,6 +140,9 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
     if (teacher && !form) {
       setForm({
         bio: teacher.bio ?? '',
+        teaching_philosophy_quote: teacher.teaching_philosophy_quote ?? '',
+        teaching_philosophy_text: teacher.teaching_philosophy_text ?? '',
+        thank_you_message: teacher.thank_you_message ?? '',
         qualification: teacher.qualification ?? '',
         experience_years: teacher.experience_years ?? '',
         city: teacher.city ?? '',
@@ -155,6 +161,9 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
     if (!form || !teacher) return false;
     return JSON.stringify(form) !== JSON.stringify({
       bio: teacher.bio ?? '',
+      teaching_philosophy_quote: teacher.teaching_philosophy_quote ?? '',
+      teaching_philosophy_text: teacher.teaching_philosophy_text ?? '',
+      thank_you_message: teacher.thank_you_message ?? '',
       qualification: teacher.qualification ?? '',
       experience_years: teacher.experience_years ?? '',
       city: teacher.city ?? '',
@@ -172,6 +181,9 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
     update.mutate(
       {
         bio: form.bio || null,
+        teaching_philosophy_quote: form.teaching_philosophy_quote || null,
+        teaching_philosophy_text: form.teaching_philosophy_text || null,
+        thank_you_message: form.thank_you_message || null,
         qualification: form.qualification || null,
         experience_years: form.experience_years || null,
         city: form.city || null,
@@ -213,6 +225,44 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
             className="w-full resize-none rounded-lg border border-[#E3E3E3] bg-white p-3 text-sm leading-7 text-ink focus:border-primary focus:outline-none"
           />
           <span className="text-left text-xs text-ink-soft/70">{form.bio.length}/500</span>
+        </label>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-semibold text-primary">{FIELD_LABELS.teaching_philosophy_quote}</span>
+          <input
+            type="text"
+            maxLength={200}
+            value={form.teaching_philosophy_quote}
+            placeholder={t('teacherSettings.philosophyQuotePlaceholder')}
+            onChange={(e) => set('teaching_philosophy_quote')(e.target.value)}
+            className="w-full rounded-lg border border-[#E3E3E3] bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-semibold text-primary">{FIELD_LABELS.teaching_philosophy_text}</span>
+          <textarea
+            rows={3}
+            maxLength={600}
+            value={form.teaching_philosophy_text}
+            placeholder={t('teacherSettings.philosophyTextPlaceholder')}
+            onChange={(e) => set('teaching_philosophy_text')(e.target.value)}
+            className="w-full resize-none rounded-lg border border-[#E3E3E3] bg-white p-3 text-sm leading-7 text-ink focus:border-primary focus:outline-none"
+          />
+          <span className="text-left text-xs text-ink-soft/70">{form.teaching_philosophy_text.length}/600</span>
+        </label>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-semibold text-primary">{FIELD_LABELS.thank_you_message}</span>
+          <textarea
+            rows={3}
+            maxLength={600}
+            value={form.thank_you_message}
+            placeholder={`${t('teacher.defaultThankYouLine1')} ${t('teacher.defaultThankYouLine2')}`}
+            onChange={(e) => set('thank_you_message')(e.target.value)}
+            className="w-full resize-none rounded-lg border border-[#E3E3E3] bg-white p-3 text-sm leading-7 text-ink focus:border-primary focus:outline-none"
+          />
+          <span className="text-xs text-ink-soft/70">{t('teacherSettings.thankYouHint')}</span>
         </label>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

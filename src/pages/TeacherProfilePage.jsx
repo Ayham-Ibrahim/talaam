@@ -9,9 +9,11 @@ import { VideosSection } from '@/components/teacher/TeacherInfoSections';
 import { PackagesSection } from '@/components/teacher/PackagesSection';
 import { CoursesSection } from '@/components/teacher/CoursesSection';
 import { RatingReviews } from '@/components/teacher/RatingReviews';
+import { TeacherClosingSections } from '@/components/teacher/TeacherClosingSections';
 import { BookingWidget } from '@/components/teacher/BookingWidget';
 import { CourseEnrollWidget } from '@/components/teacher/CourseEnrollWidget';
 import { ErrorState, Skeleton } from '@/components/ui';
+import { Drawer } from '@/components/ui/Drawer';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites, useToggleFavoriteTeacher } from '@/hooks/useFavorites';
 import { useTeacher } from '@/hooks/useTeachers';
@@ -93,8 +95,8 @@ export function TeacherProfilePage() {
       </div>
 
       {/* Full-width stacked layout — heading, then every section below it at
-          full container width; the booking/enrollment panel sits inline after
-          the packages instead of as a side rail. */}
+          full container width. Booking/enrollment isn't inline or a side rail
+          anymore — picking a package/course opens the drawer below instead. */}
       <div className="container-app mt-4 pb-16">
         <TeacherProfileHeader teacher={teacher} isFavorite={isFavorite} onToggleFavorite={handleToggleFavorite} />
 
@@ -107,29 +109,23 @@ export function TeacherProfilePage() {
         <VideosSection title={t('teacher.videos')} videos={teacher.videos} />
 
         {isCenter ? (
-          <>
-            <CoursesSection
-              courses={courses ?? []}
-              isLoading={coursesLoading}
-              isError={coursesError}
-              refetch={refetchCourses}
-              selectedCourseId={selectedCourseId}
-              onSelect={(course) => setSelectedCourseId(course.id)}
-            />
-            <CourseEnrollWidget selectedCourse={selectedCourse} stacked />
-          </>
+          <CoursesSection
+            courses={courses ?? []}
+            isLoading={coursesLoading}
+            isError={coursesError}
+            refetch={refetchCourses}
+            selectedCourseId={selectedCourseId}
+            onSelect={(course) => setSelectedCourseId(course.id)}
+          />
         ) : (
-          <>
-            <PackagesSection
-              packages={packages ?? []}
-              isLoading={packagesLoading}
-              isError={packagesError}
-              refetch={refetchPackages}
-              selectedPackageId={selectedPackageId}
-              onSelect={(pkg) => setSelectedPackageId(pkg.id)}
-            />
-            <BookingWidget selectedPackage={selectedPackage} stacked />
-          </>
+          <PackagesSection
+            packages={packages ?? []}
+            isLoading={packagesLoading}
+            isError={packagesError}
+            refetch={refetchPackages}
+            selectedPackageId={selectedPackageId}
+            onSelect={(pkg) => setSelectedPackageId(pkg.id)}
+          />
         )}
 
         <RatingReviews
@@ -139,7 +135,20 @@ export function TeacherProfilePage() {
           isError={reviewsError}
           refetch={refetchReviews}
         />
+
+        <TeacherClosingSections teacher={teacher} />
       </div>
+
+      {/* Booking / enrollment drawer — opens when a package or course is picked above */}
+      {isCenter ? (
+        <Drawer open={Boolean(selectedCourse)} onClose={() => setSelectedCourseId(null)} title={t('teacher.course.enrollTitle')}>
+          <CourseEnrollWidget selectedCourse={selectedCourse} bare />
+        </Drawer>
+      ) : (
+        <Drawer open={Boolean(selectedPackage)} onClose={() => setSelectedPackageId(null)} title={t('booking.title')}>
+          <BookingWidget selectedPackage={selectedPackage} bare />
+        </Drawer>
+      )}
     </PageContainer>
   );
 }

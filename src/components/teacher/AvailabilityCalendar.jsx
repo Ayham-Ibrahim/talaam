@@ -2,11 +2,9 @@ import { useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useT } from '@/hooks/useT';
 
-const SELECTED = '#4B6898';
 /** Hourly slots offered for an individual session (teacher approves the exact time after) */
 const SLOT_HOURS = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
-/** English weekday initials — matches the design's date-picker header */
-const WEEKDAY_INITIALS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+const WEEKDAY_INITIALS_AR = ['أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت'];
 
 function pad(n) {
   return String(n).padStart(2, '0');
@@ -16,7 +14,7 @@ function toISODate(date) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
-/** "10:00 صباحاً" — reads correctly in the RTL cell (time is read first, on the right) */
+/** "10:00 صباحاً" */
 function slotLabel(hour) {
   const period = hour < 12 || hour === 24 ? 'صباحاً' : 'مساءً';
   const h12 = hour % 12 === 0 ? 12 : hour % 12;
@@ -46,10 +44,11 @@ function buildMonthGrid(viewDate) {
 }
 
 /**
- * "التوفر" — availability card matching the Figma design: a bordered white card
- * with the month calendar on the right and the hourly time-slot chips on the
- * left. Purely presentational — BookingWidget owns the selection state and
- * passes `slotStatus(time)` → 'available' | 'busy' | 'past' | 'own'.
+ * "التوفر" — soft, friendly calendar: a round-pill month calendar, and once a
+ * day is picked, the hourly slots appear stacked right below it (not side by
+ * side) — matches the drawer's narrow single-column flow. Purely
+ * presentational — BookingWidget owns the selection state and passes
+ * `slotStatus(time)` → 'available' | 'busy' | 'past' | 'own'.
  */
 export function AvailabilityCalendar({
   allowedDays = [],
@@ -73,116 +72,109 @@ export function AvailabilityCalendar({
   const todayISO = toISODate(today);
 
   return (
-    <div
-      style={{ maxWidth: 'none' }}
-      className="w-full rounded-3xl bg-white px-4 py-4 shadow-[0px_1px_5px_rgba(0,0,0,0.1)] sm:px-8"
-    >
-      <h3 className="mb-1 text-end text-lg font-bold text-[#2D2D2D]">{t('teacher.availability')}</h3>
+    <div className="flex flex-col gap-5">
+      {/* Calendar */}
+      <div className="rounded-3xl bg-white p-4 shadow-card">
+        <div className="flex items-center justify-between px-1 py-1">
+          <button
+            type="button"
+            onClick={onPrevMonth}
+            aria-label={t('booking.prevMonth')}
+            className="rounded-full p-1.5 text-ink-soft transition-colors hover:bg-accent-purple/10 hover:text-accent-purple"
+          >
+            <ChevronRight size={18} />
+          </button>
+          <span className="text-sm font-bold text-ink">{monthLabel}</span>
+          <button
+            type="button"
+            onClick={onNextMonth}
+            aria-label={t('booking.nextMonth')}
+            className="rounded-full p-1.5 text-ink-soft transition-colors hover:bg-accent-purple/10 hover:text-accent-purple"
+          >
+            <ChevronLeft size={18} />
+          </button>
+        </div>
 
-      <div className="flex flex-col gap-8 lg:flex-row-reverse">
-        {/* Calendar — right in RTL; the grid itself is LTR to match the design */}
-        <div dir="ltr" className="lg:w-[46%]">
-          <div className="flex items-center justify-between py-2">
-            <button
-              type="button"
-              onClick={onPrevMonth}
-              aria-label={t('booking.prevMonth')}
-              className="rounded-full p-1.5 text-[#A5A5A5] hover:bg-line/50"
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <span className="text-base font-bold text-[#1B1B1B]">{monthLabel}</span>
-            <button
-              type="button"
-              onClick={onNextMonth}
-              aria-label={t('booking.nextMonth')}
-              className="rounded-full p-1.5 text-[#A5A5A5] hover:bg-line/50"
-            >
-              <ChevronRight size={18} />
-            </button>
-          </div>
+        <div className="mt-2 grid grid-cols-7 text-center text-[11px] font-medium text-ink-soft/70">
+          {WEEKDAY_INITIALS_AR.map((d, i) => (
+            <span key={i} className="py-1.5">
+              {d}
+            </span>
+          ))}
+        </div>
 
-          <div className="grid grid-cols-7 text-center text-sm text-[#6C6C6C]">
-            {WEEKDAY_INITIALS.map((d, i) => (
-              <span key={i} className="py-2">
-                {d}
-              </span>
-            ))}
-          </div>
+        <div className="grid grid-cols-7">
+          {cells.map(({ date, outside }, i) => {
+            const iso = toISODate(date);
+            const isToday = iso === todayISO;
+            const isPast = date < today && !isToday;
+            const allowed = allowedDays.includes(date.getDay());
+            const disabled = isPast || !allowed;
+            const isSelected = iso === selectedISO;
+            return (
+              <div key={i} className="flex items-center justify-center py-0.5">
+                <button
+                  type="button"
+                  disabled={disabled}
+                  onClick={() => onSelectDate(new Date(date))}
+                  className={`flex h-9 w-9 items-center justify-center rounded-full text-sm transition-colors ${
+                    isSelected
+                      ? 'bg-accent-purple font-bold text-white shadow-[0_4px_10px_rgba(126,87,194,0.4)]'
+                      : disabled
+                        ? 'cursor-not-allowed text-line'
+                        : outside
+                          ? 'text-line hover:bg-accent-purple/10'
+                          : isToday
+                            ? 'font-bold text-accent-purple ring-2 ring-accent-pink/40'
+                            : 'text-ink hover:bg-accent-purple/10'
+                  }`}
+                >
+                  {date.getDate()}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
-          <div className="grid grid-cols-7">
-            {cells.map(({ date, outside }, i) => {
-              const iso = toISODate(date);
-              const isPast = date < today && iso !== todayISO;
-              const allowed = allowedDays.includes(date.getDay());
-              const disabled = isPast || !allowed;
-              const isSelected = iso === selectedISO;
+      {/* Available hours — appears once a day is chosen */}
+      {selectedDate && (
+        <div className="rounded-3xl bg-white p-4 shadow-card">
+          <h4 className="mb-3 text-start text-sm font-bold text-ink">{t('booking.chooseTime')}</h4>
+          <div className="grid grid-cols-3 gap-2">
+            {SLOT_HOURS.map((hour) => {
+              const value = `${pad(hour)}:00`;
+              const status = slotStatus(value);
+              const unavailable = status !== 'available';
+              const isSelected = selectedTime === value;
               return (
-                <div key={i} className="flex items-center justify-center py-1">
-                  <button
-                    type="button"
-                    disabled={disabled}
-                    onClick={() => onSelectDate(new Date(date))}
-                    style={isSelected ? { background: SELECTED } : undefined}
-                    className={`flex h-10 w-10 items-center justify-center rounded-full text-[15px] transition-colors ${
-                      isSelected
-                        ? 'font-medium text-white'
-                        : disabled
-                          ? 'cursor-not-allowed text-[#C6C6C6]'
-                          : outside
-                            ? 'text-[#C6C6C6] hover:bg-line/40'
-                            : 'text-[#1B1B1B] hover:bg-line/40'
-                    }`}
-                  >
-                    {date.getDate()}
-                  </button>
-                </div>
+                <button
+                  key={hour}
+                  type="button"
+                  disabled={unavailable}
+                  onClick={() => onSelectTime(value)}
+                  title={
+                    status === 'busy'
+                      ? t('booking.timeUnavailable')
+                      : status === 'own'
+                        ? t('booking.ownTimeConflict')
+                        : undefined
+                  }
+                  className={`rounded-2xl px-1 py-2.5 text-center text-xs font-medium transition-colors ${
+                    isSelected
+                      ? 'bg-accent-purple text-white shadow-[0_4px_10px_rgba(126,87,194,0.4)]'
+                      : unavailable
+                        ? 'cursor-not-allowed bg-canvas text-line line-through'
+                        : 'bg-accent-purple/10 text-accent-purple hover:bg-accent-purple/20'
+                  }`}
+                >
+                  {slotLabel(hour)}
+                </button>
               );
             })}
           </div>
         </div>
-
-        {/* Time slots — left in RTL */}
-        <div className="flex-1">
-          {!selectedDate ? (
-            <p className="py-10 text-center text-sm text-ink-soft">{t('booking.pickDateFirst')}</p>
-          ) : (
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {SLOT_HOURS.map((hour) => {
-                const value = `${pad(hour)}:00`;
-                const status = slotStatus(value);
-                const unavailable = status !== 'available';
-                const isSelected = selectedTime === value;
-                return (
-                  <button
-                    key={hour}
-                    type="button"
-                    disabled={unavailable}
-                    onClick={() => onSelectTime(value)}
-                    title={
-                      status === 'busy'
-                        ? t('booking.timeUnavailable')
-                        : status === 'own'
-                          ? t('booking.ownTimeConflict')
-                          : undefined
-                    }
-                    style={isSelected ? { background: SELECTED, borderColor: SELECTED } : undefined}
-                    className={`h-[52px] rounded-xl border-[0.5px] border-[#E5E5EA] text-center text-sm font-medium shadow-[0px_1px_5px_rgba(0,0,0,0.1)] transition-colors ${
-                      isSelected
-                        ? 'text-white'
-                        : unavailable
-                          ? 'cursor-not-allowed text-[#C6C6C6] line-through'
-                          : 'bg-white text-[#1E1E1E] hover:border-[#4B6898]'
-                    }`}
-                  >
-                    {slotLabel(hour)}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 }

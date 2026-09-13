@@ -407,9 +407,15 @@
     "about": "نبذة عن المعلم",
     "availability": "التوفر",
     "previousExperience": "الخبرات السابقة",
+    "experienceCurrent": "الحالي",
+    "experienceCompleted": "سابقة",
     "showMore": "عرض المزيد",
     "showLess": "عرض أقل",
     "watchIntro": "شاهد الفيديو التعريفي",
+    "philosophyTitle": "فلسفتي في التدريس",
+    "thankYouTitle": "شكراً لزيارتك",
+    "defaultThankYouLine1": "شكراً لزيارتك ملفي الشخصي.",
+    "defaultThankYouLine2": "أدعوك لخوض حصتنا الأولى معاً لنتعرّف أكثر على احتياجاتك ونجهّز خطة دراسية تناسبك تماماً، لنحقّق التميز سويّاً.",
     "stats": {
       "satisfaction": "نسبة الرضا",
       "retention": "معدل الطلاب الدائمين",
@@ -419,6 +425,7 @@
       "location": "الموقع"
     },
     "qualifications": "المؤهلات العلمية",
+    "qualificationBadge": "مؤهل علمي",
     "subjects": "المواد التي أدرّسها",
     "curricula": "المناهج",
     "stages": "المراحل الدراسية",
@@ -675,7 +682,10 @@
     "addTagPlaceholder": "أضف عنصراً ثم اضغط Enter",
     "expTitlePlaceholder": "المسمى — مثال: مدرس في مدارس خاصة",
     "expPeriodPlaceholder": "الفترة — 2019 - 2022",
-    "addExperience": "إضافة"
+    "addExperience": "إضافة",
+    "philosophyQuotePlaceholder": "مثال: التعليم الجيد لا يقاس بكمية المعلومات، بل بقدرة الطالب على استخدامها.",
+    "philosophyTextPlaceholder": "اشرح بإيجاز نهجك في التدريس وما يميزه...",
+    "thankYouHint": "إن تُركت فارغة، سيظهر نص افتراضي جاهز في نهاية ملفك الشخصي."
   },
   "studentSettings": {
     "basicInfoTitle": "البيانات الأساسية",

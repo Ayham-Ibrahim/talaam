@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Award, Laptop, Package, FlaskConical, Video, CalendarRange } from 'lucide-react';
-import { EmptyState, ErrorState, FavoriteButton, Skeleton } from '@/components/ui';
+import { ErrorState, FavoriteButton, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites, useToggleFavoriteCourse } from '@/hooks/useFavorites';
 import { useT } from '@/hooks/useT';
@@ -111,6 +111,8 @@ export function CoursesSection({ courses, isLoading, isError, refetch, selectedC
     toggleFavoriteCourse.mutate(courseId);
   };
 
+  if (!isLoading && !isError && courses.length === 0) return null;
+
   return (
     <div className="mt-8">
       <h3 className="mb-3 text-start font-bold text-ink">{t('teacher.course.sectionTitle')}</h3>
@@ -122,8 +124,6 @@ export function CoursesSection({ courses, isLoading, isError, refetch, selectedC
             <Skeleton key={i} className="h-44 rounded-2xl" />
           ))}
         </div>
-      ) : courses.length === 0 ? (
-        <EmptyState title={t('teacher.course.empty')} />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {courses.map((course, i) => (
