@@ -54,6 +54,13 @@ function mapSearchResult(raw) {
     experienceShort: raw.experience_years ? (EXPERIENCE_LABELS_SHORT[raw.experience_years] ?? raw.experience_years) : null,
     stages: raw.stages ?? [],
     completedSessions: raw.completed_sessions ?? null,
+    subjects: (raw.subjects ?? []).map((s) => s.name_ar),
+    curricula: (raw.curricula ?? []).map((c) => c.name_ar),
+    languages: (raw.languages ?? []).map((l) => l.name_ar),
+    totalStudents: raw.total_students ?? null,
+    minPrice: raw.min_price != null ? Number(raw.min_price) : null,
+    maxPrice: raw.max_price != null ? Number(raw.max_price) : null,
+    availableToday: Boolean(raw.available_today),
   };
 }
 

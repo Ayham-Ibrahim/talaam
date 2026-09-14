@@ -1,17 +1,43 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { BadgeCheck, Clock3, GraduationCap, Layers, MapPin } from 'lucide-react';
+import { BadgeCheck, GraduationCap, Globe, Layers, MapPin, Star, Users, Wallet } from 'lucide-react';
 import { FavoriteButton, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites, useToggleFavoriteTeacher } from '@/hooks/useFavorites';
+import { useCurrencyStore } from '@/store';
+import { convertPrice } from '@/lib/currency';
+
+const CURRENCY_SYMBOL = { USD: '$', EUR: '€', GBP: '£' };
 
 /** Our own brand tokens, not arbitrary colors — one assigned per card, stable per teacher id (no purple, it's not part of this rotation) */
 const ACCENT_PALETTE = ['#3B5998', '#C2185B', '#2E9E6B', '#2F80ED', '#F5A623'];
 
-function InfoRow({ icon: Icon, children }) {
+/** One stat cell — no label, just the value (already worded to carry its own meaning, e.g. "50+ جلسة") with a colored dot or icon prefix */
+function StatCell({ value, dot, icon: Icon }) {
   return (
-    <div className="flex items-center gap-2 text-[13px] text-ink-soft">
-      <Icon size={14} className="shrink-0 text-ink-soft/70" />
-      <span className="line-clamp-1">{children}</span>
+    <div className="flex min-w-0 items-center gap-1.5 text-sm font-bold text-ink">
+      {dot && <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: dot }} aria-hidden="true" />}
+      {Icon && <Icon size={14} className="shrink-0 text-ink-soft" aria-hidden="true" />}
+      <span className="truncate">{value}</span>
+    </div>
+  );
+}
+
+/** A labeled row of pill chips (subjects/curricula) — the array-shaped data, styled like the reference's "investors" row. Shows every item, no overflow cap. */
+function ChipSection({ label, items, accent }) {
+  return (
+    <div className="text-start">
+      <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-soft/55">{label}</span>
+      <div className="mt-1.5 flex flex-wrap gap-1.5">
+        {items.map((item) => (
+          <span
+            key={item}
+            className="rounded-pill border px-2.5 py-1 text-xs font-semibold"
+            style={{ borderColor: `${accent}33`, color: accent, background: `${accent}0D` }}
+          >
+            {item}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -29,6 +55,7 @@ export function TeacherCard({ teacher }) {
   const { isAuthenticated } = useAuth();
   const { data: favorites } = useFavorites();
   const toggleFavoriteTeacher = useToggleFavoriteTeacher();
+  const currency = useCurrencyStore((s) => s.currency);
   const isFavorite = (favorites ?? []).some((f) => f.kind === 'teacher' && f.id === teacher.id);
 
   const handleToggleFavorite = (e) => {
@@ -47,9 +74,35 @@ export function TeacherCard({ teacher }) {
     .charAt(0);
   const accent = ACCENT_PALETTE[teacher.id % ACCENT_PALETTE.length];
   const stagesLabel = teacher.stages?.length > 0 ? teacher.stages.join('، ') : null;
+  const languagesLabel = teacher.languages?.length > 0 ? teacher.languages.join('، ') : null;
+  const priceLabel =
+    teacher.minPrice != null && teacher.maxPrice != null
+      ? teacher.minPrice === teacher.maxPrice
+        ? `${convertPrice(teacher.minPrice, currency).toLocaleString('en-US')} ${CURRENCY_SYMBOL[currency] ?? currency} / الساعة`
+        : `${convertPrice(teacher.minPrice, currency).toLocaleString('en-US')}–${convertPrice(teacher.maxPrice, currency).toLocaleString('en-US')} ${CURRENCY_SYMBOL[currency] ?? currency} / الساعة`
+      : null;
+
+  // كل خلية تُبنى فقط عندما تتوفّر بيانات حقيقية لها (لا سقف ثابت)، والألوان
+  // تدويرية من هويتنا لا اعتباطية. بلا عناوين فوق القيم — كل قيمة مكتوبة
+  // لتحمل معناها بنفسها (مثال: "50+ جلسة"). ترتيب ثابت بطلب صريح: عمود
+  // الخبرة/اللغات وعمود الجلسات/السعر/الطلاب جنباً إلى جنب في صف أول من
+  // عمودين، ثم الموقع والمرحلة أسفلهما في صف ثانٍ بعمود واحد.
+  const rightColumn = [
+    teacher.experienceShort && { key: 'experience', value: teacher.experienceShort, dot: accent },
+    languagesLabel && { key: 'languages', value: languagesLabel, icon: Globe },
+  ].filter(Boolean);
+  const leftColumn = [
+    teacher.completedSessions > 0 && { key: 'sessions', value: `${teacher.completedSessions}+ جلسة`, icon: Layers },
+    priceLabel && { key: 'price', value: priceLabel, icon: Wallet },
+    teacher.totalStudents > 0 && { key: 'students', value: `${teacher.totalStudents}+ طالب`, icon: Users },
+  ].filter(Boolean);
+  const belowRows = [
+    teacher.city && { key: 'city', value: teacher.city, icon: MapPin },
+    stagesLabel && { key: 'stage', value: stagesLabel, icon: GraduationCap },
+  ].filter(Boolean);
 
   return (
-    <div className="group relative h-[400px]">
+    <div className="group relative h-[500px]">
       {/* Back layer — bigger than the front card, white, soft shadow like the reference, offset toward the bottom-right only (kept tight enough it doesn't wrap into the top-right/bottom-left corners) */}
       <div
         className="absolute -inset-1 rounded-[28px] bg-white shadow-[8px_10px_20px_rgba(17,24,39,0.10)]"
@@ -66,47 +119,90 @@ export function TeacherCard({ teacher }) {
 
         <Link
           to={profileHref}
-          className="relative z-10 flex flex-1 cursor-pointer flex-col items-center px-5 pb-5 pt-6 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+          className="relative z-10 flex flex-1 cursor-pointer flex-col px-5 pb-5 pt-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
         >
-          {/* Avatar — top-center, soft light ring, verified checkmark on its own corner */}
-          <div className="relative shrink-0">
-            <div className="h-20 w-20 overflow-hidden rounded-full bg-white shadow-[0_10px_24px_rgba(17,24,39,0.22)] ring-[3px] ring-white transition-transform duration-200 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100">
-              {teacher.avatar ? (
-                <img src={teacher.avatar} alt={teacher.name} className="h-full w-full object-cover" />
-              ) : (
-                <span className="flex h-full w-full items-center justify-center text-2xl font-bold" style={{ color: accent }}>
-                  {initials || teacher.name?.charAt(0) || '؟'}
+          {/* Header row — avatar physically on the left, name/rating/badges to its right. flex-row-reverse (not just swapping start/end) so the avatar lands on the physical left regardless of page direction — the heart button above is pinned to the physical top-right the same way. */}
+          <div className="flex w-full flex-row-reverse items-center gap-2 text-start sm:gap-3">
+            <div className="relative shrink-0">
+              <div className="h-12 w-12 overflow-hidden rounded-full bg-white shadow-[0_10px_24px_rgba(17,24,39,0.22)] ring-[3px] ring-white transition-transform duration-200 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100 sm:h-24 sm:w-24">
+                {teacher.avatar ? (
+                  <img src={teacher.avatar} alt={teacher.name} className="h-full w-full object-cover" />
+                ) : (
+                  <span className="flex h-full w-full items-center justify-center text-base font-bold sm:text-3xl" style={{ color: accent }}>
+                    {initials || teacher.name?.charAt(0) || '؟'}
+                  </span>
+                )}
+              </div>
+              {teacher.isVerified && (
+                <span
+                  className="absolute -top-1 end-[-2px] flex h-5 w-5 items-center justify-center rounded-full text-white ring-2 ring-white sm:h-8 sm:w-8"
+                  style={{ background: accent }}
+                >
+                  <BadgeCheck size={12} className="shrink-0 sm:hidden" aria-hidden="true" />
+                  <BadgeCheck size={18} className="hidden shrink-0 sm:block" aria-hidden="true" />
                 </span>
               )}
             </div>
-            {teacher.isVerified && (
-              <span
-                className="absolute -top-1 end-[-2px] flex h-6 w-6 items-center justify-center rounded-full text-white ring-2 ring-white"
-                style={{ background: accent }}
-              >
-                <BadgeCheck size={14} aria-hidden="true" />
-              </span>
-            )}
+
+            <div className="min-w-0 flex-1 sm:pr-8">
+              <div className="flex min-w-0 items-center gap-1.5">
+                <h3 className="min-w-0 flex-1 truncate text-sm font-bold text-ink sm:flex-initial sm:text-lg">{teacher.name}</h3>
+                {teacher.reviewsCount > 0 && (
+                  <span className="hidden shrink-0 items-center gap-0.5 text-sm font-bold text-star sm:flex">
+                    <Star size={13} className="fill-star text-star" />
+                    {teacher.rating.toFixed(1)}
+                  </span>
+                )}
+              </div>
+
+              {(teacher.qualification || teacher.availableToday) && (
+                <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                  {teacher.qualification && (
+                    <span
+                      className="w-fit whitespace-nowrap rounded-pill px-2.5 py-1 text-xs font-semibold"
+                      style={{ background: `${accent}1A`, color: accent }}
+                    >
+                      {teacher.qualification}
+                    </span>
+                  )}
+                  {teacher.availableToday && (
+                    <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-pill bg-success-light px-2.5 py-1 text-xs font-semibold text-success">
+                      <span className="h-2 w-2 shrink-0 rounded-full bg-success" />
+                      متاح اليوم
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-          <h3 className="mt-3 line-clamp-1 text-[15px] font-bold text-ink">{teacher.name}</h3>
-          {teacher.qualification && (
-            <span
-              className="mt-1.5 w-fit rounded-pill px-2.5 py-1 text-[11px] font-semibold"
-              style={{ background: `${accent}1A`, color: accent }}
-            >
-              {teacher.qualification}
-            </span>
+          {(rightColumn.length > 0 || leftColumn.length > 0) && (
+            <div className="mt-5 flex w-full gap-4">
+              <div className="flex min-w-0 flex-1 flex-col gap-4">
+                {rightColumn.map(({ key, ...cell }) => (
+                  <StatCell key={key} {...cell} />
+                ))}
+              </div>
+              <div className="flex min-w-0 flex-1 flex-col gap-4">
+                {leftColumn.map(({ key, ...cell }) => (
+                  <StatCell key={key} {...cell} />
+                ))}
+              </div>
+            </div>
           )}
 
-          {(teacher.experienceShort || stagesLabel || teacher.city || teacher.completedSessions != null) && (
-            <div className="mt-3 flex w-full flex-col gap-1.5 text-start">
-              {teacher.experienceShort && <InfoRow icon={Clock3}>{teacher.experienceShort}</InfoRow>}
-              {stagesLabel && <InfoRow icon={GraduationCap}>{stagesLabel}</InfoRow>}
-              {teacher.city && <InfoRow icon={MapPin}>{teacher.city}</InfoRow>}
-              {teacher.completedSessions != null && teacher.completedSessions > 0 && (
-                <InfoRow icon={Layers}>{teacher.completedSessions} حصة مكتملة</InfoRow>
-              )}
+          {belowRows.length > 0 && (
+            <div className={`flex w-full flex-col gap-4 ${rightColumn.length > 0 || leftColumn.length > 0 ? 'mt-4' : 'mt-5'}`}>
+              {belowRows.map(({ key, ...cell }) => (
+                <StatCell key={key} {...cell} />
+              ))}
+            </div>
+          )}
+
+          {(teacher.subjects?.length > 0 || teacher.curricula?.length > 0) && (
+            <div className="mt-4 flex w-full flex-col gap-3">
+              {teacher.subjects?.length > 0 && <ChipSection label="المواد" items={teacher.subjects} accent={accent} />}
+              {teacher.curricula?.length > 0 && <ChipSection label="المناهج" items={teacher.curricula} accent={accent} />}
             </div>
           )}
 
@@ -126,7 +222,7 @@ export function TeacherCard({ teacher }) {
 
 export function TeacherCardSkeleton() {
   return (
-    <div className="relative h-[400px]">
+    <div className="relative h-[500px]">
       <div className="absolute -inset-1 rounded-[28px] bg-white shadow-[8px_10px_20px_rgba(17,24,39,0.10)]" aria-hidden="true" />
       <div className="relative mx-[5%] my-3 flex h-[calc(100%-24px)] flex-col overflow-hidden rounded-[28px] bg-surface px-5 pb-5 pt-6 shadow-[8px_10px_22px_rgba(17,24,39,0.16)]">
         <div className="flex flex-1 flex-col items-center">
