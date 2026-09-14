@@ -810,14 +810,9 @@ export function HowItWorks() {
 /* ---------- Testimonials ---------- */
 export function Testimonials() {
   const t = useT();
-  const sample = t("home.testimonialSample");
-  const testimonials = Array.from({ length: 3 }).map((_, i) => ({
-    id: i,
-    name: sample.name,
-    role: sample.role,
-    rating: 4.9,
-    text: sample.text,
-  }));
+  // آراء حقيقية لطلاب حقيقيين (بأسمائهم وصورهم ونتائجهم الفعلية) — كانت سابقاً
+  // نفس الرأي الوهمي الواحد مكرَّراً ثلاث مرات بمعرّف مختلف فقط.
+  const testimonials = t("home.testimonials").map((item, i) => ({ id: i, rating: 4.9, ...item }));
   const gridRef = useStaggerReveal({
     selector: ".testimonial-card",
     start: "top 80%",
@@ -872,7 +867,7 @@ export function Testimonials() {
                     </div>
                     <div className="text-xs text-ink-soft">{item.role}</div>
                   </div>
-                  <Avatar name={item.name} size="sm" />
+                  <Avatar name={item.name} src={item.avatar} size="sm" />
                 </div>
               </div>
             </Card>

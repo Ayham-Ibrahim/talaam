@@ -172,11 +172,26 @@
     "ctaButton": "Start Your Journey Now",
     "hoverHint": "Hover to see details",
     "tapHint": "Tap to see details",
-    "testimonialSample": {
-      "name": "Abdullah Saleem",
-      "role": "English Language Student",
-      "text": "A great platform — the teacher explains things in a simple, easy way, and the support and communication are excellent. I recommend it to everyone."
-    }
+    "testimonials": [
+      {
+        "name": "Mohammed Ali Al Hinai",
+        "role": "Grade 12 Student",
+        "avatar": "/testimonials/1.jpg",
+        "text": "Thanks to my teacher on Ta'alam, I improved a lot in Islamic Studies and Arabic — I scored 90.52 in Islamic Studies and 89.51 in Arabic."
+      },
+      {
+        "name": "Zeina Hisham Awad",
+        "role": "Grade 7 Student",
+        "avatar": "/testimonials/2.jpg",
+        "text": "My teacher on Ta'alam helped me a lot in Math and Ministerial English, and I got an A grade thanks to her great teaching."
+      },
+      {
+        "name": "Omar Husni Al Shihabi",
+        "role": "Grade 8 Student",
+        "avatar": "/testimonials/3.jpg",
+        "text": "I used to struggle with Math, but with my teacher on Ta'alam I improved and got an A grade."
+      }
+    ]
   },
   "howItWorksPage": {
     "heroTitle": "How the Platform Works",
