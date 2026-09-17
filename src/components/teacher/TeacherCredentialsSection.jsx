@@ -3,8 +3,8 @@ import { useT } from "@/hooks/useT";
 
 /** Rotating icon + soft pastel per timeline entry — purely decorative, same rhythm as the reference's alternating cards */
 const EXP_PALETTE = [
-  { icon: Building2, card: "bg-accent-purple/[0.06]" },
-  { icon: GraduationCap, card: "bg-accent-purple/[0.06]" },
+  { icon: Building2, card: "bg-primary/[0.06]" },
+  { icon: GraduationCap, card: "bg-primary/[0.06]" },
   { icon: BookOpen, card: "bg-accent-pink/[0.06]" },
 ];
 
@@ -19,7 +19,7 @@ function SubjectsCard({ title, subjects }) {
       <div className="mt-3 flex flex-col divide-y divide-[#F0F0F5] pe-24 sm:pe-32">
         {subjects.map((s) => (
           <div key={s} className="flex items-center gap-3 py-2.5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-purple/10 text-accent-purple">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <BookOpen size={18} />
             </span>
             <span className="text-sm font-bold text-[#2D2D2D]">{s}</span>
@@ -81,11 +81,11 @@ export function TeacherCredentialsSection({ teacher }) {
               return (
                 <li key={exp.id} className="relative flex items-stretch gap-3">
                   <div className="relative z-10 flex w-8 shrink-0 items-start justify-center pt-4">
-                    <span className="h-3 w-3 rounded-full bg-accent-purple ring-4 ring-white" />
+                    <span className="h-3 w-3 rounded-full bg-primary ring-4 ring-white" />
                   </div>
 
                   <div className={`flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-2 overflow-hidden rounded-2xl p-3 ${card}`}>
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-accent-purple shadow-card">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-primary shadow-card">
                       <Icon size={20} />
                     </span>
                     <div className="min-w-0 flex-1">

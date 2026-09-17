@@ -8,12 +8,12 @@ const NEON_GRADIENT = "linear-gradient(135deg, #0E1A4D 0%, #17237E 60%, #1B2E9C 
 const LANGUAGE_FLAGS = { ar: "/ar.png", en: "/en.png" };
 const NEUTRAL_DOT = "#C7D0DF";
 
-/** Per-language gradient (built from our own brand tokens, not arbitrary colors) + decorative landmark */
+/** Per-language gradient — reuses the site's own named identity gradients (login/register/CTA), not arbitrary colors */
 const LANGUAGE_STYLES = {
-  en: { gradient: "from-primary to-primary-hover", landmark: "/big-ben.png" },
-  ar: { gradient: "from-accent-purple to-accent-pink", landmark: "/khalifa-tower.png" },
+  en: { gradient: "bg-hero-gradient", landmark: "/big-ben.png" },
+  ar: { gradient: "bg-profile-gradient", landmark: "/khalifa-tower.png" },
 };
-const DEFAULT_LANGUAGE_GRADIENT = "from-accent-purple to-primary";
+const DEFAULT_LANGUAGE_GRADIENT = "bg-search-gradient";
 
 function Chip({ label, dot, dotSize = 14, flag, textColor = "#1E1E1E" }) {
   return (
@@ -102,7 +102,7 @@ function LanguageCard({ code, label }) {
 
   return (
     <div
-      className={`relative flex h-28 flex-col overflow-hidden rounded-2xl bg-gradient-to-br ${gradient} p-4 text-white shadow-[0_10px_24px_rgba(17,24,39,0.14)] sm:h-32`}
+      className={`relative flex h-28 flex-col overflow-hidden rounded-2xl ${gradient} p-4 text-white shadow-[0_10px_24px_rgba(17,24,39,0.14)] sm:h-32`}
     >
       <div className="relative z-10 flex items-center gap-2">
         {flag && <img src={flag} alt="" className="h-5 w-5 shrink-0 rounded-full object-cover ring-1 ring-white/50" />}
@@ -150,7 +150,7 @@ function ScopeCard({ title, children }) {
 /**
  * Teaching-scope cards, matching the Figma: each taxonomy is its own white
  * rounded card. Row 1 = المؤهلات العلمية / اللغات, row 2 = المراحل الدراسية /
- * التحضير للامتحانات / المناهج. Cards with no data are dropped.
+ * التحضير للامتحانات / المناهج / طريقة التدريس. Cards with no data are dropped.
  */
 export function TeacherTeachingScopeSection({ teacher }) {
   const t = useT();
@@ -183,6 +183,13 @@ export function TeacherTeachingScopeSection({ teacher }) {
       <ScopeCard key="curricula" title={t("teacher.curricula")}>
         {teacher.curricula.map((c) => (
           <Chip key={c} label={c} dot={NEUTRAL_DOT} />
+        ))}
+      </ScopeCard>
+    ),
+    teacher.teachingMethods?.length > 0 && (
+      <ScopeCard key="teachingMethods" title={t("teacher.teachingMethods")}>
+        {teacher.teachingMethods.map((m) => (
+          <Chip key={m} label={m} dot={NEUTRAL_DOT} />
         ))}
       </ScopeCard>
     ),

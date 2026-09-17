@@ -9,6 +9,7 @@ import { VideosSection } from '@/components/teacher/TeacherInfoSections';
 import { PackagesSection } from '@/components/teacher/PackagesSection';
 import { CoursesSection } from '@/components/teacher/CoursesSection';
 import { RatingReviews } from '@/components/teacher/RatingReviews';
+import { TeacherFAQSection } from '@/components/teacher/TeacherFAQSection';
 import { TeacherClosingSections } from '@/components/teacher/TeacherClosingSections';
 import { BookingWidget } from '@/components/teacher/BookingWidget';
 import { CourseEnrollWidget } from '@/components/teacher/CourseEnrollWidget';
@@ -135,6 +136,8 @@ export function TeacherProfilePage() {
           isError={reviewsError}
           refetch={refetchReviews}
         />
+
+        <TeacherFAQSection teacher={teacher} />
 
         <TeacherClosingSections teacher={teacher} />
       </div>
