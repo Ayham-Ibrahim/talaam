@@ -1,53 +1,163 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { BadgeCheck, GraduationCap, Globe, Layers, MapPin, Star, Users, Wallet } from 'lucide-react';
-import { FavoriteButton, Skeleton } from '@/components/ui';
+import {
+  Heart,
+  Star,
+  CheckCircle2,
+  BookOpen,
+  Globe,
+  GraduationCap,
+  Calculator,
+  Atom,
+  FlaskConical,
+  Dna,
+  Landmark,
+  Globe2,
+  Code2,
+} from 'lucide-react';
+import { Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites, useToggleFavoriteTeacher } from '@/hooks/useFavorites';
-import { useCurrencyStore } from '@/store';
-import { convertPrice } from '@/lib/currency';
 
-const CURRENCY_SYMBOL = { USD: '$', EUR: '€', GBP: '£' };
+/** Figma "Foundation/Blue/Normal" — the design's own base blue, not our usual `primary` token, kept literal to match the reference exactly */
+const BLUE = '#4B6898';
+const PEACH = '#FDC8BC';
+const ORANGE_STAR = '#FF8D28';
 
-/** Our own brand tokens, not arbitrary colors — one assigned per card, stable per teacher id (no purple, it's not part of this rotation) */
-const ACCENT_PALETTE = ['#3B5998', '#C2185B', '#2E9E6B', '#2F80ED', '#F5A623'];
+/** Subject → icon/color, matched by keyword against real subject names; anything unmatched still gets a real icon and a rotating brand color, never a guess at meaning */
+const SUBJECT_ICON_RULES = [
+  { test: /رياضيات|حساب/, icon: Calculator, color: BLUE },
+  { test: /فيزياء/, icon: Atom, color: '#F74E28' },
+  { test: /كيمياء/, icon: FlaskConical, color: '#B00852' },
+  { test: /أحياء|علوم/, icon: Dna, color: '#2E9E6B' },
+  { test: /english|انجليزي|إنجليزي/i, icon: Globe2, color: '#F74E28' },
+  { test: /عربي/, icon: Globe2, color: BLUE },
+  { test: /تاريخ/, icon: Landmark, color: '#B00852' },
+  { test: /جغرافيا/, icon: Globe2, color: '#2E9E6B' },
+  { test: /حاسوب|برمجة|حاسب/, icon: Code2, color: BLUE },
+];
+const SUBJECT_FALLBACK_COLORS = [BLUE, '#F74E28', '#B00852', '#2E9E6B'];
+function subjectStyle(name, index) {
+  const rule = SUBJECT_ICON_RULES.find((r) => r.test.test(name));
+  if (rule) return rule;
+  return { icon: BookOpen, color: SUBJECT_FALLBACK_COLORS[index % SUBJECT_FALLBACK_COLORS.length] };
+}
 
-/** One stat cell — no label, just the value (already worded to carry its own meaning, e.g. "50+ جلسة") with a colored dot or icon prefix */
-function StatCell({ value, dot, icon: Icon }) {
+/** "4.0 ★★★★☆" — always 5 slots, filled ones colored, matches the reference's `line-md:star-filled` (always solid, never outline). Forced `dir="ltr"`: this is a self-contained rating widget (number, then stars), and under the page's ambient RTL a plain flex row would otherwise flip it to "stars, then number". */
+function StarsRow({ rating }) {
+  const filled = Math.round(rating);
   return (
-    <div className="flex min-w-0 items-center gap-1.5 text-sm font-bold text-ink">
-      {dot && <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: dot }} aria-hidden="true" />}
-      {Icon && <Icon size={14} className="shrink-0 text-ink-soft" aria-hidden="true" />}
-      <span className="truncate">{value}</span>
-    </div>
+    <span dir="ltr" className="flex shrink-0 items-center gap-1">
+      <span className="text-xs font-normal text-[#626262]">{rating.toFixed(1)}</span>
+      <span className="flex items-center gap-0.5">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Star
+            key={i}
+            size={13}
+            className="shrink-0"
+            style={{ color: i < filled ? ORANGE_STAR : '#626262', fill: i < filled ? ORANGE_STAR : '#626262' }}
+          />
+        ))}
+      </span>
+    </span>
   );
 }
 
-/** A labeled row of pill chips (subjects/curricula) — the array-shaped data, styled like the reference's "investors" row. Shows every item, no overflow cap. */
-function ChipSection({ label, items, accent }) {
+/** Row of pill items (languages/curricula/stages) inside a light lavender tray — each item is `flex-1` so it always fills the row whether there's 1 item or 3, and any overflow beyond 3 collapses into a trailing "+N" pill instead of wrapping */
+function PillSection({ title, titleIcon: TitleIcon, items, itemIcon: ItemIcon }) {
+  if (!items || items.length === 0) return null;
+  const shown = items.slice(0, 3);
+  const extra = items.length - shown.length;
   return (
-    <div className="text-start">
-      <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-soft/55">{label}</span>
-      <div className="mt-1.5 flex flex-wrap gap-1.5">
-        {items.map((item) => (
+    <div className="flex w-full flex-col items-start gap-1.5">
+      <span className="flex items-center gap-1.5 text-xs font-bold text-ink">
+        {title}
+        <TitleIcon size={15} style={{ color: BLUE }} aria-hidden="true" />
+      </span>
+      <div className="flex w-full items-center gap-1.5 rounded-[10px] bg-[#F9F9FE] p-2">
+        {shown.map((item) => (
           <span
             key={item}
-            className="rounded-pill border px-2.5 py-1 text-xs font-semibold"
-            style={{ borderColor: `${accent}33`, color: accent, background: `${accent}0D` }}
+            className="flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-white px-2 py-2.5 text-xs font-bold"
+            style={{ color: BLUE }}
           >
-            {item}
+            <ItemIcon size={14} className="shrink-0" aria-hidden="true" />
+            <span className="truncate">{item}</span>
           </span>
         ))}
+        {extra > 0 && (
+          <span
+            className="flex shrink-0 items-center justify-center self-stretch rounded-xl bg-white px-2.5 text-xs font-bold"
+            style={{ color: BLUE }}
+          >
+            {extra}+
+          </span>
+        )}
       </div>
     </div>
   );
 }
 
+/** Subjects tray — same lavender container, but each item is a taller card (icon above label, own accent color) instead of a text pill */
+function SubjectsSection({ title, titleIcon: TitleIcon, subjects }) {
+  if (!subjects || subjects.length === 0) return null;
+  const shown = subjects.slice(0, 3);
+  const extra = subjects.length - shown.length;
+  return (
+    <div className="flex w-full flex-col items-start gap-1.5">
+      <span className="flex items-center gap-1.5 text-xs font-bold text-ink">
+        {title}
+        <TitleIcon size={15} style={{ color: BLUE }} aria-hidden="true" />
+      </span>
+      <div className="flex w-full items-stretch gap-1.5 rounded-[10px] bg-[#F9F9FE] p-2">
+        {shown.map((s, i) => {
+          const { icon: Icon, color } = subjectStyle(s, i);
+          return (
+            <span
+              key={s}
+              className="flex min-w-0 flex-1 flex-col items-center justify-center gap-1.5 rounded-xl bg-white px-2 py-3 text-xs font-bold"
+              style={{ color }}
+            >
+              <Icon size={20} aria-hidden="true" />
+              <span className="w-full truncate text-center">{s}</span>
+            </span>
+          );
+        })}
+        {extra > 0 && (
+          <span
+            className="flex shrink-0 items-center justify-center rounded-xl bg-white px-2.5 text-xs font-bold"
+            style={{ color: BLUE }}
+          >
+            {extra}+
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function FooterStat({ value, label }) {
+  return (
+    <div className="flex min-w-0 flex-col items-start gap-0.5">
+      {/* leading-none (line-height:100%) clips the tops/bottoms of Arabic glyphs once combined with truncate's overflow:hidden — Cairo's ascenders/descenders need more vertical room than an exact 1:1 line-height gives them, so this uses a slightly taller line-height instead. */}
+      <span className="max-w-full truncate text-start text-base font-bold leading-[1.3]" style={{ color: BLUE }}>
+        {value}
+      </span>
+      <span className="max-w-full truncate text-start text-xs font-medium leading-[1.3] text-[#909090]">{label}</span>
+    </div>
+  );
+}
+
 /**
- * Two stacked white "layers" (a bigger back card peeking out behind the
- * smaller front one), no borders — just their own soft shadows for depth.
- * Avatar sits top-center with a verified checkmark badge on its own corner,
- * colored with the card's own accent instead of a fixed color; only fields
- * the search endpoint actually returns are rendered (teacherService.mapSearchResult).
+ * Teacher card — matches the Figma reference 1:1: avatar with two rotated
+ * decorative squares peeking behind it, name/rating/"+N جلسة ناجحة" badge/CTA
+ * button stacked to its right, then four data trays (subjects/languages/
+ * curricula/stages, each capped at 3 items + an overflow "+N" pill, every
+ * item box `flex-1` so it fills the row whether there's 1 item or 3 — this
+ * is what keeps the sparse-data and rich-data variants the same height
+ * without any conditional sizing), and a footer stats bar with a decorative
+ * blue circle bleeding from its squared-off top-right corner. Every field is
+ * only rendered when the teacher actually has that data (teacherService's
+ * mapSearchResult) — nothing here is fabricated.
  */
 export function TeacherCard({ teacher }) {
   const navigate = useNavigate();
@@ -55,7 +165,6 @@ export function TeacherCard({ teacher }) {
   const { isAuthenticated } = useAuth();
   const { data: favorites } = useFavorites();
   const toggleFavoriteTeacher = useToggleFavoriteTeacher();
-  const currency = useCurrencyStore((s) => s.currency);
   const isFavorite = (favorites ?? []).some((f) => f.kind === 'teacher' && f.id === teacher.id);
 
   const handleToggleFavorite = (e) => {
@@ -72,171 +181,162 @@ export function TeacherCard({ teacher }) {
     .replace(/^[أا]\.\s*/, '')
     .trim()
     .charAt(0);
-  const accent = ACCENT_PALETTE[teacher.id % ACCENT_PALETTE.length];
-  const stagesLabel = teacher.stages?.length > 0 ? teacher.stages.join('، ') : null;
-  const languagesLabel = teacher.languages?.length > 0 ? teacher.languages.join('، ') : null;
-  const priceLabel =
-    teacher.minPrice != null && teacher.maxPrice != null
-      ? teacher.minPrice === teacher.maxPrice
-        ? `${convertPrice(teacher.minPrice, currency).toLocaleString('en-US')} ${CURRENCY_SYMBOL[currency] ?? currency} / الساعة`
-        : `${convertPrice(teacher.minPrice, currency).toLocaleString('en-US')}–${convertPrice(teacher.maxPrice, currency).toLocaleString('en-US')} ${CURRENCY_SYMBOL[currency] ?? currency} / الساعة`
-      : null;
 
-  // كل خلية تُبنى فقط عندما تتوفّر بيانات حقيقية لها (لا سقف ثابت)، والألوان
-  // تدويرية من هويتنا لا اعتباطية. بلا عناوين فوق القيم — كل قيمة مكتوبة
-  // لتحمل معناها بنفسها (مثال: "50+ جلسة"). ترتيب ثابت بطلب صريح: عمود
-  // الخبرة/اللغات وعمود الجلسات/السعر/الطلاب جنباً إلى جنب في صف أول من
-  // عمودين، ثم الموقع والمرحلة أسفلهما في صف ثانٍ بعمود واحد.
-  const rightColumn = [
-    teacher.experienceShort && { key: 'experience', value: teacher.experienceShort, dot: accent },
-    languagesLabel && { key: 'languages', value: languagesLabel, icon: Globe },
-  ].filter(Boolean);
-  const leftColumn = [
-    teacher.completedSessions > 0 && { key: 'sessions', value: `${teacher.completedSessions}+ جلسة`, icon: Layers },
-    priceLabel && { key: 'price', value: priceLabel, icon: Wallet },
-    teacher.totalStudents > 0 && { key: 'students', value: `${teacher.totalStudents}+ طالب`, icon: Users },
-  ].filter(Boolean);
-  const belowRows = [
-    teacher.city && { key: 'city', value: teacher.city, icon: MapPin },
-    stagesLabel && { key: 'stage', value: stagesLabel, icon: GraduationCap },
+  const footerStats = [
+    teacher.city && { key: 'city', value: teacher.city.split(/[\s-]+/)[0], label: 'الموقع' },
+    teacher.experienceShort && { key: 'experience', value: teacher.experienceShort, label: 'سنوات خبرة' },
+    teacher.reviewsCount > 0 && { key: 'satisfaction', value: `${Math.round((teacher.rating / 5) * 100)}%`, label: 'رضا الطلاب' },
   ].filter(Boolean);
 
   return (
-    <div className="group relative h-[500px]">
-      {/* Back layer — bigger than the front card, white, soft shadow like the reference, offset toward the bottom-right only (kept tight enough it doesn't wrap into the top-right/bottom-left corners) */}
-      <div
-        className="absolute -inset-1 rounded-[28px] bg-white shadow-[8px_10px_20px_rgba(17,24,39,0.10)]"
-        aria-hidden="true"
-      />
+    <div className="group relative flex h-[660px] flex-col overflow-hidden rounded-2xl bg-white text-start shadow-[0_1px_5px_rgba(0,0,0,0.1)] transition-shadow duration-200 hover:shadow-[0_6px_20px_rgba(17,24,39,0.14)]">
+      <button
+        type="button"
+        onClick={handleToggleFavorite}
+        aria-label="المفضلة"
+        aria-pressed={isFavorite}
+        className="absolute left-3 top-3 z-20 flex h-10 w-10 items-center justify-center rounded-xl transition-transform duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 motion-reduce:transition-none motion-reduce:hover:scale-100"
+      >
+        <Heart size={20} className={isFavorite ? 'fill-accent-pink text-accent-pink' : 'text-[#2D2D2D]'} />
+      </button>
 
-      {/* Front layer — the real card, ~9/10 of the back layer's width (percentage margin, true ratio at every breakpoint), its own bottom-right soft shadow, no border. Stays in normal flow — this is what gives the card its real height; making it absolute too (as a percentage-inset attempt once did) collapses the whole card to 0px since nothing would be left to size the grid row. A fixed height on the outer wrapper (rather than h-full) is what keeps every card the same height regardless of how much optional data a given teacher has — CSS grid only stretches items to match within their own row, not across rows. */}
-      <div className="relative mx-[5%] my-3 flex h-[calc(100%-24px)] flex-col overflow-hidden rounded-[28px] bg-surface shadow-[8px_10px_22px_rgba(17,24,39,0.16)] transition-shadow duration-200 hover:shadow-[10px_13px_26px_rgba(17,24,39,0.2)]">
-        <FavoriteButton
-          active={isFavorite}
-          onClick={handleToggleFavorite}
-          className="absolute right-3 top-3 z-20 cursor-pointer transition-transform duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 motion-reduce:transition-none motion-reduce:hover:scale-100"
-        />
-
-        <Link
-          to={profileHref}
-          className="relative z-10 flex flex-1 cursor-pointer flex-col px-5 pb-5 pt-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-        >
-          {/* Header row — avatar physically on the left, name/rating/badges to its right. flex-row-reverse (not just swapping start/end) so the avatar lands on the physical left regardless of page direction — the heart button above is pinned to the physical top-right the same way. */}
-          <div className="flex w-full flex-row-reverse items-center gap-2 text-start sm:gap-3">
-            <div className="relative shrink-0">
-              <div className="h-12 w-12 overflow-hidden rounded-full bg-white shadow-[0_10px_24px_rgba(17,24,39,0.22)] ring-[3px] ring-white transition-transform duration-200 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100 sm:h-24 sm:w-24">
-                {teacher.avatar ? (
-                  <img src={teacher.avatar} alt={teacher.name} className="h-full w-full object-cover" />
-                ) : (
-                  <span className="flex h-full w-full items-center justify-center text-base font-bold sm:text-3xl" style={{ color: accent }}>
-                    {initials || teacher.name?.charAt(0) || '؟'}
-                  </span>
-                )}
-              </div>
-              {teacher.isVerified && (
-                <span
-                  className="absolute -top-1 end-[-2px] flex h-5 w-5 items-center justify-center rounded-full text-white ring-2 ring-white sm:h-8 sm:w-8"
-                  style={{ background: accent }}
-                >
-                  <BadgeCheck size={12} className="shrink-0 sm:hidden" aria-hidden="true" />
-                  <BadgeCheck size={18} className="hidden shrink-0 sm:block" aria-hidden="true" />
+      <Link
+        to={profileHref}
+        className="flex flex-1 flex-col p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+      >
+        {/* Header — avatar physically on the left (flex-row-reverse keeps it there regardless of page direction), name/rating/badge/CTA column to its right. items-end bottom-aligns the avatar against the taller text column (vertical cross-axis alignment isn't affected by the RTL quirk that hit the column-flex cases elsewhere in this file — that one was horizontal-only). From sm: up the column is capped to ~58% width (not flex-1 filling the whole row) so name/badge/button stay a single tight, same-width stack flush to the right edge — matching the reference, where the button's own width equals the name column's width, not the full card width. */}
+        <div className="flex w-full flex-row-reverse items-end gap-3 sm:justify-between sm:gap-0">
+          {/* 139:125 wrapper (not square) — the avatar circle itself is only ~90% of this width, left-aligned within it, leaving room for the two decorative squares to peek past its right/left edges. All offsets below are the reference's exact px values converted to % of this box, so they hold at any breakpoint. */}
+          <div className="relative aspect-[139/125] h-16 shrink-0 sm:h-[92px]">
+            {/* Blue-tint square — top-right, behind the avatar, boxy corners */}
+            <span
+              className="absolute rounded-[10%]"
+              style={{
+                width: '58%',
+                height: '64.5%',
+                top: '-13.6%',
+                left: '25.9%',
+                background: 'rgba(75,104,152,0.2)',
+                transform: 'rotate(-27.84deg)',
+              }}
+              aria-hidden="true"
+            />
+            {/* Peach square — top-left, behind the avatar, nearly circular */}
+            <span
+              className="absolute rounded-full"
+              style={{
+                width: '58%',
+                height: '64.5%',
+                top: '-9.6%',
+                left: '-18%',
+                background: PEACH,
+                transform: 'rotate(-27.84deg)',
+              }}
+              aria-hidden="true"
+            />
+            <div
+              className="absolute left-0 z-10 h-full overflow-hidden rounded-full bg-white shadow-[0_10px_24px_rgba(17,24,39,0.18)] transition-transform duration-200 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+              style={{ width: '89.93%', top: '-0.8%' }}
+            >
+              {teacher.avatar ? (
+                <img src={teacher.avatar} alt={teacher.name} className="h-full w-full object-cover" />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center text-2xl font-bold" style={{ color: BLUE }}>
+                  {initials || teacher.name?.charAt(0) || '؟'}
                 </span>
-              )}
-            </div>
-
-            <div className="min-w-0 flex-1 sm:pr-8">
-              <div className="flex min-w-0 items-center gap-1.5">
-                <h3 className="min-w-0 flex-1 truncate text-sm font-bold text-ink sm:flex-initial sm:text-lg">{teacher.name}</h3>
-                {teacher.reviewsCount > 0 && (
-                  <span className="hidden shrink-0 items-center gap-0.5 text-sm font-bold text-star sm:flex">
-                    <Star size={13} className="fill-star text-star" />
-                    {teacher.rating.toFixed(1)}
-                  </span>
-                )}
-              </div>
-
-              {(teacher.qualification || teacher.availableToday) && (
-                <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                  {teacher.qualification && (
-                    <span
-                      className="w-fit whitespace-nowrap rounded-pill px-2.5 py-1 text-xs font-semibold"
-                      style={{ background: `${accent}1A`, color: accent }}
-                    >
-                      {teacher.qualification}
-                    </span>
-                  )}
-                  {teacher.availableToday && (
-                    <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-pill bg-success-light px-2.5 py-1 text-xs font-semibold text-success">
-                      <span className="h-2 w-2 shrink-0 rounded-full bg-success" />
-                      متاح اليوم
-                    </span>
-                  )}
-                </div>
               )}
             </div>
           </div>
 
-          {(rightColumn.length > 0 || leftColumn.length > 0) && (
-            <div className="mt-5 flex w-full gap-4">
-              <div className="flex min-w-0 flex-1 flex-col gap-4">
-                {rightColumn.map(({ key, ...cell }) => (
-                  <StatCell key={key} {...cell} />
-                ))}
-              </div>
-              <div className="flex min-w-0 flex-1 flex-col gap-4">
-                {leftColumn.map(({ key, ...cell }) => (
-                  <StatCell key={key} {...cell} />
-                ))}
-              </div>
-            </div>
-          )}
+          {/* min-h reserves the "full" header's own natural height (measured: ~148px with rating+badge+button all present) so every card's header ends at the same Y regardless of which fields this teacher actually has — a card missing the rating/badge still pushes the subjects section down to the same starting point as one that has them. */}
+          <div className="flex min-h-[150px] min-w-0 flex-1 flex-col items-start gap-2 sm:w-[58%] sm:max-w-[240px] sm:flex-none">
+            <h3 className="w-full truncate text-sm font-bold text-ink sm:text-xl">{teacher.name}</h3>
 
-          {belowRows.length > 0 && (
-            <div className={`flex w-full flex-col gap-4 ${rightColumn.length > 0 || leftColumn.length > 0 ? 'mt-4' : 'mt-5'}`}>
-              {belowRows.map(({ key, ...cell }) => (
-                <StatCell key={key} {...cell} />
+            {teacher.reviewsCount > 0 && (
+              <span className="hidden sm:flex">
+                <StarsRow rating={teacher.rating} />
+              </span>
+            )}
+
+            {teacher.completedSessions > 0 && (
+              <span className="inline-flex max-w-full items-center gap-1 whitespace-normal rounded-pill bg-[#34C759] px-2 py-1 text-[11px] font-semibold text-white sm:gap-1.5 sm:whitespace-nowrap sm:px-3 sm:py-1.5 sm:text-sm">
+                {teacher.completedSessions}+ جلسة ناجحة
+                <CheckCircle2 size={13} className="shrink-0 sm:hidden" aria-hidden="true" />
+                <CheckCircle2 size={15} className="hidden shrink-0 sm:block" aria-hidden="true" />
+              </span>
+            )}
+
+            <span
+              className="mt-1 inline-flex w-full items-center justify-center whitespace-normal rounded-xl px-2 py-2 text-xs font-medium text-white transition-opacity duration-200 group-hover:opacity-90 sm:whitespace-nowrap sm:px-4 sm:py-3 sm:text-sm"
+              style={{ background: BLUE }}
+            >
+              حجز جلسة
+            </span>
+          </div>
+        </div>
+
+        {(teacher.subjects?.length > 0 ||
+          teacher.languages?.length > 0 ||
+          teacher.curricula?.length > 0 ||
+          teacher.stages?.length > 0) && (
+          <div className="mt-4 flex w-full flex-col gap-4">
+            <SubjectsSection title="المواد التي يدرسها" titleIcon={BookOpen} subjects={teacher.subjects} />
+            <PillSection title="اللغات" titleIcon={Globe} items={teacher.languages} itemIcon={Globe2} />
+            <PillSection title="المناهج" titleIcon={BookOpen} items={teacher.curricula} itemIcon={GraduationCap} />
+            <PillSection title="المراحل الدراسية" titleIcon={GraduationCap} items={teacher.stages} itemIcon={GraduationCap} />
+          </div>
+        )}
+
+        <div className="flex-1" />
+
+        {footerStats.length > 0 && (
+          <div className="relative mt-4 flex h-16 items-center overflow-hidden rounded-2xl rounded-tr-none bg-[#F9F9F9] px-3 sm:h-[68px]">
+            {/* Decorative swoosh bleeding from the bottom-right corner — the exact reference path (a bezier curve, not a rotated square or circle). Hidden below lg: — on the sm/md 2-col grid there's no room for both the shape and readable text, and the shape is pure decoration while the text is the actual information. */}
+            <svg
+              className="pointer-events-none absolute bottom-0 right-0 hidden h-full w-[130px] lg:block"
+              viewBox="0 0 130 59"
+              preserveAspectRatio="xMaxYMax meet"
+              aria-hidden="true"
+            >
+              <path
+                d="M126.5 0H130V59H0C29.9331 29.3922 68.2876 9.76233 109.81 2.79891L126.5 0Z"
+                fill={BLUE}
+              />
+            </svg>
+            {/* Naturally-sized items spread across the whole remaining width (justify-between, no fixed gap) instead of clustering together — min-w-0 on each is what lets them still truncate gracefully instead of overflowing if the card is ever too narrow. pr-* clears exactly the swoosh's own rendered width so text sits next to it, never on top of it — only needed once the swoosh itself appears at lg:. */}
+            <div className="relative z-10 flex w-full items-center justify-between gap-2 lg:pr-[130px]">
+              {footerStats.map(({ key, ...stat }) => (
+                <div key={key} className="min-w-0">
+                  <FooterStat {...stat} />
+                </div>
               ))}
             </div>
-          )}
-
-          {(teacher.subjects?.length > 0 || teacher.curricula?.length > 0) && (
-            <div className="mt-4 flex w-full flex-col gap-3">
-              {teacher.subjects?.length > 0 && <ChipSection label="المواد" items={teacher.subjects} accent={accent} />}
-              {teacher.curricula?.length > 0 && <ChipSection label="المناهج" items={teacher.curricula} accent={accent} />}
-            </div>
-          )}
-
-          <div className="flex-1" />
-
-          <span
-            className="mt-4 inline-flex w-full cursor-pointer items-center justify-center py-2 text-sm font-bold transition-opacity duration-200 group-hover:opacity-70"
-            style={{ color: accent }}
-          >
-            عرض الملف الشخصي
-          </span>
-        </Link>
-      </div>
+          </div>
+        )}
+      </Link>
     </div>
   );
 }
 
 export function TeacherCardSkeleton() {
   return (
-    <div className="relative h-[500px]">
-      <div className="absolute -inset-1 rounded-[28px] bg-white shadow-[8px_10px_20px_rgba(17,24,39,0.10)]" aria-hidden="true" />
-      <div className="relative mx-[5%] my-3 flex h-[calc(100%-24px)] flex-col overflow-hidden rounded-[28px] bg-surface px-5 pb-5 pt-6 shadow-[8px_10px_22px_rgba(17,24,39,0.16)]">
-        <div className="flex flex-1 flex-col items-center">
-          <Skeleton className="h-20 w-20 shrink-0 rounded-full ring-[3px] ring-white" />
-          <Skeleton className="mt-3 h-4 w-2/3" />
-          <Skeleton className="mt-2 h-5 w-20 rounded-pill" />
-          <div className="mt-3 flex w-full flex-col gap-1.5">
-            <Skeleton className="h-3 w-full" />
-            <Skeleton className="h-3 w-4/5" />
-            <Skeleton className="h-3 w-3/5" />
-          </div>
-          <Skeleton className="mt-4 h-9 w-full rounded-btn" />
+    <div className="flex h-[660px] flex-col overflow-hidden rounded-2xl bg-white p-4 shadow-[0_1px_5px_rgba(0,0,0,0.1)]">
+      <div className="flex w-full flex-row-reverse items-start gap-3">
+        <Skeleton className="h-16 w-16 shrink-0 rounded-full sm:h-[92px] sm:w-[92px]" />
+        <div className="flex min-w-0 flex-1 flex-col items-start gap-2">
+          <Skeleton className="h-5 w-2/3" />
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-7 w-32 rounded-pill" />
+          <Skeleton className="mt-1 h-11 w-full rounded-xl" />
         </div>
       </div>
+      <div className="mt-4 flex flex-col gap-4">
+        <Skeleton className="h-20 w-full rounded-[10px]" />
+        <Skeleton className="h-[54px] w-full rounded-[10px]" />
+        <Skeleton className="h-[54px] w-full rounded-[10px]" />
+      </div>
+      <div className="flex-1" />
+      <Skeleton className="mt-4 h-[60px] w-full rounded-2xl" />
     </div>
   );
 }

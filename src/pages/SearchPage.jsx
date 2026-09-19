@@ -159,7 +159,7 @@ export function SearchPage() {
               {isError ? (
                 <ErrorState onRetry={refetch} />
               ) : (
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   {isLoading
                     ? Array.from({ length: 8 }).map((_, i) => <TeacherCardSkeleton key={i} />)
                     : data?.data?.map((teacher) => <TeacherCard key={teacher.id} teacher={teacher} />)}
