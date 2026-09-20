@@ -139,10 +139,10 @@ function FooterStat({ value, label }) {
   return (
     <div className="flex min-w-0 flex-col items-start gap-0.5">
       {/* leading-none (line-height:100%) clips the tops/bottoms of Arabic glyphs once combined with truncate's overflow:hidden — Cairo's ascenders/descenders need more vertical room than an exact 1:1 line-height gives them, so this uses a slightly taller line-height instead. */}
-      <span className="max-w-full truncate text-start text-base font-bold leading-[1.3]" style={{ color: BLUE }}>
+      <span className="max-w-full truncate text-start text-sm font-bold leading-[1.3]" style={{ color: BLUE }}>
         {value}
       </span>
-      <span className="max-w-full truncate text-start text-xs font-medium leading-[1.3] text-[#909090]">{label}</span>
+      <span className="max-w-full truncate text-start text-[11px] font-medium leading-[1.3] text-[#909090]">{label}</span>
     </div>
   );
 }
@@ -189,7 +189,7 @@ export function TeacherCard({ teacher }) {
   ].filter(Boolean);
 
   return (
-    <div className="group relative flex h-[660px] flex-col overflow-hidden rounded-2xl bg-white text-start shadow-[0_1px_5px_rgba(0,0,0,0.1)] transition-shadow duration-200 hover:shadow-[0_6px_20px_rgba(17,24,39,0.14)]">
+    <div className="group relative flex h-[632px] flex-col overflow-hidden rounded-2xl bg-white text-start shadow-[0_1px_5px_rgba(0,0,0,0.1)] transition-shadow duration-200 hover:shadow-[0_6px_20px_rgba(17,24,39,0.14)]">
       <button
         type="button"
         onClick={handleToggleFavorite}
@@ -248,8 +248,8 @@ export function TeacherCard({ teacher }) {
             </div>
           </div>
 
-          {/* min-h reserves the "full" header's own natural height (measured: ~148px with rating+badge+button all present) so every card's header ends at the same Y regardless of which fields this teacher actually has — a card missing the rating/badge still pushes the subjects section down to the same starting point as one that has them. */}
-          <div className="flex min-h-[150px] min-w-0 flex-1 flex-col items-start gap-2 sm:w-[58%] sm:max-w-[240px] sm:flex-none">
+          {/* min-h reserves the "full" header's own natural height so every card's header ends at the same Y regardless of which fields this teacher actually has. justify-between (not the default top-packed flow) is what pins the button to the exact same bottom Y across cards — otherwise a card missing the rating/badge would pack name+button together at the top with all the slack left dangling below the button instead of between them. */}
+          <div className="flex min-h-[120px] min-w-0 flex-1 flex-col items-start justify-between gap-1.5 sm:w-[58%] sm:max-w-[240px] sm:flex-none">
             <h3 className="w-full truncate text-sm font-bold text-ink sm:text-xl">{teacher.name}</h3>
 
             {teacher.reviewsCount > 0 && (
@@ -259,7 +259,7 @@ export function TeacherCard({ teacher }) {
             )}
 
             {teacher.completedSessions > 0 && (
-              <span className="inline-flex max-w-full items-center gap-1 whitespace-normal rounded-pill bg-[#34C759] px-2 py-1 text-[11px] font-semibold text-white sm:gap-1.5 sm:whitespace-nowrap sm:px-3 sm:py-1.5 sm:text-sm">
+              <span className="inline-flex max-w-full items-center gap-1 whitespace-normal rounded-pill bg-[#34C759] px-2 py-1 text-[11px] font-semibold text-white sm:gap-1.5 sm:whitespace-nowrap sm:px-3 sm:py-1 sm:text-sm">
                 {teacher.completedSessions}+ جلسة ناجحة
                 <CheckCircle2 size={13} className="shrink-0 sm:hidden" aria-hidden="true" />
                 <CheckCircle2 size={15} className="hidden shrink-0 sm:block" aria-hidden="true" />
@@ -267,7 +267,7 @@ export function TeacherCard({ teacher }) {
             )}
 
             <span
-              className="mt-1 inline-flex w-full items-center justify-center whitespace-normal rounded-xl px-2 py-2 text-xs font-medium text-white transition-opacity duration-200 group-hover:opacity-90 sm:whitespace-nowrap sm:px-4 sm:py-3 sm:text-sm"
+              className="inline-flex w-full items-center justify-center whitespace-normal rounded-xl px-2 py-1.5 text-xs font-medium text-white transition-opacity duration-200 group-hover:opacity-90 sm:whitespace-nowrap sm:px-4 sm:py-2 sm:text-sm"
               style={{ background: BLUE }}
             >
               حجز جلسة
@@ -290,10 +290,10 @@ export function TeacherCard({ teacher }) {
         <div className="flex-1" />
 
         {footerStats.length > 0 && (
-          <div className="relative mt-4 flex h-16 items-center overflow-hidden rounded-2xl rounded-tr-none bg-[#F9F9F9] px-3 sm:h-[68px]">
-            {/* Decorative swoosh bleeding from the bottom-right corner — the exact reference path (a bezier curve, not a rotated square or circle). Hidden below lg: — on the sm/md 2-col grid there's no room for both the shape and readable text, and the shape is pure decoration while the text is the actual information. */}
+          <div className="relative -mx-4 -mb-4 mt-4 flex h-16 items-center overflow-hidden rounded-2xl rounded-tr-none bg-[#F9F9F9] px-3 sm:h-[68px]">
+            {/* Decorative swoosh bleeding from the bottom-right corner — the exact reference path (a bezier curve, not a rotated square or circle). Hidden below xl: — the sidebar-filter pages now run 3 cards per row at lg:, which makes those cards too narrow (as little as ~200px) for the shape and readable text to coexist; percentage-sized (not the earlier fixed 130px) so it keeps scaling down instead of overflowing as cards get narrower. */}
             <svg
-              className="pointer-events-none absolute bottom-0 right-0 hidden h-full w-[130px] lg:block"
+              className="pointer-events-none absolute bottom-0 right-0 hidden h-full w-[28%] xl:block"
               viewBox="0 0 130 59"
               preserveAspectRatio="xMaxYMax meet"
               aria-hidden="true"
@@ -303,8 +303,8 @@ export function TeacherCard({ teacher }) {
                 fill={BLUE}
               />
             </svg>
-            {/* Naturally-sized items spread across the whole remaining width (justify-between, no fixed gap) instead of clustering together — min-w-0 on each is what lets them still truncate gracefully instead of overflowing if the card is ever too narrow. pr-* clears exactly the swoosh's own rendered width so text sits next to it, never on top of it — only needed once the swoosh itself appears at lg:. */}
-            <div className="relative z-10 flex w-full items-center justify-between gap-2 lg:pr-[130px]">
+            {/* Naturally-sized items spread across the whole remaining width (justify-between, no fixed gap) instead of clustering together — min-w-0 on each is what lets them still truncate gracefully instead of overflowing if the card is ever too narrow. pr-* clears the swoosh's own rendered width (as a %, matching its own sizing) so text sits next to it, never on top of it — only needed once the swoosh itself appears at xl:. */}
+            <div className="relative z-10 flex w-full items-center justify-between gap-2 xl:pr-[34%]">
               {footerStats.map(({ key, ...stat }) => (
                 <div key={key} className="min-w-0">
                   <FooterStat {...stat} />
@@ -320,14 +320,14 @@ export function TeacherCard({ teacher }) {
 
 export function TeacherCardSkeleton() {
   return (
-    <div className="flex h-[660px] flex-col overflow-hidden rounded-2xl bg-white p-4 shadow-[0_1px_5px_rgba(0,0,0,0.1)]">
+    <div className="flex h-[632px] flex-col overflow-hidden rounded-2xl bg-white p-4 shadow-[0_1px_5px_rgba(0,0,0,0.1)]">
       <div className="flex w-full flex-row-reverse items-start gap-3">
         <Skeleton className="h-16 w-16 shrink-0 rounded-full sm:h-[92px] sm:w-[92px]" />
-        <div className="flex min-w-0 flex-1 flex-col items-start gap-2">
+        <div className="flex min-h-[120px] min-w-0 flex-1 flex-col items-start gap-1.5">
           <Skeleton className="h-5 w-2/3" />
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-7 w-32 rounded-pill" />
-          <Skeleton className="mt-1 h-11 w-full rounded-xl" />
+          <Skeleton className="h-9 w-full rounded-xl" />
         </div>
       </div>
       <div className="mt-4 flex flex-col gap-4">

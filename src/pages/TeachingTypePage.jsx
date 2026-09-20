@@ -141,7 +141,7 @@ export function TeachingTypePage() {
               {isError ? (
                 <ErrorState onRetry={refetch} />
               ) : (
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-x-4 lg:gap-y-3">
                   {isLoading
                     ? Array.from({ length: 8 }).map((_, i) => (
                         <TeacherCardSkeleton key={i} />
