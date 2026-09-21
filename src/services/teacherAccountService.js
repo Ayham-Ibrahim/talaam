@@ -94,12 +94,21 @@ export const teacherAccountService = {
     return data.data;
   },
 
-  async addExperience(id, { title, period }) {
+  async addExperience(id, { title, company, period, location, description }) {
     if (config.useMocks) {
       await mockDelay(300);
-      return { id: Date.now(), title, period };
+      return { id: Date.now(), title, company, period, location, description };
     }
-    const { data } = await client.post(endpoints.teachers.experiences(id), { title, period });
+    const { data } = await client.post(endpoints.teachers.experiences(id), { title, company, period, location, description });
+    return data.data;
+  },
+
+  async updateExperience(experienceId, { title, company, period, location, description }) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return { id: experienceId, title, company, period, location, description };
+    }
+    const { data } = await client.put(endpoints.teachers.experience(experienceId), { title, company, period, location, description });
     return data.data;
   },
 

@@ -18,6 +18,7 @@ import {
   useAdminAddFaq,
   useAdminRemoveFaq,
   useAdminAddExperience,
+  useAdminUpdateExperience,
   useAdminRemoveExperience,
 } from '@/hooks/useAdmin';
 import { useTaxonomyList } from '@/hooks/useTaxonomy';
@@ -107,6 +108,7 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
   const addFaq = useAdminAddFaq(teacherId);
   const removeFaq = useAdminRemoveFaq(teacherId);
   const addExperience = useAdminAddExperience(teacherId);
+  const updateExperience = useAdminUpdateExperience(teacherId);
   const removeExperience = useAdminRemoveExperience(teacherId);
 
   const [form, setForm] = useState({
@@ -601,6 +603,10 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
               onAdd={(payload, opts) => addExperience.mutate(payload, opts)}
               isAdding={addExperience.isPending}
               addError={addExperience.isError ? addExperience.error : null}
+              onUpdate={(payload, opts) => updateExperience.mutate(payload, opts)}
+              isUpdating={updateExperience.isPending}
+              updateError={updateExperience.isError ? updateExperience.error : null}
+              updatingId={updateExperience.isPending ? updateExperience.variables?.experienceId : null}
               onRemove={(id) => removeExperience.mutate(id)}
               removingId={removeExperience.isPending ? removeExperience.variables : null}
             />

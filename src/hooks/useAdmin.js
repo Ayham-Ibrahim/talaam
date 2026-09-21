@@ -223,6 +223,14 @@ export function useAdminAddExperience(id) {
   });
 }
 
+export function useAdminUpdateExperience(id) {
+  const invalidate = useInvalidateTeacher(id);
+  return useMutation({
+    mutationFn: ({ experienceId, ...payload }) => adminService.updateTeacherExperience(experienceId, payload),
+    onSuccess: invalidate,
+  });
+}
+
 export function useAdminRemoveExperience(id) {
   const invalidate = useInvalidateTeacher(id);
   return useMutation({

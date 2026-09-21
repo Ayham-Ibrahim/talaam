@@ -84,13 +84,23 @@ export function TeacherCredentialsSection({ teacher }) {
                     <span className="h-3 w-3 rounded-full bg-primary ring-4 ring-white" />
                   </div>
 
-                  <div className={`flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-2 overflow-hidden rounded-2xl p-3 ${card}`}>
+                  <div className={`flex min-w-0 flex-1 flex-wrap items-start gap-x-3 gap-y-2 overflow-hidden rounded-2xl p-3 ${card}`}>
                     <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-primary shadow-card">
                       <Icon size={20} />
                     </span>
                     <div className="min-w-0 flex-1">
                       <h4 className="truncate text-sm font-bold text-[#1E1E1E]">{exp.title}</h4>
-                      {exp.period && <p className="mt-0.5 text-xs text-ink-soft">{exp.period}</p>}
+                      {/* الشركة/الجهة/المؤسسة تحت العنوان مباشرة، ثم الموقع والفترة جنباً إلى جنب تحتها */}
+                      {exp.company && <p className="mt-0.5 truncate text-xs font-semibold text-ink-soft">{exp.company}</p>}
+                      {(exp.location || exp.period) && (
+                        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-ink-soft">
+                          {exp.location && <span className="truncate">{exp.location}</span>}
+                          {exp.period && <span className="truncate">{exp.period}</span>}
+                        </div>
+                      )}
+                      {exp.description && (
+                        <p className="mt-1.5 whitespace-pre-line text-xs leading-relaxed text-ink-soft">{exp.description}</p>
+                      )}
                     </div>
                     {exp.period && (
                       <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${statusBadge}`}>

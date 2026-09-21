@@ -88,6 +88,14 @@ export function useAddExperience(id) {
   });
 }
 
+export function useUpdateExperience(id) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ experienceId, ...payload }) => teacherAccountService.updateExperience(experienceId, payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: myTeacherKey(id) }),
+  });
+}
+
 export function useRemoveExperience(id) {
   const queryClient = useQueryClient();
   return useMutation({

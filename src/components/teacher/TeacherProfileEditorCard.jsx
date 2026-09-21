@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { MultiSelectChips } from '@/components/dashboard/MultiSelectChips';
 import { TagChipsInput } from '@/components/dashboard/TagChipsInput';
+import { TeacherExperienceEditor } from '@/components/teacher/TeacherExperienceEditor';
 import { ApiErrorList } from '@/components/ui';
 import { useTaxonomyList } from '@/hooks/useTaxonomy';
 import {
   useAddExperience,
+  useUpdateExperience,
   useRemoveExperience,
   useUpdateMyTeacherProfile,
 } from '@/hooks/useTeacherAccount';
@@ -42,83 +44,6 @@ const errorLabel = (path) => FIELD_LABELS[path.replace(/\.\d+$/, '')] ?? path;
 
 const idsOf = (list) => (list ?? []).map((x) => x.id);
 
-/** Add / list / remove the "الخبرات السابقة" timeline entries (own mutations, not the form save) */
-function ExperiencesEditor({ teacherId, experiences }) {
-  const t = useT();
-  const add = useAddExperience(teacherId);
-  const remove = useRemoveExperience(teacherId);
-  const [draft, setDraft] = useState({ title: '', period: '' });
-
-  const submit = () => {
-    if (!draft.title.trim() || !draft.period.trim()) return;
-    add.mutate(
-      { title: draft.title.trim(), period: draft.period.trim() },
-      { onSuccess: () => setDraft({ title: '', period: '' }) },
-    );
-  };
-
-  return (
-    <div className="flex flex-col gap-2">
-      <span className="text-sm font-semibold text-primary">{t('teacher.previousExperience')}</span>
-
-      {experiences.length > 0 && (
-        <ul className="flex flex-col gap-2">
-          {experiences.map((exp) => (
-            <li
-              key={exp.id}
-              className="flex items-center justify-between gap-3 rounded-lg border border-line px-3 py-2 text-sm"
-            >
-              <button
-                type="button"
-                onClick={() => remove.mutate(exp.id)}
-                disabled={remove.isPending}
-                aria-label="حذف"
-                className="shrink-0 rounded-full p-1 text-[#FF383C] hover:bg-[#FF383C]/10 disabled:opacity-40"
-              >
-                <Trash2 size={15} />
-              </button>
-              <span className="text-start text-ink">
-                {exp.title}
-                {exp.period ? ` (${exp.period})` : ''}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {add.isError && <ApiErrorList error={add.error} className="mt-1" />}
-
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <input
-          type="text"
-          maxLength={200}
-          value={draft.title}
-          placeholder={t('teacherSettings.expTitlePlaceholder')}
-          onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
-          className="w-full rounded-lg border border-[#E3E3E3] bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none"
-        />
-        <input
-          type="text"
-          maxLength={100}
-          value={draft.period}
-          placeholder={t('teacherSettings.expPeriodPlaceholder')}
-          onChange={(e) => setDraft((d) => ({ ...d, period: e.target.value }))}
-          className="w-full rounded-lg border border-[#E3E3E3] bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none sm:w-48"
-        />
-        <button
-          type="button"
-          onClick={submit}
-          disabled={add.isPending || !draft.title.trim() || !draft.period.trim()}
-          className="flex shrink-0 items-center justify-center gap-1 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40"
-        >
-          <Plus size={15} />
-          {t('teacherSettings.addExperience')}
-        </button>
-      </div>
-    </div>
-  );
-}
-
 /**
  * Ongoing editor (verified teachers) for the fields that render on the public
  * profile page — bio, qualification, experience, location, subjects, curricula,
@@ -128,6 +53,9 @@ function ExperiencesEditor({ teacherId, experiences }) {
 export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter }) {
   const t = useT();
   const update = useUpdateMyTeacherProfile(teacherId);
+  const addExperience = useAddExperience(teacherId);
+  const updateExperience = useUpdateExperience(teacherId);
+  const removeExperience = useRemoveExperience(teacherId);
 
   const { data: subjects = [] } = useTaxonomyList('subjects');
   const { data: curricula = [] } = useTaxonomyList('curricula');
@@ -334,7 +262,18 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
           placeholder={t('teacherSettings.addTagPlaceholder')}
         />
 
-        <ExperiencesEditor teacherId={teacherId} experiences={teacher.experiences ?? []} />
+        <TeacherExperienceEditor
+          experiences={teacher.experiences ?? []}
+          onAdd={(payload, opts) => addExperience.mutate(payload, opts)}
+          isAdding={addExperience.isPending}
+          addError={addExperience.isError ? addExperience.error : null}
+          onUpdate={(payload, opts) => updateExperience.mutate(payload, opts)}
+          isUpdating={updateExperience.isPending}
+          updateError={updateExperience.isError ? updateExperience.error : null}
+          updatingId={updateExperience.isPending ? updateExperience.variables?.experienceId : null}
+          onRemove={(id) => removeExperience.mutate(id)}
+          removingId={removeExperience.isPending ? removeExperience.variables : null}
+        />
 
         <div className="flex items-center gap-3">
           <button
