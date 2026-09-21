@@ -116,8 +116,16 @@ export const teacherService = {
   async getTeachers(filters = {}) {
     if (config.useMocks) {
       await mockDelay();
-      const data = filterMockTeachers(mockTeachers, filters);
-      return { data, total: data.length };
+      const filtered = filterMockTeachers(mockTeachers, filters);
+      const page = filters.page || 1;
+      const perPage = filters.perPage || filtered.length || 1;
+      const start = (page - 1) * perPage;
+      return {
+        data: filtered.slice(start, start + perPage),
+        total: filtered.length,
+        currentPage: page,
+        lastPage: Math.max(1, Math.ceil(filtered.length / perPage)),
+      };
     }
     const params = {
       teacher_type: filters.type === 'training' ? 'training_center' : (filters.type || undefined),
@@ -131,17 +139,23 @@ export const teacherService = {
       min_price: filters.minPrice ?? undefined,
       max_price: filters.maxPrice ?? undefined,
       per_page: filters.perPage || undefined,
+      page: filters.page || undefined,
     };
     const { data } = await client.get(endpoints.teachers.search, { params });
-    return { data: data.data.map(mapSearchResult), total: data.meta?.total ?? data.data.length };
+    return {
+      data: data.data.map(mapSearchResult),
+      total: data.meta?.total ?? data.data.length,
+      currentPage: data.meta?.current_page ?? 1,
+      lastPage: data.meta?.last_page ?? 1,
+    };
   },
 
   async getFeatured() {
     if (config.useMocks) {
       await mockDelay();
-      return mockTeachers.slice(0, 5);
+      return mockTeachers.slice(0, 6);
     }
-    const { data } = await client.get(endpoints.teachers.search, { params: { per_page: 5 } });
+    const { data } = await client.get(endpoints.teachers.search, { params: { per_page: 6 } });
     return data.data.map(mapSearchResult);
   },
 

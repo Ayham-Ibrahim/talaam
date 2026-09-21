@@ -42,6 +42,9 @@ const EXAM_PREP_SUGGESTIONS = ['SAT', 'ACT', 'IB', 'IGCSE', 'GCSE', 'A-Level', '
 
 const PROFILE_FIELD_LABELS = {
   bio: 'نبذة عن المعلم',
+  teaching_philosophy_quote: 'مقولة عن فلسفته في التدريس',
+  teaching_philosophy_text: 'فلسفته في التدريس',
+  thank_you_message: 'رسالة الشكر في نهاية الملف الشخصي',
   qualification: 'المؤهل العلمي',
   experience_years: 'سنوات الخبرة',
   city: 'الموقع',
@@ -108,6 +111,9 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
 
   const [form, setForm] = useState({
     bio: '',
+    teaching_philosophy_quote: '',
+    teaching_philosophy_text: '',
+    thank_you_message: '',
     qualification: '',
     experience_years: '',
     city: '',
@@ -134,6 +140,9 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
     if (teacher && !hydrated) {
       setForm({
         bio: teacher.bio ?? '',
+        teaching_philosophy_quote: teacher.teachingPhilosophyQuote ?? '',
+        teaching_philosophy_text: teacher.teachingPhilosophyText ?? '',
+        thank_you_message: teacher.thankYouMessage ?? '',
         qualification: teacher.qualification ?? '',
         experience_years: teacher.experienceYears ?? '',
         city: teacher.city ?? '',
@@ -186,6 +195,9 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
     updateProfile.mutate(
       {
         bio: form.bio || null,
+        teaching_philosophy_quote: form.teaching_philosophy_quote || null,
+        teaching_philosophy_text: form.teaching_philosophy_text || null,
+        thank_you_message: form.thank_you_message || null,
         qualification: form.qualification || null,
         experience_years: form.experience_years || null,
         city: form.city || null,
@@ -298,6 +310,44 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
                 className="w-full resize-none rounded-btn border border-line bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
               <div className="text-left text-xs text-ink-soft/70">{form.bio.length}/500</div>
+            </label>
+
+            <label className="flex flex-col gap-1.5">
+              <span className="text-sm font-semibold text-ink">{t('dashboard.adminTeacherDetail.profileEditor.philosophyQuoteLabel')}</span>
+              <input
+                type="text"
+                maxLength={200}
+                value={form.teaching_philosophy_quote}
+                placeholder={t('teacherSettings.philosophyQuotePlaceholder')}
+                onChange={patch('teaching_philosophy_quote')}
+                className="w-full rounded-btn border border-line bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5">
+              <span className="text-sm font-semibold text-ink">{t('dashboard.adminTeacherDetail.profileEditor.philosophyTextLabel')}</span>
+              <textarea
+                rows={3}
+                maxLength={600}
+                value={form.teaching_philosophy_text}
+                placeholder={t('teacherSettings.philosophyTextPlaceholder')}
+                onChange={patch('teaching_philosophy_text')}
+                className="w-full resize-none rounded-btn border border-line bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+              <div className="text-left text-xs text-ink-soft/70">{form.teaching_philosophy_text.length}/600</div>
+            </label>
+
+            <label className="flex flex-col gap-1.5">
+              <span className="text-sm font-semibold text-ink">{t('dashboard.adminTeacherDetail.profileEditor.thankYouMessageLabel')}</span>
+              <textarea
+                rows={3}
+                maxLength={600}
+                value={form.thank_you_message}
+                placeholder={`${t('teacher.defaultThankYouLine1')} ${t('teacher.defaultThankYouLine2')}`}
+                onChange={patch('thank_you_message')}
+                className="w-full resize-none rounded-btn border border-line bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+              <span className="text-xs text-ink-soft/70">{t('teacherSettings.thankYouHint')}</span>
             </label>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

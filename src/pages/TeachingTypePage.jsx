@@ -11,7 +11,8 @@ import {
 } from "@/components/teaching/teachingTypeConfig";
 import { TeacherCard, TeacherCardSkeleton } from "@/components/teacher/TeacherCard";
 import { EmptyState, ErrorState } from "@/components/ui";
-import { useTeachers } from "@/hooks/useTeachers";
+import { useInfiniteTeachers } from "@/hooks/useTeachers";
+import { useInfiniteScrollTrigger } from "@/hooks/useInfiniteScrollTrigger";
 import { useFilters } from "@/hooks/useMeta";
 import { useT } from "@/hooks/useT";
 
@@ -55,9 +56,24 @@ export function TeachingTypePage() {
     [slug, selected]
   );
 
-  const { data, isLoading, isError, refetch } = useTeachers(filters);
-  const teachers = data?.data ?? [];
-  const total = data?.total ?? 0;
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteTeachers(filters);
+  const teachers = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
+  // Grand total across every page (not just what's loaded so far) — stable
+  // once the first page lands, since it only changes if the filters do.
+  const total = data?.pages?.[0]?.total ?? 0;
+
+  const sentinelRef = useInfiniteScrollTrigger({
+    onIntersect: fetchNextPage,
+    enabled: Boolean(hasNextPage) && !isFetchingNextPage && !isLoading,
+  });
 
   const handleChange = (key, value) =>
     setSelected((prev) => ({ ...prev, [key]: value }));
@@ -137,6 +153,10 @@ export function TeachingTypePage() {
               </AnimatePresence>
             </div>
 
+            {/* Infinite scroll: the sentinel div past the last card triggers
+                fetchNextPage() once it nears the viewport (see
+                useInfiniteScrollTrigger), appending the next backend page
+                instead of a "load more" click or fetching everything up front. */}
             <div className="mt-6 lg:mt-0">
               {isError ? (
                 <ErrorState onRetry={refetch} />
@@ -149,7 +169,14 @@ export function TeachingTypePage() {
                     : teachers.map((teacher) => (
                         <TeacherCard key={teacher.id} teacher={teacher} />
                       ))}
+                  {isFetchingNextPage &&
+                    Array.from({ length: 3 }).map((_, i) => (
+                      <TeacherCardSkeleton key={`next-${i}`} />
+                    ))}
                 </div>
+              )}
+              {!isLoading && hasNextPage && (
+                <div ref={sentinelRef} aria-hidden="true" className="h-1" />
               )}
 
               {!isLoading && !isError && teachers.length === 0 && (

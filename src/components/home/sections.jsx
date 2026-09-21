@@ -333,7 +333,7 @@ export function FeaturedTeachers() {
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {isLoading
-            ? Array.from({ length: 5 }).map((_, i) => <TeacherCardSkeleton key={i} />)
+            ? Array.from({ length: 6 }).map((_, i) => <TeacherCardSkeleton key={i} />)
             : teachers.map((teacher) => <TeacherCard key={teacher.id} teacher={teacher} />)}
         </div>
       )}

@@ -7,7 +7,8 @@ import { SearchHero } from '@/components/search/SearchHero';
 import { SearchFilters } from '@/components/search/SearchFilters';
 import { TeacherCard, TeacherCardSkeleton } from '@/components/teacher/TeacherCard';
 import { EmptyState, ErrorState } from '@/components/ui';
-import { useTeachers } from '@/hooks/useTeachers';
+import { useInfiniteTeachers } from '@/hooks/useTeachers';
+import { useInfiniteScrollTrigger } from '@/hooks/useInfiniteScrollTrigger';
 import { useFilters } from '@/hooks/useMeta';
 import { useT } from '@/hooks/useT';
 
@@ -43,7 +44,21 @@ export function SearchPage() {
     [q, applied]
   );
 
-  const { data, isLoading, isError, refetch } = useTeachers(filters);
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteTeachers(filters);
+  const teachers = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
+
+  const sentinelRef = useInfiniteScrollTrigger({
+    onIntersect: fetchNextPage,
+    enabled: Boolean(hasNextPage) && !isFetchingNextPage && !isLoading,
+  });
 
   const handleDraftChange = (key, value) => setDraft((prev) => ({ ...prev, [key]: value }));
   // Applying/resetting on mobile collapses the drawer back down so the
@@ -154,7 +169,10 @@ export function SearchPage() {
               </div>
             </div>
 
-            {/* Results grid */}
+            {/* Results grid — infinite scroll: the sentinel div past the last card
+                triggers fetchNextPage() once it nears the viewport (see
+                useInfiniteScrollTrigger), appending the next backend page
+                instead of a "load more" click or fetching everything up front. */}
             <div className="mt-6">
               {isError ? (
                 <ErrorState onRetry={refetch} />
@@ -162,10 +180,13 @@ export function SearchPage() {
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-x-4 lg:gap-y-3">
                   {isLoading
                     ? Array.from({ length: 8 }).map((_, i) => <TeacherCardSkeleton key={i} />)
-                    : data?.data?.map((teacher) => <TeacherCard key={teacher.id} teacher={teacher} />)}
+                    : teachers.map((teacher) => <TeacherCard key={teacher.id} teacher={teacher} />)}
+                  {isFetchingNextPage &&
+                    Array.from({ length: 3 }).map((_, i) => <TeacherCardSkeleton key={`next-${i}`} />)}
                 </div>
               )}
-              {!isLoading && !isError && data?.data?.length === 0 && (
+              {!isLoading && hasNextPage && <div ref={sentinelRef} aria-hidden="true" className="h-1" />}
+              {!isLoading && !isError && teachers.length === 0 && (
                 <EmptyState title={t('states.empty')} hint={t('states.emptyHint')} />
               )}
             </div>

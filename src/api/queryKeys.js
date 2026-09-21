@@ -7,6 +7,7 @@ export const queryKeys = {
   teachers: {
     all: ['teachers'],
     list: (filters) => ['teachers', 'list', filters],
+    infiniteList: (filters) => ['teachers', 'infinite-list', filters],
     featured: () => ['teachers', 'featured'],
     detail: (id) => ['teachers', 'detail', id],
     packages: (id) => ['teachers', id, 'packages'],
