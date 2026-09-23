@@ -52,6 +52,7 @@ function mapSearchResult(raw) {
     reviewsCount: raw.reviews_count ?? 0,
     qualification: raw.qualification ? (QUALIFICATION_LABELS[raw.qualification] ?? raw.qualification) : null,
     experienceShort: raw.experience_years ? (EXPERIENCE_LABELS_SHORT[raw.experience_years] ?? raw.experience_years) : null,
+    experienceYearsRaw: raw.experience_years ?? null,
     stages: raw.stages ?? [],
     completedSessions: raw.completed_sessions ?? null,
     subjects: (raw.subjects ?? []).map((s) => s.name_ar),

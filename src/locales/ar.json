@@ -711,6 +711,7 @@
     "save": "حفظ ومتابعة"
   },
   "teacherSettings": {
+    "nameLabel": "الاسم",
     "profileTitle": "الملف الشخصي",
     "profileHint": "هذه البيانات تظهر للطلاب في صفحة ملفك العام",
     "locationPlaceholder": "مثال: الأردن - عمّان - حي الطويل",
@@ -1418,6 +1419,7 @@
         "subtitle": "عدّل بيانات ملفه الشخصي كما لو كان هو من يعدّلها — تظهر مباشرة في بروفايله العام",
         "removePhoto": "حذف الصورة",
         "uploadingPhoto": "جارٍ رفع الصورة…",
+        "nameLabel": "الاسم",
         "bioLabel": "نبذة عن المعلم",
         "philosophyQuoteLabel": "مقولة عن فلسفته في التدريس",
         "philosophyTextLabel": "فلسفته في التدريس",

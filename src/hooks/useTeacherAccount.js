@@ -24,10 +24,19 @@ export function useMyTeacher(id) {
     refetchInterval: (q) => (q.state.data?.status === 'pending_verification' ? 20000 : false),
   });
   const status = query.data?.status;
+  // Raw Eloquent model (this endpoint, for the owning teacher, isn't wrapped
+  // in a Resource) — name lives nested under the loaded user relation, never flat.
+  const name = query.data?.user?.name;
 
   useEffect(() => {
     if (status) updateUser({ teacher: { status } });
   }, [status, updateUser]);
+
+  // نفس منطق status أعلاه بالضبط — بلا هذا، يبقى اسم المعلم بالشريط العلوي
+  // (يُقرأ من user المخزَّن) على قيمته القديمة بعد تعديله هنا حتى يُعيد الدخول.
+  useEffect(() => {
+    if (name) updateUser({ name });
+  }, [name, updateUser]);
 
   return query;
 }

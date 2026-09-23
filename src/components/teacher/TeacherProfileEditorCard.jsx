@@ -27,6 +27,7 @@ const TEACHING_METHOD_SUGGESTIONS = [
 const EXAM_PREP_SUGGESTIONS = ['SAT', 'ACT', 'IB', 'IGCSE', 'GCSE', 'A-Level', 'AP', 'TOEFL', 'IELTS', 'EmSAT'];
 
 const FIELD_LABELS = {
+  name: 'الاسم',
   bio: 'نبذة عني',
   teaching_philosophy_quote: 'مقولة عن فلسفتك في التدريس',
   teaching_philosophy_text: 'فلسفتي في التدريس',
@@ -67,6 +68,11 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
   useEffect(() => {
     if (teacher && !form) {
       setForm({
+        // Unlike every other field here (plain Teacher-table columns, e.g. teacher.bio),
+        // name lives on the related User — this endpoint (GET /teachers/{id} for the
+        // owning teacher) returns the raw Eloquent model, not a Resource, so it only
+        // shows up nested as teacher.user.name, never flat as teacher.name.
+        name: teacher.user?.name ?? '',
         bio: teacher.bio ?? '',
         teaching_philosophy_quote: teacher.teaching_philosophy_quote ?? '',
         teaching_philosophy_text: teacher.teaching_philosophy_text ?? '',
@@ -88,6 +94,7 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
   const dirty = useMemo(() => {
     if (!form || !teacher) return false;
     return JSON.stringify(form) !== JSON.stringify({
+      name: teacher.user?.name ?? '',
       bio: teacher.bio ?? '',
       teaching_philosophy_quote: teacher.teaching_philosophy_quote ?? '',
       teaching_philosophy_text: teacher.teaching_philosophy_text ?? '',
@@ -108,6 +115,7 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
   const handleSave = () => {
     update.mutate(
       {
+        name: form.name.trim() || null,
         bio: form.bio || null,
         teaching_philosophy_quote: form.teaching_philosophy_quote || null,
         teaching_philosophy_text: form.teaching_philosophy_text || null,
@@ -143,6 +151,17 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
       {update.isError && <ApiErrorList error={update.error} labelFor={errorLabel} className="mt-4" />}
 
       <div className="mt-5 flex flex-col gap-5">
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-semibold text-primary">{FIELD_LABELS.name}</span>
+          <input
+            type="text"
+            maxLength={150}
+            value={form.name}
+            onChange={(e) => set('name')(e.target.value)}
+            className="w-full rounded-lg border border-[#E3E3E3] bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none"
+          />
+        </label>
+
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-semibold text-primary">{FIELD_LABELS.bio}</span>
           <textarea
@@ -278,7 +297,7 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
         <div className="flex items-center gap-3">
           <button
             type="button"
-            disabled={update.isPending || !dirty}
+            disabled={update.isPending || !dirty || !form.name.trim()}
             onClick={handleSave}
             className="w-fit rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >

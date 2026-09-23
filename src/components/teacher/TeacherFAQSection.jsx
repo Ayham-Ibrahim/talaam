@@ -60,26 +60,26 @@ export function TeacherFAQSection({ teacher }) {
 
   return (
     <div className="mt-6 rounded-[28px] bg-white p-6 shadow-[0_10px_30px_rgba(17,24,39,0.06)] sm:p-8">
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:items-start">
-        <div className="text-start">
-          <span className="inline-flex items-center gap-1.5 rounded-pill bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
-            <Plus size={13} />
-            {t('teacher.faqBadge')}
-          </span>
-          <h3 className="mt-4 text-2xl font-bold leading-tight text-ink sm:text-[28px]">{t('teacher.faqTitle')}</h3>
-          <p className="mt-3 text-sm leading-[1.8] text-ink-soft">{t('teacher.faqSubtitle')}</p>
-        </div>
+      {/* Row 1 — the title block, full width on its own row (not side-by-side with the questions anymore) */}
+      <div className="text-start">
+        <span className="inline-flex items-center gap-1.5 rounded-pill bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
+          <Plus size={13} />
+          {t('teacher.faqBadge')}
+        </span>
+        <h3 className="mt-4 text-2xl font-bold leading-tight text-ink sm:text-[28px]">{t('teacher.faqTitle')}</h3>
+        <p className="mt-3 text-sm leading-[1.8] text-ink-soft">{t('teacher.faqSubtitle')}</p>
+      </div>
 
-        <div className="flex flex-col gap-3">
-          {faqs.map((faq) => (
-            <FaqItem
-              key={faq.id}
-              faq={faq}
-              isOpen={openId === faq.id}
-              onToggle={() => setOpenId((current) => (current === faq.id ? null : faq.id))}
-            />
-          ))}
-        </div>
+      {/* Row 2 — the questions, full width, two columns. items-start (not the grid default of stretch) is what lets an expanded card grow taller than its row-mate instead of forcing both to match height */}
+      <div className="mt-6 grid grid-cols-1 items-start gap-3 sm:grid-cols-2">
+        {faqs.map((faq) => (
+          <FaqItem
+            key={faq.id}
+            faq={faq}
+            isOpen={openId === faq.id}
+            onToggle={() => setOpenId((current) => (current === faq.id ? null : faq.id))}
+          />
+        ))}
       </div>
     </div>
   );

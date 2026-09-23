@@ -42,6 +42,7 @@ const TEACHING_METHOD_SUGGESTIONS = [
 const EXAM_PREP_SUGGESTIONS = ['SAT', 'ACT', 'IB', 'IGCSE', 'GCSE', 'A-Level', 'AP', 'TOEFL', 'IELTS', 'EmSAT'];
 
 const PROFILE_FIELD_LABELS = {
+  name: 'الاسم',
   bio: 'نبذة عن المعلم',
   teaching_philosophy_quote: 'مقولة عن فلسفته في التدريس',
   teaching_philosophy_text: 'فلسفته في التدريس',
@@ -112,6 +113,7 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
   const removeExperience = useAdminRemoveExperience(teacherId);
 
   const [form, setForm] = useState({
+    name: '',
     bio: '',
     teaching_philosophy_quote: '',
     teaching_philosophy_text: '',
@@ -141,6 +143,7 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
   useEffect(() => {
     if (teacher && !hydrated) {
       setForm({
+        name: teacher.name ?? '',
         bio: teacher.bio ?? '',
         teaching_philosophy_quote: teacher.teachingPhilosophyQuote ?? '',
         teaching_philosophy_text: teacher.teachingPhilosophyText ?? '',
@@ -196,6 +199,7 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
   const handleSaveProfile = () => {
     updateProfile.mutate(
       {
+        name: form.name.trim() || null,
         bio: form.bio || null,
         teaching_philosophy_quote: form.teaching_philosophy_quote || null,
         teaching_philosophy_text: form.teaching_philosophy_text || null,
@@ -302,6 +306,17 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
           {updateProfile.isError && <ApiErrorList error={updateProfile.error} labelFor={profileErrorLabel} className="mb-4" />}
 
           <div className="flex flex-col gap-4 text-right">
+            <label className="flex flex-col gap-1.5">
+              <span className="text-sm font-semibold text-ink">{t('dashboard.adminTeacherDetail.profileEditor.nameLabel')}</span>
+              <input
+                type="text"
+                maxLength={150}
+                value={form.name}
+                onChange={patch('name')}
+                className="w-full rounded-btn border border-line bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </label>
+
             <label className="flex flex-col gap-1.5">
               <span className="text-sm font-semibold text-ink">{t('dashboard.adminTeacherDetail.profileEditor.bioLabel')}</span>
               <textarea
@@ -467,7 +482,7 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
 
           <button
             type="button"
-            disabled={updateProfile.isPending}
+            disabled={updateProfile.isPending || !form.name.trim()}
             onClick={handleSaveProfile}
             className="mt-4 w-full rounded-xl border-2 border-primary py-3 text-sm font-medium text-primary transition-opacity hover:opacity-80 disabled:opacity-50"
           >

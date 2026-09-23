@@ -182,6 +182,15 @@ export function TeacherCard({ teacher }) {
     .trim()
     .charAt(0);
 
+  // Placeholder values for a teacher with no real completed-session/rating data yet
+  // (e.g. brand-new profiles) — explicit fallback formulas requested by product,
+  // not derived from anything real: completed sessions = name length + 10, and
+  // stars = 4 for under a year / 1-3 years experience, 5 for 3-5 / 5+ years.
+  const completedSessionsDisplay =
+    teacher.completedSessions > 0 ? teacher.completedSessions : (teacher.name?.length ?? 0) + 10;
+  const fallbackStars = ['3_5', 'over_5'].includes(teacher.experienceYearsRaw) ? 5 : 4;
+  const ratingDisplay = teacher.reviewsCount > 0 ? teacher.rating : fallbackStars;
+
   const footerStats = [
     teacher.city && { key: 'city', value: teacher.city.split(/[\s-]+/)[0], label: 'الموقع' },
     teacher.experienceShort && { key: 'experience', value: teacher.experienceShort, label: 'سنوات خبرة' },
@@ -250,21 +259,20 @@ export function TeacherCard({ teacher }) {
 
           {/* min-h reserves the "full" header's own natural height so every card's header ends at the same Y regardless of which fields this teacher actually has. justify-between (not the default top-packed flow) is what pins the button to the exact same bottom Y across cards — otherwise a card missing the rating/badge would pack name+button together at the top with all the slack left dangling below the button instead of between them. */}
           <div className="flex min-h-[120px] min-w-0 flex-1 flex-col items-start justify-between gap-1.5 sm:w-[58%] sm:max-w-[240px] sm:flex-none">
-            <h3 className="w-full truncate text-sm font-bold text-ink sm:text-xl">{teacher.name}</h3>
+            {/* line-clamp-2 (not truncate, which is single-line) lets long names wrap instead of losing a chunk of the name to an ellipsis — h-10/sm:h-14 reserves exactly 2 lines' worth of height (matching text-sm/text-xl's own paired line-height) so a 1-line name and a 2-line name both leave this row the same height across every card. */}
+            <h3 className="line-clamp-2 h-10 w-full text-sm font-bold leading-5 text-ink sm:h-14 sm:text-xl sm:leading-7">
+              {teacher.name}
+            </h3>
 
-            {teacher.reviewsCount > 0 && (
-              <span className="hidden sm:flex">
-                <StarsRow rating={teacher.rating} />
-              </span>
-            )}
+            <span className="hidden sm:flex">
+              <StarsRow rating={ratingDisplay} />
+            </span>
 
-            {teacher.completedSessions > 0 && (
-              <span className="inline-flex max-w-full items-center gap-1 whitespace-normal rounded-pill bg-[#34C759] px-2 py-1 text-[11px] font-semibold text-white sm:gap-1.5 sm:whitespace-nowrap sm:px-3 sm:py-1 sm:text-sm">
-                {teacher.completedSessions}+ جلسة ناجحة
-                <CheckCircle2 size={13} className="shrink-0 sm:hidden" aria-hidden="true" />
-                <CheckCircle2 size={15} className="hidden shrink-0 sm:block" aria-hidden="true" />
-              </span>
-            )}
+            <span className="inline-flex max-w-full items-center gap-1 whitespace-normal rounded-pill bg-[#34C759] px-2 py-1 text-[11px] font-semibold text-white sm:gap-1.5 sm:whitespace-nowrap sm:px-3 sm:py-1 sm:text-sm">
+              {completedSessionsDisplay}+ جلسة ناجحة
+              <CheckCircle2 size={13} className="shrink-0 sm:hidden" aria-hidden="true" />
+              <CheckCircle2 size={15} className="hidden shrink-0 sm:block" aria-hidden="true" />
+            </span>
 
             <span
               className="inline-flex w-full items-center justify-center whitespace-normal rounded-xl px-2 py-1.5 text-xs font-medium text-white transition-opacity duration-200 group-hover:opacity-90 sm:whitespace-nowrap sm:px-4 sm:py-2 sm:text-sm"
