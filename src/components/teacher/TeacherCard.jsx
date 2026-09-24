@@ -42,6 +42,106 @@ function subjectStyle(name, index) {
   return { icon: BookOpen, color: SUBJECT_FALLBACK_COLORS[index % SUBJECT_FALLBACK_COLORS.length] };
 }
 
+/**
+ * Small inline-SVG country flags — not flag emoji. Windows Chromium has no
+ * flag ligatures in its default emoji font, so 🇬🇧/🇯🇴/🇺🇸 etc. silently
+ * fall back to plain "GB"/"JO"/"US" text (confirmed via a rendered
+ * screenshot) instead of an actual flag. Plain pictograph emoji (🎓🏫 — no
+ * regional-indicator pairing) render fine everywhere and are kept for the
+ * curricula/stages items that have no associated country.
+ */
+function FlagGB({ className }) {
+  return (
+    <svg viewBox="0 0 30 20" preserveAspectRatio="xMidYMid slice" className={className} aria-hidden="true">
+      <rect width="30" height="20" fill="#00247D" />
+      <g stroke="#fff" strokeWidth="4">
+        <line x1="0" y1="0" x2="30" y2="20" />
+        <line x1="30" y1="0" x2="0" y2="20" />
+      </g>
+      <g stroke="#CF142B" strokeWidth="2">
+        <line x1="0" y1="0" x2="30" y2="20" />
+        <line x1="30" y1="0" x2="0" y2="20" />
+      </g>
+      <g stroke="#fff" strokeWidth="6">
+        <line x1="15" y1="0" x2="15" y2="20" />
+        <line x1="0" y1="10" x2="30" y2="10" />
+      </g>
+      <g stroke="#CF142B" strokeWidth="3.2">
+        <line x1="15" y1="0" x2="15" y2="20" />
+        <line x1="0" y1="10" x2="30" y2="10" />
+      </g>
+    </svg>
+  );
+}
+function FlagUS({ className }) {
+  return (
+    <svg viewBox="0 0 30 20" preserveAspectRatio="xMidYMid slice" className={className} aria-hidden="true">
+      <rect width="30" height="20" fill="#B22234" />
+      <rect y="2.85" width="30" height="2.85" fill="#fff" />
+      <rect y="8.57" width="30" height="2.85" fill="#fff" />
+      <rect y="14.28" width="30" height="2.85" fill="#fff" />
+      <rect width="13" height="11.4" fill="#3C3B6E" />
+    </svg>
+  );
+}
+function FlagFR({ className }) {
+  return (
+    <svg viewBox="0 0 30 20" preserveAspectRatio="xMidYMid slice" className={className} aria-hidden="true">
+      <rect width="30" height="20" fill="#fff" />
+      <rect width="10" height="20" fill="#0055A4" />
+      <rect x="20" width="10" height="20" fill="#EF4135" />
+    </svg>
+  );
+}
+function FlagTR({ className }) {
+  return (
+    <svg viewBox="0 0 30 20" preserveAspectRatio="xMidYMid slice" className={className} aria-hidden="true">
+      <rect width="30" height="20" fill="#E30A17" />
+      <circle cx="13" cy="10" r="6" fill="#fff" />
+      <circle cx="15" cy="10" r="5" fill="#E30A17" />
+      <circle cx="20" cy="10" r="1.6" fill="#fff" />
+    </svg>
+  );
+}
+function FlagJO({ className }) {
+  return (
+    // xMinYMid (not xMidYMid): keeps the hoist-side triangle+star — the flag's
+    // only distinctive detail — intact when cropped square, instead of slicing
+    // through it the way a centered crop would.
+    <svg viewBox="0 0 30 20" preserveAspectRatio="xMinYMid slice" className={className} aria-hidden="true">
+      <rect width="30" height="6.67" fill="#000" />
+      <rect y="6.67" width="30" height="6.67" fill="#fff" />
+      <rect y="13.33" width="30" height="6.67" fill="#007A3D" />
+      <polygon points="0,0 15,10 0,20" fill="#CE1126" />
+      <circle cx="5" cy="10" r="1.4" fill="#fff" />
+    </svg>
+  );
+}
+
+/** Per-item icon for languages/curricula/stages, matched by keyword against the exact Arabic names from the admin taxonomy tables — not exact-string lookups, since real data has spelling variants (e.g. "الانجليزية" vs "الإنجليزية"). Items tied to a specific country get a `Flag` component; the rest get a plain pictograph `emoji`. */
+const LANGUAGE_ICON_RULES = [
+  { test: /عرب/, Flag: FlagJO },
+  { test: /انجليز|إنجليز|english/i, Flag: FlagGB },
+  { test: /ترك|turkish/i, Flag: FlagTR },
+  { test: /فرنس|french/i, Flag: FlagFR },
+];
+const CURRICULUM_ICON_RULES = [
+  { test: /دولي|international/i, emoji: '🎓' },
+  { test: /بريطان|british|igcse/i, Flag: FlagGB },
+  { test: /أمريك|امريك|american/i, Flag: FlagUS },
+  { test: /جامع|university/i, emoji: '🏛️' },
+  { test: /وزار|وطني|national/i, Flag: FlagJO },
+];
+const STAGE_ICON_RULES = [
+  { test: /ابتدائ|primary/i, emoji: '🧒' },
+  { test: /اعدادي|إعدادي|preparatory/i, emoji: '📘' },
+  { test: /ثانوي|secondary/i, emoji: '🏫' },
+  { test: /عال|جامع|higher|university/i, emoji: '🎓' },
+];
+function resolveIcon(rules, name) {
+  return rules?.find((r) => r.test.test(name)) ?? null;
+}
+
 /** "4.0 ★★★★☆" — always 5 slots, filled ones colored, matches the reference's `line-md:star-filled` (always solid, never outline). Forced `dir="ltr"`: this is a self-contained rating widget (number, then stars), and under the page's ambient RTL a plain flex row would otherwise flip it to "stars, then number". */
 function StarsRow({ rating }) {
   const filled = Math.round(rating);
@@ -62,8 +162,8 @@ function StarsRow({ rating }) {
   );
 }
 
-/** Row of pill items (languages/curricula/stages) inside a light lavender tray — each item is `flex-1` so it always fills the row whether there's 1 item or 3, and any overflow beyond 3 collapses into a trailing "+N" pill instead of wrapping */
-function PillSection({ title, titleIcon: TitleIcon, items, itemIcon: ItemIcon }) {
+/** Row of pill items (languages/curricula/stages) inside a light lavender tray — each item is `flex-1` so it always fills the row whether there's 1 item or 3, and any overflow beyond 3 collapses into a trailing "+N" pill instead of wrapping. Each item gets its own icon via `iconRules` (emoji, matched by keyword against the item's name); items with no match fall back to the section's shared `itemIcon`. */
+function PillSection({ title, titleIcon: TitleIcon, items, itemIcon: ItemIcon, iconRules }) {
   if (!items || items.length === 0) return null;
   const shown = items.slice(0, 3);
   const extra = items.length - shown.length;
@@ -74,16 +174,27 @@ function PillSection({ title, titleIcon: TitleIcon, items, itemIcon: ItemIcon })
         <TitleIcon size={15} style={{ color: BLUE }} aria-hidden="true" />
       </span>
       <div className="flex w-full items-center gap-1.5 rounded-[10px] bg-[#F9F9FE] p-2">
-        {shown.map((item) => (
-          <span
-            key={item}
-            className="flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-white px-2 py-2.5 text-xs font-bold"
-            style={{ color: BLUE }}
-          >
-            <ItemIcon size={14} className="shrink-0" aria-hidden="true" />
-            <span className="truncate">{item}</span>
-          </span>
-        ))}
+        {shown.map((item) => {
+          const match = resolveIcon(iconRules, item);
+          return (
+            <span
+              key={item}
+              className="flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-white px-2 py-2.5 text-xs font-bold"
+              style={{ color: BLUE }}
+            >
+              {match?.Flag ? (
+                <match.Flag className="h-4 w-4 shrink-0 overflow-hidden rounded-full" />
+              ) : match?.emoji ? (
+                <span className="shrink-0 text-sm leading-none" aria-hidden="true">
+                  {match.emoji}
+                </span>
+              ) : (
+                <ItemIcon size={14} className="shrink-0" aria-hidden="true" />
+              )}
+              <span className="truncate">{item}</span>
+            </span>
+          );
+        })}
         {extra > 0 && (
           <span
             className="flex shrink-0 items-center justify-center self-stretch rounded-xl bg-white px-2.5 text-xs font-bold"
@@ -289,9 +400,27 @@ export function TeacherCard({ teacher }) {
           teacher.stages?.length > 0) && (
           <div className="mt-4 flex w-full flex-col gap-4">
             <SubjectsSection title="المواد التي يدرسها" titleIcon={BookOpen} subjects={teacher.subjects} />
-            <PillSection title="اللغات" titleIcon={Globe} items={teacher.languages} itemIcon={Globe2} />
-            <PillSection title="المناهج" titleIcon={BookOpen} items={teacher.curricula} itemIcon={GraduationCap} />
-            <PillSection title="المراحل الدراسية" titleIcon={GraduationCap} items={teacher.stages} itemIcon={GraduationCap} />
+            <PillSection
+              title="اللغات"
+              titleIcon={Globe}
+              items={teacher.languages}
+              itemIcon={Globe2}
+              iconRules={LANGUAGE_ICON_RULES}
+            />
+            <PillSection
+              title="المناهج"
+              titleIcon={BookOpen}
+              items={teacher.curricula}
+              itemIcon={GraduationCap}
+              iconRules={CURRICULUM_ICON_RULES}
+            />
+            <PillSection
+              title="المراحل الدراسية"
+              titleIcon={GraduationCap}
+              items={teacher.stages}
+              itemIcon={GraduationCap}
+              iconRules={STAGE_ICON_RULES}
+            />
           </div>
         )}
 
