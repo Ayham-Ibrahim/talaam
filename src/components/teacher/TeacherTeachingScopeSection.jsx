@@ -5,8 +5,27 @@ import { useT } from "@/hooks/useT";
 /** Same neon navy used across the header/philosophy sections — kept for one consistent "identity" family */
 const NEON_GRADIENT = "linear-gradient(135deg, #0E1A4D 0%, #17237E 60%, #1B2E9C 100%)";
 
-const LANGUAGE_FLAGS = { ar: "/ar.png", en: "/en.png" };
 const NEUTRAL_DOT = "#C7D0DF";
+
+/**
+ * Language name → slug, matched by keyword rather than an exact-string or
+ * `code` lookup — the admin taxonomy has multiple real spellings in the wild
+ * ("العربية" vs "اللغة العربية", "الإنجليزية" vs "الانجليزية" vs "اللغة
+ * الانجليزية", ...) and the backend `code` field isn't consistently "ar"/"en"
+ * across environments, so neither is a safe key on its own.
+ */
+const LANGUAGE_RULES = [
+  { test: /عرب/, slug: "ar" },
+  { test: /انجليز|إنجليز|english/i, slug: "en" },
+  { test: /ترك|turkish/i, slug: "tr" },
+  { test: /فرنس|french/i, slug: "fr" },
+];
+function languageSlug(label) {
+  return LANGUAGE_RULES.find((r) => r.test.test(label ?? ""))?.slug ?? null;
+}
+
+/** /public/<slug>.png — ask whoever supplies new language logos to drop them here, named by slug (e.g. tr.png, fr.png) */
+const LANGUAGE_FLAGS = { ar: "/ar.png", en: "/en.png", tr: "/tr.png", fr: "/fr.png" };
 
 /** Per-language gradient — reuses the site's own named identity gradients (login/register/CTA), not arbitrary colors */
 const LANGUAGE_STYLES = {
@@ -95,17 +114,26 @@ function QualificationsCard({ title, qualifications }) {
 }
 
 /** One colorful language card — flag + name, with the language's landmark bleeding off the bottom corner */
-function LanguageCard({ code, label }) {
-  const gradient = LANGUAGE_STYLES[code]?.gradient ?? DEFAULT_LANGUAGE_GRADIENT;
-  const landmark = LANGUAGE_STYLES[code]?.landmark;
-  const flag = LANGUAGE_FLAGS[code];
+function LanguageCard({ label }) {
+  const slug = languageSlug(label);
+  const gradient = LANGUAGE_STYLES[slug]?.gradient ?? DEFAULT_LANGUAGE_GRADIENT;
+  const landmark = LANGUAGE_STYLES[slug]?.landmark;
+  const flag = LANGUAGE_FLAGS[slug];
+  const [flagMissing, setFlagMissing] = useState(false);
 
   return (
     <div
       className={`relative flex h-28 flex-col overflow-hidden rounded-2xl ${gradient} p-4 text-white shadow-[0_10px_24px_rgba(17,24,39,0.14)] sm:h-32`}
     >
       <div className="relative z-10 flex items-center gap-2">
-        {flag && <img src={flag} alt="" className="h-5 w-5 shrink-0 rounded-full object-cover ring-1 ring-white/50" />}
+        {flag && !flagMissing && (
+          <img
+            src={flag}
+            alt=""
+            className="h-5 w-5 shrink-0 rounded-full object-cover ring-1 ring-white/50"
+            onError={() => setFlagMissing(true)}
+          />
+        )}
         <h4 className="text-sm font-bold sm:text-base">{label}</h4>
       </div>
 
@@ -131,7 +159,7 @@ function LanguagesCard({ title, languages }) {
       <h3 className="text-lg font-bold text-[#2D2D2D]">{title}</h3>
       <div className="mt-4 grid grid-cols-2 gap-3">
         {languages.map((l) => (
-          <LanguageCard key={l.code ?? l.label} code={l.code} label={l.label} />
+          <LanguageCard key={l.code ?? l.label} label={l.label} />
         ))}
       </div>
     </div>
