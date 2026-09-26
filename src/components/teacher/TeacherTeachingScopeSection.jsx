@@ -27,12 +27,19 @@ function languageSlug(label) {
 /** /public/<slug>.png — ask whoever supplies new language logos to drop them here, named by slug (e.g. tr.png, fr.png) */
 const LANGUAGE_FLAGS = { ar: "/ar.png", en: "/en.png", tr: "/tr.png", fr: "/fr.png" };
 
-/** Per-language gradient — reuses the site's own named identity gradients (login/register/CTA), not arbitrary colors */
+const DEFAULT_LANGUAGE_GRADIENT = "bg-lang-blue";
+/**
+ * Per-language gradient — full-strength versions of the site's own
+ * established brand hues (BLUE, accent.pink, accent.purple, the ambient teal
+ * glow), one per card. `landmark` bleeds off the card's bottom corner, same
+ * spot for every language.
+ */
 const LANGUAGE_STYLES = {
-  en: { gradient: "bg-hero-gradient", landmark: "/big-ben.png" },
-  ar: { gradient: "bg-profile-gradient", landmark: "/khalifa-tower.png" },
+  en: { gradient: "bg-lang-blue", landmark: "/big-ben.png" },
+  ar: { gradient: "bg-lang-pink", landmark: "/khalifa-tower.png" },
+  fr: { gradient: "bg-lang-purple", landmark: "/eiffel-tower.png" },
+  tr: { gradient: "bg-lang-teal", landmark: "/hagia-sophia.png" },
 };
-const DEFAULT_LANGUAGE_GRADIENT = "bg-search-gradient";
 
 function Chip({ label, dot, dotSize = 14, flag, textColor = "#1E1E1E" }) {
   return (
@@ -116,8 +123,9 @@ function QualificationsCard({ title, qualifications }) {
 /** One colorful language card — flag + name, with the language's landmark bleeding off the bottom corner */
 function LanguageCard({ label }) {
   const slug = languageSlug(label);
-  const gradient = LANGUAGE_STYLES[slug]?.gradient ?? DEFAULT_LANGUAGE_GRADIENT;
-  const landmark = LANGUAGE_STYLES[slug]?.landmark;
+  const style = LANGUAGE_STYLES[slug];
+  const gradient = style?.gradient ?? DEFAULT_LANGUAGE_GRADIENT;
+  const landmark = style?.landmark;
   const flag = LANGUAGE_FLAGS[slug];
   const [flagMissing, setFlagMissing] = useState(false);
 

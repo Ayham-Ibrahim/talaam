@@ -43,6 +43,11 @@ export default {
         'hero-gradient': 'linear-gradient(272.4deg, #4B6898 2.51%, #9E074A 93.94%)',
         'profile-gradient': 'linear-gradient(115deg, #C2185B 0%, #6A2C9E 100%)',
         'search-gradient': 'linear-gradient(120deg, #8B5CF6 0%, #7E57C2 60%, #A78BDA 100%)',
+        // Full-strength versions of the site's own established brand hues — BLUE (#4B6898, hero/teacher-card), accent.pink (#C2185B, profile-gradient), accent.purple (#7E57C2, search-gradient), and the ambient teal glow (#6BCEEE) — not arbitrary picks.
+        'lang-blue': 'linear-gradient(120deg, #4B6898 0%, #2E477A 100%)',
+        'lang-pink': 'linear-gradient(120deg, #C2185B 0%, #8A1449 100%)',
+        'lang-purple': 'linear-gradient(120deg, #7E57C2 0%, #5B2E94 100%)',
+        'lang-teal': 'linear-gradient(120deg, #6BCEEE 0%, #2FA8CC 100%)',
       },
       keyframes: {
         'fade-in': {
