@@ -17,6 +17,8 @@ import {
   Menu,
   X,
   Globe,
+  Receipt,
+  UserCog,
 } from 'lucide-react';
 import { Logo } from '@/components/layout/Logo';
 import { Avatar } from '@/components/ui';
@@ -26,7 +28,7 @@ import { useAdminOverview } from '@/hooks/useAdmin';
 import { useT } from '@/hooks/useT';
 
 /** كل عنصر مرتبط بعدّاد من overview.stats — نقطة حمراء عند > 0. مؤقت ريثما تُستبدَل بإشعارات Firebase لحظية */
-const NAV_ITEMS = [
+const ADMIN_NAV_ITEMS = [
   { key: 'home', icon: Home, path: '/dashboard/admin', end: true },
   { key: 'teachers', icon: GraduationCap, path: '/dashboard/admin/teachers', statKey: 'pendingVerificationsCount' },
   { key: 'students', icon: Users, path: '/dashboard/admin/students' },
@@ -34,6 +36,8 @@ const NAV_ITEMS = [
   { key: 'complaints', icon: MessageSquareWarning, path: '/dashboard/admin/complaints', statKey: 'openComplaintsCount' },
   { key: 'taxonomy', icon: ListTree, path: '/dashboard/admin/taxonomy' },
   { key: 'payouts', icon: Wallet, path: '/dashboard/admin/payouts' },
+  { key: 'bookings', icon: Receipt, path: '/dashboard/admin/bookings' },
+  { key: 'accountants', icon: UserCog, path: '/dashboard/admin/accountants' },
   { key: 'studentImport', icon: FileSpreadsheet, path: '/dashboard/admin/student-import' },
   { key: 'teacherImport', icon: FileSpreadsheet, path: '/dashboard/admin/teacher-import' },
   { key: 'importBatches', icon: History, path: '/dashboard/admin/import-batches' },
@@ -41,14 +45,23 @@ const NAV_ITEMS = [
   { key: 'settings', icon: Settings, path: '/dashboard/admin/settings' },
 ];
 
-export function AdminDashboardLayout({ children }) {
+/** لوحة المحاسب: نسخة مالية فقط من لوحة الأدمن — نفس الهيكل، بعناصر مالية فقط */
+const ACCOUNTANT_NAV_ITEMS = [
+  { key: 'payouts', icon: Wallet, path: '/dashboard/accountant/payouts', end: false },
+  { key: 'bookings', icon: Receipt, path: '/dashboard/accountant/bookings' },
+];
+
+export function AdminDashboardLayout({ children, variant = 'admin' }) {
   const t = useT();
   const { user } = useAuth();
   const logout = useLogout();
   const [menuOpen, setMenuOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-  const { data: overview } = useAdminOverview();
+  const isAccountant = variant === 'accountant';
+  // عدّادات الأدمن (overview) لا يملك المحاسب صلاحية جلبها — لا تُطلَب أصلاً لغيره
+  const { data: overview } = useAdminOverview({ enabled: !isAccountant });
+  const NAV_ITEMS = isAccountant ? ACCOUNTANT_NAV_ITEMS : ADMIN_NAV_ITEMS;
 
   // Close sidebar on path change
   useEffect(() => {
@@ -141,7 +154,7 @@ export function AdminDashboardLayout({ children }) {
               >
                 <div className="text-right">
                   <div className="text-sm text-[#2D2D2D]">{user?.name}</div>
-                  <div className="text-xs text-[#777777]">{t('dashboard.roleAdmin')}</div>
+                  <div className="text-xs text-[#777777]">{t(isAccountant ? 'dashboard.roleAccountant' : 'dashboard.roleAdmin')}</div>
                 </div>
                 <Avatar name={user?.name} src={user?.avatar} size="sm" />
                 <ChevronRight size={14} className={`text-[#2D2D2D] transition-transform ${menuOpen ? '-rotate-90' : ''}`} />

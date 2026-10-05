@@ -3,11 +3,12 @@ import { queryKeys } from '@/api/queryKeys';
 import { adminService } from '@/services/adminService';
 
 /** يُستطلَع كل دقيقة — نفس البيانات تغذّي النقاط الحمراء على شريط تنقّل الأدمن (ريثما تُستبدَل بإشعارات Firebase لحظية) */
-export function useAdminOverview() {
+export function useAdminOverview({ enabled = true } = {}) {
   return useQuery({
     queryKey: queryKeys.admin.overview(),
     queryFn: () => adminService.getOverview(),
     refetchInterval: 60000,
+    enabled,
   });
 }
 

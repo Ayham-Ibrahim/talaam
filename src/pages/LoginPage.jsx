@@ -15,6 +15,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function roleHome(role) {
   if (role === 'teacher') return '/dashboard/teacher';
   if (role === 'admin') return '/dashboard/admin';
+  if (role === 'accountant') return '/dashboard/accountant/payouts';
   return '/dashboard/student';
 }
 

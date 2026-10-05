@@ -9,7 +9,7 @@ export function ListingApprovalPanel({ listing, actions, isActing }) {
   const [touched, setTouched] = useState(false);
 
   const marginNumber = Number(margin);
-  const isValidMargin = margin.trim() !== '' && Number.isFinite(marginNumber) && marginNumber >= 0;
+  const isValidMargin = margin.trim() !== '' && Number.isFinite(marginNumber) && marginNumber >= 0 && marginNumber <= 100;
   const preview = isValidMargin ? calculateStudentPrice(listing.teacherPrice, marginNumber) : null;
 
   const handleApprove = () => {
@@ -54,6 +54,10 @@ export function ListingApprovalPanel({ listing, actions, isActing }) {
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-success">{formatPrice(preview.platformRevenue)}</span>
                 <span className="text-sm text-ink-soft">{t('dashboard.adminListingDetail.platformRevenue')}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-ink">{formatPrice(preview.providerNet)}</span>
+                <span className="text-sm text-ink-soft">{t('dashboard.adminListingDetail.providerNet')}</span>
               </div>
             </div>
           )}

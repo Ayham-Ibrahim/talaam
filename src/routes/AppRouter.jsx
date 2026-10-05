@@ -26,6 +26,8 @@ import { AdminListingDetailPage } from '@/pages/AdminListingDetailPage';
 import { AdminComplaintsPage } from '@/pages/AdminComplaintsPage';
 import { AdminTaxonomyPage } from '@/pages/AdminTaxonomyPage';
 import { AdminPayoutsPage } from '@/pages/AdminPayoutsPage';
+import { FinanceBookingsPage } from '@/pages/FinanceBookingsPage';
+import { AdminAccountantsPage } from '@/pages/AdminAccountantsPage';
 import { AdminNotificationLogsPage } from '@/pages/AdminNotificationLogsPage';
 import { AdminStudentImportPage } from '@/pages/AdminStudentImportPage';
 import { AdminTeacherImportPage } from '@/pages/AdminTeacherImportPage';
@@ -167,6 +169,40 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="admin">
               <AdminPayoutsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/bookings"
+          element={
+            <ProtectedRoute role="admin">
+              <FinanceBookingsPage variant="admin" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/accountants"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminAccountantsPage />
+            </ProtectedRoute>
+          }
+        />
+        {/* لوحة المحاسب: مالية فقط — نفس صفحات الأدمن المالية بوضع variant="accountant" */}
+        <Route path="/dashboard/accountant" element={<Navigate to="/dashboard/accountant/payouts" replace />} />
+        <Route
+          path="/dashboard/accountant/payouts"
+          element={
+            <ProtectedRoute role="accountant">
+              <AdminPayoutsPage variant="accountant" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/accountant/bookings"
+          element={
+            <ProtectedRoute role="accountant">
+              <FinanceBookingsPage variant="accountant" />
             </ProtectedRoute>
           }
         />

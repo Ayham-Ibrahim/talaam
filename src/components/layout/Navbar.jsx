@@ -83,7 +83,9 @@ export function Navbar() {
       ? '/dashboard/teacher'
       : user?.role === 'admin'
         ? '/dashboard/admin'
-        : '/dashboard/student';
+        : user?.role === 'accountant'
+          ? '/dashboard/accountant/payouts'
+          : '/dashboard/student';
 
   useEffect(() => {
     const handleScroll = () => {

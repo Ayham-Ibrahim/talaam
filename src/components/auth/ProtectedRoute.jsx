@@ -14,7 +14,7 @@ function hasIncompleteProfile(user) {
   return false;
 }
 
-/** Guards a route by auth state, and optionally by role (e.g. role="teacher") */
+/** Guards a route by auth state, and optionally by role (e.g. role="teacher" or role={['admin','accountant']}) */
 export function ProtectedRoute({ role, children }) {
   const { user, isAuthenticated } = useAuth();
   const location = useLocation();
@@ -23,7 +23,8 @@ export function ProtectedRoute({ role, children }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (role && user?.role !== role) {
+  const allowedRoles = Array.isArray(role) ? role : role ? [role] : null;
+  if (allowedRoles && !allowedRoles.includes(user?.role)) {
     return <Navigate to="/" replace />;
   }
 

@@ -852,6 +852,7 @@
     "roleTeacher": "معلم",
     "roleCenter": "مركز تدريبي",
     "roleAdmin": "مدير",
+    "roleAccountant": "محاسب",
     "nav": {
       "home": "الرئيسية",
       "calendar": "التقويم",
@@ -1255,7 +1256,46 @@
       "teacherImport": "استيراد المعلمين",
       "importBatches": "سجل الاستيراد",
       "notificationLogs": "سجل الإشعارات",
-      "settings": "الإعدادات وسجل التدقيق"
+      "settings": "الإعدادات وسجل التدقيق",
+      "bookings": "الحجوزات والمدفوعات",
+      "accountants": "حسابات المحاسبين"
+    },
+    "financeBookings": {
+      "title": "الحجوزات والمدفوعات",
+      "subtitle": "كل الحجوزات مع المبالغ المدفوعة وصافي المعلم وحصة المنصة",
+      "allStatuses": "كل الحالات",
+      "empty": "لا توجد حجوزات",
+      "statuses": {
+        "pending_payment": "بانتظار الدفع",
+        "confirmed": "مؤكد",
+        "active": "نشط",
+        "completed": "مكتمل",
+        "cancelled": "ملغى",
+        "expired": "منتهي"
+      },
+      "cols": {
+        "reference": "المرجع",
+        "student": "الطالب",
+        "teacher": "المعلم",
+        "package": "الباقة",
+        "paid": "المدفوع",
+        "teacherNet": "صافي المعلم",
+        "platform": "حصة المنصة",
+        "status": "الحالة",
+        "created": "التاريخ"
+      }
+    },
+    "accountants": {
+      "title": "حسابات المحاسبين",
+      "subtitle": "أنشئ حساب محاسب وضع كلمة مروره بنفسك — يرى المستحقات والحجوزات المالية فقط",
+      "nameLabel": "الاسم",
+      "emailLabel": "البريد الإلكتروني",
+      "phoneLabel": "رقم الهاتف (اختياري)",
+      "passwordLabel": "كلمة المرور",
+      "passwordHint": "8 أحرف على الأقل — تُرسَل للمحاسب عبر البريد مع بيانات الدخول",
+      "create": "إنشاء الحساب",
+      "creating": "جارٍ الإنشاء…",
+      "createdSuccess": "تم إنشاء حساب المحاسب بنجاح"
     },
     "adminOverview": {
       "statVerifiedTeachers": "معلمون معتمدون",
@@ -1518,6 +1558,7 @@
       "pricingTitle": "التسعير والاعتماد",
       "teacherPrice": "سعر مقدّم الخدمة",
       "marginLabel": "هامش ربح المنصة (%)",
+      "providerNet": "صافي المعلم بعد خصم نسبة المنصة",
       "marginRequired": "الهامش مطلوب ويجب أن يكون رقماً موجباً",
       "studentPrice": "سعر الطالب (محتسب)",
       "platformRevenue": "إيراد المنصة (محتسب)",

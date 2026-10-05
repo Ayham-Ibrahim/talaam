@@ -20,8 +20,10 @@ import { saveBlob } from '@/lib/download';
 import { PAYOUT_STATUS_STYLES } from '@/mocks/adminPayouts.mock';
 import { useT } from '@/hooks/useT';
 
-export function AdminPayoutsPage() {
+/** variant='accountant' يعرض نفس الصفحة للمحاسب: كل شيء ما عدا توليد المستحقات (صلاحية أدمن فقط) */
+export function AdminPayoutsPage({ variant = 'admin' }) {
   const t = useT();
+  const isAccountant = variant === 'accountant';
   const { user } = useAuth();
   const [status, setStatus] = useState('');
   const [showGenerateModal, setShowGenerateModal] = useState(false);
@@ -63,7 +65,7 @@ export function AdminPayoutsPage() {
   const payouts = data?.data ?? [];
 
   return (
-    <AdminDashboardLayout>
+    <AdminDashboardLayout variant={variant}>
       <div className="flex flex-col gap-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="text-right">
@@ -80,14 +82,16 @@ export function AdminPayoutsPage() {
               <Download size={16} />
               {exportPayouts.isPending ? t('dashboard.adminPayouts.exporting') : t('dashboard.adminPayouts.exportExcel')}
             </button>
-            <button
-              type="button"
-              onClick={() => setShowGenerateModal(true)}
-              className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-hover"
-            >
-              <Plus size={16} />
-              {t('dashboard.adminPayouts.generate')}
-            </button>
+            {!isAccountant && (
+              <button
+                type="button"
+                onClick={() => setShowGenerateModal(true)}
+                className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-hover"
+              >
+                <Plus size={16} />
+                {t('dashboard.adminPayouts.generate')}
+              </button>
+            )}
           </div>
         </div>
 
