@@ -20,7 +20,8 @@ export const couponService = {
     }
     const { data } = await client.post(endpoints.coupons.create(packageId), {
       code: payload.code || undefined,
-      discount_percent: payload.discountPercent,
+      discount_type: payload.discountType,
+      discount_value: payload.discountValue,
       max_redemptions: payload.maxRedemptions || undefined,
       expires_at: payload.expiresAt || undefined,
     });
@@ -33,7 +34,8 @@ export const couponService = {
       return { id, ...payload };
     }
     const { data } = await client.put(endpoints.coupons.update(id), {
-      ...(payload.discountPercent != null && { discount_percent: payload.discountPercent }),
+      ...(payload.discountType != null && { discount_type: payload.discountType }),
+      ...(payload.discountValue != null && { discount_value: payload.discountValue }),
       ...(payload.maxRedemptions !== undefined && { max_redemptions: payload.maxRedemptions || null }),
       ...(payload.expiresAt !== undefined && { expires_at: payload.expiresAt || null }),
       ...(payload.isActive != null && { is_active: payload.isActive }),
