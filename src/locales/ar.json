@@ -548,7 +548,9 @@
     "chosenSessionsTitle": "الجلسات المختارة",
     "editSlot": "تعديل",
     "removeSlot": "إزالة",
-    "multiSessionHint": "هذه الباقة تحتوي أكثر من جلسة — اختر يوماً ووقتاً مستقلَّين لكل جلسة على حدة."
+    "multiSessionHint": "هذه الباقة تحتوي أكثر من جلسة — اختر يوماً ووقتاً مستقلَّين لكل جلسة على حدة.",
+    "couponLabel": "لديك كود خصم؟ (اختياري)",
+    "couponPlaceholder": "مثال: WELCOME20"
   },
   "favorites": {
     "title": "المفضلة",
@@ -1000,6 +1002,30 @@
       "close": "اغلاق",
       "submitForReview": "إرسال للمراجعة"
     },
+    "coupons": {
+      "title": "كوبونات الخصم",
+      "create": "إنشاء كوبون",
+      "creating": "جارِ الإنشاء...",
+      "codeLabel": "الكود (اختياري)",
+      "codeAutoHint": "يُولَّد تلقائياً إن تُرك فارغاً",
+      "discountLabel": "نسبة الخصم %",
+      "maxRedemptionsLabel": "حد الاستخدام",
+      "unlimitedHint": "بلا حد",
+      "expiresAtLabel": "تاريخ الانتهاء (اختياري)",
+      "noExpiry": "بلا انتهاء",
+      "active": "فعّال",
+      "inactive": "معطَّل",
+      "delete": "حذف",
+      "confirmDelete": "هل تريد حذف هذا الكوبون؟",
+      "copyCode": "نسخ الكود",
+      "empty": "لا توجد كوبونات لهذه الباقة بعد",
+      "colCode": "الكود",
+      "colDiscount": "الخصم",
+      "colUsage": "الاستخدام",
+      "colExpires": "الانتهاء",
+      "colStatus": "الحالة",
+      "colActions": "الإجراءات"
+    },
     "addPackage": {
       "steps": {
         "basicInfo": "المعلومات الاساسية",
@@ -1258,7 +1284,8 @@
       "notificationLogs": "سجل الإشعارات",
       "settings": "الإعدادات وسجل التدقيق",
       "bookings": "الحجوزات والمدفوعات",
-      "accountants": "حسابات المحاسبين"
+      "accountants": "حسابات المحاسبين",
+      "teacherSessionsReport": "تقرير حصص المعلمين"
     },
     "financeBookings": {
       "title": "الحجوزات والمدفوعات",
@@ -1669,6 +1696,26 @@
       "exportExcel": "تصدير Excel",
       "exporting": "جارِ التصدير...",
       "exportFailed": "تعذّر تصدير الملف، حاول مرة أخرى"
+    },
+    "teacherSessionsReport": {
+      "title": "تقرير حصص المعلمين",
+      "subtitle": "عدد الحصص المحقَّقة فعلاً لكل معلم (حضور حقيقي من المعلم والطلاب) والعائد الذي حققته للمنصة",
+      "fromLabel": "من تاريخ",
+      "toLabel": "إلى تاريخ",
+      "apply": "تطبيق",
+      "totalSessions": "إجمالي الحصص المحقَّقة",
+      "totalPlatformRevenue": "إجمالي عائد المنصة",
+      "totalTeacherRevenue": "إجمالي مستحقات المعلمين",
+      "exportExcel": "تصدير Excel",
+      "exporting": "جارِ التصدير...",
+      "exportFailed": "تعذّر تصدير الملف، حاول مرة أخرى",
+      "empty": "لا توجد حصص مطابقة لهذه الفترة",
+      "cols": {
+        "teacher": "المعلم",
+        "sessionsCount": "عدد الحصص",
+        "teacherRevenue": "مستحق المعلم",
+        "platformRevenue": "عائد المنصة"
+      }
     },
     "adminNotificationLogs": {
       "title": "سجل الإشعارات",

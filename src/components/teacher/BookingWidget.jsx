@@ -56,6 +56,9 @@ export function BookingWidget({ selectedPackage, bare = false }) {
   // كل عنصر { date: Date, time: 'HH:mm' } أو null إن لم تُختَر هذه الجلسة بعد
   const [slots, setSlots] = useState(() => Array(sessionsCount).fill(null));
   const [activeIndex, setActiveIndex] = useState(0);
+  // كود خصم اختياري يُبلَّغ به الطالب خارج المنصة — يُرسَل مع طلب الحجز، والتحقق
+  // الفعلي من صلاحيته (باقة/انتهاء/استنفاد) يتم بالكامل على الباك اند عند الإرسال.
+  const [couponCode, setCouponCode] = useState('');
 
   const requestIndividual = useRequestIndividualBooking(selectedPackage?.id);
   const createGroup = useCreateGroupBooking(selectedPackage?.id);
@@ -68,6 +71,7 @@ export function BookingWidget({ selectedPackage, bare = false }) {
     setActiveIndex(0);
     setSelectedDate(null);
     setSelectedTime('');
+    setCouponCode('');
     requestIndividual.reset();
     createGroup.reset();
     // reset مرجعياً ثابتة في React Query — لا داعي لإدراجها في التبعيّات
@@ -212,7 +216,7 @@ export function BookingWidget({ selectedPackage, bare = false }) {
     }
     if (isGroup) {
       if (!canSubmitGroup) return;
-      createGroup.mutate(undefined, {
+      createGroup.mutate(couponCode.trim() || undefined, {
         onSuccess: (data) => {
           if (data?.checkout_url) window.location.href = data.checkout_url;
         },
@@ -220,7 +224,10 @@ export function BookingWidget({ selectedPackage, bare = false }) {
       return;
     }
     if (!canSubmitIndividual) return;
-    requestIndividual.mutate(slots.map((s) => ({ date: toISODate(s.date), start_time: s.time })));
+    requestIndividual.mutate({
+      slots: slots.map((s) => ({ date: toISODate(s.date), start_time: s.time })),
+      couponCode: couponCode.trim() || undefined,
+    });
   };
 
   return (
@@ -388,6 +395,21 @@ export function BookingWidget({ selectedPackage, bare = false }) {
             )}
           </div>
         </div>
+      )}
+
+      {/* كود خصم اختياري — يُبلَّغ به الطالب خارج المنصة (اتصال/رسالة) */}
+      {selectedPackage && (
+        <label className="flex flex-col gap-1.5 text-start">
+          <span className="text-sm font-bold text-ink">{t('booking.couponLabel')}</span>
+          <input
+            type="text"
+            value={couponCode}
+            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+            placeholder={t('booking.couponPlaceholder')}
+            dir="ltr"
+            className="w-full rounded-xl border border-line bg-surface p-3 text-sm text-ink placeholder:text-ink-soft/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          />
+        </label>
       )}
 
       {(requestIndividual.isError || createGroup.isError) && (

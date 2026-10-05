@@ -1,4 +1,4 @@
-import { Eye, Pencil, Send } from 'lucide-react';
+import { Eye, Pencil, Send, Tag } from 'lucide-react';
 import { TEACHER_PACKAGE_TYPE_STYLES, TEACHER_PACKAGE_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { useTaxonomyList } from '@/hooks/useTaxonomy';
 import { useT } from '@/hooks/useT';
@@ -20,7 +20,11 @@ function SeatsCell({ capacity, enrolledCount, format }) {
   );
 }
 
-export function TeacherPackagesTable({ packages, onEdit, onView, onSubmit, isSubmitting }) {
+// يطابق تماماً الشرط المفروض في CreateCouponRequest بالباك اند (status==='active' فقط لها
+// platform_margin_percent/student_price محسوبَين) — إظهار الزر لغير هذه الحالة سيفشل دائماً
+const COUPON_ELIGIBLE_STATUSES = ['active'];
+
+export function TeacherPackagesTable({ packages, onEdit, onView, onSubmit, onCoupons, isSubmitting }) {
   const t = useT();
   const { data: subjects = [] } = useTaxonomyList('subjects');
 
@@ -95,6 +99,17 @@ export function TeacherPackagesTable({ packages, onEdit, onView, onSubmit, isSub
                     >
                       <Eye size={18} />
                     </button>
+                    {COUPON_ELIGIBLE_STATUSES.includes(pkg.status) && (
+                      <button
+                        type="button"
+                        onClick={() => onCoupons?.(pkg)}
+                        className="text-success hover:opacity-70"
+                        aria-label={t('dashboard.coupons.title')}
+                        title={t('dashboard.coupons.title')}
+                      >
+                        <Tag size={18} />
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

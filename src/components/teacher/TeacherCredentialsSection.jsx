@@ -1,5 +1,6 @@
 import { BookOpen, Building2, GraduationCap } from "lucide-react";
 import { useT } from "@/hooks/useT";
+import { Chip, NEUTRAL_DOT, ScopeCard } from "./TeacherTeachingScopeSection";
 
 /** Rotating icon + soft pastel per timeline entry — purely decorative, same rhythm as the reference's alternating cards */
 const EXP_PALETTE = [
@@ -13,7 +14,7 @@ const CURRENT_RE = /الآن|الان|حالياً|حاليا|present|current/i;
 /** Subjects card — a plain row list (icon + name), no trailing label/chevron, one shared icon for every subject */
 function SubjectsCard({ title, subjects }) {
   return (
-    <div className="relative overflow-hidden rounded-[28px] bg-white p-5 text-start shadow-[0_10px_30px_rgba(17,24,39,0.06)] sm:p-6">
+    <div className="relative flex-1 overflow-hidden rounded-[28px] bg-white p-5 text-start shadow-[0_10px_30px_rgba(17,24,39,0.06)] sm:p-6">
       <h3 className="text-lg font-bold text-[#1E1E1E]">{title}</h3>
 
       <div className="mt-3 flex flex-col divide-y divide-[#F0F0F5] pe-24 sm:pe-32">
@@ -57,10 +58,12 @@ export function TeacherCredentialsSection({ teacher }) {
 
   const experiences = teacher.experiences ?? [];
   const subjects = teacher.subjects ?? [];
+  const curricula = teacher.curricula ?? [];
 
   const hasExperiences = experiences.length > 0;
   const hasSubjects = subjects.length > 0;
-  if (!hasExperiences && !hasSubjects) return null;
+  const hasCurricula = curricula.length > 0;
+  if (!hasExperiences && !hasSubjects && !hasCurricula) return null;
 
   return (
     <div className="mt-6 flex flex-col gap-6">
@@ -110,7 +113,19 @@ export function TeacherCredentialsSection({ teacher }) {
         </section>
       )}
 
-      {hasSubjects && <SubjectsCard title={t("teacher.subjects")} subjects={subjects} />}
+      {/* Subjects and curricula share one row on large screens, stacked on mobile */}
+      {(hasSubjects || hasCurricula) && (
+        <div className="flex flex-col gap-4 lg:flex-row">
+          {hasSubjects && <SubjectsCard title={t("teacher.subjects")} subjects={subjects} />}
+          {hasCurricula && (
+            <ScopeCard title={t("teacher.curricula")}>
+              {curricula.map((c) => (
+                <Chip key={c} label={c} dot={NEUTRAL_DOT} />
+              ))}
+            </ScopeCard>
+          )}
+        </div>
+      )}
     </div>
   );
 }

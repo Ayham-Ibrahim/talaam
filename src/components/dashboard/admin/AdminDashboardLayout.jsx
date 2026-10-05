@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
+  BarChart3,
   ChevronRight,
   FileSpreadsheet,
   GraduationCap,
@@ -37,6 +38,7 @@ const ADMIN_NAV_ITEMS = [
   { key: 'taxonomy', icon: ListTree, path: '/dashboard/admin/taxonomy' },
   { key: 'payouts', icon: Wallet, path: '/dashboard/admin/payouts' },
   { key: 'bookings', icon: Receipt, path: '/dashboard/admin/bookings' },
+  { key: 'teacherSessionsReport', icon: BarChart3, path: '/dashboard/admin/teacher-sessions-report' },
   { key: 'accountants', icon: UserCog, path: '/dashboard/admin/accountants' },
   { key: 'studentImport', icon: FileSpreadsheet, path: '/dashboard/admin/student-import' },
   { key: 'teacherImport', icon: FileSpreadsheet, path: '/dashboard/admin/teacher-import' },
@@ -49,6 +51,7 @@ const ADMIN_NAV_ITEMS = [
 const ACCOUNTANT_NAV_ITEMS = [
   { key: 'payouts', icon: Wallet, path: '/dashboard/accountant/payouts', end: false },
   { key: 'bookings', icon: Receipt, path: '/dashboard/accountant/bookings' },
+  { key: 'teacherSessionsReport', icon: BarChart3, path: '/dashboard/accountant/teacher-sessions-report' },
 ];
 
 export function AdminDashboardLayout({ children, variant = 'admin' }) {

@@ -28,6 +28,7 @@ import { AdminTaxonomyPage } from '@/pages/AdminTaxonomyPage';
 import { AdminPayoutsPage } from '@/pages/AdminPayoutsPage';
 import { FinanceBookingsPage } from '@/pages/FinanceBookingsPage';
 import { AdminAccountantsPage } from '@/pages/AdminAccountantsPage';
+import { TeacherSessionsReportPage } from '@/pages/TeacherSessionsReportPage';
 import { AdminNotificationLogsPage } from '@/pages/AdminNotificationLogsPage';
 import { AdminStudentImportPage } from '@/pages/AdminStudentImportPage';
 import { AdminTeacherImportPage } from '@/pages/AdminTeacherImportPage';
@@ -188,6 +189,14 @@ export function AppRouter() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/dashboard/admin/teacher-sessions-report"
+          element={
+            <ProtectedRoute role="admin">
+              <TeacherSessionsReportPage variant="admin" />
+            </ProtectedRoute>
+          }
+        />
         {/* لوحة المحاسب: مالية فقط — نفس صفحات الأدمن المالية بوضع variant="accountant" */}
         <Route path="/dashboard/accountant" element={<Navigate to="/dashboard/accountant/payouts" replace />} />
         <Route
@@ -203,6 +212,14 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="accountant">
               <FinanceBookingsPage variant="accountant" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/accountant/teacher-sessions-report"
+          element={
+            <ProtectedRoute role="accountant">
+              <TeacherSessionsReportPage variant="accountant" />
             </ProtectedRoute>
           }
         />

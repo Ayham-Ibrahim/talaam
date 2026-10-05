@@ -5,7 +5,7 @@ import { useT } from "@/hooks/useT";
 /** Same neon navy used across the header/philosophy sections — kept for one consistent "identity" family */
 const NEON_GRADIENT = "linear-gradient(135deg, #0E1A4D 0%, #17237E 60%, #1B2E9C 100%)";
 
-const NEUTRAL_DOT = "#C7D0DF";
+export const NEUTRAL_DOT = "#C7D0DF";
 
 /**
  * Language name → slug, matched by keyword rather than an exact-string or
@@ -41,7 +41,7 @@ const LANGUAGE_STYLES = {
   tr: { gradient: "bg-lang-teal", landmark: "/hagia-sophia.png" },
 };
 
-function Chip({ label, dot, dotSize = 14, flag, textColor = "#1E1E1E" }) {
+export function Chip({ label, dot, dotSize = 14, flag, textColor = "#1E1E1E" }) {
   return (
     <span
       className="inline-flex items-center gap-[3px] rounded-2xl bg-[#FAFAFA] px-2 py-2 text-sm font-medium"
@@ -174,9 +174,9 @@ function LanguagesCard({ title, languages }) {
   );
 }
 
-function ScopeCard({ title, children }) {
+export function ScopeCard({ title, children }) {
   return (
-    <div className="flex flex-1 flex-col items-start justify-center gap-2 rounded-[24px] bg-white px-6 py-4 text-start shadow-[0px_1px_5px_rgba(0,0,0,0.1)] sm:px-[31px]">
+    <div className="flex flex-1 flex-col items-start justify-start gap-2 rounded-[24px] bg-white px-6 py-4 text-start shadow-[0px_1px_5px_rgba(0,0,0,0.1)] sm:px-[31px]">
       <h3 className="w-full text-lg font-bold text-[#2D2D2D]">{title}</h3>
       <div className="flex flex-wrap items-center justify-start gap-4">{children}</div>
     </div>
@@ -185,8 +185,9 @@ function ScopeCard({ title, children }) {
 
 /**
  * Teaching-scope cards, matching the Figma: each taxonomy is its own white
- * rounded card. Row 1 = المؤهلات العلمية / اللغات, row 2 = المراحل الدراسية /
- * التحضير للامتحانات / المناهج / طريقة التدريس. Cards with no data are dropped.
+ * rounded card. Row 1 = المؤهلات العلمية / اللغات, then المراحل الدراسية /
+ * التحضير للامتحانات / طريقة التدريس each full-width (المناهج lives beside
+ * the subjects card in TeacherCredentialsSection). Cards with no data are dropped.
  */
 export function TeacherTeachingScopeSection({ teacher }) {
   const t = useT();
@@ -215,13 +216,6 @@ export function TeacherTeachingScopeSection({ teacher }) {
         ))}
       </ScopeCard>
     ),
-    teacher.curricula?.length > 0 && (
-      <ScopeCard key="curricula" title={t("teacher.curricula")}>
-        {teacher.curricula.map((c) => (
-          <Chip key={c} label={c} dot={NEUTRAL_DOT} />
-        ))}
-      </ScopeCard>
-    ),
     teacher.teachingMethods?.length > 0 && (
       <ScopeCard key="teachingMethods" title={t("teacher.teachingMethods")}>
         {teacher.teachingMethods.map((m) => (
@@ -236,7 +230,8 @@ export function TeacherTeachingScopeSection({ teacher }) {
   return (
     <div className="mt-4 flex flex-col gap-4">
       {row1.length > 0 && <div className="flex flex-col gap-4 lg:flex-row">{row1}</div>}
-      {row2.length > 0 && <div className="flex flex-col gap-4 lg:flex-row">{row2}</div>}
+      {/* Each row-2 card spans the full width so its chips flow side by side and wrap like items on shelves */}
+      {row2.length > 0 && <div className="flex flex-col gap-4">{row2}</div>}
     </div>
   );
 }

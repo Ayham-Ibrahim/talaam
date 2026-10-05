@@ -108,6 +108,16 @@ export const endpoints = {
   complaints: {
     create: '/complaints',
   },
+  reports: {
+    teacherSessions: '/reports/teacher-sessions',
+    exportTeacherSessions: '/reports/teacher-sessions/export',
+  },
+  coupons: {
+    list: (packageId) => `/packages/${packageId}/coupons`,
+    create: (packageId) => `/packages/${packageId}/coupons`,
+    update: (id) => `/coupons/${id}`,
+    delete: (id) => `/coupons/${id}`,
+  },
   meta: {
     filters: '/meta/filters',
     stats: '/meta/stats',

@@ -70,7 +70,7 @@ export function AboutPage() {
             </div>
             <div className="hidden shrink-0 lg:block">
               <img
-                src="/dark_mode_logo.webp"
+                src="dark_mode_logo.png"
                 alt=""
                 loading="lazy"
                 decoding="async"

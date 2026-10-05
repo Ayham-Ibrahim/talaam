@@ -254,12 +254,15 @@ export const bookingService = {
    * pending_teacher_confirmation; the teacher must approve before checkout()
    * can be called. `slots`: [{ date: 'YYYY-MM-DD', start_time: 'HH:mm' }, ...]
    */
-  async requestIndividualBooking(packageId, slots) {
+  async requestIndividualBooking(packageId, slots, couponCode) {
     if (config.useMocks) {
       await mockDelay(500);
       return { id: Math.floor(Math.random() * 100000), status: 'pending_teacher_confirmation' };
     }
-    const { data } = await client.post(endpoints.bookings.createIndividual(packageId), { slots });
+    const { data } = await client.post(endpoints.bookings.createIndividual(packageId), {
+      slots,
+      coupon_code: couponCode || undefined,
+    });
     return data.data;
   },
 
@@ -316,12 +319,14 @@ export const bookingService = {
   },
 
   /** Group package — joins the package's existing fixed schedule, no body */
-  async createGroupBooking(packageId) {
+  async createGroupBooking(packageId, couponCode) {
     if (config.useMocks) {
       await mockDelay(500);
       return { booking: { id: Math.floor(Math.random() * 100000), status: 'pending_payment' }, checkout_url: null };
     }
-    const { data } = await client.post(endpoints.bookings.createGroup(packageId));
+    const { data } = await client.post(endpoints.bookings.createGroup(packageId), {
+      coupon_code: couponCode || undefined,
+    });
     return data.data;
   },
 

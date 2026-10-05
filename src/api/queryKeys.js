@@ -21,6 +21,9 @@ export const queryKeys = {
     stats: () => ['meta', 'stats'],
   },
   taxonomy: (type) => ['taxonomy', type],
+  coupons: {
+    list: (packageId) => ['coupons', 'list', packageId],
+  },
   bookings: {
     list: (filters) => ['bookings', 'list', filters],
   },
@@ -69,5 +72,6 @@ export const queryKeys = {
     auditLog: (filters) => ['admin', 'audit-log', filters],
     notificationLogs: (filters) => ['admin', 'notification-logs', filters],
     reviews: (filters) => ['admin', 'reviews', filters],
+    teacherSessionsReport: (filters) => ['admin', 'teacher-sessions-report', filters],
   },
 };

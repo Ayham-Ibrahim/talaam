@@ -44,13 +44,13 @@ export function usePackageBusySlotsForDates(packageId, datesISO) {
 /** slots: [{ date: 'YYYY-MM-DD', start_time: 'HH:mm' }, ...] — one entry per session of the package */
 export function useRequestIndividualBooking(packageId) {
   return useMutation({
-    mutationFn: (slots) => bookingService.requestIndividualBooking(packageId, slots),
+    mutationFn: ({ slots, couponCode }) => bookingService.requestIndividualBooking(packageId, slots, couponCode),
   });
 }
 
 export function useCreateGroupBooking(packageId) {
   return useMutation({
-    mutationFn: () => bookingService.createGroupBooking(packageId),
+    mutationFn: (couponCode) => bookingService.createGroupBooking(packageId, couponCode),
   });
 }
 
