@@ -317,7 +317,11 @@ export function PackageCouponsModal({ packageId, packageTitle, onClose }) {
   const { data: coupons, isLoading, isError, refetch } = usePackageCoupons(packageId);
 
   return (
-    <div className="relative rounded-2xl bg-white p-6 shadow-card sm:p-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div
+        className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-lift sm:p-8"
+        onClick={(e) => e.stopPropagation()}
+      >
       {onClose && (
         <button
           type="button"
@@ -375,6 +379,7 @@ export function PackageCouponsModal({ packageId, packageTitle, onClose }) {
             </table>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

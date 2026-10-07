@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Navigate, useParams, useSearchParams, Link } from 'react-router-dom';
-import { ArrowRight, UserPlus } from 'lucide-react';
+import { ArrowRight, UserPlus, Tag } from 'lucide-react';
 import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
 import { ListingDetailsCard } from '@/components/dashboard/admin/ListingDetailsCard';
 import { ListingApprovalPanel } from '@/components/dashboard/admin/ListingApprovalPanel';
 import { ReasonModal } from '@/components/dashboard/admin/ReasonModal';
 import { ManualBookingModal } from '@/components/dashboard/admin/ManualBookingModal';
+import { PackageCouponsModal } from '@/components/dashboard/PackageCouponsModal';
 import { ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -28,6 +29,7 @@ export function AdminListingDetailPage() {
   const [modal, setModal] = useState(null); // 'reject' | 'disable'
   const [manualBookingOpen, setManualBookingOpen] = useState(false);
   const [manualBookingResult, setManualBookingResult] = useState(null);
+  const [couponsOpen, setCouponsOpen] = useState(false);
 
   const approveListing = useApproveListing(id, kind);
   const rejectListing = useRejectListing(id, kind);
@@ -73,19 +75,32 @@ export function AdminListingDetailPage() {
           <ArrowRight size={15} />
         </Link>
 
-        {listing?.status === 'active' && (
-          <button
-            type="button"
-            onClick={() => {
-              setManualBookingResult(null);
-              setManualBookingOpen(true);
-            }}
-            className="flex items-center gap-1.5 rounded-xl border border-primary px-4 py-2 text-sm font-medium text-primary hover:bg-primary/5"
-          >
-            <UserPlus size={16} />
-            {t('dashboard.adminManualBooking.button')}
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {/* كوبونات الخصم متاحة فقط للباقات (لا الدورات) — نفس القيد المفروض في CreateCouponRequest بالباك اند */}
+          {listing?.kind === 'package' && listing?.status === 'active' && (
+            <button
+              type="button"
+              onClick={() => setCouponsOpen(true)}
+              className="flex items-center gap-1.5 rounded-xl border border-success px-4 py-2 text-sm font-medium text-success hover:bg-success-light"
+            >
+              <Tag size={16} />
+              {t('dashboard.coupons.title')}
+            </button>
+          )}
+          {listing?.status === 'active' && (
+            <button
+              type="button"
+              onClick={() => {
+                setManualBookingResult(null);
+                setManualBookingOpen(true);
+              }}
+              className="flex items-center gap-1.5 rounded-xl border border-primary px-4 py-2 text-sm font-medium text-primary hover:bg-primary/5"
+            >
+              <UserPlus size={16} />
+              {t('dashboard.adminManualBooking.button')}
+            </button>
+          )}
+        </div>
       </div>
 
       {manualBookingResult && (
@@ -136,6 +151,10 @@ export function AdminListingDetailPage() {
           onConfirm={handleManualBookingConfirm}
           onClose={() => setManualBookingOpen(false)}
         />
+      )}
+
+      {couponsOpen && (
+        <PackageCouponsModal packageId={id} packageTitle={listing?.title} onClose={() => setCouponsOpen(false)} />
       )}
     </AdminDashboardLayout>
   );

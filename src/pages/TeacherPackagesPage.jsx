@@ -7,7 +7,6 @@ import { TeacherPackagesTable } from '@/components/dashboard/TeacherPackagesTabl
 import { TeacherCoursesTable } from '@/components/dashboard/TeacherCoursesTable';
 import { AddPackageModal } from '@/components/dashboard/AddPackageModal';
 import { AddCourseModal } from '@/components/dashboard/AddCourseModal';
-import { PackageCouponsModal } from '@/components/dashboard/PackageCouponsModal';
 import { Pagination } from '@/components/dashboard/Pagination';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
@@ -31,7 +30,6 @@ function PackageListView({ user }) {
   const [isModalOpen, setModalOpen] = useState(false);
   const [editingPackageId, setEditingPackageId] = useState(null);
   const [viewingPackageId, setViewingPackageId] = useState(null);
-  const [couponsPackage, setCouponsPackage] = useState(null);
 
   const filteredPackages = useMemo(() => {
     if (!data?.packages) return [];
@@ -79,18 +77,6 @@ function PackageListView({ user }) {
     );
   }
 
-  if (couponsPackage) {
-    return (
-      <DashboardLayout>
-        <PackageCouponsModal
-          packageId={couponsPackage.id}
-          packageTitle={couponsPackage.title}
-          onClose={() => setCouponsPackage(null)}
-        />
-      </DashboardLayout>
-    );
-  }
-
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-6">
@@ -120,7 +106,6 @@ function PackageListView({ user }) {
                   onSubmit={(pkg) => submitPackage.mutate(pkg.id)}
                   onEdit={(pkg) => setEditingPackageId(pkg.id)}
                   onView={(pkg) => setViewingPackageId(pkg.id)}
-                  onCoupons={(pkg) => setCouponsPackage(pkg)}
                 />
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
