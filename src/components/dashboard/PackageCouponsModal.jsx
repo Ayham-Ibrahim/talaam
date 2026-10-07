@@ -241,7 +241,7 @@ function CopyCodeButton({ code }) {
 }
 
 function discountLabel(coupon) {
-  return coupon.discountType === 'percent' ? `${coupon.discountValue}%` : `$${coupon.discountValue}`;
+  return coupon.discountType === 'percent' ? `${coupon.discountValue}%` : `${coupon.discountValue} د.إ`;
 }
 
 function CouponRow({ packageId, coupon }) {

@@ -83,7 +83,7 @@ export function CourseWizardReview({ data, isPending, error, onSubmit, onBack })
       <div className="grid grid-cols-1 gap-4 rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card sm:grid-cols-2">
         <SummaryField
           label={t(data.pricing_mode === 'hourly' ? 'dashboard.addCourse.priceLabelHourly' : 'dashboard.addCourse.priceLabel')}
-          value={`$${data.provider_price}`}
+          value={`${data.provider_price} د.إ`}
         />
         {data.pricing_mode === 'hourly' && (
           <SummaryField label={t('dashboard.addCourse.totalHoursLabel')} value={data.total_hours} />

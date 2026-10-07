@@ -1014,7 +1014,7 @@
         "fixed": "مبلغ ثابت"
       },
       "discountValuePercentLabel": "نسبة الخصم %",
-      "discountValueFixedLabel": "قيمة الخصم ($)",
+      "discountValueFixedLabel": "قيمة الخصم (د.إ)",
       "maxRedemptionsLabel": "حد الاستخدام",
       "unlimitedHint": "بلا حد",
       "expiresAtLabel": "تاريخ الانتهاء (اختياري)",

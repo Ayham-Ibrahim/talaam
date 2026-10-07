@@ -7,7 +7,7 @@ import { useCurrencyStore } from '@/store';
 import { convertPrice } from '@/lib/currency';
 import { formatDate, isPastDate, lastScheduleDate } from '@/lib/formatters';
 
-const CURRENCY_SYMBOL = { USD: '$', EUR: '€', GBP: '£' };
+const CURRENCY_SYMBOL = { USD: '$', EUR: '€', GBP: '£', AED: 'د.إ' };
 
 /** Rotating gradient palette — assigned by card position, so it's varied per card but stable across re-renders */
 const CARD_GRADIENTS = [

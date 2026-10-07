@@ -39,7 +39,7 @@ export function InvoicesTable({ invoices, onView, onDownload, downloadingId }) {
                     <span className="text-ink-soft">{invoice.teacherName}</span>
                   </div>
                 </td>
-                <td className="px-4 py-4 text-right font-semibold text-ink">{invoice.amount}$</td>
+                <td className="px-4 py-4 text-right font-semibold text-ink">{invoice.amount} د.إ</td>
                 <td className="px-4 py-4 text-right">
                   <span
                     className="rounded-pill px-4 py-1.5 text-xs font-bold text-white"

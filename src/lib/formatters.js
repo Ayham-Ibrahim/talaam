@@ -1,9 +1,11 @@
 import { config } from '@/config/env';
 
+const CURRENCY_SYMBOLS = { USD: '$', AED: 'د.إ' };
+
 /** Formats a price with currency for Arabic display */
 export function formatPrice(amount, currency = config.defaultCurrency) {
   if (amount == null) return '';
-  const symbol = currency === 'USD' ? '$' : currency;
+  const symbol = CURRENCY_SYMBOLS[currency] ?? currency;
   return `${symbol}${amount}`;
 }
 

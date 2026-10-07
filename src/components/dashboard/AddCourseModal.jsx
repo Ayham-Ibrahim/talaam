@@ -74,7 +74,7 @@ export function AddCourseModal({ onClose }) {
         provider_price: Number(data.provider_price),
         pricing_mode: data.pricing_mode,
         total_hours: data.pricing_mode === 'hourly' ? Number(data.total_hours) : null,
-        currency: 'USD',
+        currency: 'AED',
         has_certificate: data.has_certificate,
         certificate_type: data.has_certificate ? data.certificate_type || null : null,
         certificate_issuer: data.has_certificate ? data.certificate_issuer || null : null,

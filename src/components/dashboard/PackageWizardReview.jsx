@@ -98,7 +98,7 @@ export function PackageWizardReview({ data, isPending, error, onSubmit, onBack, 
       )}
 
       <div className="rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card">
-        <SummaryField label={t('dashboard.addPackage.review.teacherPriceLabel')} value={`$${data.teacher_price}`} />
+        <SummaryField label={t('dashboard.addPackage.review.teacherPriceLabel')} value={`${data.teacher_price} د.إ`} />
       </div>
 
       <div className="flex w-full items-center justify-between">

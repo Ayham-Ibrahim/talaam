@@ -13,7 +13,7 @@ export const SETTINGS_CATEGORY_LABELS = {
 
 let mockSettings = [
   { key: 'platform_margin_percent_default', category: 'pricing', label: 'هامش الربح الافتراضي', value: 60, unit: '%', type: 'decimal' },
-  { key: 'default_currency', category: 'pricing', label: 'العملة الافتراضية', value: 'USD', unit: '', type: 'string' },
+  { key: 'default_currency', category: 'pricing', label: 'العملة الافتراضية', value: 'AED', unit: '', type: 'string' },
   { key: 'reschedule_free_window_hours', category: 'scheduling', label: 'نافذة تغيير الموعد المجانية', value: 24, unit: 'ساعة', type: 'integer' },
   { key: 'reschedule_max_per_session', category: 'scheduling', label: 'الحد الأقصى لطلبات تغيير الموعد لكل جلسة', value: 1, unit: 'طلب', type: 'integer' },
   { key: 'reschedule_requires_admin', category: 'scheduling', label: 'تغيير الموعد يتطلب موافقة الأدمن دائماً', value: true, unit: '', type: 'boolean' },

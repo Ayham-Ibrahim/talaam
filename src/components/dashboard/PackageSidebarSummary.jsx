@@ -58,7 +58,7 @@ export function PackageSidebarSummary({ pkg }) {
         />
         <StatRow label={t('dashboard.myPackages.purchaseDate')} value={pkg.purchaseDate} />
         <StatRow label={t('dashboard.myPackages.expiryDate')} value={pkg.expiryDate} />
-        <StatRow label={t('dashboard.myPackages.price')} value={`${pkg.price}$`} />
+        <StatRow label={t('dashboard.myPackages.price')} value={`${pkg.price} د.إ`} />
       </div>
     </div>
   );

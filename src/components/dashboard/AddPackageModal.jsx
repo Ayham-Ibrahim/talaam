@@ -121,7 +121,7 @@ export function AddPackageModal({ onClose, packageId, readOnly = false }) {
       capacity: Number(data.capacity),
       sessions_count: Number(data.sessions_count),
       teacher_price: Number(data.teacher_price),
-      currency: 'USD',
+      currency: 'AED',
       discount_percent: data.discount_percent ? Number(data.discount_percent) : null,
       curriculum_ids: data.curriculum_ids,
       stage_ids: data.stage_ids,

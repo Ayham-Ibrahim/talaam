@@ -177,10 +177,10 @@ export function FavoriteButton({ active = false, onClick, className = "" }) {
 export function PriceTag({
   amount,
   suffix = "",
-  currency = "USD",
+  currency = "AED",
   className = "",
 }) {
-  const symbol = currency === "USD" ? "$" : currency;
+  const symbol = currency === "USD" ? "$" : currency === "AED" ? "د.إ" : currency;
   return (
     <span className={`text-price font-bold ${className}`}>
       {symbol}

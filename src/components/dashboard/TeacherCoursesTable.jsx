@@ -43,7 +43,7 @@ export function TeacherCoursesTable({ courses, onSubmit, isSubmitting }) {
                     {statusStyle.label}
                   </span>
                 </td>
-                <td className="px-4 py-4 text-center font-semibold text-ink">{course.provider_price}$</td>
+                <td className="px-4 py-4 text-center font-semibold text-ink">{course.provider_price} د.إ</td>
                 <td className="px-4 py-4 text-center">
                   {course.status === 'draft' && (
                     <button

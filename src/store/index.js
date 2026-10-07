@@ -63,11 +63,12 @@ const CURRENCY_STORAGE_KEY = 'taalam-currency';
 
 /**
  * Site-wide currency toggle for the public website (Navbar → CurrencySwitcher).
- * All prices in mock/package data are stored in USD; components convert via
- * formatPrice() from '@/lib/currency' using this store's active code.
+ * All prices in the backend are stored in AED (the platform's base currency);
+ * components convert via formatPrice() from '@/lib/currency' using this store's
+ * active code. Defaults to AED (no conversion) until the visitor picks another.
  */
 export const useCurrencyStore = create((set) => ({
-  currency: localStorage.getItem(CURRENCY_STORAGE_KEY) || 'USD',
+  currency: localStorage.getItem(CURRENCY_STORAGE_KEY) || 'AED',
   setCurrency: (currency) => {
     localStorage.setItem(CURRENCY_STORAGE_KEY, currency);
     set({ currency });

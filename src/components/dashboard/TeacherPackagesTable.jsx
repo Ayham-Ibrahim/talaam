@@ -61,7 +61,7 @@ export function TeacherPackagesTable({ packages, onEdit, onView, onSubmit, isSub
                     {statusStyle.label}
                   </span>
                 </td>
-                <td className="px-4 py-4 text-center font-semibold text-ink">{pkg.teacher_price}$</td>
+                <td className="px-4 py-4 text-center font-semibold text-ink">{pkg.teacher_price} د.إ</td>
                 <td className="px-4 py-4 text-center">
                   <div className="flex items-center justify-center gap-3">
                     {pkg.status === 'draft' && (

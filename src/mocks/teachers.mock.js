@@ -58,7 +58,7 @@ const buildTeacher = (id, overrides = {}) => ({
     { label: 'مركز معتمد', icon: '🏅' },
   ],
   minPrice: 50,
-  currency: 'USD',
+  currency: 'AED',
   ...overrides,
 });
 

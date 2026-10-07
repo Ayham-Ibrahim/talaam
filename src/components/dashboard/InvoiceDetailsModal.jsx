@@ -50,7 +50,7 @@ export function InvoiceDetailsModal({ invoice, onClose, onDownload, isDownloadin
           <InfoRow icon={ListOrdered} label={t('dashboard.myPackages.sessionsCount')} value={invoice.sessionsCount} />
 
           <h4 className="mt-2 text-right text-sm font-bold text-primary">{t('dashboard.invoices.amountDetails')}</h4>
-          <InfoRow icon={CreditCard} label={t('dashboard.invoices.packagePrice')} value={`${invoice.price} $`} />
+          <InfoRow icon={CreditCard} label={t('dashboard.invoices.packagePrice')} value={`${invoice.price} د.إ`} />
         </div>
 
         <button

@@ -35,12 +35,12 @@ const GROUP_SCHEDULE_UPCOMING = [
 ];
 
 export const mockPackages = [
-  { id: 101, teacherId: 1, title: 'جلسة وحدة', sessionFormat: 'individual', sessionsCount: 1, durationPerSession: 60, price: 50, discountPercent: null, currency: 'USD', schedules: INDIVIDUAL_SCHEDULE },
-  { id: 102, teacherId: 1, title: 'باقة 5 جلسات', sessionFormat: 'individual', sessionsCount: 5, durationPerSession: 60, price: 150, discountPercent: null, currency: 'USD', schedules: INDIVIDUAL_SCHEDULE },
-  { id: 103, teacherId: 1, title: 'باقة 10 جلسات', sessionFormat: 'individual', sessionsCount: 10, durationPerSession: 60, price: 250, discountPercent: null, currency: 'USD', schedules: INDIVIDUAL_SCHEDULE },
-  { id: 104, teacherId: 1, title: 'باقة 20 جلسة', sessionFormat: 'individual', sessionsCount: 20, durationPerSession: 60, price: 350, discountPercent: 15, currency: 'USD', schedules: INDIVIDUAL_SCHEDULE },
-  { id: 105, teacherId: 1, title: 'مجموعة تحضير الامتحانات (منتهية)', sessionFormat: 'group', sessionsCount: 8, durationPerSession: 60, price: 450, discountPercent: null, currency: 'USD', schedules: GROUP_SCHEDULE_PAST },
-  { id: 106, teacherId: 1, title: 'مجموعة تحضير الامتحانات', sessionFormat: 'group', sessionsCount: 8, durationPerSession: 60, price: 450, discountPercent: null, currency: 'USD', schedules: GROUP_SCHEDULE_UPCOMING },
+  { id: 101, teacherId: 1, title: 'جلسة وحدة', sessionFormat: 'individual', sessionsCount: 1, durationPerSession: 60, price: 50, discountPercent: null, currency: 'AED', schedules: INDIVIDUAL_SCHEDULE },
+  { id: 102, teacherId: 1, title: 'باقة 5 جلسات', sessionFormat: 'individual', sessionsCount: 5, durationPerSession: 60, price: 150, discountPercent: null, currency: 'AED', schedules: INDIVIDUAL_SCHEDULE },
+  { id: 103, teacherId: 1, title: 'باقة 10 جلسات', sessionFormat: 'individual', sessionsCount: 10, durationPerSession: 60, price: 250, discountPercent: null, currency: 'AED', schedules: INDIVIDUAL_SCHEDULE },
+  { id: 104, teacherId: 1, title: 'باقة 20 جلسة', sessionFormat: 'individual', sessionsCount: 20, durationPerSession: 60, price: 350, discountPercent: 15, currency: 'AED', schedules: INDIVIDUAL_SCHEDULE },
+  { id: 105, teacherId: 1, title: 'مجموعة تحضير الامتحانات (منتهية)', sessionFormat: 'group', sessionsCount: 8, durationPerSession: 60, price: 450, discountPercent: null, currency: 'AED', schedules: GROUP_SCHEDULE_PAST },
+  { id: 106, teacherId: 1, title: 'مجموعة تحضير الامتحانات', sessionFormat: 'group', sessionsCount: 8, durationPerSession: 60, price: 450, discountPercent: null, currency: 'AED', schedules: GROUP_SCHEDULE_UPCOMING },
 ];
 
 export const mockReviews = [

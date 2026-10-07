@@ -9,6 +9,6 @@ export const config = {
   apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api',
   useMocks: import.meta.env.VITE_USE_MOCKS !== 'false', // defaults to true
   mockDelayMs: 400,
-  defaultCurrency: 'USD',
+  defaultCurrency: 'AED',
   locale: 'ar-SA',
 };
