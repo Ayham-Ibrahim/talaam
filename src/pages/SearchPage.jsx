@@ -3,6 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import { Search, ChevronDown, SlidersHorizontal } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { Seo } from '@/components/seo/Seo';
+import { teacherListJsonLd } from '@/lib/seo';
 import { SearchHero } from '@/components/search/SearchHero';
 import { SearchFilters } from '@/components/search/SearchFilters';
 import { TeacherCard, TeacherCardSkeleton } from '@/components/teacher/TeacherCard';
@@ -83,8 +85,16 @@ export function SearchPage() {
     setApplied((prev) => ({ ...prev, level: value }));
   };
 
+  const seoTitle = q
+    ? `نتائج البحث عن "${q}" | مدرسون معتمدون - TAALAM`
+    : 'ابحث عن معلم خصوصي معتمد | TAALAM';
+  const seoDescription = q
+    ? `تصفّح أفضل المعلمين المعتمدين لـ "${q}" على TAALAM — قارن التقييمات والمناهج واللغات واحجز حصتك مباشرة.`
+    : 'تصفّح وقارن بين مئات المعلمين المعتمدين حسب المادة والمرحلة والمنهج واللغة والتقييم، واحجز حصتك الخصوصية الآن على TAALAM.';
+
   return (
     <PageContainer>
+      <Seo title={seoTitle} description={seoDescription} path="/search" jsonLd={teacherListJsonLd(teachers)} />
       <div className="container-app py-8">
         <div className="flex flex-col gap-8 lg:flex-row">
           {/*

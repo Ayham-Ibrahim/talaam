@@ -3,3 +3,7 @@ dist
 .env
 .DS_Store
 *.log
+
+# يُولَّد عبر `npm run generate-sitemap` ضد الـ API الفعلي (راجع SEO_IMPLEMENTATION.md) —
+# لا يُحفَظ بالمستودع كي لا يُنشَر سيتماب ببيانات بيئة تطوير محلية خطأً فوق الإنتاج.
+public/sitemap.xml

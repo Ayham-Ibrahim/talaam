@@ -3,6 +3,8 @@ import { useParams, Navigate } from "react-router-dom";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageContainer } from "@/components/layout/PageContainer";
+import { Seo } from "@/components/seo/Seo";
+import { teacherListJsonLd } from "@/lib/seo";
 import { TeachingTypeBanner } from "@/components/teaching/TeachingTypeBanner";
 import { TeachingTypeFilters } from "@/components/teaching/TeachingTypeFilters";
 import {
@@ -15,6 +17,13 @@ import { useInfiniteTeachers } from "@/hooks/useTeachers";
 import { useInfiniteScrollTrigger } from "@/hooks/useInfiniteScrollTrigger";
 import { useFilters } from "@/hooks/useMeta";
 import { useT } from "@/hooks/useT";
+
+/** تسميات عربية لكل شريحة — تُستخدَم فقط لعنوان/وصف الصفحة (SEO)، لا منطق عرض */
+const TYPE_SEO_LABEL = {
+  school: "مدرسي",
+  university: "جامعي",
+  training: "مراكز تدريب",
+};
 
 const DEFAULT_FILTERS = {
   grade: null,
@@ -84,8 +93,16 @@ export function TeachingTypePage() {
 
   if (!isValidSlug) return <Navigate to="/" replace />;
 
+  const typeLabel = TYPE_SEO_LABEL[slug];
+
   return (
     <PageContainer>
+      <Seo
+        title={`معلمون ${typeLabel} معتمدون | TAALAM`}
+        description={`تصفّح أفضل المعلمين ${typeLabel === "مراكز تدريب" ? "من مراكز التدريب المعتمدة" : `لـ ${typeLabel} المعتمدين`} على TAALAM، قارن حسب المادة والتقييم واحجز حصتك الآن.`}
+        path={`/teaching/${slug}`}
+        jsonLd={teacherListJsonLd(teachers)}
+      />
       <div className="container-app py-8">
         <TeachingTypeBanner slug={slug} teachersCount={total} />
 

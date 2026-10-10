@@ -1,5 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { HelmetProvider } from "react-helmet-async";
 import { AppRouter } from "@/routes/AppRouter";
+import { DefaultSeo } from "@/components/seo/DefaultSeo";
 import { LogoIntro } from "@/components/ui/LogoIntro";
 import { ElfsightChat } from "@/components/common/ElfsightChat";
 import { CursorLight } from "@/motion/ambient/AmbientEngine";
@@ -80,16 +82,19 @@ export default function App() {
   }, [introFinished]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <CursorLight />
-      {!introFinished && (
-        <LogoIntro onComplete={() => setIntroFinished(true)} />
-      )}
-      <div style={{ display: introFinished ? "block" : "none" }}>
-        <TimezoneAutoSync />
-        <AppRouter />
-      </div>
-      {introFinished && <ElfsightChat />}
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <DefaultSeo />
+        <CursorLight />
+        {!introFinished && (
+          <LogoIntro onComplete={() => setIntroFinished(true)} />
+        )}
+        <div style={{ display: introFinished ? "block" : "none" }}>
+          <TimezoneAutoSync />
+          <AppRouter />
+        </div>
+        {introFinished && <ElfsightChat />}
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 }

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { PageContainer } from "@/components/layout/PageContainer";
+import { Seo } from "@/components/seo/Seo";
 import { Card, ApiErrorList } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import { useCreateComplaint } from "@/hooks/useComplaint";
@@ -196,6 +197,11 @@ export function ContactPage() {
 
   return (
     <PageContainer>
+      <Seo
+        title="تواصل معنا | TAALAM"
+        description="تواصل مع فريق TAALAM عبر الهاتف أو واتساب أو البريد الإلكتروني لأي استفسار حول الدروس الخصوصية أو الحجز أو الشكاوى."
+        path="/contact"
+      />
       {/* Hero */}
       <section className="container-app mt-8">
         <div className="relative overflow-hidden rounded-[24px] px-8 py-14 shadow-[0_1px_5px_rgba(0,0,0,0.1)] lg:px-16 lg:py-16">

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Video, BarChart3, Bell, CalendarClock } from "lucide-react";
 import { PageContainer } from "@/components/layout/PageContainer";
+import { Seo } from "@/components/seo/Seo";
 import { HowItWorks } from "@/components/home/sections";
 import { useT } from "@/hooks/useT";
 
@@ -12,6 +13,11 @@ export function HowItWorksPage() {
 
   return (
     <PageContainer>
+      <Seo
+        title="كيف تعمل المنصة | TAALAM"
+        description="خطوات بسيطة لحجز درسك الخصوصي على TAALAM: ابحث عن معلمك، اختر الباقة المناسبة، واحجز حصتك أونلاين بسهولة وأمان."
+        path="/how-it-works"
+      />
       {/* Hero */}
       <section className="container-app mt-8">
         <div className="relative overflow-hidden rounded-[24px] px-8 py-6 shadow-[0_1px_5px_rgba(0,0,0,0.1)] lg:px-16 ">

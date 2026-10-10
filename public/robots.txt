@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /complete-profile
+Disallow: /payments/
+
+Sitemap: https://t3allem.com/sitemap.xml

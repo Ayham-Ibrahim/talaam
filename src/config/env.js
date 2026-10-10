@@ -11,4 +11,7 @@ export const config = {
   mockDelayMs: 400,
   defaultCurrency: 'AED',
   locale: 'ar-SA',
+  // النطاق النهائي للموقع (مؤكَّد) — يُستخدَم لبناء canonical URLs وstructured data
+  // وsitemap.xml. راجع SEO_IMPLEMENTATION.md.
+  siteUrl: (import.meta.env.VITE_SITE_URL || 'https://t3allem.com').replace(/\/$/, ''),
 };

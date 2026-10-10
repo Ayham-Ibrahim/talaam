@@ -166,7 +166,7 @@ export function TeacherProfileHeader({ teacher, isFavorite, onToggleFavorite }) 
           <div className="absolute inset-[10px] overflow-hidden rounded-full">
             <img
               src={teacher.avatar || "/teacher.webp"}
-              alt={teacher.name}
+              alt={teacher.subjects?.[0] ? `${teacher.name} - مدرس ${teacher.subjects[0]}` : teacher.name}
               decoding="async"
               className="h-full w-full object-cover object-top"
             />

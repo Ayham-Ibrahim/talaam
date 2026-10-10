@@ -11,6 +11,7 @@ import {
   CalendarClock,
 } from "lucide-react";
 import { PageContainer } from "@/components/layout/PageContainer";
+import { Seo } from "@/components/seo/Seo";
 import { Card } from "@/components/ui";
 import { useT } from "@/hooks/useT";
 
@@ -43,6 +44,11 @@ export function AboutPage() {
 
   return (
     <PageContainer>
+      <Seo
+        title="من نحن | TAALAM"
+        description="تعرّف على منصة TAALAM التعليمية في الإمارات — رسالتنا وقيمنا وكيف نختار ونعتمد أفضل المعلمين لطلابنا."
+        path="/about"
+      />
       {/* Hero */}
       <section className="container-app mt-8">
         <div className="relative overflow-hidden rounded-[24px] px-8 py-14 shadow-[0_1px_5px_rgba(0,0,0,0.1)] lg:px-16 lg:py-16">

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { Seo } from '@/components/seo/Seo';
+import { teacherJsonLd, faqJsonLd, breadcrumbJsonLd } from '@/lib/seo';
 import { TeacherProfileHeader } from '@/components/teacher/TeacherProfileHeader';
 import { TeacherAboutSection } from '@/components/teacher/TeacherAboutSection';
 import { TeacherCredentialsSection } from '@/components/teacher/TeacherCredentialsSection';
@@ -21,6 +23,30 @@ import { useTeacher } from '@/hooks/useTeachers';
 import { usePackages, useCourses, useRatingSummary, useReviews } from '@/hooks/useMeta';
 import { useT } from '@/hooks/useT';
 
+
+/** عنوان ووصف Meta من بيانات المعلم الحقيقية فقط — مادة/مدينة/منهج/لغات/خبرة، لا نص عام مكرر لكل معلم */
+function buildTeacherSeo(teacher) {
+  const subjects = (teacher.subjects ?? []).slice(0, 3).join('، ');
+  const curricula = (teacher.curricula ?? []).slice(0, 2).join('، ');
+  const languages = (teacher.languages ?? []).map((l) => l.label).join('، ');
+  const cityPart = teacher.city ? ` في ${teacher.city}` : '';
+
+  const title = subjects
+    ? `${teacher.name} | مدرس ${subjects}${cityPart} - TAALAM`
+    : `${teacher.name} | TAALAM`;
+
+  const descParts = [
+    subjects && `مدرس ${subjects}${cityPart}`,
+    curricula && `يُدرّس مناهج ${curricula}`,
+    languages && `بلغات ${languages}`,
+    teacher.reviewsCount > 0 && `تقييم ${teacher.rating} من ${teacher.reviewsCount} تقييم`,
+    teacher.experienceLabel, // يتضمّن كلمة "خبرة" نفسها بالفعل (راجع EXPERIENCE_LABELS)
+  ].filter(Boolean);
+
+  const description = descParts.length > 0 ? `${descParts.join(' — ')}. احجز حصتك الآن عبر TAALAM.` : teacher.bio;
+
+  return { title, description };
+}
 
 export function TeacherProfilePage() {
   const t = useT();
@@ -84,8 +110,27 @@ export function TeacherProfilePage() {
     );
   }
 
+  const { title, description } = buildTeacherSeo(teacher);
+
   return (
     <PageContainer>
+      <Seo
+        title={title}
+        description={description}
+        path={`/teacher/${id}`}
+        image={teacher.avatar}
+        type="profile"
+        jsonLd={[
+          teacherJsonLd(teacher),
+          breadcrumbJsonLd([
+            { name: 'الرئيسية', path: '/' },
+            { name: 'ابحث عن معلم', path: '/search' },
+            { name: teacher.name, path: `/teacher/${id}` },
+          ]),
+          ...(faqJsonLd(teacher.faqs) ? [faqJsonLd(teacher.faqs)] : []),
+        ]}
+      />
+
       {/* Breadcrumb */}
       <div className="container-app flex items-center gap-3 pt-6 text-sm">
         <span className="font-medium text-primary">{t('teacher.profileLabel')}</span>

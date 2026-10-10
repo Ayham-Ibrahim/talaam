@@ -358,7 +358,11 @@ export function TeacherCard({ teacher }) {
               style={{ width: '89.93%', top: '-0.8%' }}
             >
               {teacher.avatar ? (
-                <img src={teacher.avatar} alt={teacher.name} className="h-full w-full object-cover" />
+                <img
+                  src={teacher.avatar}
+                  alt={teacher.subjects?.[0] ? `${teacher.name} - مدرس ${teacher.subjects[0]}` : teacher.name}
+                  className="h-full w-full object-cover"
+                />
               ) : (
                 <span className="flex h-full w-full items-center justify-center text-2xl font-bold" style={{ color: BLUE }}>
                   {initials || teacher.name?.charAt(0) || '؟'}
