@@ -6,7 +6,11 @@ export function absoluteUrl(path = '/') {
   return `${config.siteUrl}${clean}`;
 }
 
-/** EducationalOrganization — بيانات المنصة نفسها، حقيقية بالكامل (فوتر الموقع) */
+/**
+ * EducationalOrganization — بيانات المنصة نفسها، حقيقية بالكامل (فوتر الموقع
+ * + صفحة تواصل معنا). العنوان من contact.info بـ ar.json ("الأردن / عمان /
+ * حي الجميلية") — المصدر الحقيقي الوحيد الموجود بالكود لعنوان فعلي.
+ */
 export function organizationJsonLd() {
   return {
     '@context': 'https://schema.org',
@@ -15,8 +19,15 @@ export function organizationJsonLd() {
     alternateName: 'تعلّم',
     url: config.siteUrl,
     logo: absoluteUrl('/logo.png'),
+    image: absoluteUrl('/logo.png'),
     telephone: '+971529426077',
     email: 'TAALAM@gmail.com',
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'JO',
+      addressRegion: 'عمان',
+      addressLocality: 'حي الجميلية',
+    },
     areaServed: {
       '@type': 'Country',
       name: 'United Arab Emirates',
