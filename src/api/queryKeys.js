@@ -73,5 +73,6 @@ export const queryKeys = {
     notificationLogs: (filters) => ['admin', 'notification-logs', filters],
     reviews: (filters) => ['admin', 'reviews', filters],
     teacherSessionsReport: (filters) => ['admin', 'teacher-sessions-report', filters],
+    seededReviews: (teacherId) => ['admin', 'seeded-reviews', teacherId],
   },
 };

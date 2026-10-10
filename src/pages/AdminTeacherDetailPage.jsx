@@ -6,6 +6,7 @@ import { TeacherProfileSummaryCard } from '@/components/dashboard/admin/TeacherP
 import { AdminTeacherProfileEditor } from '@/components/dashboard/admin/AdminTeacherProfileEditor';
 import { VerificationDocumentsList } from '@/components/dashboard/admin/VerificationDocumentsList';
 import { TeacherBadgesPanel } from '@/components/dashboard/admin/TeacherBadgesPanel';
+import { TeacherReviewsPanel } from '@/components/dashboard/admin/TeacherReviewsPanel';
 import { ReasonModal } from '@/components/dashboard/admin/ReasonModal';
 import { ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
@@ -149,6 +150,7 @@ export function AdminTeacherDetailPage() {
                   onGrant={(badgeId) => grantBadge.mutate(badgeId)}
                   onRevoke={(awardId) => revokeBadge.mutate(awardId)}
                 />
+                <TeacherReviewsPanel teacherId={id} ratingAvg={data.teacher.ratingAvg} reviewsCount={data.teacher.reviewsCount} />
               </div>
 
               <div>

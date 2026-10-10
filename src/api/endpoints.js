@@ -42,6 +42,8 @@ export const endpoints = {
     courses: (id) => `/teachers/${id}/courses`,
     reviews: (id) => `/teachers/${id}/reviews`,
     ratingSummary: (id) => `/teachers/${id}/rating-summary`,
+    importReviews: (id) => `/teachers/${id}/reviews/import`,
+    seededReviews: (id) => `/teachers/${id}/reviews/seeded`,
     availabilitySlots: (id) => `/teachers/${id}/availability-slots`,
     availabilitySlot: (id, slotId) => `/teachers/${id}/availability-slots/${slotId}`,
     uploadDocument: (id) => `/teachers/${id}/verification-documents`,
@@ -183,5 +185,6 @@ export const endpoints = {
     reviews: '/reviews',
     hideReview: (id) => `/reviews/${id}/hide`,
     unhideReview: (id) => `/reviews/${id}/unhide`,
+    deleteReview: (id) => `/reviews/${id}`,
   },
 };

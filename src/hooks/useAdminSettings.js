@@ -55,3 +55,34 @@ export function useUnhideReview() {
     onSuccess: invalidate,
   });
 }
+
+/** ميزة مؤقتة: رفع تقييمات يدوية لمعلم من لوحة الأدمن — راجع ReviewImportService بالباك */
+export function useImportTeacherReviews(teacherId) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (file) => adminReviewsService.importForTeacher(teacherId, file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.seededReviews(teacherId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.teacherDetail(teacherId) });
+    },
+  });
+}
+
+export function useSeededReviews(teacherId) {
+  return useQuery({
+    queryKey: queryKeys.admin.seededReviews(teacherId),
+    queryFn: () => adminReviewsService.getSeededReviews(teacherId),
+    enabled: !!teacherId,
+  });
+}
+
+export function useDeleteSeededReview(teacherId) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => adminReviewsService.deleteSeededReview(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.seededReviews(teacherId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.teacherDetail(teacherId) });
+    },
+  });
+}

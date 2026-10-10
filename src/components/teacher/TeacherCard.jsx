@@ -293,14 +293,13 @@ export function TeacherCard({ teacher }) {
     .trim()
     .charAt(0);
 
-  // Placeholder values for a teacher with no real completed-session/rating data yet
-  // (e.g. brand-new profiles) — explicit fallback formulas requested by product,
-  // not derived from anything real: completed sessions = name length + 10, and
-  // stars = 4 for under a year / 1-3 years experience, 5 for 3-5 / 5+ years.
+  // Placeholder value for a teacher with no real completed-session data yet —
+  // explicit fallback formula requested by product, not derived from anything
+  // real. The star rating itself is always the real value now (admin-entered
+  // reviews included, via the temporary admin review-import tool) — a teacher
+  // with zero reviews simply shows no stars at all, never a fabricated number.
   const completedSessionsDisplay =
     teacher.completedSessions > 0 ? teacher.completedSessions : (teacher.name?.length ?? 0) + 10;
-  const fallbackStars = ['3_5', 'over_5'].includes(teacher.experienceYearsRaw) ? 5 : 4;
-  const ratingDisplay = teacher.reviewsCount > 0 ? teacher.rating : fallbackStars;
 
   const footerStats = [
     teacher.city && { key: 'city', value: teacher.city.split(/[\s-]+/)[0], label: 'الموقع' },
@@ -375,9 +374,11 @@ export function TeacherCard({ teacher }) {
               {teacher.name}
             </h3>
 
-            <span className="hidden sm:flex">
-              <StarsRow rating={ratingDisplay} />
-            </span>
+            {teacher.reviewsCount > 0 && (
+              <span className="hidden sm:flex">
+                <StarsRow rating={teacher.rating} />
+              </span>
+            )}
 
             <span className="inline-flex max-w-full items-center gap-1 whitespace-normal rounded-pill bg-[#34C759] px-2 py-1 text-[11px] font-semibold text-white sm:gap-1.5 sm:whitespace-nowrap sm:px-3 sm:py-1 sm:text-sm">
               {completedSessionsDisplay}+ جلسة ناجحة

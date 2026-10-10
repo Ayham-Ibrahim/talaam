@@ -15,6 +15,7 @@ function mapReview(raw) {
     createdAt: raw.created_at,
     isHidden: raw.is_hidden,
     hiddenReason: raw.hidden_reason,
+    isSeeded: raw.is_seeded,
   };
 }
 
@@ -49,5 +50,38 @@ export const adminReviewsService = {
     }
     const { data } = await client.post(endpoints.admin.unhideReview(id));
     return mapReview(data.data);
+  },
+
+  /** ميزة مؤقتة: رفع ملف Excel/CSV بتقييمات يدوية لمعلم — راجع ReviewImportService بالباك */
+  async importForTeacher(teacherId, file) {
+    if (config.useMocks) {
+      await mockDelay(500);
+      return { imported: 0, failed: 0, errors: [] };
+    }
+    const formData = new FormData();
+    formData.append('file', file);
+    const { data } = await client.post(endpoints.teachers.importReviews(teacherId), formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 60000,
+    });
+    return data.data;
+  },
+
+  async getSeededReviews(teacherId) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return [];
+    }
+    const { data } = await client.get(endpoints.teachers.seededReviews(teacherId));
+    return data.data.map(mapReview);
+  },
+
+  async deleteSeededReview(id) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return null;
+    }
+    await client.delete(endpoints.admin.deleteReview(id));
+    return null;
   },
 };

@@ -44,6 +44,11 @@ const TEACHER_HEADERS = ['name', 'email', 'phone', 'teacher_type'];
 
 const TEACHER_EXAMPLE_ROW = ['أحمد المعلم', 'ahmad.teacher@example.com', '0500000001', 'school'];
 
+/** يوازي ReviewImportService::importRow() — review_date اختياري (YYYY-MM-DD)، وإلا تاريخ اليوم */
+const REVIEW_HEADERS = ['rating', 'reviewer_name', 'comment', 'review_date'];
+
+const REVIEW_EXAMPLE_ROW = ['5', 'سارة أحمد', 'معلم ممتاز وشرح واضح جداً', '2026-05-10'];
+
 function downloadCsv(headers, exampleRow, filename) {
   const csv = [headers.join(','), exampleRow.join(',')].join('\n');
   const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -63,4 +68,8 @@ export function downloadStudentImportTemplate() {
 
 export function downloadTeacherImportTemplate() {
   downloadCsv(TEACHER_HEADERS, TEACHER_EXAMPLE_ROW, 'teacher_import_template.csv');
+}
+
+export function downloadReviewImportTemplate() {
+  downloadCsv(REVIEW_HEADERS, REVIEW_EXAMPLE_ROW, 'review_import_template.csv');
 }
