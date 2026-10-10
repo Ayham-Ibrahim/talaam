@@ -32,11 +32,33 @@ export function organizationJsonLd() {
       '@type': 'Country',
       name: 'United Arab Emirates',
     },
+    // قناتان منفصلتان لنفس الرقم (اتصال/واتساب) — نفس التمييز الظاهر بالفوتر حرفياً
+    contactPoint: [
+      {
+        '@type': 'ContactPoint',
+        telephone: '+971529426077',
+        contactType: 'customer service',
+        areaServed: 'AE',
+        availableLanguage: ['Arabic', 'English'],
+      },
+      {
+        '@type': 'ContactPoint',
+        telephone: '+971529426077',
+        contactType: 'customer service',
+        contactOption: 'TollFree',
+        url: 'https://wa.me/971529426077',
+        areaServed: 'AE',
+        availableLanguage: ['Arabic', 'English'],
+      },
+    ],
+    // كل روابط التواصل الاجتماعي الحقيقية بالفوتر + رابط واتساب + رابط الموقع نفسه
     sameAs: [
       'https://www.facebook.com/profile.php?id=61562033186054',
       'https://www.instagram.com/taalam.2024/',
       'https://www.tiktok.com/@t3allem.edu',
       'https://youtube.com/@t3allemedu',
+      'https://wa.me/971529426077',
+      config.siteUrl,
     ],
   };
 }
