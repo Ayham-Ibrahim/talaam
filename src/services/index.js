@@ -177,7 +177,9 @@ export const reviewService = {
     const { data } = await client.get(endpoints.teachers.reviews(teacherId));
     return data.data.map((review) => ({
       id: review.id,
-      studentName: review.student?.user?.name,
+      // تقييمات مُستورَدة يدوياً من الأدمن (is_seeded) بلا طالب حقيقي —
+      // student فارغة، والاسم المعروض reviewer_name المُدخَل وقت الاستيراد
+      studentName: review.student?.user?.name ?? review.reviewer_name,
       studentAvatar: review.student?.user?.avatar_path,
       rating: review.rating,
       comment: review.comment,
