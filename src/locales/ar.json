@@ -1319,8 +1319,10 @@
         "teacherNet": "صافي المعلم",
         "platform": "حصة المنصة",
         "status": "الحالة",
-        "created": "التاريخ"
-      }
+        "created": "التاريخ",
+        "actions": "إجراءات"
+      },
+      "deleteAction": "حذف"
     },
     "accountants": {
       "title": "حسابات المحاسبين",
@@ -1555,6 +1557,7 @@
       "rejectRescheduleTitle": "سبب رفض طلب تغيير الموعد",
       "escalateComplaintTitle": "ملاحظة التصعيد",
       "hideReviewTitle": "سبب إخفاء التقييم",
+      "deleteBookingTitle": "سبب حذف الحجز",
       "reasonLabel": "السبب",
       "reasonHint": "اكتب سببًا واضحًا ومختصرًا يشرح قرارك حتى يفهمه المستخدم وفريق المتابعة.",
       "reasonPlaceholder": "اكتب السبب هنا...",

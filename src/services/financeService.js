@@ -14,4 +14,13 @@ export const financeService = {
     });
     return { data: data.data ?? [], total: data.meta?.total ?? (data.data ?? []).length };
   },
+
+  // حذف إداري حصراً — الباك اند (BookingPolicy::delete) يرفضه لغير الأدمن، وكذلك أي حجز مدفوع بالفعل
+  async deleteBooking(id, reason) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return;
+    }
+    await client.delete(endpoints.bookings.delete(id), { data: { reason } });
+  },
 };

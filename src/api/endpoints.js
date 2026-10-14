@@ -67,6 +67,7 @@ export const endpoints = {
     reject: (id) => `/bookings/${id}/reject`,
     checkout: (id) => `/bookings/${id}/checkout`,
     invoice: (id) => `/bookings/${id}/invoice`,
+    delete: (id) => `/bookings/${id}`,
   },
   enrollments: {
     list: '/enrollments',
