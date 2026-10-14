@@ -17,7 +17,9 @@ function mapListing(raw, kind) {
   return {
     id: raw.id,
     kind,
-    title: raw.title,
+    // باقات الدعم لا عنوان حر لها (title) — المادة+الفئة تقوم مقامه بالواجهة
+    title: kind === 'support_package' ? null : raw.title,
+    tier: kind === 'support_package' ? raw.tier : undefined,
     description: raw.description,
     status: raw.status,
     providerName: raw.teacher?.name ?? null,
@@ -30,10 +32,11 @@ function mapListing(raw, kind) {
     capacity: kind === 'course' ? raw.max_seats : raw.capacity,
     submittedAt: raw.submitted_at,
     teacherPrice: kind === 'course' ? raw.provider_price : raw.teacher_price,
-    marginPercent: raw.platform_margin_percent,
+    // بلا هامش منصة إطلاقاً لباقات الدعم (SupportPackageService::create يفرض 0 دائماً) — 0 حرفياً لا null
+    marginPercent: kind === 'support_package' ? 0 : raw.platform_margin_percent,
     studentPrice: raw.student_price,
     rejectionReason: raw.rejection_reason,
-    // No disabled_reason column exists on packages/courses — left null rather than fabricated.
+    // No disabled_reason column exists on packages/courses/support packages — left null rather than fabricated.
     disabledReason: null,
   };
 }
@@ -57,21 +60,26 @@ export const adminListingsService = {
 
     const params = { status: filters.status || undefined, per_page: 50 };
 
-    if (filters.kind === 'package' || filters.kind === 'course') {
-      const endpoint = filters.kind === 'course' ? endpoints.admin.courses : endpoints.admin.packages;
+    if (filters.kind === 'package' || filters.kind === 'course' || filters.kind === 'support_package') {
+      const endpoint = {
+        course: endpoints.admin.courses,
+        support_package: endpoints.admin.supportPackages,
+      }[filters.kind] ?? endpoints.admin.packages;
       const { data } = await client.get(endpoint, { params });
       const items = applySearch(data.data.map((raw) => mapListing(raw, filters.kind)), filters.q);
       return { data: items, total: data.meta?.total ?? items.length };
     }
 
-    const [packagesRes, coursesRes] = await Promise.all([
+    const [packagesRes, coursesRes, supportPackagesRes] = await Promise.all([
       client.get(endpoints.admin.packages, { params }),
       client.get(endpoints.admin.courses, { params }),
+      client.get(endpoints.admin.supportPackages, { params }),
     ]);
     const items = applySearch(
       [
         ...packagesRes.data.data.map((raw) => mapListing(raw, 'package')),
         ...coursesRes.data.data.map((raw) => mapListing(raw, 'course')),
+        ...supportPackagesRes.data.data.map((raw) => mapListing(raw, 'support_package')),
       ],
       filters.q
     );
@@ -83,11 +91,15 @@ export const adminListingsService = {
       await mockDelay(300);
       return findMockListing(id);
     }
-    const url = kind === 'course' ? endpoints.admin.courseDetail(id) : endpoints.admin.packageDetail(id);
+    const url = {
+      course: endpoints.admin.courseDetail(id),
+      support_package: endpoints.admin.supportPackageDetail(id),
+    }[kind] ?? endpoints.admin.packageDetail(id);
     const { data } = await client.get(url);
     return mapListing(data.data, kind);
   },
 
+  // باقات الدعم بلا هامش يُدخله الأدمن إطلاقاً — marginPercent يُتجاهَل لهذا النوع (0 ثابتة في الباك اند)
   async approveListing(id, marginPercent, kind) {
     if (config.useMocks) {
       await mockDelay(400);
@@ -102,6 +114,10 @@ export const adminListingsService = {
         disabledReason: null,
       });
     }
+    if (kind === 'support_package') {
+      const { data } = await client.post(endpoints.admin.approveSupportPackage(id));
+      return mapListing(data.data, kind);
+    }
     const url = kind === 'course' ? endpoints.admin.approveCourse(id) : endpoints.admin.approvePackage(id);
     const { data } = await client.post(url, { platform_margin_percent: marginPercent });
     return mapListing(data.data, kind);
@@ -112,7 +128,10 @@ export const adminListingsService = {
       await mockDelay(400);
       return updateMockListing(id, { status: 'rejected', rejectionReason: reason });
     }
-    const url = kind === 'course' ? endpoints.admin.rejectCourse(id) : endpoints.admin.rejectPackage(id);
+    const url = {
+      course: endpoints.admin.rejectCourse(id),
+      support_package: endpoints.admin.rejectSupportPackage(id),
+    }[kind] ?? endpoints.admin.rejectPackage(id);
     const { data } = await client.post(url, { reason });
     return mapListing(data.data, kind);
   },
@@ -122,18 +141,24 @@ export const adminListingsService = {
       await mockDelay(400);
       return updateMockListing(id, { status: 'disabled', disabledReason: reason });
     }
+    if (kind === 'support_package') {
+      // لا حقل سبب في SupportPackageController::disable — فعل حالة بسيط بلا تسجيل سبب
+      const { data } = await client.post(endpoints.admin.disableSupportPackage(id));
+      return mapListing(data.data, kind);
+    }
     const url = kind === 'course' ? endpoints.admin.disableCourse(id) : endpoints.admin.disablePackage(id);
     const { data } = await client.post(url, { reason });
     return mapListing(data.data, kind);
   },
 
-  // إعادة التفعيل حصراً للباقات (لا الدورات) — الباك اند لا يملك endpoint مماثلاً للدورات حالياً.
+  // إعادة التفعيل: الباقات العادية وباقات الدعم فقط (لا الدورات — الباك اند لا يملك endpoint مماثل لها).
   async enableListing(id, kind) {
     if (config.useMocks) {
       await mockDelay(400);
       return updateMockListing(id, { status: 'active', disabledReason: null });
     }
-    const { data } = await client.post(endpoints.admin.enablePackage(id));
+    const url = kind === 'support_package' ? endpoints.admin.enableSupportPackage(id) : endpoints.admin.enablePackage(id);
+    const { data } = await client.post(url);
     return mapListing(data.data, kind);
   },
 };

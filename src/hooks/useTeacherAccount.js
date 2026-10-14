@@ -73,6 +73,22 @@ export function useRemoveVideo(id) {
   });
 }
 
+export function useAddGalleryItem(id) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (file) => teacherAccountService.addGalleryItem(id, file),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: myTeacherKey(id) }),
+  });
+}
+
+export function useRemoveGalleryItem(id) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (itemId) => teacherAccountService.removeGalleryItem(itemId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: myTeacherKey(id) }),
+  });
+}
+
 export function useAddFaq(id) {
   const queryClient = useQueryClient();
   return useMutation({

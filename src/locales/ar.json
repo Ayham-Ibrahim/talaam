@@ -461,6 +461,16 @@
     "teachingMethods": "طريقة التدريس",
     "sessionFormatShort": { "individual": "فردية", "group": "جماعية" },
     "videos": "فيديوهات",
+    "assignmentsGallery": {
+      "title": "نماذج أعمال",
+      "hint": "نماذج حقيقية من الاساينمنتس التي دعمت بها طلاباً سابقين"
+    },
+    "supportPackages": {
+      "title": "باقات الدعم الطلابي",
+      "hint": "باقات دعم بسعر ثابت لكل مادة",
+      "tierBasic": "الباقة الأساسية",
+      "tierPremium": "الباقة الشاملة"
+    },
     "sessionTypes": "نوع الجلسة",
     "packages": "الباقات",
     "choosePackage": "اختر الباقة",
@@ -632,6 +642,17 @@
     "add": "إضافة خبرة",
     "adding": "جارٍ الإضافة…",
     "maxReached": "وصلت للحد الأقصى لعدد الخبرات — احذف خبرة قديمة لإضافة أخرى"
+  },
+  "teacherGallery": {
+    "sectionTitle": "غاليري نماذج الأعمال",
+    "sectionHint": "ارفع نماذج من الاساينمنتس التي دعمت بها طلاباً (صور، PDF، PowerPoint، أو Excel) — تظهر في بروفايلك العام",
+    "listLabel": "الملفات",
+    "empty": "لا توجد ملفات مضافة بعد",
+    "remove": "حذف",
+    "download": "تنزيل",
+    "uploadLabel": "اضغط أو اسحب ملفاً هنا للرفع",
+    "uploadHint": "صورة، PDF، PowerPoint، أو Excel — 20 ميغابايت كحد أقصى",
+    "uploading": "جارٍ الرفع…"
   },
   "completeProfile": {
     "optional": "اختياري",
@@ -1001,6 +1022,43 @@
       "empty": "لا توجد باقات",
       "close": "اغلاق",
       "submitForReview": "إرسال للمراجعة"
+    },
+    "teacherSupportPackages": {
+      "create": "إنشاء باقة دعم",
+      "empty": "لا توجد باقات دعم بعد",
+      "tierBasic": "الباقة الأساسية",
+      "tierPremium": "الباقة الشاملة",
+      "cols": {
+        "tier": "النوع",
+        "subject": "المادة",
+        "price": "السعر",
+        "status": "الحالة",
+        "rejectionReason": "سبب الرفض"
+      },
+      "statuses": {
+        "pending_approval": "بانتظار المراجعة",
+        "active": "نشطة",
+        "rejected": "مرفوضة",
+        "disabled": "معطّلة"
+      }
+    },
+    "addSupportPackage": {
+      "title": "باقة دعم طلابي جديدة",
+      "hint": "ستُرسَل باقتك للأدمن للمراجعة قبل نشرها — السعر ثابت حسب نوع الباقة ولا هامش للمنصة عليه",
+      "tierLabel": "نوع الباقة",
+      "tierBasic": "باقة الدعم الطلابي الأساسية",
+      "tierBasicPrice": "1000 د.إ للمادة",
+      "tierPremium": "باقة الدعم الطلابي الشاملة",
+      "tierPremiumPrice": "1500 د.إ للمادة",
+      "subjectLabel": "المادة",
+      "subjectPlaceholder": "اختر المادة",
+      "subjectRequired": "يرجى اختيار المادة",
+      "descriptionLabel": "وصف الباقة لهذه المادة",
+      "descriptionPlaceholder": "اشرح للطالب ما تقدّمه من دعم في هذه المادة تحديداً...",
+      "descriptionRequired": "يرجى كتابة وصف للباقة",
+      "submit": "إرسال للمراجعة",
+      "submitting": "جارٍ الإرسال...",
+      "cancel": "إلغاء"
     },
     "coupons": {
       "title": "كوبونات الخصم",
@@ -1629,7 +1687,10 @@
       "enable": "إعادة التفعيل",
       "currentMargin": "الهامش المعتمد حالياً",
       "notFound": "لم يتم العثور على العرض",
-      "noActionsAvailable": "لا توجد إجراءات متاحة على هذا العنصر في حالته الحالية"
+      "noActionsAvailable": "لا توجد إجراءات متاحة على هذا العنصر في حالته الحالية",
+      "noMarginSupportPackage": "سعر ثابت بلا هامش منصة — يستلم الداعم الأكاديمي السعر أعلاه كاملاً",
+      "tierBasic": "باقة الدعم الطلابي الأساسية",
+      "tierPremium": "باقة الدعم الطلابي الشاملة"
     },
     "adminComplaints": {
       "title": "الشكاوى وطلبات تغيير الموعد",

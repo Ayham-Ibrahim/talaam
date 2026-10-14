@@ -22,6 +22,7 @@ export const LISTING_STATUS_STYLES = {
 export const LISTING_KIND_LABELS = {
   package: 'باقة',
   course: 'دورة',
+  support_package: 'باقة دعم طلابي',
 };
 
 export const SESSION_FORMAT_LABELS = {
@@ -33,6 +34,7 @@ export const PROVIDER_TYPE_LABELS = {
   school: 'مدرسي',
   university: 'جامعي',
   training_center: 'مركز تدريب',
+  academic_support: 'داعم أكاديمي',
 };
 
 let mockAdminListings = [

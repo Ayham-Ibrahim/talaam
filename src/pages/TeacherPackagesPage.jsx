@@ -5,8 +5,10 @@ import { TeacherPackageStatsGrid } from '@/components/dashboard/TeacherPackageSt
 import { TeacherPackagesFilterBar } from '@/components/dashboard/TeacherPackagesFilterBar';
 import { TeacherPackagesTable } from '@/components/dashboard/TeacherPackagesTable';
 import { TeacherCoursesTable } from '@/components/dashboard/TeacherCoursesTable';
+import { TeacherSupportPackagesTable } from '@/components/dashboard/TeacherSupportPackagesTable';
 import { AddPackageModal } from '@/components/dashboard/AddPackageModal';
 import { AddCourseModal } from '@/components/dashboard/AddCourseModal';
+import { AddSupportPackageModal } from '@/components/dashboard/AddSupportPackageModal';
 import { Pagination } from '@/components/dashboard/Pagination';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
@@ -15,6 +17,7 @@ import {
   useSubmitTeacherPackage,
   useTeacherCoursesList,
   useSubmitTeacherCourse,
+  useTeacherSupportPackagesList,
 } from '@/hooks/useDashboard';
 import { useT } from '@/hooks/useT';
 
@@ -171,10 +174,56 @@ function CourseListView({ user }) {
   );
 }
 
-/** teacher_type = training_center → courses only (its own resource/wizard); school/university → packages only */
+function SupportPackageListView({ user }) {
+  const t = useT();
+  const { data: supportPackages, isLoading, isError, refetch } = useTeacherSupportPackagesList();
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  if (!user) return <Navigate to="/login" replace />;
+
+  return (
+    <DashboardLayout>
+      <div className="flex flex-col gap-6">
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={() => setModalOpen(true)}
+            className="rounded-xl bg-primary px-5 py-3 text-sm font-medium text-white hover:bg-primary-hover"
+          >
+            {t('dashboard.teacherSupportPackages.create')}
+          </button>
+        </div>
+
+        {isError ? (
+          <ErrorState onRetry={refetch} />
+        ) : isLoading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-16 rounded-2xl" />
+            ))}
+          </div>
+        ) : !supportPackages || supportPackages.length === 0 ? (
+          <EmptyState title={t('dashboard.teacherSupportPackages.empty')} />
+        ) : (
+          <TeacherSupportPackagesTable supportPackages={supportPackages} />
+        )}
+      </div>
+
+      {isModalOpen && <AddSupportPackageModal onClose={() => setModalOpen(false)} />}
+    </DashboardLayout>
+  );
+}
+
+/**
+ * teacher_type = training_center → courses only؛ academic_support → باقات
+ * الدعم الطلابي فقط (نظام منفصل تماماً، بلا هامش منصة)؛ غير ذلك → الباقات العادية.
+ */
 export function TeacherPackagesPage() {
   const { user } = useAuth();
   const isCenter = user?.teacherType === 'training_center';
+  const isAcademicSupport = user?.teacherType === 'academic_support';
+
+  if (isAcademicSupport) return <SupportPackageListView user={user} />;
 
   return isCenter ? <CourseListView user={user} /> : <PackageListView user={user} />;
 }

@@ -7,6 +7,7 @@ export const TEACHER_TYPE_LABELS = {
   school: 'مدرسي',
   university: 'مدرس جامعي',
   training_center: 'مدرب',
+  academic_support: 'داعم أكاديمي',
 };
 
 export const EXPERIENCE_LABELS = {
@@ -110,6 +111,22 @@ function mapPublicProfile(raw) {
     introYoutubeId: raw.intro_youtube_id ?? null,
     videos: (raw.videos ?? []).map((v) => ({ id: v.id, youtubeId: v.youtube_id, title: v.title })),
     faqs: (raw.faqs ?? []).map((f) => ({ id: f.id, question: f.question, answer: f.answer })),
+    // الداعم الأكاديمي فقط (type === 'academic_support') — غاليري نماذج أعمال وباقات دعم بسعر ثابت
+    galleryItems: (raw.gallery_items ?? []).map((g) => ({
+      id: g.id,
+      filePath: g.file_path,
+      originalName: g.original_name,
+      fileType: g.file_type,
+      sizeBytes: g.size_bytes,
+    })),
+    supportPackages: (raw.support_packages ?? []).map((sp) => ({
+      id: sp.id,
+      tier: sp.tier,
+      description: sp.description,
+      subject: sp.subject?.name_ar ?? null,
+      price: Number(sp.student_price),
+      currency: sp.currency,
+    })),
   };
 }
 

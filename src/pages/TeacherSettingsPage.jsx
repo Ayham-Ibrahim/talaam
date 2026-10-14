@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Camera, CalendarCheck, Globe, Video, HelpCircle, Trash2, UserRound } from 'lucide-react';
+import { Camera, CalendarCheck, Globe, Video, HelpCircle, Images, Trash2, UserRound } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { TimezoneField } from '@/components/dashboard/TimezoneField';
 import { TeacherVideosEditor } from '@/components/teacher/TeacherVideosEditor';
 import { TeacherFaqEditor } from '@/components/teacher/TeacherFaqEditor';
+import { TeacherGalleryEditor } from '@/components/teacher/TeacherGalleryEditor';
 import { TeacherProfileEditorCard } from '@/components/teacher/TeacherProfileEditorCard';
 import { ApiErrorList, Avatar, ErrorState, Skeleton } from '@/components/ui';
 import { ImageCropModal } from '@/components/ui/ImageCropModal';
@@ -18,6 +19,8 @@ import {
   useRemoveVideo,
   useAddFaq,
   useRemoveFaq,
+  useAddGalleryItem,
+  useRemoveGalleryItem,
 } from '@/hooks/useTeacherAccount';
 import { useT } from '@/hooks/useT';
 
@@ -55,12 +58,15 @@ export function TeacherSettingsPage() {
   };
 
   const isTrainingCenter = user?.teacherType === 'training_center';
+  const isAcademicSupport = user?.teacherType === 'academic_support';
   const { data: teacher } = useMyTeacher(teacherId);
   const updateTeacherProfile = useUpdateMyTeacherProfile(teacherId);
   const addVideo = useAddVideo(teacherId);
   const removeVideo = useRemoveVideo(teacherId);
   const addFaq = useAddFaq(teacherId);
   const removeFaq = useRemoveFaq(teacherId);
+  const addGalleryItem = useAddGalleryItem(teacherId);
+  const removeGalleryItem = useRemoveGalleryItem(teacherId);
 
   /**
    * تحديث مستقل — يُرسِل حقول المركز التدريبي الإلزامية بقيمها الحالية دون
@@ -267,6 +273,27 @@ export function TeacherSettingsPage() {
                 addError={addFaq.isError ? addFaq.error : null}
                 onRemove={(id) => removeFaq.mutate(id)}
                 removingId={removeFaq.isPending ? removeFaq.variables : null}
+              />
+            </div>
+          </div>
+        )}
+
+        {teacherId && isAcademicSupport && (
+          <div className="rounded-2xl bg-white p-6 shadow-card">
+            <h2 className="flex items-center gap-2 font-bold text-ink">
+              <Images size={20} className="text-primary" />
+              {t('teacherGallery.sectionTitle')}
+            </h2>
+            <p className="mt-1 text-sm text-ink-soft">{t('teacherGallery.sectionHint')}</p>
+
+            <div className="mt-4">
+              <TeacherGalleryEditor
+                items={teacher?.gallery_items ?? teacher?.galleryItems ?? []}
+                onAdd={(file) => addGalleryItem.mutate(file)}
+                isAdding={addGalleryItem.isPending}
+                addError={addGalleryItem.isError ? addGalleryItem.error : null}
+                onRemove={(id) => removeGalleryItem.mutate(id)}
+                removingId={removeGalleryItem.isPending ? removeGalleryItem.variables : null}
               />
             </div>
           </div>

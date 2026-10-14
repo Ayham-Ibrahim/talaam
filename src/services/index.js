@@ -1176,6 +1176,25 @@ export const dashboardService = {
     return data;
   },
 
+  // باقات الدعم الطلابي — خاصة بالداعم الأكاديمي، بلا هامش منصة، سعر ثابت حسب الفئة
+  async getTeacherSupportPackagesList() {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return [];
+    }
+    const { data } = await client.get(endpoints.supportPackages.list);
+    return data.data;
+  },
+
+  async createTeacherSupportPackage(payload) {
+    if (config.useMocks) {
+      await mockDelay(500);
+      return { id: Date.now(), status: 'pending_approval', ...payload };
+    }
+    const { data } = await client.post(endpoints.supportPackages.create, payload);
+    return data.data;
+  },
+
   async getTeacherCoursesList() {
     if (config.useMocks) {
       await mockDelay(300);

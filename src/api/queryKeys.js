@@ -50,6 +50,7 @@ export const queryKeys = {
     packagesList: () => ['dashboard', 'packages-list'],
     teacherPackagesList: () => ['dashboard', 'teacher-packages-list'],
     teacherPackageDetail: (id) => ['dashboard', 'teacher-package-detail', id],
+    teacherSupportPackagesList: () => ['dashboard', 'teacher-support-packages-list'],
     teacherCoursesList: () => ['dashboard', 'teacher-courses-list'],
     teacherSessions: () => ['dashboard', 'teacher-sessions'],
     teacherSessionDetails: (id) => ['dashboard', 'teacher-session-details', id],
