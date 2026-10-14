@@ -165,9 +165,10 @@ export function AdminComplaintsPage() {
         <ApproveRescheduleModal
           isPending={isActing}
           error={approveReschedule.isError ? approveReschedule.error : null}
+          isAbsenceReport={!modal.request?.proposedScheduledAt}
           onClose={closeModal}
-          onConfirm={(alternativeScheduledAt) =>
-            approveReschedule.mutate({ id: modal.request.id, alternativeScheduledAt }, { onSuccess: closeModal })
+          onConfirm={(alternativeScheduledAt, notes) =>
+            approveReschedule.mutate({ id: modal.request.id, alternativeScheduledAt, notes }, { onSuccess: closeModal })
           }
         />
       )}

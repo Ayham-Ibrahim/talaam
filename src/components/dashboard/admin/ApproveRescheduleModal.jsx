@@ -3,17 +3,21 @@ import { X } from 'lucide-react';
 import { ApiErrorList } from '@/components/ui';
 import { useT } from '@/hooks/useT';
 
-export function ApproveRescheduleModal({ isPending, error, onConfirm, onClose }) {
+export function ApproveRescheduleModal({ isPending, error, isAbsenceReport = false, onConfirm, onClose }) {
   const t = useT();
   const [value, setValue] = useState('');
+  const [notes, setNotes] = useState('');
   const [touched, setTouched] = useState(false);
 
-  const isValid = value !== '';
+  // لتبليغ الغياب لا موعد مقترح أصلاً يُفسَّر منه السبب — الملاحظة هي السجل
+  // الوحيد لما تم تنسيقه فعلياً مع الطرفين (مكالمة هاتفية مثلاً)، فتصبح إلزامية.
+  const missingNotes = isAbsenceReport && notes.trim() === '';
+  const isValid = value !== '' && !missingNotes;
 
   const handleConfirm = () => {
     setTouched(true);
     if (!isValid) return;
-    onConfirm(new Date(value).toISOString());
+    onConfirm(new Date(value).toISOString(), notes.trim() || undefined);
   };
 
   return (
@@ -34,6 +38,8 @@ export function ApproveRescheduleModal({ isPending, error, onConfirm, onClose })
 
         {error && <ApiErrorList error={error} labelFor={() => t('dashboard.adminReschedule.alternativeTimeLabel')} className="mb-4" />}
 
+        {isAbsenceReport && <p className="mb-4 text-xs text-ink-soft">{t('dashboard.adminReschedule.absenceApproveHint')}</p>}
+
         <label className="flex flex-col gap-1.5 text-right">
           <span className="text-sm font-semibold text-ink">{t('dashboard.adminReschedule.alternativeTimeLabel')}</span>
           <input
@@ -42,10 +48,27 @@ export function ApproveRescheduleModal({ isPending, error, onConfirm, onClose })
             value={value}
             onChange={(e) => setValue(e.target.value)}
             className={`w-full rounded-btn border bg-surface p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
-              touched && !isValid ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
+              touched && value === '' ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
             }`}
           />
-          {touched && !isValid && <span className="text-xs text-accent-pink">{t('dashboard.adminReschedule.alternativeTimeRequired')}</span>}
+          {touched && value === '' && <span className="text-xs text-accent-pink">{t('dashboard.adminReschedule.alternativeTimeRequired')}</span>}
+        </label>
+
+        <label className="mt-4 flex flex-col gap-1.5 text-right">
+          <span className="text-sm font-semibold text-ink">
+            {t('dashboard.adminReschedule.notesLabel')}
+            {!isAbsenceReport && <span className="font-normal text-ink-soft"> ({t('dashboard.adminReschedule.optional')})</span>}
+          </span>
+          <textarea
+            rows={3}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder={t('dashboard.adminReschedule.notesPlaceholder')}
+            className={`w-full resize-none rounded-btn border bg-surface p-3 text-sm text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 ${
+              touched && missingNotes ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
+            }`}
+          />
+          {touched && missingNotes && <span className="text-xs text-accent-pink">{t('dashboard.adminReschedule.notesRequired')}</span>}
         </label>
 
         <div className="mt-6 flex gap-3">

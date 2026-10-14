@@ -33,10 +33,16 @@ export function RescheduleRequestsTable({ requests, onApprove, onApproveWithAlte
               <td className="px-4 py-4 text-right text-ink-soft" dir="ltr">
                 {renderDateTime(r.originalScheduledAt, r.studentTimezone)}
               </td>
-              <td className="px-4 py-4 text-right text-ink-soft" dir="ltr">
-                {renderDateTime(r.proposedScheduledAt, r.studentTimezone)}
+              <td className="px-4 py-4 text-right text-ink-soft" dir={r.proposedScheduledAt ? 'ltr' : 'rtl'}>
+                {r.proposedScheduledAt ? (
+                  renderDateTime(r.proposedScheduledAt, r.studentTimezone)
+                ) : (
+                  <span className="rounded-pill bg-accent-pink/10 px-2 py-0.5 text-xs font-bold text-accent-pink">
+                    {t('dashboard.adminReschedule.absenceReport')}
+                  </span>
+                )}
                 {r.alternativeScheduledAt && (
-                  <div className="text-xs text-price">{renderDateTime(r.alternativeScheduledAt, r.studentTimezone)}</div>
+                  <div className="text-xs text-price" dir="ltr">{renderDateTime(r.alternativeScheduledAt, r.studentTimezone)}</div>
                 )}
               </td>
               <td className="px-4 py-4 text-right text-ink-soft" dir="ltr">
@@ -57,15 +63,19 @@ export function RescheduleRequestsTable({ requests, onApprove, onApproveWithAlte
               <td className="px-4 py-4 text-right">
                 {r.status === 'pending' && (
                   <div className="flex flex-wrap items-center justify-end gap-3">
-                    <button
-                      type="button"
-                      disabled={isActing}
-                      onClick={() => onApprove(r)}
-                      title={t('dashboard.adminReschedule.approve')}
-                      className="flex items-center gap-1 text-sm font-medium text-success hover:opacity-70 disabled:opacity-50"
-                    >
-                      <Check size={16} />
-                    </button>
+                    {/* بلا موعد مقترح (تبليغ غياب) لا معنى للقبول البسيط — يجب على الأدمن
+                        تحديد موعد بديل دوماً عبر "قبول بموعد بديل" (RescheduleService::approve يرفضه خلاف ذلك) */}
+                    {r.proposedScheduledAt && (
+                      <button
+                        type="button"
+                        disabled={isActing}
+                        onClick={() => onApprove(r)}
+                        title={t('dashboard.adminReschedule.approve')}
+                        className="flex items-center gap-1 text-sm font-medium text-success hover:opacity-70 disabled:opacity-50"
+                      >
+                        <Check size={16} />
+                      </button>
+                    )}
                     <button
                       type="button"
                       disabled={isActing}

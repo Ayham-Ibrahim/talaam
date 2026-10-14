@@ -27,6 +27,7 @@ function isReasonRequired(currentScheduledAt) {
 export function RescheduleRequestModal({ isPending, error, currentScheduledAt, onConfirm, onClose }) {
   const t = useT();
   const { user } = useAuth();
+  const [isAbsenceReport, setIsAbsenceReport] = useState(false);
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [reason, setReason] = useState('');
@@ -35,11 +36,12 @@ export function RescheduleRequestModal({ isPending, error, currentScheduledAt, o
   // بتوقيت المستخدم الحالي نفسه (من أرسل الطلب، طالباً كان أو معلماً) — لا
   // بتوقيت UTC ولا بأي منطقة أخرى، وإلا يُحفَظ موعد مُزاح فعلياً بفارق التوقيت
   // الكامل عن الوقت الذي اختاره هو تحديداً (انظر توثيق zonedWallTimeToUtcIso).
-  const proposedScheduledAt = zonedWallTimeToUtcIso(date, time, user?.timezone);
+  const proposedScheduledAt = isAbsenceReport ? null : zonedWallTimeToUtcIso(date, time, user?.timezone);
   const proposedAtMs = proposedScheduledAt ? new Date(proposedScheduledAt).getTime() : NaN;
-  const missingDateTime = !date || !time;
-  const invalidPastDateTime = !missingDateTime && (!Number.isFinite(proposedAtMs) || proposedAtMs <= Date.now());
-  const reasonIsRequired = isReasonRequired(currentScheduledAt);
+  const missingDateTime = !isAbsenceReport && (!date || !time);
+  const invalidPastDateTime = !isAbsenceReport && !missingDateTime && (!Number.isFinite(proposedAtMs) || proposedAtMs <= Date.now());
+  // بلا موعد مقترح (تبليغ غياب) السبب إلزامي دائماً — لا شيء آخر يشرح الطلب للأدمن
+  const reasonIsRequired = isAbsenceReport || isReasonRequired(currentScheduledAt);
   const missingReason = reasonIsRequired && reason.trim() === '';
 
   const proposedDateTimeError =
@@ -82,36 +84,56 @@ export function RescheduleRequestModal({ isPending, error, currentScheduledAt, o
 
         {showApiSummary && <ApiErrorList error={error} labelFor={rescheduleFieldLabel} className="mb-4" />}
 
-        <div className="grid grid-cols-2 gap-3">
-          <label className="flex flex-col gap-1.5 text-right">
-            <span className="text-sm font-semibold text-ink">{t('dashboard.rescheduleModal.dateLabel')}</span>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className={`w-full rounded-btn border bg-surface p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
-                proposedDateTimeError ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
-              }`}
-            />
-          </label>
-          <label className="flex flex-col gap-1.5 text-right">
-            <span className="text-sm font-semibold text-ink">{t('dashboard.rescheduleModal.timeLabel')}</span>
-            <input
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              className={`w-full rounded-btn border bg-surface p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
-                proposedDateTimeError ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
-              }`}
-            />
-          </label>
-        </div>
-        {proposedDateTimeError && <span className="mt-1.5 block text-xs text-accent-pink">{proposedDateTimeError}</span>}
+        <label className="mb-4 flex items-start gap-2 text-right">
+          <input
+            type="checkbox"
+            checked={isAbsenceReport}
+            onChange={(e) => setIsAbsenceReport(e.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0"
+          />
+          <span className="text-sm text-ink-soft">{t('dashboard.rescheduleModal.absenceToggle')}</span>
+        </label>
+
+        {!isAbsenceReport && (
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="flex flex-col gap-1.5 text-right">
+                <span className="text-sm font-semibold text-ink">{t('dashboard.rescheduleModal.dateLabel')}</span>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className={`w-full rounded-btn border bg-surface p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
+                    proposedDateTimeError ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
+                  }`}
+                />
+              </label>
+              <label className="flex flex-col gap-1.5 text-right">
+                <span className="text-sm font-semibold text-ink">{t('dashboard.rescheduleModal.timeLabel')}</span>
+                <input
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className={`w-full rounded-btn border bg-surface p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
+                    proposedDateTimeError ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
+                  }`}
+                />
+              </label>
+            </div>
+            {proposedDateTimeError && <span className="mt-1.5 block text-xs text-accent-pink">{proposedDateTimeError}</span>}
+          </>
+        )}
+
+        {isAbsenceReport && <p className="mb-2 text-xs text-ink-soft">{t('dashboard.rescheduleModal.absenceHint')}</p>}
 
         <label className="mt-4 flex flex-col gap-1.5 text-right">
           <span className="text-sm font-semibold text-ink">{t('dashboard.rescheduleModal.reasonLabel')}</span>
           <span className="text-xs text-ink-soft">
-            {reasonIsRequired ? t('dashboard.rescheduleModal.reasonHintRequired') : t('dashboard.rescheduleModal.reasonHintOptional')}
+            {isAbsenceReport
+              ? t('dashboard.rescheduleModal.reasonHintAbsence')
+              : reasonIsRequired
+                ? t('dashboard.rescheduleModal.reasonHintRequired')
+                : t('dashboard.rescheduleModal.reasonHintOptional')}
           </span>
           <textarea
             rows={3}

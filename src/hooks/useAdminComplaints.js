@@ -50,7 +50,7 @@ function useInvalidateReschedule() {
 export function useApproveReschedule() {
   const invalidate = useInvalidateReschedule();
   return useMutation({
-    mutationFn: ({ id, alternativeScheduledAt }) => adminComplaintsService.approveReschedule(id, alternativeScheduledAt),
+    mutationFn: ({ id, alternativeScheduledAt, notes }) => adminComplaintsService.approveReschedule(id, alternativeScheduledAt, notes),
     onSuccess: invalidate,
   });
 }

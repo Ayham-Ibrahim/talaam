@@ -24,17 +24,20 @@ function notificationContent(t, notification) {
       return { title: t('notifications.studentImported'), body: null };
     case 'SessionReminder':
       return { title: t('notifications.sessionReminder'), body: formatDateTime(data.scheduled_at) };
-    case 'RescheduleRequestReviewed':
-      return {
-        title: data.status === 'rejected' ? t('notifications.rescheduleRejected') : t('notifications.rescheduleApproved'),
-        body: data.status === 'rejected' ? data.reason : data.newScheduledAt ? formatDateTime(data.newScheduledAt) : null,
-      };
+    case 'RescheduleRequestReviewed': {
+      if (data.status === 'rejected') {
+        return { title: t('notifications.rescheduleRejected'), body: data.reason };
+      }
+      const dateLine = data.newScheduledAt ? formatDateTime(data.newScheduledAt) : null;
+      const body = [dateLine, data.adminNotes].filter(Boolean).join(' — ') || null;
+      return { title: t('notifications.rescheduleApproved'), body };
+    }
     case 'RescheduleRequestSubmitted':
       return {
         title: data.forReviewer
           ? t('notifications.rescheduleSubmittedForReview')
           : t('notifications.rescheduleSubmitted'),
-        body: data.proposedScheduledAt ? formatDateTime(data.proposedScheduledAt) : null,
+        body: data.proposedScheduledAt ? formatDateTime(data.proposedScheduledAt) : data.reason ?? null,
       };
     case 'VerificationDocumentRejected':
       return {

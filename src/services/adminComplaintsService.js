@@ -158,7 +158,7 @@ export const adminComplaintsService = {
     return { data: data.data.map(mapRescheduleRequest), total: data.meta?.total ?? data.data.length };
   },
 
-  async approveReschedule(id, alternativeScheduledAt) {
+  async approveReschedule(id, alternativeScheduledAt, notes) {
     if (config.useMocks) {
       await mockDelay(400);
       return updateMockRescheduleRequest(id, {
@@ -168,6 +168,7 @@ export const adminComplaintsService = {
     }
     const { data } = await client.post(endpoints.admin.approveReschedule(id), {
       alternative_scheduled_at: alternativeScheduledAt ?? undefined,
+      notes: notes || undefined,
     });
     return data.data;
   },
