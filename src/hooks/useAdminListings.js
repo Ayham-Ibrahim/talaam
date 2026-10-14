@@ -52,6 +52,14 @@ export function useDisableListing(id, kind) {
   });
 }
 
+export function useEnableListing(id, kind) {
+  const invalidate = useInvalidateListing(id);
+  return useMutation({
+    mutationFn: ({ listingId }) => adminListingsService.enableListing(listingId, kind),
+    onSuccess: invalidate,
+  });
+}
+
 /** Admin books a package on a student's behalf — mirrors CreateManualBookingRequest, always audit-logged on the backend */
 export function useCreateManualBooking() {
   return useMutation({

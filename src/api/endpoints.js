@@ -154,6 +154,7 @@ export const endpoints = {
     approvePackage: (id) => `/packages/${id}/approve`,
     rejectPackage: (id) => `/packages/${id}/reject`,
     disablePackage: (id) => `/packages/${id}/disable`,
+    enablePackage: (id) => `/packages/${id}/enable`,
     courses: '/courses',
     courseDetail: (id) => `/courses/${id}`,
     approveCourse: (id) => `/courses/${id}/approve`,

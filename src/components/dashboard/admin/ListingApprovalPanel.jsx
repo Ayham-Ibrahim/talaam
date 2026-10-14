@@ -93,9 +93,24 @@ export function ListingApprovalPanel({ listing, actions, isActing }) {
           </button>
         )}
 
-        {listing.status !== 'pending_approval' && listing.status !== 'active' && listing.status !== 'full' && (
-          <p className="w-full text-center text-sm text-ink-soft">{t('dashboard.adminListingDetail.noActionsAvailable')}</p>
+        {/* إعادة التفعيل حصراً للباقات — لا endpoint مماثل للدورات بالباك اند بعد */}
+        {listing.kind === 'package' && listing.status === 'disabled' && (
+          <button
+            type="button"
+            disabled={isActing}
+            onClick={actions.onEnable}
+            className="flex-1 rounded-xl bg-success py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            {t('dashboard.adminListingDetail.enable')}
+          </button>
         )}
+
+        {listing.status !== 'pending_approval' &&
+          listing.status !== 'active' &&
+          listing.status !== 'full' &&
+          !(listing.kind === 'package' && listing.status === 'disabled') && (
+            <p className="w-full text-center text-sm text-ink-soft">{t('dashboard.adminListingDetail.noActionsAvailable')}</p>
+          )}
       </div>
     </div>
   );

@@ -7,13 +7,14 @@ import { ListingApprovalPanel } from '@/components/dashboard/admin/ListingApprov
 import { ReasonModal } from '@/components/dashboard/admin/ReasonModal';
 import { ManualBookingModal } from '@/components/dashboard/admin/ManualBookingModal';
 import { PackageCouponsModal } from '@/components/dashboard/PackageCouponsModal';
-import { ErrorState, Skeleton } from '@/components/ui';
+import { ApiErrorList, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useAdminListingDetail,
   useApproveListing,
   useRejectListing,
   useDisableListing,
+  useEnableListing,
   useCreateManualBooking,
   useCreateManualEnrollment,
 } from '@/hooks/useAdminListings';
@@ -34,10 +35,11 @@ export function AdminListingDetailPage() {
   const approveListing = useApproveListing(id, kind);
   const rejectListing = useRejectListing(id, kind);
   const disableListing = useDisableListing(id, kind);
+  const enableListing = useEnableListing(id, kind);
   const createManualBooking = useCreateManualBooking();
   const createManualEnrollment = useCreateManualEnrollment();
 
-  const isActing = approveListing.isPending || rejectListing.isPending || disableListing.isPending;
+  const isActing = approveListing.isPending || rejectListing.isPending || disableListing.isPending || enableListing.isPending;
   const isBooking = createManualBooking.isPending || createManualEnrollment.isPending;
 
   if (!user) return <Navigate to="/login" replace />;
@@ -107,6 +109,9 @@ export function AdminListingDetailPage() {
         <div className="mb-4 rounded-2xl bg-success-light px-4 py-3 text-sm font-medium text-success">{manualBookingResult}</div>
       )}
 
+      {/* إعادة التفعيل إجراء مباشر بلا نافذة سبب — خطأ قاعدة العمل (جلسات نشطة/وشيكة) يُعرَض هنا */}
+      {enableListing.isError && <ApiErrorList error={enableListing.error} className="mb-4" />}
+
       {!kind ? (
         <ErrorState message={t('dashboard.adminListingDetail.notFound')} />
       ) : isError ? (
@@ -128,6 +133,7 @@ export function AdminListingDetailPage() {
               onApprove: (marginPercent) => approveListing.mutate({ listingId: id, marginPercent }),
               onReject: () => setModal('reject'),
               onDisable: () => setModal('disable'),
+              onEnable: () => enableListing.mutate({ listingId: id }),
             }}
           />
         </div>

@@ -126,4 +126,14 @@ export const adminListingsService = {
     const { data } = await client.post(url, { reason });
     return mapListing(data.data, kind);
   },
+
+  // إعادة التفعيل حصراً للباقات (لا الدورات) — الباك اند لا يملك endpoint مماثلاً للدورات حالياً.
+  async enableListing(id, kind) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return updateMockListing(id, { status: 'active', disabledReason: null });
+    }
+    const { data } = await client.post(endpoints.admin.enablePackage(id));
+    return mapListing(data.data, kind);
+  },
 };
