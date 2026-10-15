@@ -31,6 +31,9 @@ function FilterSelect({ icon: Icon, label, options = [], value, onChange, placeh
 export function SearchFilters({ meta, draft, onChange, onApply, onReset, hideHeading = false }) {
   const t = useT();
   const ratingOptions = t('search.ratingOptions');
+  // الداعم الأكاديمي لا مستوى/صف/مرحلة/لغة/توفر/سعر يخصه — باقاته مادة + سعر
+  // ثابت فقط (راجع SupportPackage)، فلا معنى لفلترته بمعايير التدريس الاعتيادية.
+  const isAcademicSupport = draft.level === 'academic_support';
 
   return (
     <aside className="w-full shrink-0 lg:w-72">
@@ -41,22 +44,26 @@ export function SearchFilters({ meta, draft, onChange, onApply, onReset, hideHea
       )}
 
       <div className="space-y-5">
-        <FilterSelect
-          icon={Layers}
-          label={t('search.level')}
-          placeholder={t('search.select')}
-          options={meta?.levels}
-          value={draft.level}
-          onChange={(v) => onChange('level', v)}
-        />
-        <FilterSelect
-          icon={Bookmark}
-          label={t('search.grade')}
-          placeholder={t('search.select')}
-          options={meta?.grades}
-          value={draft.grade}
-          onChange={(v) => onChange('grade', v)}
-        />
+        {!isAcademicSupport && (
+          <>
+            <FilterSelect
+              icon={Layers}
+              label={t('search.level')}
+              placeholder={t('search.select')}
+              options={meta?.levels}
+              value={draft.level}
+              onChange={(v) => onChange('level', v)}
+            />
+            <FilterSelect
+              icon={Bookmark}
+              label={t('search.grade')}
+              placeholder={t('search.select')}
+              options={meta?.grades}
+              value={draft.grade}
+              onChange={(v) => onChange('grade', v)}
+            />
+          </>
+        )}
         <FilterSelect
           icon={BookOpen}
           label={t('search.subject')}
@@ -65,37 +72,41 @@ export function SearchFilters({ meta, draft, onChange, onApply, onReset, hideHea
           value={draft.subject}
           onChange={(v) => onChange('subject', v)}
         />
-        <FilterSelect
-          icon={GraduationCap}
-          label={t('search.stage')}
-          placeholder={t('search.select')}
-          options={meta?.stages}
-          value={draft.stage}
-          onChange={(v) => onChange('stage', v)}
-        />
-        <FilterSelect
-          icon={Globe}
-          label={t('search.language')}
-          placeholder={t('search.select')}
-          options={meta?.languages}
-          value={draft.language}
-          onChange={(v) => onChange('language', v)}
-        />
-        <FilterSelect
-          icon={Clock3}
-          label={t('search.availability')}
-          placeholder={t('search.select')}
-          options={[]}
-          value={draft.availability}
-          onChange={(v) => onChange('availability', v)}
-        />
+        {!isAcademicSupport && (
+          <>
+            <FilterSelect
+              icon={GraduationCap}
+              label={t('search.stage')}
+              placeholder={t('search.select')}
+              options={meta?.stages}
+              value={draft.stage}
+              onChange={(v) => onChange('stage', v)}
+            />
+            <FilterSelect
+              icon={Globe}
+              label={t('search.language')}
+              placeholder={t('search.select')}
+              options={meta?.languages}
+              value={draft.language}
+              onChange={(v) => onChange('language', v)}
+            />
+            <FilterSelect
+              icon={Clock3}
+              label={t('search.availability')}
+              placeholder={t('search.select')}
+              options={[]}
+              value={draft.availability}
+              onChange={(v) => onChange('availability', v)}
+            />
 
-        <PriceRangeInputs
-          minPrice={draft.minPrice}
-          maxPrice={draft.maxPrice}
-          onChangeMin={(v) => onChange('minPrice', v)}
-          onChangeMax={(v) => onChange('maxPrice', v)}
-        />
+            <PriceRangeInputs
+              minPrice={draft.minPrice}
+              maxPrice={draft.maxPrice}
+              onChangeMin={(v) => onChange('minPrice', v)}
+              onChangeMax={(v) => onChange('maxPrice', v)}
+            />
+          </>
+        )}
 
         {/* Rating */}
         <div>
