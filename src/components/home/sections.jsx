@@ -129,13 +129,13 @@ export function EducationTypes() {
               key={type.icon}
               to={EDUCATION_TYPE_HREF(type.icon)}
               aria-label={`${type.title} — ${t("home.educationTypesCta")}`}
-              className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              className="block h-full rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
             >
               <AnimatedCard
                 tilt={true}
-                className="education-type-card flex cursor-pointer flex-col items-center gap-2 rounded-2xl bg-white px-4 pb-6 pt-2 text-center shadow-card transition-shadow duration-200 hover:shadow-lift group"
+                className="education-type-card flex h-full cursor-pointer flex-col items-center gap-2 rounded-2xl bg-white px-4 pb-6 pt-2 text-center shadow-card transition-shadow duration-200 hover:shadow-lift group"
               >
-                <div className="relative h-[100px] w-[100px]">
+                <div className="relative h-[100px] w-[100px] shrink-0">
                   {/* Back squircle — solid gradient, peeking out top-right */}
                   <div
                     className="absolute right-0 top-1 h-[78%] w-[78%] rounded-[22%] shadow-md transition-transform duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
@@ -155,7 +155,7 @@ export function EducationTypes() {
                     <Icon size={34} className="text-white drop-shadow" />
                   </motion.div>
                 </div>
-                <div className="flex flex-col items-center gap-1 group-hover:-translate-y-0.5 transition-transform duration-300">
+                <div className="flex h-full flex-col items-center gap-1 group-hover:-translate-y-0.5 transition-transform duration-300">
                   <h3 className="font-cairo text-xl font-bold text-ink">
                     {type.title}
                   </h3>
@@ -163,7 +163,7 @@ export function EducationTypes() {
                     {type.desc}
                   </p>
                   <span
-                    className="mt-1 flex items-center gap-1.5 font-cairo text-sm font-bold opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                    className="mt-auto flex items-center gap-1.5 pt-1 font-cairo text-sm font-bold opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                     style={{ color: style.to }}
                   >
                     {t("home.educationTypesCta")}
