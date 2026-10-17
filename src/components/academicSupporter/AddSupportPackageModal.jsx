@@ -1,47 +1,60 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
+import { MultiSelectChips } from '@/components/dashboard/MultiSelectChips';
 import { ApiErrorList } from '@/components/ui';
 import { useTaxonomyList } from '@/hooks/useTaxonomy';
 import { useCreateSupportPackage } from '@/hooks/useSupporterAccount';
 import { useT } from '@/hooks/useT';
 
 const TIERS = [
-  { value: 'basic', labelKey: 'tierBasic', priceKey: 'tierBasicPrice' },
-  { value: 'premium', labelKey: 'tierPremium', priceKey: 'tierPremiumPrice' },
+  { value: 'basic', labelKey: 'tierBasic' },
+  { value: 'premium', labelKey: 'tierPremium' },
 ];
+
+const MAX_SUBJECTS = 10;
 
 /**
  * نموذج واحد مباشر إلى pending_approval — لا مرحلة draft/wizard (راجع
- * SupportPackageService::create). السعر ثابت حسب الفئة المختارة، لا يُدخله الداعم إطلاقاً.
+ * SupportPackageService::create). الاسم/السعر/المواد كلها يُدخلها الداعم يدوياً —
+ * tier فئة تصنيفية فقط الآن، لا تحدد السعر.
  */
 export function AddSupportPackageModal({ onClose }) {
   const t = useT();
-  const { data: subjects = [] } = useTaxonomyList('subjects');
+  const { data: allSubjects = [] } = useTaxonomyList('subjects');
+  // الداعم الأكاديمي حصراً للطلاب الجامعيين — لا تظهر مواد مدرسية/دورات هنا إطلاقاً
+  const subjects = allSubjects.filter((s) => s.education_type === 'university');
   const createSupportPackage = useCreateSupportPackage();
 
+  const [title, setTitle] = useState('');
   const [tier, setTier] = useState('basic');
-  const [subjectId, setSubjectId] = useState('');
+  const [subjectIds, setSubjectIds] = useState([]);
+  const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [touched, setTouched] = useState(false);
 
   const subjectOptions = subjects.map((s) => ({ value: s.id, label: s.name_ar }));
+  const titleTrimmed = title.trim();
   const descriptionTrimmed = description.trim();
-  const missingSubject = subjectId === '';
+  const priceNumber = Number(price);
+  const missingTitle = titleTrimmed === '';
+  const missingSubjects = subjectIds.length === 0;
+  const invalidPrice = price.trim() === '' || !Number.isFinite(priceNumber) || priceNumber <= 0;
   const missingDescription = descriptionTrimmed === '';
-  const isValid = !missingSubject && !missingDescription;
+  const isValid = !missingTitle && !missingSubjects && !invalidPrice && !missingDescription;
 
   const handleSubmit = () => {
     setTouched(true);
     if (!isValid) return;
     createSupportPackage.mutate(
-      { tier, subject_id: Number(subjectId), description: descriptionTrimmed },
+      { title: titleTrimmed, tier, subject_ids: subjectIds, price: priceNumber, description: descriptionTrimmed },
       { onSuccess: onClose },
     );
   };
 
   const fieldLabel = (path) => {
-    if (path === 'subject_id') return t('dashboard.addSupportPackage.subjectLabel');
+    if (path === 'title') return t('dashboard.addSupportPackage.titleLabel');
+    if (path === 'subject_ids') return t('dashboard.addSupportPackage.subjectLabel');
+    if (path === 'price') return t('dashboard.addSupportPackage.priceLabel');
     if (path === 'description') return t('dashboard.addSupportPackage.descriptionLabel');
     if (path === 'tier') return t('dashboard.addSupportPackage.tierLabel');
     return path;
@@ -70,6 +83,21 @@ export function AddSupportPackageModal({ onClose }) {
         )}
 
         <div className="flex flex-col gap-4">
+          <label className="flex flex-col gap-1.5 text-right">
+            <span className="text-sm font-semibold text-ink">{t('dashboard.addSupportPackage.titleLabel')}</span>
+            <input
+              type="text"
+              maxLength={150}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={t('dashboard.addSupportPackage.titlePlaceholder')}
+              className={`w-full rounded-btn border bg-surface p-3 text-sm text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 ${
+                touched && missingTitle ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
+              }`}
+            />
+            {touched && missingTitle && <span className="text-xs text-accent-pink">{t('dashboard.addSupportPackage.titleRequired')}</span>}
+          </label>
+
           <div>
             <span className="mb-1.5 block text-sm font-semibold text-ink">{t('dashboard.addSupportPackage.tierLabel')}</span>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -83,21 +111,37 @@ export function AddSupportPackageModal({ onClose }) {
                   }`}
                 >
                   <div className="font-bold text-ink">{t(`dashboard.addSupportPackage.${opt.labelKey}`)}</div>
-                  <div className="mt-1 text-sm text-price">{t(`dashboard.addSupportPackage.${opt.priceKey}`)}</div>
                 </button>
               ))}
             </div>
           </div>
 
-          <SmoothSelect
+          <MultiSelectChips
             label={t('dashboard.addSupportPackage.subjectLabel')}
-            value={subjectId}
-            onChange={setSubjectId}
+            values={subjectIds}
+            onChange={setSubjectIds}
             options={subjectOptions}
             placeholder={t('dashboard.addSupportPackage.subjectPlaceholder')}
-            error={touched && missingSubject}
-            errorMessage={touched && missingSubject ? t('dashboard.addSupportPackage.subjectRequired') : null}
+            max={MAX_SUBJECTS}
           />
+          {touched && missingSubjects && <span className="text-xs text-accent-pink">{t('dashboard.addSupportPackage.subjectRequired')}</span>}
+
+          <label className="flex flex-col gap-1.5 text-right">
+            <span className="text-sm font-semibold text-ink">{t('dashboard.addSupportPackage.priceLabel')}</span>
+            <input
+              type="number"
+              min="1"
+              step="0.01"
+              dir="ltr"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder={t('dashboard.addSupportPackage.pricePlaceholder')}
+              className={`w-full rounded-btn border bg-surface p-3 text-left text-sm text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 ${
+                touched && invalidPrice ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
+              }`}
+            />
+            {touched && invalidPrice && <span className="text-xs text-accent-pink">{t('dashboard.addSupportPackage.priceRequired')}</span>}
+          </label>
 
           <label className="flex flex-col gap-1.5 text-right">
             <span className="text-sm font-semibold text-ink">{t('dashboard.addSupportPackage.descriptionLabel')}</span>

@@ -16,7 +16,7 @@ export function SupporterSupportPackagesTable({ supportPackages = [], onDisable,
       <table className="w-full min-w-[760px] text-sm">
         <thead>
           <tr className="border-b border-line text-right">
-            {['tier', 'subject', 'price', 'status', 'rejectionReason', 'actions'].map((col) => (
+            {['title', 'tier', 'subject', 'price', 'status', 'rejectionReason', 'actions'].map((col) => (
               <th key={col} className="px-4 py-3 font-bold text-ink">
                 {t(`dashboard.teacherSupportPackages.cols.${col}`)}
               </th>
@@ -28,10 +28,11 @@ export function SupporterSupportPackagesTable({ supportPackages = [], onDisable,
             const style = STATUS_STYLES[sp.status] ?? STATUS_STYLES.disabled;
             return (
               <tr key={sp.id} className="text-right">
-                <td className="px-4 py-3 font-semibold text-ink">
+                <td className="px-4 py-3 font-semibold text-ink">{sp.title}</td>
+                <td className="px-4 py-3 text-ink-soft">
                   {t(`dashboard.teacherSupportPackages.tier${sp.tier === 'premium' ? 'Premium' : 'Basic'}`)}
                 </td>
-                <td className="px-4 py-3 text-ink-soft">{sp.subject ?? '—'}</td>
+                <td className="px-4 py-3 text-ink-soft">{(sp.subjects ?? []).map((s) => s.name).join('، ') || '—'}</td>
                 <td className="px-4 py-3 font-semibold text-price">{formatPrice(sp.student_price, sp.currency)}</td>
                 <td className="px-4 py-3">
                   <span className="rounded-pill px-3 py-1 text-xs font-bold" style={{ background: style.bg, color: style.color }}>

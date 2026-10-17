@@ -26,8 +26,12 @@ export function SupporterSettingsPage() {
   const t = useT();
   const { user } = useAuth();
   const supporterId = user?.academicSupporter?.id;
-  const { data: subjects = [] } = useTaxonomyList('subjects');
+  const { data: allSubjects = [] } = useTaxonomyList('subjects');
+  // حصراً للطلاب الجامعيين — لا تظهر مواد مدرسية/دورات هنا إطلاقاً
+  const subjects = allSubjects.filter((s) => s.education_type === 'university');
   const { data: languages = [] } = useTaxonomyList('languages');
+  const { data: universities = [] } = useTaxonomyList('universities');
+  const { data: majors = [] } = useTaxonomyList('majors');
   const { data: supporter, isLoading, isError, refetch } = useMySupporterProfile(supporterId);
   const updateProfile = useUpdateMySupporterProfile(supporterId);
   const addGalleryItem = useAddSupporterGalleryItem(supporterId);
@@ -40,6 +44,8 @@ export function SupporterSettingsPage() {
   const [experienceYears, setExperienceYears] = useState('');
   const [subjectIds, setSubjectIds] = useState([]);
   const [languageIds, setLanguageIds] = useState([]);
+  const [universityId, setUniversityId] = useState('');
+  const [majorId, setMajorId] = useState('');
   const [cropFile, setCropFile] = useState(null);
 
   useEffect(() => {
@@ -49,6 +55,8 @@ export function SupporterSettingsPage() {
     setExperienceYears(supporter.experienceYears ?? '');
     setSubjectIds((supporter.subjects ?? []).map((s) => s.id));
     setLanguageIds((supporter.languages ?? []).map((l) => l.id));
+    setUniversityId(supporter.university?.id ?? '');
+    setMajorId(supporter.major?.id ?? '');
   }, [supporter]);
 
   if (!user) return <Navigate to="/login" replace />;
@@ -70,11 +78,15 @@ export function SupporterSettingsPage() {
       experience_years: experienceYears || null,
       subject_ids: subjectIds,
       language_ids: languageIds,
+      university_id: universityId || null,
+      major_id: majorId || null,
     });
   };
 
   const subjectOptions = subjects.map((s) => ({ value: s.id, label: s.name_ar }));
   const languageOptions = languages.map((l) => ({ value: l.id, label: l.name_ar }));
+  const universityOptions = universities.map((u) => ({ value: u.id, label: u.name_ar }));
+  const majorOptions = majors.map((m) => ({ value: m.id, label: m.name_ar }));
 
   return (
     <DashboardLayout>
@@ -157,6 +169,20 @@ export function SupporterSettingsPage() {
                     value={experienceYears}
                     onChange={setExperienceYears}
                     options={EXPERIENCE_OPTIONS}
+                    placeholder="—"
+                  />
+                  <SmoothSelect
+                    label={t('completeProfile.universityLabel')}
+                    value={universityId}
+                    onChange={setUniversityId}
+                    options={universityOptions}
+                    placeholder="—"
+                  />
+                  <SmoothSelect
+                    label={t('completeProfile.majorLabel')}
+                    value={majorId}
+                    onChange={setMajorId}
+                    options={majorOptions}
                     placeholder="—"
                   />
                 </div>

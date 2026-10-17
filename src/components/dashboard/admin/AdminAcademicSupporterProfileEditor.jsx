@@ -20,8 +20,12 @@ const EXPERIENCE_OPTIONS = Object.entries(EXPERIENCE_LABELS).map(([value, label]
 /** لا مرحلة توثيق هنا — المحرّر محدود بالملف الشخصي + الغاليري فقط (بعكس AdminTeacherProfileEditor). */
 export function AdminAcademicSupporterProfileEditor({ supporterId, supporter }) {
   const t = useT();
-  const { data: subjects = [] } = useTaxonomyList('subjects');
+  const { data: allSubjects = [] } = useTaxonomyList('subjects');
+  // حصراً للطلاب الجامعيين — لا تظهر مواد مدرسية/دورات هنا إطلاقاً
+  const subjects = allSubjects.filter((s) => s.education_type === 'university');
   const { data: languages = [] } = useTaxonomyList('languages');
+  const { data: universities = [] } = useTaxonomyList('universities');
+  const { data: majors = [] } = useTaxonomyList('majors');
   const updateProfile = useAdminUpdateAcademicSupporterProfile(supporterId);
   const queryClient = useQueryClient();
 
@@ -30,6 +34,8 @@ export function AdminAcademicSupporterProfileEditor({ supporterId, supporter }) 
   const [experienceYears, setExperienceYears] = useState(supporter.experienceYears ?? '');
   const [subjectIds, setSubjectIds] = useState((supporter.subjects ?? []).map((s) => s.id));
   const [languageIds, setLanguageIds] = useState((supporter.languages ?? []).map((l) => l.id));
+  const [universityId, setUniversityId] = useState(supporter.university?.id ?? '');
+  const [majorId, setMajorId] = useState(supporter.major?.id ?? '');
 
   useEffect(() => {
     setBio(supporter.bio ?? '');
@@ -37,6 +43,8 @@ export function AdminAcademicSupporterProfileEditor({ supporterId, supporter }) 
     setExperienceYears(supporter.experienceYears ?? '');
     setSubjectIds((supporter.subjects ?? []).map((s) => s.id));
     setLanguageIds((supporter.languages ?? []).map((l) => l.id));
+    setUniversityId(supporter.university?.id ?? '');
+    setMajorId(supporter.major?.id ?? '');
   }, [supporter]);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: queryKeys.admin.academicSupporterDetail(supporterId) });
@@ -57,11 +65,15 @@ export function AdminAcademicSupporterProfileEditor({ supporterId, supporter }) 
       experience_years: experienceYears || null,
       subject_ids: subjectIds,
       language_ids: languageIds,
+      university_id: universityId || null,
+      major_id: majorId || null,
     });
   };
 
   const subjectOptions = subjects.map((s) => ({ value: s.id, label: s.name_ar }));
   const languageOptions = languages.map((l) => ({ value: l.id, label: l.name_ar }));
+  const universityOptions = universities.map((u) => ({ value: u.id, label: u.name_ar }));
+  const majorOptions = majors.map((m) => ({ value: m.id, label: m.name_ar }));
 
   return (
     <div className="flex flex-col gap-6">
@@ -100,6 +112,20 @@ export function AdminAcademicSupporterProfileEditor({ supporterId, supporter }) 
               value={experienceYears}
               onChange={setExperienceYears}
               options={EXPERIENCE_OPTIONS}
+              placeholder="—"
+            />
+            <SmoothSelect
+              label={t('completeProfile.universityLabel')}
+              value={universityId}
+              onChange={setUniversityId}
+              options={universityOptions}
+              placeholder="—"
+            />
+            <SmoothSelect
+              label={t('completeProfile.majorLabel')}
+              value={majorId}
+              onChange={setMajorId}
+              options={majorOptions}
               placeholder="—"
             />
           </div>

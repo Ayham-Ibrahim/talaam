@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 
 /** Custom dropdown — native <select> can't be restyled, so this renders its own smooth, brand-colored option panel. */
 export function SmoothSelect({
@@ -11,8 +11,10 @@ export function SmoothSelect({
   className = "",
   error = false,
   errorMessage = null,
+  searchPlaceholder = "بحث...",
 }) {
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const rootRef = useRef(null);
 
   useEffect(() => {
@@ -25,7 +27,14 @@ export function SmoothSelect({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
 
+  useEffect(() => {
+    if (!open) setQuery("");
+  }, [open]);
+
   const selected = options.find((o) => o.value === value);
+  const filteredOptions = query.trim()
+    ? options.filter((o) => o.label?.toLowerCase().includes(query.trim().toLowerCase()))
+    : options;
 
   return (
     <div
@@ -59,26 +68,46 @@ export function SmoothSelect({
 
         {open && (
           <div className="absolute z-20 mt-2 w-full origin-top animate-fade-in overflow-hidden rounded-2xl bg-white p-2 shadow-lift">
-            {options.map((opt) => {
-              const isSelected = opt.value === value;
-              return (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => {
-                    onChange(opt.value);
-                    setOpen(false);
-                  }}
-                  className={`w-full rounded-xl px-4 py-3 text-start text-sm transition-colors duration-150 ${
-                    isSelected
-                      ? "bg-primary/10 font-semibold text-primary"
-                      : "text-ink hover:bg-primary/10 hover:text-primary"
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              );
-            })}
+            {options.length > 6 && (
+              <div className="mb-1 flex items-center gap-2 rounded-xl border border-[#E3E3E3] px-3 py-2">
+                <Search size={14} className="shrink-0 text-ink-soft" />
+                <input
+                  type="text"
+                  autoFocus
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                  placeholder={searchPlaceholder}
+                  className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-[#AEAEB2]"
+                />
+              </div>
+            )}
+            <div className="max-h-64 overflow-y-auto">
+              {filteredOptions.length === 0 ? (
+                <p className="px-4 py-3 text-center text-sm text-ink-soft">لا توجد نتائج</p>
+              ) : (
+                filteredOptions.map((opt) => {
+                  const isSelected = opt.value === value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => {
+                        onChange(opt.value);
+                        setOpen(false);
+                      }}
+                      className={`w-full rounded-xl px-4 py-3 text-start text-sm transition-colors duration-150 ${
+                        isSelected
+                          ? "bg-primary/10 font-semibold text-primary"
+                          : "text-ink hover:bg-primary/10 hover:text-primary"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })
+              )}
+            </div>
           </div>
         )}
       </div>
