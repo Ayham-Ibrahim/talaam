@@ -7,29 +7,7 @@ import { ElfsightChat } from "@/components/common/ElfsightChat";
 import { CursorLight } from "@/motion/ambient/AmbientEngine";
 import { useEffect, useState } from "react";
 import { useLocaleStore } from "@/store";
-import { useAuth } from "@/hooks/useAuth";
-import { useSyncTimezone } from "@/hooks/useProfile";
-import { getBrowserTimezone } from "@/lib/timezone";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-/**
- * صامت تماماً (بلا واجهة) — يرسل منطقة متصفح المستخدم الفعلية للباك مرة واحدة
- * عند كل تحميل تطبيق وهو مسجَّل دخوله. الباك يتجاهل النداء بهدوء إن كان قد
- * ثبَّت منطقته يدوياً من الإعدادات (ProfileController::syncTimezone)، فاستدعاؤه
- * دائماً بلا شرط هنا آمن تماماً ولا يطغى على أي اختيار يدوي سابق.
- */
-function TimezoneAutoSync() {
-  const { isAuthenticated } = useAuth();
-  const syncTimezone = useSyncTimezone();
-  const syncMutate = syncTimezone.mutate;
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    syncMutate(getBrowserTimezone());
-  }, [isAuthenticated, syncMutate]);
-
-  return null;
-}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -90,7 +68,6 @@ export default function App() {
           <LogoIntro onComplete={() => setIntroFinished(true)} />
         )}
         <div style={{ display: introFinished ? "block" : "none" }}>
-          <TimezoneAutoSync />
           <AppRouter />
         </div>
         {introFinished && <ElfsightChat />}

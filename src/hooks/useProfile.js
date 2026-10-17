@@ -40,17 +40,3 @@ export function useUpdatePassword() {
     mutationFn: (payload) => profileService.updatePassword(payload),
   });
 }
-
-/**
- * تُستدعى صامتة مرة واحدة عند تحميل التطبيق (App.jsx) — الباك يتجاهلها بهدوء
- * إن كان المستخدم قد ثبَّت منطقته الزمنية يدوياً من الإعدادات، فلا تأثير سلبياً لاستدعائها دائماً.
- */
-export function useSyncTimezone() {
-  const { updateUser } = useAuth();
-  return useMutation({
-    mutationFn: (timezone) => profileService.syncTimezone(timezone),
-    onSuccess: (data) => {
-      if (data?.timezone) updateUser({ timezone: data.timezone, timezone_auto: data.timezone_auto });
-    },
-  });
-}

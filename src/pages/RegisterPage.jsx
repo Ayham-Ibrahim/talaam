@@ -12,6 +12,7 @@ import {
   isStudentAcademicFormValid,
 } from '@/components/dashboard/StudentAcademicProfileFields';
 import { NAME_VALIDATION_PATTERN, EMAIL_PATTERN, PHONE_PATTERN } from '@/lib/accountFormValidation';
+import { getBrowserTimezone } from '@/lib/timezone';
 import { useAuth, useRegisterStudent } from '@/hooks/useAuth';
 import { useT } from '@/hooks/useT';
 
@@ -75,6 +76,8 @@ export function RegisterPage() {
         phone: values.phone.trim() || undefined,
         password: values.password,
         password_confirmation: values.password_confirmation,
+        // منطقة الطالب الفعلية تُلتقَط مرة واحدة هنا فقط، عند إنشاء الحساب — لا تُعاد مزامنتها تلقائياً بعد ذلك
+        timezone: getBrowserTimezone(),
         ...buildStudentAcademicPayload(academicForm),
       },
       { onSuccess: () => navigate('/dashboard/student', { replace: true }) },
