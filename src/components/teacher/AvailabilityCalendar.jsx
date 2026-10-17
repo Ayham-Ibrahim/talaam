@@ -2,8 +2,6 @@ import { useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useT } from '@/hooks/useT';
 
-/** Hourly slots offered for an individual session (teacher approves the exact time after) */
-const SLOT_HOURS = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
 const WEEKDAY_INITIALS_AR = ['أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت'];
 
 function pad(n) {
@@ -14,11 +12,23 @@ function toISODate(date) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
-/** "10:00 صباحاً" */
-function slotLabel(hour) {
+/** نصف ساعة لكل خانة (9:00، 9:30، 10:00...) — لا ساعات تامة فقط، يختار الطالب من ضمنها حرفياً */
+function buildHalfHourSlots(startHour, endHour) {
+  const slots = [];
+  for (let hour = startHour; hour <= endHour; hour++) {
+    slots.push({ hour, minute: 0 });
+    if (hour < endHour) slots.push({ hour, minute: 30 });
+  }
+  return slots;
+}
+
+const SLOT_TIMES = buildHalfHourSlots(9, 21);
+
+/** "10:30 صباحاً" */
+function slotLabel({ hour, minute }) {
   const period = hour < 12 || hour === 24 ? 'صباحاً' : 'مساءً';
   const h12 = hour % 12 === 0 ? 12 : hour % 12;
-  return `${h12}:00 ${period}`;
+  return `${h12}:${pad(minute)} ${period}`;
 }
 
 function buildMonthGrid(viewDate) {
@@ -142,14 +152,14 @@ export function AvailabilityCalendar({
         <div className="rounded-3xl bg-white p-4 shadow-card">
           <h4 className="mb-3 text-start text-sm font-bold text-ink">{t('booking.chooseTime')}</h4>
           <div className="grid grid-cols-3 gap-2">
-            {SLOT_HOURS.map((hour) => {
-              const value = `${pad(hour)}:00`;
+            {SLOT_TIMES.map((slot) => {
+              const value = `${pad(slot.hour)}:${pad(slot.minute)}`;
               const status = slotStatus(value);
               const unavailable = status !== 'available';
               const isSelected = selectedTime === value;
               return (
                 <button
-                  key={hour}
+                  key={value}
                   type="button"
                   disabled={unavailable}
                   onClick={() => onSelectTime(value)}
@@ -168,7 +178,7 @@ export function AvailabilityCalendar({
                         : 'bg-accent-purple/10 text-accent-purple hover:bg-accent-purple/20'
                   }`}
                 >
-                  {slotLabel(hour)}
+                  {slotLabel(slot)}
                 </button>
               );
             })}
