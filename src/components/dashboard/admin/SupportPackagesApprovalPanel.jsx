@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { Ticket } from 'lucide-react';
 import { formatPrice } from '@/lib/formatters';
 import { ReasonModal } from './ReasonModal';
+import { SupportPackageCouponsModal } from './SupportPackageCouponsModal';
 import {
   useAdminApproveSupportPackage,
   useAdminRejectSupportPackage,
@@ -24,6 +26,7 @@ const STATUS_STYLES = {
 export function SupportPackagesApprovalPanel({ supporterId, supportPackages = [] }) {
   const t = useT();
   const [rejectingId, setRejectingId] = useState(null);
+  const [couponsPackage, setCouponsPackage] = useState(null);
   const approve = useAdminApproveSupportPackage(supporterId);
   const reject = useAdminRejectSupportPackage(supporterId);
   const disable = useAdminDisableSupportPackage(supporterId);
@@ -43,8 +46,11 @@ export function SupportPackagesApprovalPanel({ supporterId, supportPackages = []
           <div key={sp.id} className="rounded-2xl border border-line/60 p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="text-right">
-                <div className="font-bold text-ink">
-                  {t(`dashboard.addSupportPackage.tier${sp.tier === 'premium' ? 'Premium' : 'Basic'}`)} — {sp.subject ?? '—'}
+                <div className="font-bold text-ink">{sp.title}</div>
+                <div className="text-xs text-ink-soft">
+                  {t(`dashboard.addSupportPackage.tier${sp.tier === 'premium' ? 'Premium' : 'Basic'}`)}
+                  {' · '}
+                  {(sp.subjects ?? []).map((s) => s.name).join('، ') || '—'}
                 </div>
                 <div className="text-sm text-price">{formatPrice(sp.studentPrice, sp.currency)}</div>
               </div>
@@ -80,14 +86,24 @@ export function SupportPackagesApprovalPanel({ supporterId, supportPackages = []
                 </>
               )}
               {sp.status === 'active' && (
-                <button
-                  type="button"
-                  disabled={isActing}
-                  onClick={() => disable.mutate(sp.id)}
-                  className="rounded-xl border border-line px-4 py-2 text-xs font-medium text-ink-soft hover:bg-line/30 disabled:opacity-50"
-                >
-                  {t('dashboard.adminListingDetail.disable')}
-                </button>
+                <>
+                  <button
+                    type="button"
+                    disabled={isActing}
+                    onClick={() => disable.mutate(sp.id)}
+                    className="rounded-xl border border-line px-4 py-2 text-xs font-medium text-ink-soft hover:bg-line/30 disabled:opacity-50"
+                  >
+                    {t('dashboard.adminListingDetail.disable')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCouponsPackage(sp)}
+                    className="flex items-center gap-1.5 rounded-xl border border-primary px-4 py-2 text-xs font-medium text-primary hover:bg-primary/5"
+                  >
+                    <Ticket size={14} />
+                    {t('dashboard.coupons.title')}
+                  </button>
+                </>
               )}
               {sp.status === 'disabled' && (
                 <button
@@ -111,6 +127,14 @@ export function SupportPackagesApprovalPanel({ supporterId, supportPackages = []
           error={reject.isError ? reject.error : null}
           onConfirm={(reason) => reject.mutate({ id: rejectingId, reason }, { onSuccess: () => setRejectingId(null) })}
           onClose={() => setRejectingId(null)}
+        />
+      )}
+
+      {couponsPackage && (
+        <SupportPackageCouponsModal
+          supportPackageId={couponsPackage.id}
+          packageTitle={couponsPackage.title}
+          onClose={() => setCouponsPackage(null)}
         />
       )}
     </div>

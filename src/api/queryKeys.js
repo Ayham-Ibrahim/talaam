@@ -23,6 +23,7 @@ export const queryKeys = {
   taxonomy: (type) => ['taxonomy', type],
   coupons: {
     list: (packageId) => ['coupons', 'list', packageId],
+    supportPackageList: (supportPackageId) => ['coupons', 'support-package-list', supportPackageId],
   },
   bookings: {
     list: (filters) => ['bookings', 'list', filters],

@@ -139,6 +139,13 @@ export const endpoints = {
     update: (id) => `/coupons/${id}`,
     delete: (id) => `/coupons/${id}`,
   },
+  supportPackageCoupons: {
+    list: (supportPackageId) => `/support-packages/${supportPackageId}/coupons`,
+    create: (supportPackageId) => `/support-packages/${supportPackageId}/coupons`,
+    // تعديل/حذف مشتركان مع نفس مسارات كوبونات الباقات العادية (Coupon model واحد)
+    update: (id) => `/coupons/${id}`,
+    delete: (id) => `/coupons/${id}`,
+  },
   meta: {
     filters: '/meta/filters',
     stats: '/meta/stats',

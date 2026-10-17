@@ -51,4 +51,29 @@ export const couponService = {
     await client.delete(endpoints.coupons.delete(id));
     return null;
   },
+
+  // كوبونات باقات الدعم الأكاديمي — الأدمن فقط (راجع CouponPolicy). update/remove أعلاه مشتركان بالفعل.
+  async listForSupportPackage(supportPackageId) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return [];
+    }
+    const { data } = await client.get(endpoints.supportPackageCoupons.list(supportPackageId));
+    return data.data;
+  },
+
+  async createForSupportPackage(supportPackageId, payload) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return { id: Math.floor(Math.random() * 100000), ...payload, redeemedCount: 0, isActive: true, isRedeemable: true };
+    }
+    const { data } = await client.post(endpoints.supportPackageCoupons.create(supportPackageId), {
+      code: payload.code || undefined,
+      discount_type: payload.discountType,
+      discount_value: payload.discountValue,
+      max_redemptions: payload.maxRedemptions || undefined,
+      expires_at: payload.expiresAt || undefined,
+    });
+    return data.data;
+  },
 };
