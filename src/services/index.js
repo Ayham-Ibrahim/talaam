@@ -638,6 +638,9 @@ function isBeforeSessionStart(session) {
   return Number.isFinite(startsAtMs) && nowMs < startsAtMs;
 }
 
+/** يطابق SessionService::EARLY_JOIN_MINUTES بالباك اند تماماً — يُسمح بالانضمام قبل الموعد بخمس دقائق */
+const EARLY_JOIN_MINUTES = 5;
+
 function canJoinSession(session, joinUrl) {
   if (!joinUrl) return false;
   if (['completed', 'cancelled', 'no_show_student', 'no_show_teacher'].includes(session.status)) {
@@ -647,7 +650,7 @@ function canJoinSession(session, joinUrl) {
   const { startsAtMs, endsAtMs, nowMs } = getSessionTiming(session.scheduled_at, session.duration_min);
   if (!Number.isFinite(startsAtMs) || !Number.isFinite(endsAtMs)) return false;
 
-  return nowMs >= startsAtMs && nowMs <= endsAtMs;
+  return nowMs >= startsAtMs - EARLY_JOIN_MINUTES * 60 * 1000 && nowMs <= endsAtMs;
 }
 
 function hasPendingRescheduleRequest(session) {
