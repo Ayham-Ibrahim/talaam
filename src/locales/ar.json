@@ -61,11 +61,6 @@
         "icon": "courses",
         "title": "الدورات التدريبية",
         "desc": "طوّر مهاراتك المهنية والتقنية من خلال دورات تدريبية بإشراف نخبة من الخبراء والمختصين"
-      },
-      {
-        "icon": "academic_support",
-        "title": "الدعم الأكاديمي",
-        "desc": "دعم متخصص للطلاب الجامعيين في متابعة الواجبات والمهام الدراسية بإشراف داعمين أكاديميين مختصين"
       }
     ],
     "howItWorksTitle": "كيف تعمل المنصة",
@@ -466,16 +461,6 @@
     "teachingMethods": "طريقة التدريس",
     "sessionFormatShort": { "individual": "فردية", "group": "جماعية" },
     "videos": "فيديوهات",
-    "assignmentsGallery": {
-      "title": "نماذج أعمال",
-      "hint": "نماذج حقيقية من الاساينمنتس التي دعمت بها طلاباً سابقين"
-    },
-    "supportPackages": {
-      "title": "باقات الدعم الطلابي",
-      "hint": "باقات دعم بسعر ثابت لكل مادة",
-      "tierBasic": "الباقة الأساسية",
-      "tierPremium": "الباقة الشاملة"
-    },
     "sessionTypes": "نوع الجلسة",
     "packages": "الباقات",
     "choosePackage": "اختر الباقة",
@@ -657,7 +642,61 @@
     "download": "تنزيل",
     "uploadLabel": "اضغط أو اسحب ملفاً هنا للرفع",
     "uploadHint": "صورة، PDF، PowerPoint، أو Excel — 20 ميغابايت كحد أقصى",
-    "uploading": "جارٍ الرفع…"
+    "uploading": "جارٍ الرفع…",
+    "addThumbnail": "إضافة صورة مصغّرة",
+    "thumbnailHint": "اختياري — بلا صورة، تظهر أيقونة افتراضية لنوع الملف",
+    "confirmUpload": "رفع الملف",
+    "cancel": "إلغاء"
+  },
+  "academicSupporter": {
+    "assignmentsGallery": {
+      "title": "نماذج أعمال سابقة",
+      "hint": "اساينمنتس حقيقية دعم بها الداعم طلاباً سابقين"
+    },
+    "supportPackages": {
+      "title": "باقات الدعم الطلابي",
+      "hint": "باقة دعم بسعر ثابت لكل مادة — ادفع واشترك مباشرة",
+      "tierBasic": "الباقة الأساسية",
+      "tierPremium": "الباقة الشاملة",
+      "subscribeNow": "اشترك الآن",
+      "subscribing": "جارٍ التحويل للدفع..."
+    },
+    "browse": {
+      "title": "الدعم الأكاديمي",
+      "subtitle": "تصفّح الداعمين الأكاديميين واشترك في باقة تناسبك",
+      "empty": "لا يوجد داعمون أكاديميون متاحون حالياً",
+      "viewProfile": "عرض الملف الشخصي ←"
+    },
+    "settings": {
+      "avatarTitle": "الصورة الشخصية",
+      "avatarHint": "تظهر في بروفايلك العام وفي لوحة التحكم",
+      "profileTitle": "ملفي الشخصي",
+      "saveSuccess": "تم حفظ الملف الشخصي بنجاح",
+      "bioLabel": "نبذة عني",
+      "bioPlaceholder": "اكتب نبذة مختصرة عن خبرتك ومجال دعمك...",
+      "qualificationLabel": "المؤهل العلمي",
+      "experienceLabel": "سنوات الخبرة",
+      "subjectsLabel": "المواد",
+      "subjectsPlaceholder": "اختر المواد التي تقدّم فيها الدعم",
+      "languagesLabel": "اللغات",
+      "languagesPlaceholder": "اختر لغات التواصل",
+      "save": "حفظ",
+      "saving": "جارٍ الحفظ..."
+    },
+    "students": {
+      "title": "الطلاب المشتركون",
+      "empty": "لا يوجد طلاب مشتركون بعد",
+      "colStudent": "الطالب",
+      "colPackage": "الباقة",
+      "colAmount": "المبلغ",
+      "colStatus": "الحالة",
+      "colDate": "التاريخ",
+      "status": {
+        "pending_payment": "بانتظار الدفع",
+        "confirmed": "مؤكَّد",
+        "expired": "منتهي"
+      }
+    }
   },
   "completeProfile": {
     "optional": "اختياري",
@@ -881,6 +920,7 @@
     "roleCenter": "مركز تدريبي",
     "roleAdmin": "مدير",
     "roleAccountant": "محاسب",
+    "roleAcademicSupporter": "داعم أكاديمي",
     "nav": {
       "home": "الرئيسية",
       "calendar": "التقويم",
@@ -890,7 +930,11 @@
       "students": "الطلاب",
       "reviews": "التقييمات",
       "settings": "الاعدادات",
-      "bookingRequests": "طلبات الحجز"
+      "bookingRequests": "طلبات الحجز",
+      "academicSupport": "الدعم الأكاديمي",
+      "supporterProfile": "ملفي الشخصي",
+      "supporterPackages": "باقاتي",
+      "supporterStudents": "الطلاب المشتركون"
     },
     "availability": {
       "title": "أيام التوفر",
@@ -1033,12 +1077,15 @@
       "empty": "لا توجد باقات دعم بعد",
       "tierBasic": "الباقة الأساسية",
       "tierPremium": "الباقة الشاملة",
+      "disable": "تعطيل",
+      "enable": "إعادة تفعيل",
       "cols": {
         "tier": "النوع",
         "subject": "المادة",
         "price": "السعر",
         "status": "الحالة",
-        "rejectionReason": "سبب الرفض"
+        "rejectionReason": "سبب الرفض",
+        "actions": "الإجراءات"
       },
       "statuses": {
         "pending_approval": "بانتظار المراجعة",
@@ -1346,6 +1393,7 @@
     "adminNav": {
       "home": "نظرة عامة",
       "teachers": "المعلمون",
+      "academicSupporters": "الدعم الأكاديمي",
       "students": "الطلاب",
       "packages": "الباقات والدورات",
       "complaints": "الشكاوى والمواعيد",
@@ -1610,6 +1658,44 @@
         "submitting": "جارٍ الإرسال…",
         "submitHint": "أكمل النبذة وارفع الوثائق الثلاث المطلوبة (هوية، شهادة أكاديمية، شهادة خبرة) أولاً"
       }
+    },
+    "adminAcademicSupporters": {
+      "title": "إدارة الدعم الأكاديمي",
+      "subtitle": "حسابات الداعمين الأكاديميين وباقاتهم — كيان مستقل تماماً عن المعلمين",
+      "addSupporter": "إضافة داعم أكاديمي",
+      "addSuccess": "تم إنشاء حساب الداعم الأكاديمي بنجاح",
+      "allStatuses": "جميع الحالات",
+      "statusActive": "نشط",
+      "statusSuspended": "معلَّق",
+      "searchPlaceholder": "بحث بالاسم أو البريد الإلكتروني",
+      "colSupporter": "الداعم",
+      "colStatus": "الحالة",
+      "colCreated": "تاريخ الإنشاء",
+      "colActions": "الإجراءات",
+      "empty": "لا يوجد داعمون أكاديميون بعد",
+      "addModalTitle": "إضافة حساب داعم أكاديمي",
+      "addSubmit": "إنشاء الحساب",
+      "deleteModalTitle": "حذف حساب الداعم الأكاديمي",
+      "deleteModalMessage": "هل تريد حذف حساب",
+      "deleteSuccess": "تم حذف حساب الداعم الأكاديمي بنجاح",
+      "deleteSupporter": "حذف"
+    },
+    "adminAcademicSupporterDetail": {
+      "profileTitle": "الملف الشخصي",
+      "bioLabel": "نبذة عن الداعم",
+      "qualificationLabel": "المؤهل العلمي",
+      "experienceLabel": "سنوات الخبرة",
+      "subjectsLabel": "المواد",
+      "subjectsPlaceholder": "اختر المواد",
+      "languagesLabel": "اللغات",
+      "languagesPlaceholder": "اختر اللغات",
+      "save": "حفظ",
+      "saving": "جارٍ الحفظ...",
+      "saveSuccess": "تم حفظ الملف الشخصي بنجاح",
+      "suspend": "تعليق الحساب",
+      "reactivate": "إعادة تفعيل الحساب",
+      "packagesTitle": "باقات الدعم الطلابي",
+      "noPackages": "لا توجد باقات دعم بعد"
     },
     "reasonModal": {
       "rejectTeacherTitle": "سبب رفض طلب المعلم",

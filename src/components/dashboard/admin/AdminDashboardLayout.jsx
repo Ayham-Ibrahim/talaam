@@ -5,6 +5,7 @@ import {
   ChevronRight,
   FileSpreadsheet,
   GraduationCap,
+  HandHeart,
   History,
   Home,
   ListTree,
@@ -32,6 +33,7 @@ import { useT } from '@/hooks/useT';
 const ADMIN_NAV_ITEMS = [
   { key: 'home', icon: Home, path: '/dashboard/admin', end: true },
   { key: 'teachers', icon: GraduationCap, path: '/dashboard/admin/teachers', statKey: 'pendingVerificationsCount' },
+  { key: 'academicSupporters', icon: HandHeart, path: '/dashboard/admin/academic-supporters' },
   { key: 'students', icon: Users, path: '/dashboard/admin/students' },
   { key: 'packages', icon: Package, path: '/dashboard/admin/listings', statKey: 'pendingApprovalsCount' },
   { key: 'complaints', icon: MessageSquareWarning, path: '/dashboard/admin/complaints', statKey: 'openComplaintsCount' },

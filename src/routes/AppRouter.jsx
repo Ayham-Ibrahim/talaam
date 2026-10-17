@@ -20,6 +20,8 @@ import { AdminDashboardPage } from '@/pages/AdminDashboardPage';
 import { AdminTeachersPage } from '@/pages/AdminTeachersPage';
 import { AdminStudentsPage } from '@/pages/AdminStudentsPage';
 import { AdminTeacherDetailPage } from '@/pages/AdminTeacherDetailPage';
+import { AdminAcademicSupportersPage } from '@/pages/AdminAcademicSupportersPage';
+import { AdminAcademicSupporterDetailPage } from '@/pages/AdminAcademicSupporterDetailPage';
 import { AdminStudentDetailPage } from '@/pages/AdminStudentDetailPage';
 import { AdminListingsPage } from '@/pages/AdminListingsPage';
 import { AdminListingDetailPage } from '@/pages/AdminListingDetailPage';
@@ -49,6 +51,11 @@ import { TeacherStudentsPage } from '@/pages/TeacherStudentsPage';
 import { TeacherSettingsPage } from '@/pages/TeacherSettingsPage';
 import { TeacherBookingRequestsPage } from '@/pages/TeacherBookingRequestsPage';
 import { TeacherStudentDetailsPage } from '@/pages/TeacherStudentDetailsPage';
+import { SupporterSettingsPage } from '@/pages/SupporterSettingsPage';
+import { SupporterPackagesPage } from '@/pages/SupporterPackagesPage';
+import { SupporterStudentsPage } from '@/pages/SupporterStudentsPage';
+import { AcademicSupporterBrowsePage } from '@/pages/AcademicSupporterBrowsePage';
+import { AcademicSupporterProfilePage } from '@/pages/AcademicSupporterProfilePage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 export function AppRouter() {
@@ -106,6 +113,22 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="admin">
               <AdminTeachersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/academic-supporters"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminAcademicSupportersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/academic-supporters/:id"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminAcademicSupporterDetailPage />
             </ProtectedRoute>
           }
         />
@@ -316,6 +339,46 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="student">
               <StudentSettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/student/academic-support"
+          element={
+            <ProtectedRoute role="student">
+              <AcademicSupporterBrowsePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/student/academic-support/:id"
+          element={
+            <ProtectedRoute role="student">
+              <AcademicSupporterProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/supporter"
+          element={
+            <ProtectedRoute role="academic_support">
+              <SupporterSettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/supporter/packages"
+          element={
+            <ProtectedRoute role="academic_support">
+              <SupporterPackagesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/supporter/students"
+          element={
+            <ProtectedRoute role="academic_support">
+              <SupporterStudentsPage />
             </ProtectedRoute>
           }
         />

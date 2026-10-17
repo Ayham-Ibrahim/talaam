@@ -10,8 +10,6 @@ import { TeacherTeachingScopeSection } from '@/components/teacher/TeacherTeachin
 import { VideosSection } from '@/components/teacher/TeacherInfoSections';
 import { PackagesSection } from '@/components/teacher/PackagesSection';
 import { CoursesSection } from '@/components/teacher/CoursesSection';
-import { AssignmentsGallerySection } from '@/components/teacher/AssignmentsGallerySection';
-import { SupportPackagesSection } from '@/components/teacher/SupportPackagesSection';
 import { RatingReviews } from '@/components/teacher/RatingReviews';
 import { TeacherFAQSection } from '@/components/teacher/TeacherFAQSection';
 import { TeacherClosingSections } from '@/components/teacher/TeacherClosingSections';
@@ -70,13 +68,12 @@ export function TeacherProfilePage() {
 
   const { data: teacher, isLoading: teacherLoading, isError: teacherError, refetch: refetchTeacher } = useTeacher(id);
   const isCenter = teacher?.type === 'training_center';
-  const isAcademicSupport = teacher?.type === 'academic_support';
   const {
     data: packages,
     isLoading: packagesLoading,
     isError: packagesError,
     refetch: refetchPackages,
-  } = usePackages(isCenter || isAcademicSupport ? undefined : id);
+  } = usePackages(isCenter ? undefined : id);
   const {
     data: courses,
     isLoading: coursesLoading,
@@ -157,11 +154,7 @@ export function TeacherProfilePage() {
 
         <VideosSection title={t('teacher.videos')} videos={teacher.videos} />
 
-        {isAcademicSupport && <AssignmentsGallerySection items={teacher.galleryItems} />}
-
-        {isAcademicSupport ? (
-          <SupportPackagesSection supportPackages={teacher.supportPackages} />
-        ) : isCenter ? (
+        {isCenter ? (
           <CoursesSection
             courses={courses ?? []}
             isLoading={coursesLoading}
@@ -194,9 +187,8 @@ export function TeacherProfilePage() {
         <TeacherClosingSections teacher={teacher} />
       </div>
 
-      {/* Booking / enrollment drawer — opens when a package or course is picked above.
-          لا يوجد زر اشتراك/حجز لباقات الدعم الطلابي بعد (مرحلة لاحقة) — لا درج لها هنا. */}
-      {isAcademicSupport ? null : isCenter ? (
+      {/* Booking / enrollment drawer — opens when a package or course is picked above. */}
+      {isCenter ? (
         <Drawer open={Boolean(selectedCourse)} onClose={() => setSelectedCourseId(null)} title={t('teacher.course.enrollTitle')}>
           <CourseEnrollWidget selectedCourse={selectedCourse} bare />
         </Drawer>

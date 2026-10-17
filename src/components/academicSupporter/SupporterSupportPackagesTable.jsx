@@ -8,15 +8,15 @@ const STATUS_STYLES = {
   disabled: { bg: '#F2F2F7', color: '#6B7280' },
 };
 
-export function TeacherSupportPackagesTable({ supportPackages = [] }) {
+export function SupporterSupportPackagesTable({ supportPackages = [], onDisable, onEnable, isActing = false }) {
   const t = useT();
 
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
-      <table className="w-full min-w-[700px] text-sm">
+      <table className="w-full min-w-[760px] text-sm">
         <thead>
           <tr className="border-b border-line text-right">
-            {['tier', 'subject', 'price', 'status', 'rejectionReason'].map((col) => (
+            {['tier', 'subject', 'price', 'status', 'rejectionReason', 'actions'].map((col) => (
               <th key={col} className="px-4 py-3 font-bold text-ink">
                 {t(`dashboard.teacherSupportPackages.cols.${col}`)}
               </th>
@@ -39,6 +39,28 @@ export function TeacherSupportPackagesTable({ supportPackages = [] }) {
                   </span>
                 </td>
                 <td className="px-4 py-3 text-xs text-ink-soft">{sp.rejection_reason ?? '—'}</td>
+                <td className="px-4 py-3">
+                  {sp.status === 'active' && (
+                    <button
+                      type="button"
+                      disabled={isActing}
+                      onClick={() => onDisable?.(sp.id)}
+                      className="text-xs font-medium text-accent-pink hover:opacity-70 disabled:opacity-50"
+                    >
+                      {t('dashboard.teacherSupportPackages.disable')}
+                    </button>
+                  )}
+                  {sp.status === 'disabled' && (
+                    <button
+                      type="button"
+                      disabled={isActing}
+                      onClick={() => onEnable?.(sp.id)}
+                      className="text-xs font-medium text-success hover:opacity-70 disabled:opacity-50"
+                    >
+                      {t('dashboard.teacherSupportPackages.enable')}
+                    </button>
+                  )}
+                </td>
               </tr>
             );
           })}

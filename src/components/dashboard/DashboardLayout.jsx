@@ -7,12 +7,14 @@ import {
   ChevronRight,
   CreditCard,
   FileText,
+  HandHeart,
   Heart,
   Home,
   LogOut,
   Settings,
   Star,
   UserRound,
+  Users,
   Menu,
   X,
   Globe,
@@ -30,9 +32,16 @@ const STUDENT_NAV_ITEMS = [
   { key: "calendar", icon: Calendar, path: "/dashboard/student/calendar" },
   { key: "sessions", icon: FileText, path: "/dashboard/student/sessions" },
   { key: "packages", icon: CreditCard, path: "/dashboard/student/packages" },
+  { key: "academicSupport", icon: HandHeart, path: "/dashboard/student/academic-support", universityOnly: true },
   { key: "invoices", icon: FileText, path: "/dashboard/student/invoices" },
   { key: "reviews", icon: Star, path: "/dashboard/student/reviews" },
   { key: "settings", icon: Settings, path: "/dashboard/student/settings" },
+];
+
+const SUPPORTER_NAV_ITEMS = [
+  { key: "supporterProfile", icon: UserRound, path: "/dashboard/supporter", end: true },
+  { key: "supporterPackages", icon: CreditCard, path: "/dashboard/supporter/packages" },
+  { key: "supporterStudents", icon: Users, path: "/dashboard/supporter/students" },
 ];
 
 const TEACHER_NAV_ITEMS = [
@@ -73,7 +82,12 @@ function DashboardLayoutInner({ children }) {
   }, [location.pathname]);
 
   const NAV_ITEMS =
-    user?.role === "teacher" ? TEACHER_NAV_ITEMS : STUDENT_NAV_ITEMS;
+    user?.role === "teacher"
+      ? TEACHER_NAV_ITEMS
+      : user?.role === "academic_support"
+        ? SUPPORTER_NAV_ITEMS
+        // تاب الدعم الأكاديمي حصراً للطالب الجامعي — لا يظهر لطالب مدرسي/دورات تدريبية
+        : STUDENT_NAV_ITEMS.filter((item) => !item.universityOnly || user?.student?.education_type === "university");
 
   const activeNavItem =
     NAV_ITEMS.find((item) =>
@@ -170,7 +184,9 @@ function DashboardLayoutInner({ children }) {
                         ? "dashboard.roleCenter"
                         : user?.role === "teacher"
                           ? "dashboard.roleTeacher"
-                          : "dashboard.roleStudent",
+                          : user?.role === "academic_support"
+                            ? "dashboard.roleAcademicSupporter"
+                            : "dashboard.roleStudent",
                     )}
                   </div>
                 </div>

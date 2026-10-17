@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import { SmoothSelect } from './SmoothSelect';
+import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { ApiErrorList } from '@/components/ui';
 import { useTaxonomyList } from '@/hooks/useTaxonomy';
-import { useCreateTeacherSupportPackage } from '@/hooks/useDashboard';
+import { useCreateSupportPackage } from '@/hooks/useSupporterAccount';
 import { useT } from '@/hooks/useT';
 
 const TIERS = [
@@ -12,14 +12,13 @@ const TIERS = [
 ];
 
 /**
- * نموذج واحد مباشر إلى pending_approval — بعكس AddPackageModal، لا مرحلة
- * draft/wizard متعددة الخطوات (SupportPackageService::create). السعر ثابت
- * حسب الفئة المختارة، لا يُدخله المعلم إطلاقاً.
+ * نموذج واحد مباشر إلى pending_approval — لا مرحلة draft/wizard (راجع
+ * SupportPackageService::create). السعر ثابت حسب الفئة المختارة، لا يُدخله الداعم إطلاقاً.
  */
 export function AddSupportPackageModal({ onClose }) {
   const t = useT();
   const { data: subjects = [] } = useTaxonomyList('subjects');
-  const createSupportPackage = useCreateTeacherSupportPackage();
+  const createSupportPackage = useCreateSupportPackage();
 
   const [tier, setTier] = useState('basic');
   const [subjectId, setSubjectId] = useState('');

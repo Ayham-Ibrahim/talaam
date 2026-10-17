@@ -7,7 +7,13 @@ export function PaymentCancelPage() {
   const t = useT();
   const [searchParams] = useSearchParams();
   const target = searchParams.get('target');
-  const targetPath = target ? `/dashboard/student/packages/${target}` : '/search';
+  const kind = searchParams.get('kind');
+  const targetPath =
+    kind === 'support_package_purchase'
+      ? '/dashboard/student/academic-support'
+      : target
+        ? `/dashboard/student/packages/${target}`
+        : '/search';
 
   return (
     <PageContainer>

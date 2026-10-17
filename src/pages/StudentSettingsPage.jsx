@@ -289,9 +289,10 @@ export function StudentSettingsPage() {
               />
             </div>
 
-            {/* مخفي بطلب صريح — إبقاء المنطقة الزمنية تلقائية دوماً (اكتشاف صامت من App.jsx عبر
-                useSyncTimezone) بلا خيار تثبيت يدوي ظاهر للمستخدم. الحقل والحالة والحمولة أدناه
-                (basicForm.timezone/timezoneAuto) أُبقيت كما هي لإعادة التفعيل لاحقاً بسهولة. */}
+            {/* مخفي بطلب صريح — المنطقة الزمنية تُلتقَط مرة واحدة فقط عند تسجيل الطالب
+                (RegisterPage.jsx)، بلا أي مزامنة تلقائية متكررة بعد ذلك ولا خيار تثبيت
+                يدوي ظاهر للمستخدم. الحقل والحالة والحمولة أدناه (basicForm.timezone/
+                timezoneAuto) أُبقيت كما هي لإعادة التفعيل لاحقاً بسهولة. */}
             {/* <TimezoneField
               timezone={basicForm.timezone}
               auto={basicForm.timezoneAuto}

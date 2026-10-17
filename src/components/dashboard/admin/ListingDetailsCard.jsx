@@ -17,20 +17,12 @@ function InfoRow({ label, value }) {
 export function ListingDetailsCard({ listing }) {
   const t = useT();
 
-  // باقات الدعم لا عنوان حر لها (title=null) — الفئة + المادة يقومان مقامه
-  const displayTitle =
-    listing.kind === 'support_package'
-      ? [t(`dashboard.adminListingDetail.tier${listing.tier === 'premium' ? 'Premium' : 'Basic'}`), listing.subjectName]
-          .filter(Boolean)
-          .join(' — ')
-      : listing.title;
-
   return (
     <div className="rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card sm:p-6">
       <div className="flex items-start justify-between gap-3 border-b border-line/60 pb-4 text-right">
         <ListingStatusBadge status={listing.status} />
         <div>
-          <h2 className="text-lg font-bold text-ink">{displayTitle}</h2>
+          <h2 className="text-lg font-bold text-ink">{listing.title}</h2>
           <p className="mt-1 text-sm text-ink-soft">{LISTING_KIND_LABELS[listing.kind]}</p>
         </div>
       </div>

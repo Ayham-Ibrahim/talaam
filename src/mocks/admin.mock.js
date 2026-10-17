@@ -17,7 +17,6 @@ export const TEACHER_TYPE_LABELS = {
   school: 'مدرسي',
   university: 'جامعي',
   training_center: 'مركز تدريب',
-  academic_support: 'داعم أكاديمي',
 };
 
 export const DOCUMENT_STATUS_STYLES = {

@@ -55,11 +55,6 @@
         "icon": "courses",
         "title": "Training Courses",
         "desc": "Develop your professional and technical skills through training courses supervised by top experts and specialists"
-      },
-      {
-        "icon": "academic_support",
-        "title": "Academic Support",
-        "desc": "Specialized support for university students with assignments and coursework, supervised by dedicated academic support specialists"
       }
     ],
     "howItWorksTitle": "How the Platform Works",

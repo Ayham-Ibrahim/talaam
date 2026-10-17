@@ -5,7 +5,6 @@ import { useT } from '@/hooks/useT';
 
 export function ListingApprovalPanel({ listing, actions, isActing }) {
   const t = useT();
-  const isSupportPackage = listing.kind === 'support_package';
   const [margin, setMargin] = useState(String(listing.marginPercent ?? DEFAULT_MARGIN_PERCENT));
   const [touched, setTouched] = useState(false);
 
@@ -14,10 +13,6 @@ export function ListingApprovalPanel({ listing, actions, isActing }) {
   const preview = isValidMargin ? calculateStudentPrice(listing.teacherPrice, marginNumber) : null;
 
   const handleApprove = () => {
-    if (isSupportPackage) {
-      actions.onApprove();
-      return;
-    }
     setTouched(true);
     if (!isValidMargin) return;
     actions.onApprove(marginNumber);
@@ -32,44 +27,37 @@ export function ListingApprovalPanel({ listing, actions, isActing }) {
         <span className="text-sm text-ink-soft">{t('dashboard.adminListingDetail.teacherPrice')}</span>
       </div>
 
-      {/* باقات الدعم: سعر ثابت بلا هامش منصة إطلاقاً — لا حقل هامش ولا معاينة، السعر أعلاه هو ما يستلمه الداعم كاملاً */}
-      {isSupportPackage ? (
-        listing.status === 'pending_approval' && (
-          <p className="mt-4 text-sm text-ink-soft">{t('dashboard.adminListingDetail.noMarginSupportPackage')}</p>
-        )
-      ) : (
-        listing.status === 'pending_approval' && (
-          <>
-            <label className="mt-4 flex flex-col gap-1.5 text-right">
-              <span className="text-sm font-semibold text-ink">{t('dashboard.adminListingDetail.marginLabel')}</span>
-              <input
-                type="number"
-                min="0"
-                step="0.5"
-                dir="ltr"
-                value={margin}
-                onChange={(e) => setMargin(e.target.value)}
-                className={`w-full rounded-btn border bg-surface p-3 text-left text-sm text-ink focus:outline-none focus:ring-2 ${
-                  touched && !isValidMargin ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
-                }`}
-              />
-              {touched && !isValidMargin && <span className="text-xs text-accent-pink">{t('dashboard.adminListingDetail.marginRequired')}</span>}
-            </label>
+      {listing.status === 'pending_approval' && (
+        <>
+          <label className="mt-4 flex flex-col gap-1.5 text-right">
+            <span className="text-sm font-semibold text-ink">{t('dashboard.adminListingDetail.marginLabel')}</span>
+            <input
+              type="number"
+              min="0"
+              step="0.5"
+              dir="ltr"
+              value={margin}
+              onChange={(e) => setMargin(e.target.value)}
+              className={`w-full rounded-btn border bg-surface p-3 text-left text-sm text-ink focus:outline-none focus:ring-2 ${
+                touched && !isValidMargin ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
+              }`}
+            />
+            {touched && !isValidMargin && <span className="text-xs text-accent-pink">{t('dashboard.adminListingDetail.marginRequired')}</span>}
+          </label>
 
-            {preview && (
-              <div className="mt-4 flex flex-col gap-2 rounded-xl bg-[#FAFBFD] p-4">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-price">{formatPrice(preview.studentPrice)}</span>
-                  <span className="text-sm text-ink-soft">{t('dashboard.adminListingDetail.studentPrice')}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-success">{formatPrice(preview.platformRevenue)}</span>
-                  <span className="text-sm text-ink-soft">{t('dashboard.adminListingDetail.platformRevenue')}</span>
-                </div>
+          {preview && (
+            <div className="mt-4 flex flex-col gap-2 rounded-xl bg-[#FAFBFD] p-4">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-price">{formatPrice(preview.studentPrice)}</span>
+                <span className="text-sm text-ink-soft">{t('dashboard.adminListingDetail.studentPrice')}</span>
               </div>
-            )}
-          </>
-        )
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-success">{formatPrice(preview.platformRevenue)}</span>
+                <span className="text-sm text-ink-soft">{t('dashboard.adminListingDetail.platformRevenue')}</span>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       <div className="mt-5 flex flex-wrap gap-3">
@@ -105,8 +93,8 @@ export function ListingApprovalPanel({ listing, actions, isActing }) {
           </button>
         )}
 
-        {/* إعادة التفعيل: الباقات العادية وباقات الدعم — لا endpoint مماثل للدورات بالباك اند بعد */}
-        {(listing.kind === 'package' || listing.kind === 'support_package') && listing.status === 'disabled' && (
+        {/* إعادة التفعيل: الباقات العادية فقط — لا endpoint مماثل للدورات بالباك اند بعد */}
+        {listing.kind === 'package' && listing.status === 'disabled' && (
           <button
             type="button"
             disabled={isActing}
@@ -120,7 +108,7 @@ export function ListingApprovalPanel({ listing, actions, isActing }) {
         {listing.status !== 'pending_approval' &&
           listing.status !== 'active' &&
           listing.status !== 'full' &&
-          !((listing.kind === 'package' || listing.kind === 'support_package') && listing.status === 'disabled') && (
+          !(listing.kind === 'package' && listing.status === 'disabled') && (
             <p className="w-full text-center text-sm text-ink-soft">{t('dashboard.adminListingDetail.noActionsAvailable')}</p>
           )}
       </div>

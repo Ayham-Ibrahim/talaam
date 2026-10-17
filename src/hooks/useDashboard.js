@@ -61,21 +61,6 @@ export function useSubmitTeacherPackage() {
   });
 }
 
-export function useTeacherSupportPackagesList() {
-  return useQuery({
-    queryKey: queryKeys.dashboard.teacherSupportPackagesList(),
-    queryFn: () => dashboardService.getTeacherSupportPackagesList(),
-  });
-}
-
-export function useCreateTeacherSupportPackage() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (payload) => dashboardService.createTeacherSupportPackage(payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.teacherSupportPackagesList() }),
-  });
-}
-
 export function useTeacherCoursesList() {
   return useQuery({
     queryKey: queryKeys.dashboard.teacherCoursesList(),

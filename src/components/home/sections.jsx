@@ -58,13 +58,11 @@ const EDUCATION_TYPE_ICONS = {
   school: School,
   university: Landmark,
   courses: BookOpen,
-  academic_support: ClipboardCheck,
 };
 const EDUCATION_TYPE_STYLES = {
   school: { from: "#8FE6F7", to: "#39A5C9" },
   university: { from: "#7C9CD6", to: "#2F4A78" },
   courses: { from: "#E96FA6", to: "#8C0642" },
-  academic_support: { from: "#FFC98F", to: "#D9792B" },
 };
 /** أيقونة البطاقة ("courses") → شريحة نوع التعليم في الرابط ("training") المطابقة لـ education_type في الباك اند */
 const EDUCATION_TYPE_SLUG = {
@@ -72,13 +70,7 @@ const EDUCATION_TYPE_SLUG = {
   university: "university",
   courses: "training",
 };
-/**
- * الداعم الأكاديمي لا صفحة /teaching/:type خاصة به (لا مراحل/مناهج/صفوف تخصه
- * إطلاقاً — باقاته مادة + سعر ثابت فقط)، فبطاقته تقود لصفحة البحث العامة
- * مفلترة بنوعه مباشرة بدل بناء صفحة تصفّح كاملة غير ضرورية لهذا النوع.
- */
-const EDUCATION_TYPE_HREF = (icon) =>
-  icon === "academic_support" ? "/search?type=academic_support" : `/teaching/${EDUCATION_TYPE_SLUG[icon]}`;
+const EDUCATION_TYPE_HREF = (icon) => `/teaching/${EDUCATION_TYPE_SLUG[icon]}`;
 
 export function EducationTypes() {
   const t = useT();

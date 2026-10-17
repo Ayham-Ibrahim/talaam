@@ -50,7 +50,6 @@ export const queryKeys = {
     packagesList: () => ['dashboard', 'packages-list'],
     teacherPackagesList: () => ['dashboard', 'teacher-packages-list'],
     teacherPackageDetail: (id) => ['dashboard', 'teacher-package-detail', id],
-    teacherSupportPackagesList: () => ['dashboard', 'teacher-support-packages-list'],
     teacherCoursesList: () => ['dashboard', 'teacher-courses-list'],
     teacherSessions: () => ['dashboard', 'teacher-sessions'],
     teacherSessionDetails: (id) => ['dashboard', 'teacher-session-details', id],
@@ -75,5 +74,19 @@ export const queryKeys = {
     reviews: (filters) => ['admin', 'reviews', filters],
     teacherSessionsReport: (filters) => ['admin', 'teacher-sessions-report', filters],
     seededReviews: (teacherId) => ['admin', 'seeded-reviews', teacherId],
+    academicSupporters: (filters) => ['admin', 'academic-supporters', filters],
+    academicSupporterDetail: (id) => ['admin', 'academic-supporter-detail', id],
+  },
+  academicSupporters: {
+    infiniteList: (filters) => ['academic-supporters', 'infinite-list', filters],
+    detail: (id) => ['academic-supporters', 'detail', id],
+  },
+  supporter: {
+    me: () => ['supporter', 'me'],
+    supportPackagesList: () => ['supporter', 'support-packages-list'],
+    purchases: (filters) => ['supporter', 'purchases', filters],
+  },
+  supportPackagePurchases: {
+    detail: (id) => ['support-package-purchases', 'detail', id],
   },
 };

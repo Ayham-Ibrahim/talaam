@@ -76,34 +76,6 @@ export const teacherAccountService = {
     return data.data;
   },
 
-  // غاليري نماذج أعمال الداعم الأكاديمي — صورة/PDF/PPT/Excel، 20 ميغابايت كحد أقصى
-  async addGalleryItem(id, file) {
-    assertFileWithinLimits(file, {
-      maxBytes: 20 * 1024 * 1024,
-      mimeTypes: [
-        'image/jpeg', 'image/png', 'application/pdf',
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        'application/vnd.ms-powerpoint',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'application/vnd.ms-excel',
-      ],
-      field: 'file',
-      sizeMessage: 'حجم الملف أكبر من الحد المسموح (20 ميغابايت كحد أقصى)',
-      typeMessage: 'صيغة الملف غير مدعومة — يُسمح فقط بصورة، PDF، أو ملف PowerPoint/Excel',
-    });
-    const form = new FormData();
-    form.append('file', file);
-    const { data } = await client.post(endpoints.teachers.galleryItems(id), form, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    return data.data;
-  },
-
-  async removeGalleryItem(itemId) {
-    const { data } = await client.delete(endpoints.teachers.galleryItem(itemId));
-    return data.data;
-  },
-
   async addFaq(id, { question, answer }) {
     if (config.useMocks) {
       await mockDelay(300);

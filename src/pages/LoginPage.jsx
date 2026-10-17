@@ -16,6 +16,7 @@ function roleHome(role) {
   if (role === 'teacher') return '/dashboard/teacher';
   if (role === 'admin') return '/dashboard/admin';
   if (role === 'accountant') return '/dashboard/accountant/payouts';
+  if (role === 'academic_support') return '/dashboard/supporter';
   return '/dashboard/student';
 }
 

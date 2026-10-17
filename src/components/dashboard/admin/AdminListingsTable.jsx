@@ -5,12 +5,6 @@ import { LISTING_KIND_LABELS, PROVIDER_TYPE_LABELS } from '@/mocks/adminListings
 import { formatDate, formatPrice } from '@/lib/formatters';
 import { useT } from '@/hooks/useT';
 
-// باقات الدعم لا عنوان حر لها (title=null) — الفئة تقوم مقامه، المادة تظهر أصلاً بالسطر أدناه
-function listingTitle(listing, t) {
-  if (listing.kind !== 'support_package') return listing.title;
-  return t(`dashboard.adminListingDetail.tier${listing.tier === 'premium' ? 'Premium' : 'Basic'}`);
-}
-
 export function AdminListingsTable({ listings }) {
   const t = useT();
 
@@ -31,7 +25,7 @@ export function AdminListingsTable({ listings }) {
           {listings.map((listing, i) => (
             <tr key={listing.id} className={i % 2 === 1 ? 'bg-[#FAFBFD]' : ''}>
               <td className="px-4 py-4 text-right">
-                <div className="font-semibold text-ink">{listingTitle(listing, t)}</div>
+                <div className="font-semibold text-ink">{listing.title}</div>
                 <div className="text-xs text-ink-soft">
                   {LISTING_KIND_LABELS[listing.kind]} · {listing.subjectName}
                 </div>

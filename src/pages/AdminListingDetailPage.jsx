@@ -89,8 +89,7 @@ export function AdminListingDetailPage() {
               {t('dashboard.coupons.title')}
             </button>
           )}
-          {/* لا حجز/تسجيل يدوي لباقات الدعم — لا جلسات ولا تدفّق شراء بعد (Phase 1 عرض فقط) */}
-          {listing?.kind !== 'support_package' && listing?.status === 'active' && (
+          {listing?.status === 'active' && (
             <button
               type="button"
               onClick={() => {
