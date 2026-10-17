@@ -211,8 +211,10 @@ export const academicSupporterService = {
     return data.data;
   },
 
-  async purchasePackage(supportPackageId) {
-    const { data } = await client.post(endpoints.supportPackages.purchase(supportPackageId));
+  async purchasePackage(supportPackageId, couponCode) {
+    const { data } = await client.post(endpoints.supportPackages.purchase(supportPackageId), {
+      coupon_code: couponCode || undefined,
+    });
     return data.data; // { purchase, checkout_url }
   },
 

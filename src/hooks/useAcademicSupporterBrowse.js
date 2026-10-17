@@ -24,7 +24,7 @@ export function useAcademicSupporterProfile(id) {
 
 export function usePurchaseSupportPackage() {
   return useMutation({
-    mutationFn: (supportPackageId) => academicSupporterService.purchasePackage(supportPackageId),
+    mutationFn: ({ supportPackageId, couponCode }) => academicSupporterService.purchasePackage(supportPackageId, couponCode),
   });
 }
 

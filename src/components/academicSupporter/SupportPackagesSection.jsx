@@ -1,5 +1,4 @@
-import { Check, GraduationCap } from 'lucide-react';
-import { ApiErrorList } from '@/components/ui';
+import { GraduationCap } from 'lucide-react';
 import { useT } from '@/hooks/useT';
 import { useCurrencyStore } from '@/store';
 import { convertPrice } from '@/lib/currency';
@@ -21,60 +20,63 @@ function priceLabel(amount, code) {
   return `${value} ${CURRENCY_SYMBOL[code] ?? code}`;
 }
 
-function SupportPackageCard({ pkg, index, onPurchase, isPurchasing }) {
+function SupportPackageCard({ pkg, index, onSelect }) {
   const t = useT();
   const currency = useCurrencyStore((s) => s.currency);
   const gradient = CARD_GRADIENTS[index % CARD_GRADIENTS.length];
+  const subjects = pkg.subjects ?? [];
 
   return (
-    <div
+    <button
+      type="button"
+      onClick={() => onSelect?.(pkg)}
       style={{ background: gradient }}
-      className="relative flex min-h-[290px] flex-col rounded-2xl p-5 text-start shadow-[0_6px_20px_rgba(0,0,0,0.15)] transition"
+      className="relative flex min-h-[290px] flex-col rounded-2xl p-5 text-start shadow-[0_6px_20px_rgba(0,0,0,0.15)] transition hover:-translate-y-0.5 hover:shadow-[0_10px_26px_rgba(0,0,0,0.2)]"
     >
       <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs font-semibold text-white ring-1 ring-white/30 backdrop-blur-sm">
         <GraduationCap size={13} />
         {t(`academicSupporter.supportPackages.tier${pkg.tier === 'premium' ? 'Premium' : 'Basic'}`)}
       </span>
 
-      <div className="mt-4">
-        {pkg.subject?.name && <h4 className="text-lg font-bold leading-snug text-white">{pkg.subject.name}</h4>}
-      </div>
+      <h4 className="mt-4 text-lg font-bold leading-snug text-white">{pkg.title}</h4>
 
-      {pkg.description && <p className="mt-3 text-sm font-medium leading-relaxed text-white/90">{pkg.description}</p>}
+      {subjects.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {subjects.slice(0, 3).map((s) => (
+            <span key={s.id} className="rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium text-white/85">
+              {s.name}
+            </span>
+          ))}
+          {subjects.length > 3 && (
+            <span className="rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium text-white/85">+{subjects.length - 3}</span>
+          )}
+        </div>
+      )}
 
-      <div className="mt-auto flex flex-col gap-3 pt-4">
+      <p className="mt-2 text-xs font-semibold text-white/75">
+        {subjects.length} {t('academicSupporter.supportPackages.subjectsUnit')}
+      </p>
+
+      {pkg.description && <p className="mt-3 line-clamp-2 text-sm font-medium leading-relaxed text-white/90">{pkg.description}</p>}
+
+      <div className="mt-auto flex items-center justify-between pt-4">
         <span dir="ltr" className="text-2xl font-bold leading-none text-white">
           {priceLabel(pkg.price, currency)}
         </span>
-
-        {onPurchase && (
-          <button
-            type="button"
-            disabled={isPurchasing}
-            onClick={() => onPurchase(pkg.id)}
-            className="flex items-center justify-center gap-1.5 rounded-2xl bg-white py-3 text-sm font-semibold text-[#1E1E1E] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {isPurchasing ? (
-              t('academicSupporter.supportPackages.subscribing')
-            ) : (
-              <>
-                <Check size={15} strokeWidth={3} />
-                {t('academicSupporter.supportPackages.subscribeNow')}
-              </>
-            )}
-          </button>
-        )}
+        <span className="rounded-xl bg-white px-4 py-2 text-xs font-semibold text-[#1E1E1E]">
+          {t('academicSupporter.supportPackages.viewDetails')}
+        </span>
       </div>
-    </div>
+    </button>
   );
 }
 
 /**
- * باقات دعم طلابي بسعر ثابت لكل مادة، بلا جلسات/جدول — نفس تصميم بطاقات باقات
- * المعلم (PackagesSection.jsx) حرفياً: بطاقة تدرّج ملوّن كامل، شارة نوع الباقة،
- * السعر مثبّت بالأسفل، زر أبيض صلب. الدفع مباشر عبر Stripe (100% للمنصة).
+ * باقات دعم طلابي — نفس تصميم بطاقات باقات المعلم (PackagesSection.jsx) حرفياً:
+ * بطاقة تدرّج ملوّن كامل، شارة نوع الباقة، السعر مثبّت بالأسفل. الضغط على
+ * البطاقة يفتح درج التفاصيل (SupportPackageDetailsDrawer) بدل دفع مباشر من هنا.
  */
-export function SupportPackagesSection({ supportPackages = [], onPurchase, purchasingId = null, purchaseError = null }) {
+export function SupportPackagesSection({ supportPackages = [], onSelect }) {
   const t = useT();
 
   if (!supportPackages.length) return null;
@@ -84,17 +86,9 @@ export function SupportPackagesSection({ supportPackages = [], onPurchase, purch
       <h3 className="mb-1 text-start font-bold text-ink">{t('academicSupporter.supportPackages.title')}</h3>
       <p className="mb-4 text-start text-sm text-ink-soft">{t('academicSupporter.supportPackages.hint')}</p>
 
-      {purchaseError && <ApiErrorList error={purchaseError} labelFor={() => null} className="mb-4" />}
-
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {supportPackages.map((sp, i) => (
-          <SupportPackageCard
-            key={sp.id}
-            pkg={sp}
-            index={i}
-            onPurchase={onPurchase}
-            isPurchasing={purchasingId === sp.id}
-          />
+          <SupportPackageCard key={sp.id} pkg={sp} index={i} onSelect={onSelect} />
         ))}
       </div>
     </div>
