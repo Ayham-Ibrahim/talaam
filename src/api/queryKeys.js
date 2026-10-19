@@ -19,6 +19,7 @@ export const queryKeys = {
   meta: {
     filters: (educationType) => ['meta', 'filters', educationType ?? 'all'],
     stats: () => ['meta', 'stats'],
+    contactInfo: () => ['meta', 'contact-info'],
   },
   taxonomy: (type) => ['taxonomy', type],
   coupons: {

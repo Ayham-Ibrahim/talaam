@@ -21,7 +21,7 @@ export function AcademicSupporterProfilePage() {
 
   return (
     <DashboardLayout>
-      <div className="mx-auto max-w-4xl">
+      <div>
         {isLoading ? (
           <div className="space-y-4">
             <Skeleton className="h-56 rounded-[28px]" />

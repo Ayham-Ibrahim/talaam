@@ -231,6 +231,7 @@ export function AddAcademicSupporterAccountModal({ onClose, onSuccess }) {
               <input
                 type={showPassword ? 'text' : 'password'}
                 dir="ltr"
+                autoComplete="new-password"
                 maxLength={255}
                 value={form.password}
                 onChange={patch('password')}

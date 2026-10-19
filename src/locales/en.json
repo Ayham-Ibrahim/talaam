@@ -58,7 +58,7 @@
       }
     ],
     "howItWorksTitle": "How the Platform Works",
-    "howItWorksSubtitle": "Simple steps to get the best learning experience",
+    "howItWorksSubtitle": "The real steps, from creating your account to finishing your sessions",
     "howItWorksTabs": {
       "teacher": "Teacher",
       "student": "Student"
@@ -66,69 +66,158 @@
     "steps": [
       {
         "no": "01",
-        "title": "Find a Teacher",
-        "desc": "Search for teachers by the subject or skill you want to learn"
+        "title": "Create Your Account and Complete Your Academic Profile",
+        "items": [
+          "Register directly with your name, email, phone number, and password",
+          "Choose your education type — school, university, or training courses — and complete its details (curriculum and grade, or university and major, or course field)",
+          "If you're a minor, you can add a guardian's details during registration"
+        ]
       },
       {
         "no": "02",
-        "title": "Book Your Session",
-        "desc": "Choose the time that suits you and book your session easily"
+        "title": "Browse Teachers and Pick the Right One",
+        "items": [
+          "Search and filter results by subject, curriculum, grade, language, and price",
+          "Open a teacher's full profile: their bio, intro videos, and past students' reviews",
+          "Compare the packages offered by more than one teacher before choosing"
+        ]
       },
       {
         "no": "03",
-        "title": "Learn and Interact",
-        "desc": "Join live sessions and interact with your teacher"
+        "title": "Choose a Package and Send a Booking Request",
+        "items": [
+          "Choose an individual or group package from the teacher's profile",
+          "For individual packages, pick the day and time from the teacher's availability (in half-hour slots)",
+          "Enter a discount code if you have one before sending the request"
+        ]
       },
       {
         "no": "04",
-        "title": "Achieve Your Goals",
-        "desc": "Track your progress and achieve your learning goals step by step"
+        "title": "Wait for the Teacher's Approval",
+        "items": [
+          "Your request shows as \"awaiting teacher approval\" until they review it",
+          "You get an instant notification when it's approved or declined",
+          "If declined, you can pick another time or another teacher right away, at no cost"
+        ]
+      },
+      {
+        "no": "05",
+        "title": "Complete Payment Securely",
+        "items": [
+          "Once the teacher approves, you're asked to complete payment through a secure gateway within a set window",
+          "If payment isn't completed in time, the booking is cancelled automatically and you can try again",
+          "Review all your payments and invoices anytime from the \"Invoices\" page in your dashboard"
+        ]
+      },
+      {
+        "no": "06",
+        "title": "Attend Your Sessions",
+        "items": [
+          "Track all your upcoming sessions from the calendar and the \"Sessions\" page",
+          "You can join the session room up to five minutes before it starts",
+          "You get reminders ahead of every session"
+        ]
+      },
+      {
+        "no": "07",
+        "title": "Rate and Track Your Progress",
+        "items": [
+          "After every session you can rate your teacher and write a review that helps other students",
+          "Keep track of your progress and your teacher's feedback over time",
+          "Review all your past ratings from the \"Reviews\" page"
+        ]
+      },
+      {
+        "no": "08",
+        "title": "Extra Academic Support",
+        "items": [
+          "University students can browse academic supporters specialized in their field",
+          "Subscribe to a support package covering one or more subjects, at a price the supporter sets themselves",
+          "Enter a discount code if you have one when subscribing, before paying"
+        ]
       }
     ],
     "stepsTeacher": [
       {
         "no": "01",
-        "title": "Expert Sourcing and Hiring Process",
+        "title": "Receiving Your Invitation",
         "items": [
-          "Comprehensive profiles showcasing academic background, certifications, and experience",
-          "A video assessment showcasing teaching style, communication skills, and technical readiness",
-          "An independent, thorough review of every application by the quality assurance team",
-          "Approval and verification: a verified badge for successful applicants only, with official public profiles"
+          "Teachers don't self-register — the Ta'alam team creates your account after an initial contact and assessment",
+          "You receive an email invitation with an activation link, or a temporary password to log in directly",
+          "On first login your account status is \"unverified\" until your profile and documents are complete"
         ]
       },
       {
         "no": "02",
-        "title": "Initial Training and Onboarding for Teachers",
+        "title": "Completing Your Profile",
         "items": [
-          "A dedicated onboarding program covering platform policies and professional performance expectations",
-          "Mastering the interactive tools to use every platform feature with full effectiveness"
+          "Add your photo and a clear bio describing yourself and your teaching style",
+          "Set your qualification, years of experience, and the subjects, curricula, and languages you teach",
+          "Add a short intro video to help students get to know you before booking (optional, but it boosts your chances of being chosen)"
         ]
       },
       {
         "no": "03",
-        "title": "Continuous Monitoring of Classrooms",
+        "title": "Uploading Verification Documents",
         "items": [
-          "Educational excellence: clear goals for every session, excellent time management, and academic accuracy",
-          "Active engagement: modern methods that keep students involved and avoid passive lecturing",
-          "Technical reliability: high audio and video quality with smooth, uninterrupted sessions",
-          "Professionalism and conduct: punctuality and a safe, supportive learning environment"
+          "Proof of identity, an academic certificate, and proof of experience — three required documents your profile can't be complete without",
+          "You can add optional documents, such as a professional certificate, to strengthen your profile",
+          "You can't submit your profile for review before uploading the three required documents and writing your bio"
         ]
       },
       {
         "no": "04",
-        "title": "Mutual Evaluation and Follow-up System",
+        "title": "Review and Verification",
         "items": [
-          "Students rate the content and the teacher, and write transparent reviews",
-          "Periodic performance reports from teacher to student to improve academic level",
-          "Effective intervention from the quality team to resolve complaints and issues quickly"
+          "The quality team reviews your profile and documents shortly after submission",
+          "On approval your account becomes \"verified\", a verified badge appears on your public profile for students — and you're ready to actually start teaching",
+          "On rejection you get a message explaining exactly why, with the option to edit your details or re-upload the rejected documents"
         ]
       },
       {
         "no": "05",
-        "title": "Performance Levels and Continuous Development",
+        "title": "Setting Your Availability",
         "items": [
-          "A \"Top Rated\" badge for outstanding performers",
-          "Personalized development plans and constructive guidance to raise proficiency"
+          "Set the days and hours you're available each week from the settings page",
+          "This availability is the basis your individual packages are built on later",
+          "You can update your availability anytime without affecting bookings already confirmed"
+        ]
+      },
+      {
+        "no": "06",
+        "title": "Creating Lesson Packages",
+        "items": [
+          "Individual package: you set the days it's available within your general availability, and the student picks the day and time when booking",
+          "Group package: you set the date and time of the first session and the allowed student capacity, and sessions repeat weekly automatically",
+          "Set the subject, curriculum, grade, number of sessions, and price, and you can add a discount percentage",
+          "Every package is sent for admin review before it becomes visible and bookable by students"
+        ]
+      },
+      {
+        "no": "07",
+        "title": "Receiving and Approving Booking Requests",
+        "items": [
+          "You get an instant notification whenever a student sends a booking request on one of your packages",
+          "Review the request from the \"Booking Requests\" page, and approve or decline it with an optional reason",
+          "Once you approve, the student is asked to complete payment within a set window to finalize the booking"
+        ]
+      },
+      {
+        "no": "08",
+        "title": "Running Sessions and Tracking Your Schedule",
+        "items": [
+          "Track all your upcoming bookings from the calendar, and every session's details from the \"Sessions\" page",
+          "You can join the session room up to five minutes before it starts",
+          "Track the list of students enrolled with you and their progress from the \"Students\" page"
+        ]
+      },
+      {
+        "no": "09",
+        "title": "Tracking Your Earnings",
+        "items": [
+          "Your earnings are calculated automatically from every fully-paid session or package",
+          "Review your earnings and payment details from the invoices page in your dashboard",
+          "You can create discount coupons for your packages to attract new students when needed"
         ]
       }
     ],
@@ -195,8 +284,8 @@
   },
   "howItWorksPage": {
     "heroTitle": "How the Platform Works",
-    "heroSubtitle": "Simple steps to get the best learning experience",
-    "heroDesc": "We designed the platform to be easy to use and effective at connecting you with the best teachers, so you get the most out of your learning journey",
+    "heroSubtitle": "Your complete step-by-step guide, whether you're a teacher or a student",
+    "heroDesc": "From creating your account and completing your profile, to sending or receiving booking requests, all the way to attending and tracking your sessions — every real step is detailed here",
     "toolsTitle": "All Your Learning Tools in One Place",
     "toolsDesc": "From booking and choosing the right package to live sessions, communicating with your teacher, and tracking your progress... all through a smart, easy-to-use dashboard",
     "tools": [
@@ -216,15 +305,45 @@
   },
   "about": {
     "heroTitle": "About Us",
-    "heroSubtitle1": "Ta'alam believes that good education should be accessible to everyone",
-    "heroSubtitle2": "That's why we created a platform that brings the best teachers and trainers together in one place",
+    "heroSubtitle1": "Ta'alam isn't just a link between a student and a teacher that ends the moment you book",
+    "heroSubtitle2": "It's a system built to protect you at every step, from choosing your teacher to your last session",
     "storyTitle": "Our Story",
-    "storyP1": "Our journey began with our belief in the importance of education in building a better future. We noticed how difficult it was to reach qualified teachers in an easy and safe way, so we worked on creating a platform that connects students with the best teachers across various academic and training fields.",
-    "storyP2": "Every day, we work on improving your learning experience and providing an interactive, effective learning environment that achieves your goals and helps you grow.",
+    "storyP1": "Every student has felt this: sitting alone in front of a lesson that just won't click, reading it again and again while the clock keeps moving and the worry grows faster than any understanding. And every parent has felt the same worry from the other side — searching for a teacher who actually understands their child, not just a name on a long list, trying one teacher after another, losing time and money, left with one question hanging over everything: who will actually reach my child?",
+    "storyP2": "Ta'alam was born from that exact pain. We didn't want to be one more platform that lists teacher names and leaves the choice to luck. We wanted a place where every parent can trust their child is in genuinely reliable hands, and every student finally feels that someone understood them and stayed patient until the idea landed.",
+    "manifestoTitle": "We're not like any other platform",
+    "manifestoText": "We don't just list teacher names and leave your choice to luck. Every teacher goes through a real document review before ever appearing to a student, and no booking is confirmed until your teacher personally approves your time — no surprises, no waiting without an answer.",
+    "differenceTitle": "The Real Difference",
+    "differenceSubtitle": "Not slogans — these are actual details you'll find inside the platform, not just on a marketing page",
+    "differenceThemLabel": "On other platforms",
+    "differenceUsLabel": "On Ta'alam",
+    "difference": [
+      {
+        "them": "A \"verified teacher\" badge is granted automatically on signup",
+        "us": "Real verification through 3 required documents — proof of identity, an academic certificate, and proof of experience — manually reviewed by a dedicated team before any teacher appears to students"
+      },
+      {
+        "them": "You book and pay instantly, then find out the time doesn't actually work for your teacher",
+        "us": "Your booking isn't confirmed and you're never asked to pay until your teacher personally approves your time"
+      },
+      {
+        "them": "Academic support and private tutoring are one blurry, undefined mix",
+        "us": "\"Academic Support\" is a fully separate entity, built for university students, staffed by real academic specialists — not school teachers"
+      },
+      {
+        "them": "You join right at the exact minute or lose part of your time",
+        "us": "You can enter the session room a full five minutes before it starts"
+      },
+      {
+        "them": "Pricing and package details sometimes only show up after you've booked",
+        "us": "You see the package's name, full contents, and price before committing to anything, and you enter any discount code yourself"
+      }
+    ],
     "visionTitle": "Our Vision",
-    "visionText": "To become the leading destination for e-learning in the region",
+    "visionText": "That finding a trustworthy teacher should never be a matter of luck or who you know, anywhere in the region",
     "missionTitle": "Our Mission",
-    "missionText": "Empowering students to easily reach qualified teachers while providing a professional and safe learning experience",
+    "missionText": "We verify every teacher carefully, so you can trust easily",
+    "numbersTitle": "Numbers, Not Promises",
+    "numbersSubtitle": "Every number here comes straight from inside the platform — it speaks for itself",
     "valuesTitle": "Our Values",
     "values": [
       {
@@ -289,7 +408,7 @@
       {
         "key": "email",
         "label": "Email",
-        "value": "TAALAM@gmail.com"
+        "value": "taalam@t3allem.com"
       },
       {
         "key": "phone",
@@ -299,7 +418,7 @@
       {
         "key": "address",
         "label": "Address",
-        "value": "Jordan / Amman / Al-Jumeiliyeh"
+        "value": "Sharjah Freezone"
       }
     ],
     "formTitle": "How Can We Help You",

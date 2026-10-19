@@ -21,6 +21,7 @@ export function AdminStudentsFilterBar({ filters, onChange }) {
         <Search size={16} className="shrink-0 text-ink-soft" />
         <input
           type="text"
+          autoComplete="off"
           value={filters.search}
           onChange={(e) => onChange('search', e.target.value)}
           placeholder={t('dashboard.adminStudents.searchPlaceholder')}

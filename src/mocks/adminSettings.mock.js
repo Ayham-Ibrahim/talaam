@@ -9,6 +9,7 @@ export const SETTINGS_CATEGORY_LABELS = {
   scheduling: 'الجدولة والحضور والشكاوى',
   ranking: 'التقييمات والترتيب',
   general: 'عام',
+  contact: 'بيانات التواصل',
 };
 
 let mockSettings = [

@@ -28,6 +28,7 @@ export function AdminListingsFilterBar({ filters, onChange }) {
         <Search size={16} className="shrink-0 text-ink-soft" />
         <input
           type="text"
+          autoComplete="off"
           value={filters.q}
           onChange={(e) => onChange('q', e.target.value)}
           placeholder={t('dashboard.adminListings.searchPlaceholder')}

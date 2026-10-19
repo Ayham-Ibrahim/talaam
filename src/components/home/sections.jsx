@@ -25,15 +25,12 @@ import {
   Search,
   CalendarClock,
   Video,
-  BarChart3,
   School,
   Landmark,
   ShieldCheck,
   ClipboardCheck,
   CreditCard,
   UserCheck,
-  MonitorCheck,
-  Trophy,
   CheckCircle2,
   MousePointerClick,
   Target,
@@ -425,13 +422,26 @@ export function StatsBand() {
 }
 
 /* ---------- How It Works ---------- */
-const STUDENT_ICONS = [Search, CalendarClock, Video, BarChart3];
+const STUDENT_ICONS = [
+  UserCheck,
+  Search,
+  CalendarClock,
+  ClipboardCheck,
+  CreditCard,
+  Video,
+  Star,
+  BookOpen,
+];
 const TEACHER_ICONS = [
   UserCheck,
   GraduationCap,
-  MonitorCheck,
+  FileText,
+  BadgeCheck,
+  CalendarClock,
   ClipboardCheck,
-  Trophy,
+  Users,
+  Video,
+  CreditCard,
 ];
 const CONNECTOR_PATTERNS = [
   {

@@ -6,12 +6,20 @@ export function absoluteUrl(path = '/') {
   return `${config.siteUrl}${clean}`;
 }
 
+// احتياط قبل اكتمال جلب إعدادات التواصل (contact_email/contact_address) أو عند فشل
+// الطلب — المصدر الحقيقي الوحيد لهما هو إعدادات الأدمن، لا قيم ثابتة بالكود.
+const CONTACT_FALLBACK = { email: 'taalam@t3allem.com', address: 'Sharjah Freezone' };
+
 /**
  * EducationalOrganization — بيانات المنصة نفسها، حقيقية بالكامل (فوتر الموقع
- * + صفحة تواصل معنا). العنوان من contact.info بـ ar.json ("الأردن / عمان /
- * حي الجميلية") — المصدر الحقيقي الوحيد الموجود بالكود لعنوان فعلي.
+ * + صفحة تواصل معنا). البريد والعنوان يأتيان من إعدادات الأدمن (contact_email/
+ * contact_address عبر useContactInfo) — `contact` هنا هو ما جلبه DefaultSeo.jsx،
+ * ويقع افتراضياً على CONTACT_FALLBACK قبل اكتمال الجلب.
  */
-export function organizationJsonLd() {
+export function organizationJsonLd(contact = {}) {
+  const email = contact.email || CONTACT_FALLBACK.email;
+  const address = contact.address || CONTACT_FALLBACK.address;
+
   return {
     '@context': 'https://schema.org',
     '@type': 'EducationalOrganization',
@@ -21,13 +29,10 @@ export function organizationJsonLd() {
     logo: absoluteUrl('/logo.png'),
     image: absoluteUrl('/logo.png'),
     telephone: '+971529426077',
-    email: 'TAALAM@gmail.com',
-    address: {
-      '@type': 'PostalAddress',
-      addressCountry: 'JO',
-      addressRegion: 'عمان',
-      addressLocality: 'حي الجميلية',
-    },
+    email,
+    // نص حر بدل PostalAddress مُجزَّأ عمداً: العنوان حقل واحد قابل للتعديل من
+    // لوحة الأدمن، وschema.org يقبل Organization.address كنص مباشرة.
+    address,
     areaServed: {
       '@type': 'Country',
       name: 'United Arab Emirates',

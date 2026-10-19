@@ -229,6 +229,7 @@ export function AddStudentAccountModal({ onClose }) {
               <input
                 type={showPassword ? 'text' : 'password'}
                 dir="ltr"
+                autoComplete="new-password"
                 maxLength={255}
                 value={form.password}
                 onChange={patch('password')}

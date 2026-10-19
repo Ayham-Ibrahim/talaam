@@ -53,6 +53,7 @@ export function ChangeTeacherPasswordModal({ teacher, onClose }) {
             <input
               type={showPassword ? 'text' : 'password'}
               dir="ltr"
+              autoComplete="new-password"
               maxLength={255}
               value={password}
               onChange={(e) => setPassword(e.target.value)}

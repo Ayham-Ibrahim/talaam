@@ -149,6 +149,7 @@ export const endpoints = {
   meta: {
     filters: '/meta/filters',
     stats: '/meta/stats',
+    contactInfo: '/meta/contact-info',
   },
   dashboard: {
     teacher: '/dashboard/teacher',
