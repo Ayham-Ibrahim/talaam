@@ -488,6 +488,8 @@
     "sortBy": "ترتيب حسب",
     "sortRating": "الاعلى تقييما",
     "fromPrefix": "من",
+    "major": "التخصص",
+    "courseField": "مجال الدورة",
     "upToPrefix": "إلى",
     "educationType": "نوع التعليم",
     "curriculum": "المنهاج",
@@ -837,6 +839,7 @@
     }
   },
   "completeProfile": {
+    "majorsLabel": "التخصصات",
     "optional": "اختياري",
     "studentTitle": "أكمل ملفك الشخصي",
     "studentHint": "خطوة أخيرة قبل استخدام حسابك — اختر نوع التعليم وأكمل بياناته",
@@ -1769,6 +1772,7 @@
       "reviewsConfirmDelete": "هل تريد حذف هذا التقييم؟",
       "notFound": "لم يتم العثور على المعلم",
       "profileEditor": {
+        "majorsLabel": "التخصصات",
         "title": "الملف الشخصي (نيابة عن المعلم)",
         "subtitle": "عدّل بيانات ملفه الشخصي كما لو كان هو من يعدّلها — تظهر مباشرة في بروفايله العام",
         "removePhoto": "حذف الصورة",
