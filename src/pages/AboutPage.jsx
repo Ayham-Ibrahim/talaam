@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import {
+  Check,
+  X,
   Star,
   ShieldCheck,
   Rocket,
@@ -13,6 +15,8 @@ import {
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Seo } from "@/components/seo/Seo";
 import { Card } from "@/components/ui";
+import { StatsBand } from "@/components/home/sections";
+import { SplitWords } from "@/motion/scroll/SplitWords";
 import { useT } from "@/hooks/useT";
 
 const VALUE_ICONS = {
@@ -37,8 +41,23 @@ const WHY_ICONS = {
   booking: CalendarClock,
 };
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+};
+const viewportOnce = { once: true, amount: 0.3 };
+
+/**
+ * صفحة "من نحن" مبنية حول تمايز حقيقي عن أي منصة تدريس أخرى، لا نص عمومي
+ * ("نلتزم بالجودة"، "نبني مجتمعاً") يصلح لأي موقع. ثلاث ركائز بدل الشبكات
+ * الأيقونية العامة المعتادة: بيان افتتاحي جريء (manifesto)، مقارنة مباشرة
+ * "نحن مقابل غيرنا" مبنية على آليات فعلية بالمنصة (توثيق المعلم، تسلسل
+ * الموافقة قبل الدفع، كيان الدعم الأكاديمي المنفصل...)، ثم أرقام حقيقية
+ * (StatsBand نفسها المستخدمة بالصفحة الرئيسية) بدل وعود.
+ */
 export function AboutPage() {
   const t = useT();
+  const difference = t("about.difference");
   const values = t("about.values");
   const why = t("about.why");
 
@@ -46,7 +65,7 @@ export function AboutPage() {
     <PageContainer>
       <Seo
         title="من نحن | TAALAM"
-        description="تعرّف على منصة TAALAM التعليمية في الإمارات — رسالتنا وقيمنا وكيف نختار ونعتمد أفضل المعلمين لطلابنا."
+        description="تعلّم ليست وسيطاً عادياً بين طالب ومعلم — توثيق فعلي لكل معلم، وحجز لا يتأكد إلا بموافقته شخصياً. تعرّف على ما يميزنا فعلياً عن أي منصة أخرى."
         path="/about"
       />
       {/* Hero */}
@@ -87,22 +106,104 @@ export function AboutPage() {
         </div>
       </section>
 
-      {/* Story */}
+      {/* قصتنا — مكتوبة لتلامس القلق الحقيقي الذي يعيشه كل طالب متعثّر وكل أهل يبحثون عمّن يناسب ابنهم */}
       <section className="container-app mt-14">
-        <Card className="p-6 lg:p-8">
-          <h2 className="mb-4 text-start font-cairo text-2xl font-bold text-ink">
-            {t("about.storyTitle")}
-          </h2>
-          <p className="text-start font-cairo text-base leading-loose text-ink-soft">
-            {t("about.storyP1")}
-          </p>
-          <p className="mt-4 text-start font-cairo text-base leading-loose text-ink-soft">
-            {t("about.storyP2")}
-          </p>
-        </Card>
+        <motion.div initial="hidden" whileInView="visible" viewport={viewportOnce} variants={fadeUp}>
+          <Card className="p-6 lg:p-8">
+            <h2 className="mb-4 text-start font-cairo text-2xl font-bold text-ink">
+              {t("about.storyTitle")}
+            </h2>
+            <p className="text-start font-cairo text-base leading-loose text-ink-soft">
+              {t("about.storyP1")}
+            </p>
+            <p className="mt-4 text-start font-cairo text-base leading-loose text-ink-soft">
+              {t("about.storyP2")}
+            </p>
+          </Card>
+        </motion.div>
+      </section>
 
-        {/* Vision / Mission */}
-        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+      {/* Manifesto — بيان مباشر بعد القصة العاطفية */}
+      <section className="container-app mt-20">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+          variants={fadeUp}
+          className="mx-auto max-w-3xl text-center"
+        >
+          <SplitWords
+            as="h2"
+            className="font-cairo text-3xl font-bold text-ink lg:text-5xl"
+            y={28}
+            stagger={0.04}
+            duration={0.7}
+          >
+            {t("about.manifestoTitle")}
+          </SplitWords>
+          <p className="mt-6 font-cairo text-lg leading-loose text-ink-soft">
+            {t("about.manifestoText")}
+          </p>
+        </motion.div>
+      </section>
+
+      {/* الفرق الحقيقي — مقارنة مباشرة بدل شبكة "قيمنا" الأيقونية العامة */}
+      <section className="container-app mt-20">
+        <motion.div initial="hidden" whileInView="visible" viewport={viewportOnce} variants={fadeUp}>
+          <h2 className="text-center font-cairo text-2xl font-bold text-ink lg:text-3xl">
+            {t("about.differenceTitle")}
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-center font-cairo text-sm text-ink-soft lg:text-base">
+            {t("about.differenceSubtitle")}
+          </p>
+        </motion.div>
+
+        <div className="mx-auto mt-10 flex max-w-4xl flex-col gap-4">
+          {/* عناوين الأعمدة — مرة واحدة أعلى القائمة بدل تكرارها بكل صف */}
+          <div className="hidden grid-cols-2 gap-4 px-2 sm:grid">
+            <span className="text-end font-cairo text-xs font-bold uppercase tracking-wide text-ink-soft/70">
+              {t("about.differenceThemLabel")}
+            </span>
+            <span className="text-start font-cairo text-xs font-bold uppercase tracking-wide text-primary">
+              {t("about.differenceUsLabel")}
+            </span>
+          </div>
+
+          {difference.map((row, i) => (
+            <motion.div
+              key={i}
+              initial="hidden"
+              whileInView="visible"
+              viewport={viewportOnce}
+              variants={fadeUp}
+              transition={{ delay: i * 0.05 }}
+            >
+              <Card className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 sm:p-6">
+                <div className="flex items-start justify-end gap-3 sm:order-1 sm:border-e sm:border-line sm:pe-6">
+                  <p className="text-end font-cairo text-sm leading-relaxed text-ink-soft sm:text-base">
+                    {row.them}
+                  </p>
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FDEFF2]">
+                    <X size={14} className="text-accent-pink" />
+                  </span>
+                </div>
+                <div className="flex items-start gap-3 sm:order-2">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                    <Check size={14} className="text-primary" />
+                  </span>
+                  <p className="text-start font-cairo text-sm font-medium leading-relaxed text-ink sm:text-base">
+                    {row.us}
+                  </p>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Vision / Mission */}
+      <section className="container-app mt-20">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="flex items-center justify-start gap-4 rounded-2xl bg-[#F7E6EE66] p-6">
             <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[#F7E6EE]">
               <img src="/eye.png" alt="" className="h-9 w-9 object-contain" />
@@ -132,8 +233,28 @@ export function AboutPage() {
         </div>
       </section>
 
+      {/* أرقام لا وعود — بدل شبكة "لماذا منصة تعلم" الأيقونية (مكررة مع الصفحة الرئيسية) */}
+      <section className="mt-20 bg-[#FBF9FB] py-14">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+          variants={fadeUp}
+          className="container-app"
+        >
+          <h2 className="text-center font-cairo text-2xl font-bold text-ink lg:text-3xl">
+            {t("about.numbersTitle")}
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-center font-cairo text-sm text-ink-soft lg:text-base">
+            {t("about.numbersSubtitle")}
+          </p>
+        </motion.div>
+        {/* StatsBand تضيف container-app/mt-14 الخاصين بها — لا تُلفّ بحاوية إضافية هنا */}
+        <StatsBand />
+      </section>
+
       {/* Values */}
-      <section className="container-app mt-24">
+      <section className="container-app mt-20">
         <h2 className="mb-8 text-center font-cairo text-2xl font-bold text-ink">
           {t("about.valuesTitle")}
         </h2>

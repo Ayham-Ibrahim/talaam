@@ -305,15 +305,45 @@
   },
   "about": {
     "heroTitle": "About Us",
-    "heroSubtitle1": "Ta'alam believes that good education should be accessible to everyone",
-    "heroSubtitle2": "That's why we created a platform that brings the best teachers and trainers together in one place",
+    "heroSubtitle1": "Ta'alam isn't just a link between a student and a teacher that ends the moment you book",
+    "heroSubtitle2": "It's a system built to protect you at every step, from choosing your teacher to your last session",
     "storyTitle": "Our Story",
-    "storyP1": "Our journey began with our belief in the importance of education in building a better future. We noticed how difficult it was to reach qualified teachers in an easy and safe way, so we worked on creating a platform that connects students with the best teachers across various academic and training fields.",
-    "storyP2": "Every day, we work on improving your learning experience and providing an interactive, effective learning environment that achieves your goals and helps you grow.",
+    "storyP1": "Every student has felt this: sitting alone in front of a lesson that just won't click, reading it again and again while the clock keeps moving and the worry grows faster than any understanding. And every parent has felt the same worry from the other side — searching for a teacher who actually understands their child, not just a name on a long list, trying one teacher after another, losing time and money, left with one question hanging over everything: who will actually reach my child?",
+    "storyP2": "Ta'alam was born from that exact pain. We didn't want to be one more platform that lists teacher names and leaves the choice to luck. We wanted a place where every parent can trust their child is in genuinely reliable hands, and every student finally feels that someone understood them and stayed patient until the idea landed.",
+    "manifestoTitle": "We're not like any other platform",
+    "manifestoText": "We don't just list teacher names and leave your choice to luck. Every teacher goes through a real document review before ever appearing to a student, and no booking is confirmed until your teacher personally approves your time — no surprises, no waiting without an answer.",
+    "differenceTitle": "The Real Difference",
+    "differenceSubtitle": "Not slogans — these are actual details you'll find inside the platform, not just on a marketing page",
+    "differenceThemLabel": "On other platforms",
+    "differenceUsLabel": "On Ta'alam",
+    "difference": [
+      {
+        "them": "A \"verified teacher\" badge is granted automatically on signup",
+        "us": "Real verification through 3 required documents — proof of identity, an academic certificate, and proof of experience — manually reviewed by a dedicated team before any teacher appears to students"
+      },
+      {
+        "them": "You book and pay instantly, then find out the time doesn't actually work for your teacher",
+        "us": "Your booking isn't confirmed and you're never asked to pay until your teacher personally approves your time"
+      },
+      {
+        "them": "Academic support and private tutoring are one blurry, undefined mix",
+        "us": "\"Academic Support\" is a fully separate entity, built for university students, staffed by real academic specialists — not school teachers"
+      },
+      {
+        "them": "You join right at the exact minute or lose part of your time",
+        "us": "You can enter the session room a full five minutes before it starts"
+      },
+      {
+        "them": "Pricing and package details sometimes only show up after you've booked",
+        "us": "You see the package's name, full contents, and price before committing to anything, and you enter any discount code yourself"
+      }
+    ],
     "visionTitle": "Our Vision",
-    "visionText": "To become the leading destination for e-learning in the region",
+    "visionText": "That finding a trustworthy teacher should never be a matter of luck or who you know, anywhere in the region",
     "missionTitle": "Our Mission",
-    "missionText": "Empowering students to easily reach qualified teachers while providing a professional and safe learning experience",
+    "missionText": "We verify every teacher carefully, so you can trust easily",
+    "numbersTitle": "Numbers, Not Promises",
+    "numbersSubtitle": "Every number here comes straight from inside the platform — it speaks for itself",
     "valuesTitle": "Our Values",
     "values": [
       {
