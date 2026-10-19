@@ -36,7 +36,7 @@ function SessionRow({ session, isEven, onReschedule }) {
           {session.sessionType}
         </span>
       </td>
-      <td className="px-4 py-4 text-center text-ink">{session.packageTitle ?? '—'}</td>
+      <td className="px-4 py-4 text-center font-semibold text-ink">{session.packageTitle ?? '—'}</td>
       <td className="px-4 py-4 text-center text-ink">
         <div className="font-semibold">{session.day}</div>
         <div className="text-xs text-ink-soft">{session.date}</div>
