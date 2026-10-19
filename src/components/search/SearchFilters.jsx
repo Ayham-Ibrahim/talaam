@@ -1,140 +1,233 @@
-import { SlidersHorizontal, Layers, Bookmark, BookOpen, GraduationCap, Globe, Clock3, RotateCcw, Star } from 'lucide-react';
+import { SlidersHorizontal, Layers, Bookmark, BookOpen, GraduationCap, Globe, RotateCcw, Star, School, Library } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { PriceRangeInputs } from '@/components/search/PriceRangeInputs';
 import { useT } from '@/hooks/useT';
 
-const RATING_VALUES = [4.5, 4.0, 3.0, 2.0];
+const EDUCATION_TYPES = [
+  { value: 'school', icon: School },
+  { value: 'university', icon: GraduationCap },
+  { value: 'training', icon: BookOpen },
+];
+// كل درجات التقييم الممكنة كحدّ أدنى — 5 تعني 5 تماماً لذا تُعرض بلا "+"
+const RATING_VALUES = [5, 4, 3, 2, 1];
 
-function FilterSelect({ icon: Icon, label, options = [], value, onChange, placeholder }) {
+function FieldLabel({ icon: Icon, children }) {
+  return (
+    <span className="mb-2 flex items-center gap-1.5 text-sm font-bold text-ink">
+      <Icon size={15} className="text-ink-soft" /> {children}
+    </span>
+  );
+}
+
+function Chip({ active, onClick, children, className = '' }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
+        active ? 'border-primary bg-primary text-white' : 'border-line bg-white text-ink-soft hover:border-primary/50 hover:text-ink'
+      } ${className}`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function DisabledHint({ children }) {
+  return (
+    <div className="rounded-xl border border-dashed border-line bg-canvas px-3 py-2.5 text-xs text-ink-soft">{children}</div>
+  );
+}
+
+function FilterSelect({ icon, label, options = [], value, onChange, placeholder, disabledHint = null }) {
   return (
     <div>
-      <label className="mb-2 flex items-center gap-1.5 text-sm font-bold text-ink">
-        <Icon size={15} className="text-ink-soft" /> {label}
-      </label>
-      <SmoothSelect
-        value={value ?? ''}
-        onChange={(v) => onChange(v || null)}
-        placeholder={placeholder}
-        options={options}
-      />
+      <FieldLabel icon={icon}>{label}</FieldLabel>
+      {disabledHint ? (
+        <DisabledHint>{disabledHint}</DisabledHint>
+      ) : (
+        <SmoothSelect value={value ?? ''} onChange={(v) => onChange(v || null)} placeholder={placeholder} options={options} />
+      )}
     </div>
   );
 }
 
+function Group({ title, children }) {
+  return (
+    <section className="space-y-4">
+      <h4 className="text-xs font-bold text-ink-soft">{title}</h4>
+      {children}
+    </section>
+  );
+}
+
 /**
- * `hideHeading`: the mobile entry point (SearchPage) wraps this in its own
- * toggle button that already reads "تصفية" — rendering this component's own
- * heading too would show that label twice back-to-back. Desktop keeps the
- * heading since there it's the only place the label appears.
+ * الفلاتر مرتّبة هرمياً: نوع التعليم ← المرحلة ← الصف، والمادة/المرحلة/المنهاج
+ * تابعة للنوع (meta تُجلَب بـ education_type المختار من SearchPage). أي حقل
+ * يعتمد على حقل قبله يظهر معطَّلاً مع تلميح حتى يُختار الأب، والحقول التي لا
+ * معنى لها بنوع معيّن (الصف بغير المدرسي، المنهاج بالجامعي/الدورات) تُخفى.
+ * مسح الحقول التابعة عند تغيير الأب يعيش بـ SearchPage (handleChange) لا هنا.
+ *
+ * التغييرات تُطبَّق فوراً — لا زر "تطبيق". `onDone` (الموبايل فقط) يغلق
+ * الدرج ليعرض النتائج.
  */
-export function SearchFilters({ meta, draft, onChange, onApply, onReset, hideHeading = false }) {
+export function SearchFilters({ meta, value, onChange, onReset, onDone, resultsCount, hideHeading = false }) {
   const t = useT();
-  const ratingOptions = t('search.ratingOptions');
+  const typeLabels = t('search.categories');
+
+  // الصف مدرسي فقط — يظهر أيضاً قبل اختيار أي نوع لأن معظم البحث مدرسي
+  const showGrade = !value.level || value.level === 'school';
+  const showStage = value.level !== 'training';
+  const showCurriculum = value.level !== 'university' && value.level !== 'training';
+
+  // بلا مرحلة مختارة: كل الصفوف. مع مرحلة: صفوف نطاقها فقط — وإن لم يكن لها
+  // نطاق بـ stageGrades (مرحلة بلا grade_from/grade_to، أو mocks) نعرض الكل.
+  const stageGrades = value.stage ? meta?.stageGrades?.[value.stage] : null;
+  const gradeOptions = stageGrades
+    ? (meta?.grades ?? []).filter((g) => stageGrades.includes(String(g.value)))
+    : meta?.grades ?? [];
+
+  const hasActiveFilter = Object.values(value).some((v) => v != null);
 
   return (
     <aside className="w-full shrink-0 lg:w-72">
       {!hideHeading && (
-        <h3 className="mb-5 flex items-center gap-2 font-bold text-ink">
-          <SlidersHorizontal size={18} /> {t('search.filterTitle')}
-        </h3>
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <h3 className="flex items-center gap-2 font-bold text-ink">
+            <SlidersHorizontal size={18} /> {t('search.filterTitle')}
+          </h3>
+          {hasActiveFilter && (
+            <button
+              type="button"
+              onClick={onReset}
+              className="flex items-center gap-1 text-xs font-medium text-ink-soft transition-colors hover:text-ink"
+            >
+              {t('search.reset')} <RotateCcw size={13} />
+            </button>
+          )}
+        </div>
       )}
 
-      <div className="space-y-5">
-        <FilterSelect
-          icon={Layers}
-          label={t('search.level')}
-          placeholder={t('search.select')}
-          options={meta?.levels}
-          value={draft.level}
-          onChange={(v) => onChange('level', v)}
-        />
-        <FilterSelect
-          icon={Bookmark}
-          label={t('search.grade')}
-          placeholder={t('search.select')}
-          options={meta?.grades}
-          value={draft.grade}
-          onChange={(v) => onChange('grade', v)}
-        />
-        <FilterSelect
-          icon={BookOpen}
-          label={t('search.subject')}
-          placeholder={t('search.select')}
-          options={meta?.subjects}
-          value={draft.subject}
-          onChange={(v) => onChange('subject', v)}
-        />
-        <FilterSelect
-          icon={GraduationCap}
-          label={t('search.stage')}
-          placeholder={t('search.select')}
-          options={meta?.stages}
-          value={draft.stage}
-          onChange={(v) => onChange('stage', v)}
-        />
-        <FilterSelect
-          icon={Globe}
-          label={t('search.language')}
-          placeholder={t('search.select')}
-          options={meta?.languages}
-          value={draft.language}
-          onChange={(v) => onChange('language', v)}
-        />
-        <FilterSelect
-          icon={Clock3}
-          label={t('search.availability')}
-          placeholder={t('search.select')}
-          options={[]}
-          value={draft.availability}
-          onChange={(v) => onChange('availability', v)}
-        />
-
-        <PriceRangeInputs
-          minPrice={draft.minPrice}
-          maxPrice={draft.maxPrice}
-          onChangeMin={(v) => onChange('minPrice', v)}
-          onChangeMax={(v) => onChange('maxPrice', v)}
-        />
-
-        {/* Rating */}
-        <div>
-          <h4 className="mb-2.5 flex items-center gap-1.5 text-sm font-bold text-ink">
-            <Star size={15} className="text-ink-soft" /> {t('search.rating')}
-          </h4>
-          <div className="space-y-2">
-            {ratingOptions.map((label, i) => (
-              <label key={label} className="flex cursor-pointer items-center gap-2 text-sm text-ink-soft">
-                <input
-                  type="checkbox"
-                  checked={draft.minRating === RATING_VALUES[i]}
-                  onChange={() => onChange('minRating', draft.minRating === RATING_VALUES[i] ? null : RATING_VALUES[i])}
-                  className="h-4 w-4 rounded accent-primary"
-                />
-                <span className="inline-flex items-center gap-0.5">
-                  {Array.from({ length: 5 }).map((_, s) => (
-                    <Star
-                      key={s}
-                      size={13}
-                      className={s < Math.round(RATING_VALUES[i]) ? 'fill-star text-star' : 'text-line'}
-                    />
-                  ))}
-                </span>
-                {label}
-              </label>
-            ))}
+      <div className="space-y-6">
+        <Group title={t('search.groupWhat')}>
+          <div>
+            <FieldLabel icon={Layers}>{t('search.educationType')}</FieldLabel>
+            <div className="grid grid-cols-3 gap-2">
+              {EDUCATION_TYPES.map(({ value: type, icon: Icon }, i) => (
+                <Chip
+                  key={type}
+                  active={value.level === type}
+                  onClick={() => onChange('level', value.level === type ? null : type)}
+                  className="flex-col px-1 py-2 text-xs"
+                >
+                  <Icon size={16} />
+                  {typeLabels[i]}
+                </Chip>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <Button className="w-full justify-center" onClick={onApply}>
-          {t('search.apply')}
-        </Button>
-        <button
-          onClick={onReset}
-          className="flex w-full items-center justify-center gap-1.5 text-sm font-medium text-ink-soft hover:text-ink"
-        >
-          {t('search.reset')} <RotateCcw size={14} />
-        </button>
+          {showStage && (
+            <FilterSelect
+              icon={GraduationCap}
+              label={t('search.stage')}
+              placeholder={t('search.all')}
+              options={meta?.stages}
+              value={value.stage}
+              onChange={(v) => onChange('stage', v)}
+              disabledHint={!value.level ? t('search.pickTypeFirst') : null}
+            />
+          )}
+
+          {showGrade && (
+            <FilterSelect
+              icon={Bookmark}
+              label={t('search.grade')}
+              placeholder={t('search.all')}
+              options={gradeOptions}
+              value={value.grade}
+              onChange={(v) => onChange('grade', v)}
+              disabledHint={gradeOptions.length === 0 ? t('search.noGradesForStage') : null}
+            />
+          )}
+
+          <FilterSelect
+            icon={BookOpen}
+            label={t('search.subject')}
+            placeholder={t('search.all')}
+            options={meta?.subjects}
+            value={value.subject}
+            onChange={(v) => onChange('subject', v)}
+          />
+
+          {showCurriculum && (
+            <FilterSelect
+              icon={Library}
+              label={t('search.curriculum')}
+              placeholder={t('search.all')}
+              options={meta?.curricula}
+              value={value.curriculum}
+              onChange={(v) => onChange('curriculum', v)}
+            />
+          )}
+        </Group>
+
+        <div className="border-t border-line" />
+
+        <Group title={t('search.groupTeacher')}>
+          <FilterSelect
+            icon={Globe}
+            label={t('search.language')}
+            placeholder={t('search.all')}
+            options={meta?.languages}
+            value={value.language}
+            onChange={(v) => onChange('language', v)}
+          />
+
+          <div>
+            <FieldLabel icon={Star}>{t('search.rating')}</FieldLabel>
+            <div className="grid grid-cols-3 gap-1.5">
+              <Chip active={value.minRating == null} onClick={() => onChange('minRating', null)} className="px-1 text-xs">
+                {t('search.all')}
+              </Chip>
+              {RATING_VALUES.map((r) => {
+                const active = value.minRating === r;
+                return (
+                  <Chip key={r} active={active} onClick={() => onChange('minRating', active ? null : r)} className="gap-1 px-1 text-xs">
+                    {r}{r < 5 && '+'} <Star size={12} className={active ? 'fill-white text-white' : 'fill-star text-star'} />
+                  </Chip>
+                );
+              })}
+            </div>
+          </div>
+
+          <PriceRangeInputs
+            minPrice={value.minPrice}
+            maxPrice={value.maxPrice}
+            onChangeMin={(v) => onChange('minPrice', v)}
+            onChangeMax={(v) => onChange('maxPrice', v)}
+          />
+        </Group>
+
+        {onDone && (
+          <div className="space-y-2">
+            <Button className="w-full justify-center" onClick={onDone}>
+              {t('search.showResults')}
+              {resultsCount != null && ` (${resultsCount})`}
+            </Button>
+            {hasActiveFilter && (
+              <button
+                type="button"
+                onClick={onReset}
+                className="flex w-full items-center justify-center gap-1.5 text-sm font-medium text-ink-soft hover:text-ink"
+              >
+                {t('search.reset')} <RotateCcw size={14} />
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </aside>
   );

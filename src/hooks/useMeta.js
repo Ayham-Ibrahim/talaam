@@ -39,6 +39,8 @@ export function useFilters(educationType) {
     queryKey: queryKeys.meta.filters(educationType),
     queryFn: () => metaService.getFilters(educationType),
     staleTime: 30 * 60 * 1000,
+    // يُبقي القوائم السابقة ظاهرة أثناء جلب قوائم نوع تعليم آخر بدل وميض فارغ
+    placeholderData: (prev) => prev,
   });
 }
 

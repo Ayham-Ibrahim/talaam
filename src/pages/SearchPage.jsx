@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, ChevronDown, SlidersHorizontal } from 'lucide-react';
+import { Search, ChevronDown, SlidersHorizontal, X, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Seo } from '@/components/seo/Seo';
@@ -8,13 +8,34 @@ import { teacherListJsonLd } from '@/lib/seo';
 import { SearchHero } from '@/components/search/SearchHero';
 import { SearchFilters } from '@/components/search/SearchFilters';
 import { TeacherCard, TeacherCardSkeleton } from '@/components/teacher/TeacherCard';
-import { EmptyState, ErrorState } from '@/components/ui';
+import { Button, EmptyState, ErrorState } from '@/components/ui';
 import { useInfiniteTeachers } from '@/hooks/useTeachers';
 import { useInfiniteScrollTrigger } from '@/hooks/useInfiniteScrollTrigger';
 import { useFilters } from '@/hooks/useMeta';
 import { useT } from '@/hooks/useT';
 
-const DEFAULT_DRAFT = { level: null, grade: null, subject: null, stage: null, language: null, availability: null, minPrice: null, maxPrice: null, minRating: null };
+const DEFAULT_FILTERS = { level: null, stage: null, grade: null, subject: null, curriculum: null, language: null, minPrice: null, maxPrice: null, minRating: null };
+
+// تغيير حقل أب يمسح الحقول التابعة له — كي لا تبقى مثلاً "الصف 11" مختارة بعد
+// التحويل لـ"جامعي"، أو مادة مدرسية بعد التحويل لـ"دورات" (قوائمها تتغير مع النوع).
+const DEPENDENTS = {
+  level: ['stage', 'grade', 'subject', 'curriculum'],
+  stage: ['grade'],
+};
+
+const PRICE_DEBOUNCE_MS = 500;
+
+function useDebouncedValue(value, delay) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(id);
+  }, [value, delay]);
+  return debounced;
+}
+
+const optionLabel = (options, value) =>
+  options?.find((o) => String(o.value) === String(value))?.label ?? String(value);
 
 export function SearchPage() {
   const t = useT();
@@ -24,26 +45,32 @@ export function SearchPage() {
   // الصفحة الرئيسية: /search?type=school) — القيمة الأولية فقط عبر دالة lazy
   // init، لا تتزامن مع الرابط بعدها؛ اختيار المستخدم اليدوي هو مصدر الحقيقة لاحقاً.
   const [q, setQ] = useState(searchParams.get('q') ?? '');
-  const [draft, setDraft] = useState(() => ({ ...DEFAULT_DRAFT, level: searchParams.get('type') }));
-  const [applied, setApplied] = useState(() => ({ ...DEFAULT_DRAFT, level: searchParams.get('type') }));
+  // الفلاتر تُطبَّق فوراً عند الاختيار (لا draft/زر تطبيق) — ما عدا حقلَي
+  // السعر المكتوبين يدوياً فيُؤخَّران قليلاً كي لا يُرسَل طلب لكل رقم.
+  const [values, setValues] = useState(() => ({ ...DEFAULT_FILTERS, level: searchParams.get('type') }));
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const minPrice = useDebouncedValue(values.minPrice, PRICE_DEBOUNCE_MS);
+  const maxPrice = useDebouncedValue(values.maxPrice, PRICE_DEBOUNCE_MS);
 
-  const { data: meta } = useFilters();
+  // المواد/المراحل تُجلَب حسب نوع التعليم المختار كي لا تُعرض مواد جامعية
+  // ضمن "مدرسي" مثلاً.
+  const { data: meta } = useFilters(values.level ?? undefined);
 
   const filters = useMemo(
     () => ({
-      type: applied.level ?? undefined,
-      subject: applied.subject ?? undefined,
-      stage: applied.stage ?? undefined,
-      grade: applied.grade ?? undefined,
-      language: applied.language ?? undefined,
+      type: values.level ?? undefined,
+      subject: values.subject ?? undefined,
+      curriculum: values.curriculum ?? undefined,
+      stage: values.stage ?? undefined,
+      grade: values.grade ?? undefined,
+      language: values.language ?? undefined,
       q: q || undefined,
-      minPrice: applied.minPrice ?? undefined,
-      maxPrice: applied.maxPrice ?? undefined,
-      minRating: applied.minRating ?? undefined,
+      minPrice: minPrice ?? undefined,
+      maxPrice: maxPrice ?? undefined,
+      minRating: values.minRating ?? undefined,
       sort: 'rating',
     }),
-    [q, applied]
+    [q, values.level, values.subject, values.curriculum, values.stage, values.grade, values.language, values.minRating, minPrice, maxPrice]
   );
 
   const {
@@ -56,33 +83,54 @@ export function SearchPage() {
     isFetchingNextPage,
   } = useInfiniteTeachers(filters);
   const teachers = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
+  const total = data?.pages[0]?.total;
 
   const sentinelRef = useInfiniteScrollTrigger({
     onIntersect: fetchNextPage,
     enabled: Boolean(hasNextPage) && !isFetchingNextPage && !isLoading,
   });
 
-  const handleDraftChange = (key, value) => setDraft((prev) => ({ ...prev, [key]: value }));
-  // Applying/resetting on mobile collapses the drawer back down so the
-  // (now updated) results are immediately visible instead of staying
-  // hidden behind the open filter panel.
-  const handleApply = () => {
-    setApplied(draft);
-    setFiltersOpen(false);
-  };
+  const handleChange = (key, value) =>
+    setValues((prev) => {
+      if (prev[key] === value) return prev;
+      const next = { ...prev, [key]: value };
+      (DEPENDENTS[key] ?? []).forEach((dep) => {
+        next[dep] = null;
+      });
+      // الصف قد يُختار قبل المرحلة — نُبقيه إن كان ضمن نطاق المرحلة الجديدة
+      if (key === 'stage' && prev.grade) {
+        const stageGrades = value ? meta?.stageGrades?.[value] : null;
+        if (!stageGrades || stageGrades.includes(String(prev.grade))) next.grade = prev.grade;
+      }
+      return next;
+    });
   const handleReset = () => {
-    setDraft(DEFAULT_DRAFT);
-    setApplied(DEFAULT_DRAFT);
+    setValues(DEFAULT_FILTERS);
     setFiltersOpen(false);
   };
-  // شرائح "أنواع التعليم" بأعلى الصفحة (SearchHero) تكتب لنفس draft.level/applied.level
-  // اللذين تتحكم بهما قائمة "المستوى" بالفلاتر الجانبية مباشرةً — لا حالة
-  // "type" منفصلة متعارضة كما كان سابقاً (كانت شرائح الهيرو تتجاهل بصمت أي
-  // اختيار مختلف من القائمة الجانبية لأن قيمتها كانت تسبقها دوماً بالأولوية).
-  // تُطبَّق فوراً (بلا انتظار زر "تطبيق") كي تبقى شرائح الهيرو "فورية" كسابق عهدها.
-  const handleSelectType = (value) => {
-    setDraft((prev) => ({ ...prev, level: value }));
-    setApplied((prev) => ({ ...prev, level: value }));
+
+  // شرائح الفلاتر النشطة فوق النتائج — كل شريحة تُزال بنقرة وتمرّ بنفس
+  // handleChange فتمسح توابعها كذلك.
+  const typeLabels = t('search.categories');
+  const activeChips = [
+    values.level && { key: 'level', label: typeLabels[['school', 'university', 'training'].indexOf(values.level)] },
+    values.stage && { key: 'stage', label: optionLabel(meta?.stages, values.stage) },
+    values.grade && { key: 'grade', label: optionLabel(meta?.grades, values.grade) },
+    values.subject && { key: 'subject', label: optionLabel(meta?.subjects, values.subject) },
+    values.curriculum && { key: 'curriculum', label: optionLabel(meta?.curricula, values.curriculum) },
+    values.language && { key: 'language', label: optionLabel(meta?.languages, values.language) },
+    values.minRating != null && { key: 'minRating', label: <>{values.minRating}{values.minRating < 5 && '+'} <Star size={12} className="fill-star text-star" /></> },
+    (values.minPrice != null || values.maxPrice != null) && {
+      key: 'price',
+      label: `${t('search.price')}: ${values.minPrice ?? 0} – ${values.maxPrice ?? '∞'}`,
+    },
+  ].filter(Boolean);
+  const removeChip = (key) => {
+    if (key === 'price') {
+      setValues((prev) => ({ ...prev, minPrice: null, maxPrice: null }));
+    } else {
+      handleChange(key, null);
+    }
   };
 
   const seoTitle = q
@@ -107,11 +155,11 @@ export function SearchPage() {
             toggle further down the page (see below).
           */}
           <div className="hidden lg:block">
-            <SearchFilters meta={meta} draft={draft} onChange={handleDraftChange} onApply={handleApply} onReset={handleReset} />
+            <SearchFilters meta={meta} value={values} onChange={handleChange} onReset={handleReset} />
           </div>
 
           <div className="flex-1">
-            <SearchHero activeType={applied.level} onSelectType={handleSelectType} />
+            <SearchHero activeType={values.level} onSelectType={(v) => handleChange('level', v)} />
 
             {/* Mobile-only filter toggle + collapsible drawer */}
             <div className="mt-4 lg:hidden">
@@ -124,6 +172,9 @@ export function SearchPage() {
                 <span className="flex items-center gap-2">
                   <SlidersHorizontal size={16} />
                   {t('search.filterTitle')}
+                  {activeChips.length > 0 && (
+                    <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-white">{activeChips.length}</span>
+                  )}
                 </span>
                 <motion.span
                   animate={{ rotate: filtersOpen ? 180 : 0 }}
@@ -145,10 +196,11 @@ export function SearchPage() {
                     <div className="mt-3 rounded-2xl border border-line bg-surface p-5">
                       <SearchFilters
                         meta={meta}
-                        draft={draft}
-                        onChange={handleDraftChange}
-                        onApply={handleApply}
+                        value={values}
+                        onChange={handleChange}
                         onReset={handleReset}
+                        onDone={() => setFiltersOpen(false)}
+                        resultsCount={total}
                         hideHeading
                       />
                     </div>
@@ -172,12 +224,36 @@ export function SearchPage() {
               </div>
 
               <div className="flex items-center gap-2">
+                {total != null && (
+                  <span className="text-sm text-ink-soft">
+                    <span className="font-bold text-ink">{total}</span> {t('search.resultsCount')}
+                  </span>
+                )}
                 <span className="text-sm font-bold text-primary">{t('search.sortBy')}</span>
                 <span className="inline-flex items-center gap-1 rounded-xl border border-line bg-surface px-3 py-1.5 text-sm text-ink">
                   {t('search.sortRating')} <ChevronDown size={14} className="text-ink-soft" />
                 </span>
               </div>
             </div>
+
+            {activeChips.length > 0 && (
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                {activeChips.map((chip) => (
+                  <button
+                    key={chip.key}
+                    type="button"
+                    onClick={() => removeChip(chip.key)}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
+                  >
+                    {chip.label}
+                    <X size={12} />
+                  </button>
+                ))}
+                <button type="button" onClick={handleReset} className="text-xs font-medium text-ink-soft underline-offset-2 hover:text-ink hover:underline">
+                  {t('search.clearAll')}
+                </button>
+              </div>
+            )}
 
             {/* Results grid — infinite scroll: the sentinel div past the last card
                 triggers fetchNextPage() once it nears the viewport (see
@@ -197,7 +273,15 @@ export function SearchPage() {
               )}
               {!isLoading && hasNextPage && <div ref={sentinelRef} aria-hidden="true" className="h-1" />}
               {!isLoading && !isError && teachers.length === 0 && (
-                <EmptyState title={t('states.empty')} hint={t('states.emptyHint')} />
+                activeChips.length > 0 ? (
+                  <EmptyState
+                    title={t('search.emptyFiltered')}
+                    hint={t('search.emptyFilteredHint')}
+                    action={<Button variant="outline" onClick={handleReset}>{t('search.clearAll')}</Button>}
+                  />
+                ) : (
+                  <EmptyState title={t('states.empty')} hint={t('states.emptyHint')} />
+                )
               )}
             </div>
           </div>

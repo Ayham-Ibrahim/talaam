@@ -1,3 +1,4 @@
+import { Wallet } from 'lucide-react';
 import { useT } from '@/hooks/useT';
 
 /**
@@ -18,7 +19,9 @@ export function PriceRangeInputs({ minPrice, maxPrice, onChangeMin, onChangeMax 
 
   return (
     <div>
-      <div className="mb-2 text-sm font-bold text-ink">{t('search.price')}</div>
+      <div className="mb-2 flex items-center gap-1.5 text-sm font-bold text-ink">
+        <Wallet size={15} className="text-ink-soft" /> {t('search.price')}
+      </div>
       <div className="flex items-center gap-2">
         <label className="flex-1">
           <span className="mb-1 block text-xs font-medium text-ink-soft">{t('search.fromPrefix')}</span>
