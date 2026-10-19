@@ -1624,6 +1624,7 @@
       "inactive": "معطَّل",
       "empty": "لا يوجد طلاب مطابقون",
       "view": "عرض",
+      "sessions": "الجلسات",
       "changePassword": "تغيير كلمة المرور",
       "changePasswordTitle": "تغيير كلمة مرور الطالب",
       "changePasswordFor": "تعيين كلمة مرور جديدة للطالب:",
@@ -1709,7 +1710,8 @@
       "back": "العودة لقائمة المعلمين",
       "tabs": {
         "overview": "نظرة عامة",
-        "profile": "الملف الشخصي"
+        "profile": "الملف الشخصي",
+        "sessions": "الجلسات"
       },
       "profileTitle": "بيانات المعلم",
       "email": "البريد الإلكتروني",
@@ -1956,6 +1958,43 @@
       "messageLabel": "الرسالة",
       "senderNameLabel": "اسم المُرسِل",
       "senderEmailLabel": "بريد المُرسِل"
+    },
+    "adminSessions": {
+      "studentSessionsTitle": "جلسات الطالب",
+      "filters": {
+        "upcoming": "القادمة",
+        "attended": "المكتملة",
+        "cancelled": "الملغاة والغياب",
+        "all": "الكل"
+      },
+      "colSession": "الجلسة",
+      "colStudents": "الطلاب",
+      "colTeacher": "المعلم",
+      "colTime": "الموعد",
+      "colStatus": "الحالة",
+      "colActions": "الإجراءات",
+      "category": {
+        "individual": "فردية",
+        "group": "جماعية",
+        "training": "دورة"
+      },
+      "makeup": "تعويضية",
+      "noJoinLink": "لم يُنشأ رابطها بعد",
+      "originalTime": "الموعد الأصلي",
+      "empty": "لا توجد جلسات",
+      "reschedule": "تعديل الموعد",
+      "rescheduleTitle": "تعديل موعد الجلسة",
+      "currentTime": "الموعد الحالي",
+      "newTimeLabel": "الموعد الجديد",
+      "localTimeHint": "بتوقيتك المحلي",
+      "newTimeRequired": "يرجى تحديد الموعد الجديد",
+      "newTimeUnchanged": "الموعد الجديد مطابق للموعد الحالي",
+      "notesLabel": "ملاحظة للمعلم والطلاب",
+      "optional": "اختياري",
+      "notesPlaceholder": "مثال: بناءً على طلب ولي الأمر",
+      "rescheduleHint": "رابط الجلسة لن يتغير. سيصل المعلم والطلاب إشعار بالموعد الجديد، وسيُرسل التذكير من جديد قبل الموعد.",
+      "confirm": "حفظ الموعد",
+      "cancel": "إلغاء"
     },
     "adminReschedule": {
       "absenceReport": "تبليغ غياب — بانتظار تنسيقكم",

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, KeyRound } from 'lucide-react';
+import { CalendarClock, Eye, KeyRound } from 'lucide-react';
 import { Avatar } from '@/components/ui';
 import { ChangeStudentPasswordModal } from './ChangeStudentPasswordModal';
+import { AdminStudentSessionsModal } from './AdminStudentSessionsModal';
 import { formatDate } from '@/lib/formatters';
 import { useT } from '@/hooks/useT';
 
@@ -28,6 +29,7 @@ function ActiveBadge({ isActive }) {
 export function AdminStudentsTable({ students }) {
   const t = useT();
   const [passwordModalStudent, setPasswordModalStudent] = useState(null);
+  const [sessionsModalStudent, setSessionsModalStudent] = useState(null);
 
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
@@ -77,6 +79,14 @@ export function AdminStudentsTable({ students }) {
                   </Link>
                   <button
                     type="button"
+                    onClick={() => setSessionsModalStudent(student)}
+                    className="inline-flex items-center gap-1.5 text-primary hover:opacity-70"
+                  >
+                    <CalendarClock size={16} />
+                    {t('dashboard.adminStudents.sessions')}
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setPasswordModalStudent(student)}
                     className="inline-flex items-center gap-1.5 text-primary hover:opacity-70"
                   >
@@ -92,6 +102,10 @@ export function AdminStudentsTable({ students }) {
 
       {passwordModalStudent && (
         <ChangeStudentPasswordModal student={passwordModalStudent} onClose={() => setPasswordModalStudent(null)} />
+      )}
+
+      {sessionsModalStudent && (
+        <AdminStudentSessionsModal student={sessionsModalStudent} onClose={() => setSessionsModalStudent(null)} />
       )}
     </div>
   );
