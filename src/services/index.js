@@ -557,6 +557,16 @@ export const metaService = {
     const { data } = await client.get(endpoints.meta.stats);
     return data.data;
   },
+
+  /** مصدرها إعدادات الأدمن (contact_email/contact_address) — لا قيم ثابتة بالكود */
+  async getContactInfo() {
+    if (config.useMocks) {
+      await mockDelay(200);
+      return { email: 'taalam@t3allem.com', address: 'Sharjah Freezone' };
+    }
+    const { data } = await client.get(endpoints.meta.contactInfo);
+    return data.data;
+  },
 };
 
 const SESSION_TYPE_LABELS = { individual: 'جلسة فردية', group: 'جلسة جماعية', training: 'دورة تدريبية' };

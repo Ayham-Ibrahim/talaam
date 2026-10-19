@@ -1,13 +1,15 @@
 import { Phone, Mail, Facebook, Instagram, Youtube } from "lucide-react";
 import { TikTokIcon, WhatsAppIcon } from "@/components/icons/SocialIcons";
 import { Logo } from "./Logo";
+import { useContactInfo } from "@/hooks/useMeta";
 import { useT } from "@/hooks/useT";
 import { SplitWords } from "@/motion/scroll/SplitWords";
 
 // رقم الهاتف/واتساب الرسمي الوحيد — يُستخدَم للعرض وللرابطين (tel:/wa.me) معاً.
 const PHONE_DISPLAY = "+971 52 942 6077";
 const PHONE_DIGITS = "971529426077"; // بلا + ولا فراغات — الصيغة التي يتطلبها wa.me
-const EMAIL = "TAALAM@gmail.com";
+// احتياط قبل اكتمال جلب الإعداد أو عند فشل الطلب — المصدر الحقيقي هو إعدادات الأدمن (contact_email)
+const EMAIL_FALLBACK = "taalam@t3allem.com";
 
 const SOCIAL_LINKS = [
   { Icon: Facebook, href: "https://www.facebook.com/profile.php?id=61562033186054", label: "Facebook" },
@@ -18,6 +20,8 @@ const SOCIAL_LINKS = [
 
 export function Footer() {
   const t = useT();
+  const { data: contactInfo } = useContactInfo();
+  const email = contactInfo?.email || EMAIL_FALLBACK;
 
   const quickLinks = [
     t("nav.resources"),
@@ -114,8 +118,8 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Mail size={15} />
-                <a href={`mailto:${EMAIL}`} className="hover:text-ink transition-colors">
-                  {EMAIL}
+                <a href={`mailto:${email}`} className="hover:text-ink transition-colors">
+                  {email}
                 </a>
               </li>
               <li className="flex items-center gap-2">

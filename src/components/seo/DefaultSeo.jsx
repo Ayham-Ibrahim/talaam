@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { organizationJsonLd, websiteJsonLd } from '@/lib/seo';
+import { useContactInfo } from '@/hooks/useMeta';
 
 /**
  * قيم افتراضية على مستوى التطبيق كله — تُركَّب أول عنصر بالشجرة (قبل
@@ -9,6 +10,8 @@ import { organizationJsonLd, websiteJsonLd } from '@/lib/seo';
  * بالعرض يفوز لكل وسم فريد مثل title).
  */
 export function DefaultSeo() {
+  const { data: contactInfo } = useContactInfo();
+
   return (
     <Helmet>
       <title>TAALAM | منصة تعليمية تربط الطلاب بأفضل المعلمين المعتمدين في الإمارات</title>
@@ -18,7 +21,7 @@ export function DefaultSeo() {
       />
       <meta property="og:site_name" content="TAALAM" />
       <meta property="og:locale" content="ar_AE" />
-      <script type="application/ld+json">{JSON.stringify(organizationJsonLd())}</script>
+      <script type="application/ld+json">{JSON.stringify(organizationJsonLd(contactInfo))}</script>
       <script type="application/ld+json">{JSON.stringify(websiteJsonLd())}</script>
     </Helmet>
   );

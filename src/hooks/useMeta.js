@@ -49,3 +49,12 @@ export function useStats() {
     staleTime: 10 * 60 * 1000,
   });
 }
+
+/** البريد والعنوان الرسميان — تُعدَّل من لوحة الأدمن (الإعدادات)، تتغيّر نادراً */
+export function useContactInfo() {
+  return useQuery({
+    queryKey: queryKeys.meta.contactInfo(),
+    queryFn: () => metaService.getContactInfo(),
+    staleTime: 30 * 60 * 1000,
+  });
+}

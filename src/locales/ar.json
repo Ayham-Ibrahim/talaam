@@ -414,7 +414,7 @@
       {
         "key": "email",
         "label": "البريد الالكتروني",
-        "value": "TAALAM@gmail.com"
+        "value": "taalam@t3allem.com"
       },
       {
         "key": "phone",
@@ -424,7 +424,7 @@
       {
         "key": "address",
         "label": "العنوان",
-        "value": "الاردن / عمان / حي الجميلية"
+        "value": "Sharjah Freezone"
       }
     ],
     "formTitle": "كيف يمكننا مساعدتك",
@@ -578,10 +578,7 @@
     "gradePrefix": "الصف",
     "languages": "اللغات",
     "teachingMethods": "طريقة التدريس",
-    "sessionFormatShort": {
-      "individual": "فردية",
-      "group": "جماعية"
-    },
+    "sessionFormatShort": { "individual": "فردية", "group": "جماعية" },
     "videos": "فيديوهات",
     "sessionTypes": "نوع الجلسة",
     "packages": "الباقات",
@@ -589,10 +586,7 @@
     "bookSeat": "احجز مقعدك",
     "viewDetails": "عرض التفاصيل",
     "seatsReservedSuffix": "مقاعد محجوزة",
-    "packageBadge": {
-      "individual": "فردية",
-      "group": "مجموعة"
-    },
+    "packageBadge": { "individual": "فردية", "group": "مجموعة" },
     "packageEnded": "انتهت الباقة",
     "rating": "التقييم",
     "sessionMinutes": "دقيقة",

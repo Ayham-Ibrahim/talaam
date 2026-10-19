@@ -408,7 +408,7 @@
       {
         "key": "email",
         "label": "Email",
-        "value": "TAALAM@gmail.com"
+        "value": "taalam@t3allem.com"
       },
       {
         "key": "phone",
@@ -418,7 +418,7 @@
       {
         "key": "address",
         "label": "Address",
-        "value": "Jordan / Amman / Al-Jumeiliyeh"
+        "value": "Sharjah Freezone"
       }
     ],
     "formTitle": "How Can We Help You",
@@ -572,19 +572,13 @@
     "languages": "Languages",
     "teachingMethods": "Teaching Method",
     "sessionTypes": "Session Type",
-    "sessionFormatShort": {
-      "individual": "Individual",
-      "group": "Group"
-    },
+    "sessionFormatShort": { "individual": "Individual", "group": "Group" },
     "packages": "Packages",
     "choosePackage": "Choose a Package",
     "bookSeat": "Book your seat",
     "viewDetails": "View details",
     "seatsReservedSuffix": "seats reserved",
-    "packageBadge": {
-      "individual": "Individual",
-      "group": "Group"
-    },
+    "packageBadge": { "individual": "Individual", "group": "Group" },
     "rating": "Rating",
     "sessionMinutes": "minutes",
     "perSessionLabel": "per session",
@@ -612,15 +606,7 @@
     "evening": "PM",
     "prevMonth": "Previous month",
     "nextMonth": "Next month",
-    "weekdays": [
-      "Sun",
-      "Mon",
-      "Tue",
-      "Wed",
-      "Thu",
-      "Fri",
-      "Sat"
-    ]
+    "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
   },
   "favorites": {
     "title": "Favorites",

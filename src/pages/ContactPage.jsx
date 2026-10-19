@@ -7,6 +7,7 @@ import { Seo } from "@/components/seo/Seo";
 import { Card, ApiErrorList } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import { useCreateComplaint } from "@/hooks/useComplaint";
+import { useContactInfo } from "@/hooks/useMeta";
 import { useT } from "@/hooks/useT";
 import { sanitizeName, validateEmail, validateName } from "@/lib/accountFormValidation";
 
@@ -193,7 +194,14 @@ export function ContactPage() {
   const t = useT();
   const { user } = useAuth();
   const canFileComplaint = user?.role === "student" || user?.role === "teacher";
-  const info = t("contact.info");
+  // البريد والعنوان يُعدَّلان من لوحة الأدمن (إعدادات التواصل) — القيمة بـ ar.json/en.json
+  // تبقى فقط كاحتياط قبل اكتمال الجلب أو عند فشل الطلب؛ رقم الهاتف ثابت بالترجمة كما كان.
+  const { data: contactInfo } = useContactInfo();
+  const info = t("contact.info").map((item) => {
+    if (item.key === "email" && contactInfo?.email) return { ...item, value: contactInfo.email };
+    if (item.key === "address" && contactInfo?.address) return { ...item, value: contactInfo.address };
+    return item;
+  });
 
   return (
     <PageContainer>
