@@ -8,6 +8,7 @@ import { VerificationDocumentsList } from '@/components/dashboard/admin/Verifica
 import { TeacherBadgesPanel } from '@/components/dashboard/admin/TeacherBadgesPanel';
 import { TeacherReviewsPanel } from '@/components/dashboard/admin/TeacherReviewsPanel';
 import { ReasonModal } from '@/components/dashboard/admin/ReasonModal';
+import { AdminSessionsPanel } from '@/components/dashboard/admin/AdminSessionsPanel';
 import { ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -30,7 +31,7 @@ export function AdminTeacherDetailPage() {
   const { id } = useParams();
   const { data, isLoading, isError, refetch } = useAdminTeacherDetail(id);
   const [modal, setModal] = useState(null); // { type: 'rejectTeacher' | 'suspendTeacher' | 'rejectDocument', documentId? }
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'profile'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'profile' | 'sessions'
 
   const approveTeacher = useApproveTeacher(id);
   const rejectTeacher = useRejectTeacher(id);
@@ -115,7 +116,7 @@ export function AdminTeacherDetailPage() {
       ) : (
         <>
           <div className="mb-6 flex justify-end gap-2 border-b border-line/60">
-            {['overview', 'profile'].map((tab) => (
+            {['overview', 'profile', 'sessions'].map((tab) => (
               <button
                 key={tab}
                 type="button"
@@ -165,8 +166,10 @@ export function AdminTeacherDetailPage() {
                 />
               </div>
             </div>
-          ) : (
+          ) : activeTab === 'profile' ? (
             <AdminTeacherProfileEditor teacherId={id} teacher={data.teacher} documents={data.documents} />
+          ) : (
+            <AdminSessionsPanel teacherId={id} />
           )}
         </>
       )}
