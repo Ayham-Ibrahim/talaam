@@ -5,6 +5,7 @@
 export const endpoints = {
   auth: {
     registerStudent: '/auth/register/student',
+    registerTeacher: '/auth/register/teacher',
     login: '/auth/login',
     logout: '/auth/logout',
     me: '/auth/me',
@@ -20,6 +21,7 @@ export const endpoints = {
   reviews: {
     mine: '/me/reviews',
     create: (sessionId) => `/class-sessions/${sessionId}/reviews`,
+    createForTeacher: (teacherId) => `/teachers/${teacherId}/reviews`,
     update: (id) => `/reviews/${id}`,
   },
   favorites: {
@@ -151,6 +153,10 @@ export const endpoints = {
     filters: '/meta/filters',
     stats: '/meta/stats',
     contactInfo: '/meta/contact-info',
+  },
+  legalPages: {
+    show: (slug) => `/legal-pages/${slug}`,
+    update: (slug) => `/admin/legal-pages/${slug}`,
   },
   dashboard: {
     teacher: '/dashboard/teacher',

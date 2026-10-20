@@ -63,10 +63,12 @@ export function isGradeValid(grade) {
 }
 
 /**
- * هاتف ولي الأمر: إلزامي في UpdateStudentProfileRequest (إكمال ملف بعد إنشاء
- * الأدمن للحساب) لكن اختياري في RegisterStudentRequest (تسجيل ذاتي جديد) —
- * requireGuardian يفرّق بين السياقين. القيمة الفارغة صالحة فقط حين لا يكون
- * إلزامياً؛ الصيغة (إن أُدخلت قيمة) تُتحقَّق دوماً بصرف النظر عن الإلزامية.
+ * هاتف ولي الأمر: إلزامي للطالب المدرسي فقط — في UpdateStudentProfileRequest
+ * (إكمال ملف بعد إنشاء الأدمن للحساب)، لكن اختياري في RegisterStudentRequest
+ * (تسجيل ذاتي جديد) حتى للمدرسي — requireGuardian يفرّق بين السياقين. القيمة
+ * الفارغة صالحة فقط حين لا يكون إلزامياً؛ الصيغة (إن أُدخلت قيمة) تُتحقَّق دوماً
+ * بصرف النظر عن الإلزامية. الحقل أصلاً لا يُعرَض لغير الطالب المدرسي (راجع
+ * الاستدعاء في studentAcademicRequiredFieldsFilled/hasStudentAcademicFieldError).
  */
 export function isGuardianPhoneValid(phone, requireGuardian = true) {
   if (!phone) return !requireGuardian;
@@ -95,18 +97,21 @@ export function studentAcademicRequiredFieldsFilled(form, requireGuardian = true
           ? form.course_field_id !== '' && form.level !== ''
           : false;
 
-  const guardianFilled = !requireGuardian || (form.guardian_name.trim() !== '' && form.guardian_phone !== '');
+  // ولي الأمر يخص الطالب المدرسي فقط — الطالب الجامعي/التدريبي راشد قانونياً، لا داعي لبياناته
+  const guardianFilled =
+    form.education_type !== 'school' || !requireGuardian || (form.guardian_name.trim() !== '' && form.guardian_phone !== '');
 
   return typeSpecificFilled && guardianFilled;
 }
 
 /** خطأ في أي حقل حر (تاريخ ميلاد/صف/اسم وهاتف ولي الأمر) — لتعطيل زر الحفظ، مستقل عن اكتمال الحقول الإلزامية. */
 export function hasStudentAcademicFieldError(form, requireGuardian = true) {
+  const checkGuardian = form.education_type === 'school';
   return (
     !isBirthDateValid(form.birth_date) ||
     !isGradeValid(form.grade) ||
-    !isGuardianNameValid(form.guardian_name, requireGuardian) ||
-    !isGuardianPhoneValid(form.guardian_phone, requireGuardian)
+    (checkGuardian && !isGuardianNameValid(form.guardian_name, requireGuardian)) ||
+    (checkGuardian && !isGuardianPhoneValid(form.guardian_phone, requireGuardian))
   );
 }
 
@@ -129,8 +134,10 @@ export function buildStudentAcademicPayload(form) {
     payload.level = form.level;
   }
   if (form.birth_date) payload.birth_date = toDateInputValue(form.birth_date);
-  if (form.guardian_name && form.guardian_name.trim()) payload.guardian_name = form.guardian_name.trim();
-  if (form.guardian_phone) payload.guardian_phone = sanitizePhone(String(form.guardian_phone));
+  if (form.education_type === 'school') {
+    if (form.guardian_name && form.guardian_name.trim()) payload.guardian_name = form.guardian_name.trim();
+    if (form.guardian_phone) payload.guardian_phone = sanitizePhone(String(form.guardian_phone));
+  }
   return payload;
 }
 
@@ -270,6 +277,11 @@ export function StudentAcademicProfileFields({ form, setForm, touched, requireGu
               <span className="text-xs text-accent-pink">{t('completeProfile.birthDateInvalid')}</span>
             )}
           </label>
+        </>
+      )}
+
+      {form.education_type === 'school' && (
+        <>
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-semibold text-ink">
               {t('completeProfile.guardianNameLabel')}

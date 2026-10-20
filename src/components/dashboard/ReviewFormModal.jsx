@@ -4,7 +4,10 @@ import { ApiErrorList } from '@/components/ui';
 import { useT } from '@/hooks/useT';
 
 const REVIEW_FIELD_LABELS = { rating: 'التقييم', comment: 'التعليق' };
-const reviewErrorLabel = (path) => REVIEW_FIELD_LABELS[path] ?? path;
+// 'session' صراحة بلا بادئة — أخطاؤه (مهلة التقييم/التكرار/عدم الحضور) رسائل
+// جاهزة على مستوى العملية كلها لا على إدخال حقل بعينه. فرع صريح لا ?? لأن
+// REVIEW_FIELD_LABELS['session'] = null كان سيسقط إلى path نفسه بسبب nullish coalescing.
+const reviewErrorLabel = (path) => (path === 'session' ? null : (REVIEW_FIELD_LABELS[path] ?? path));
 
 /** Interactive 1–5 star picker — StarRating in @/components/ui is a read-only display, not an input */
 function StarPicker({ value, onChange }) {

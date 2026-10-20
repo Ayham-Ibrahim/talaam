@@ -23,6 +23,18 @@ export function useRegisterStudent() {
   });
 }
 
+/** نفس منطق useRegisterStudent — دخول تلقائي فوراً بعد إنشاء حساب المعلم، بلا خطوة تسجيل دخول منفصلة */
+export function useRegisterTeacher() {
+  const login = useAuthStore((s) => s.login);
+
+  return useMutation({
+    mutationFn: (payload) => authService.registerTeacher(payload),
+    onSuccess: (data) => {
+      login({ user: data.user, token: data.token }, true);
+    },
+  });
+}
+
 export function useLogin() {
   const login = useAuthStore((s) => s.login);
 

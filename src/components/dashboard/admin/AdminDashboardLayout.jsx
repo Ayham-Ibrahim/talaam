@@ -13,6 +13,7 @@ import {
   Mail,
   MessageSquareWarning,
   Package,
+  ShieldCheck,
   Settings,
   Users,
   Wallet,
@@ -46,6 +47,7 @@ const ADMIN_NAV_ITEMS = [
   { key: 'teacherImport', icon: FileSpreadsheet, path: '/dashboard/admin/teacher-import' },
   { key: 'importBatches', icon: History, path: '/dashboard/admin/import-batches' },
   { key: 'notificationLogs', icon: Mail, path: '/dashboard/admin/notification-logs' },
+  { key: 'legalPages', icon: ShieldCheck, path: '/dashboard/admin/legal-pages' },
   { key: 'settings', icon: Settings, path: '/dashboard/admin/settings' },
 ];
 

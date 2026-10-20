@@ -3,6 +3,7 @@ import { queryKeys } from '@/api/queryKeys';
 import { adminSettingsService } from '@/services/adminSettingsService';
 import { adminAuditLogService } from '@/services/adminAuditLogService';
 import { adminReviewsService } from '@/services/adminReviewsService';
+import { legalPageService } from '@/services/legalPageService';
 
 export function useAdminSettings() {
   return useQuery({
@@ -84,5 +85,14 @@ export function useDeleteSeededReview(teacherId) {
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.seededReviews(teacherId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.teacherDetail(teacherId) });
     },
+  });
+}
+
+/** تعديل أقسام سياسة الخصوصية/الشروط والأحكام — الأدمن يقرأ عبر useLegalPage العامة نفسها */
+export function useUpdateLegalPage(slug) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (sections) => legalPageService.update(slug, sections),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.legalPages.detail(slug) }),
   });
 }

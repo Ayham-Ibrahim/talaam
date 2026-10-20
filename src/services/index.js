@@ -237,6 +237,16 @@ export const reviewService = {
     return data.data;
   },
 
+  /** تقييم حر لمعلم بصرف النظر عن وجود جلسة — upsert من الباك اند (نفس الطالب/المعلم يحدّث تقييمه القائم بدل تكراره) */
+  async createForTeacher(teacherId, { rating, comment }) {
+    if (config.useMocks) {
+      await mockDelay();
+      return { id: Date.now(), rating, comment };
+    }
+    const { data } = await client.post(endpoints.reviews.createForTeacher(teacherId), { rating, comment: comment || null });
+    return data.data;
+  },
+
   async update(reviewId, { rating, comment }) {
     if (config.useMocks) {
       await mockDelay();
@@ -809,6 +819,8 @@ function mapSessionListRow(session) {
     // completed" matters, e.g. gating the student review action.
     rawStatus: session.status,
     sessionType: SESSION_TYPE_LABELS[category],
+    // لازم لربط الجلسة بمعلمها عند عرض "قيّم هذا المعلم" من صفحة بروفايله العامة
+    teacherId: session.teacher?.id ?? null,
     teacherName: sessionTeacherName(session),
     teacherAvatar: sessionTeacherAvatar(session),
     subject: sessionSubject(session),

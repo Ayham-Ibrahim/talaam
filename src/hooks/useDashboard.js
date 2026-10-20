@@ -130,11 +130,12 @@ export function useTeacherCalendarSessions({ enabled = true } = {}) {
   });
 }
 
-export function useSessions(params = {}) {
+export function useSessions(params = {}, options = {}) {
   return useQuery({
     queryKey: queryKeys.dashboard.sessions(params),
     queryFn: () => dashboardService.getSessions(params),
     keepPreviousData: true,
+    ...options,
   });
 }
 
