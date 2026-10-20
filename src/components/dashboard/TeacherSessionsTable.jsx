@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { formatDateTime } from '@/lib/formatters';
-import { canJoinSession } from '@/services';
+import { canJoinSession, canRequestTeacherReschedule, teacherSessionDisplayStatus } from '@/services';
 import { useT } from '@/hooks/useT';
 
-export function TeacherSessionsTable({ sessions, onJoin, joinPending = false }) {
+export function TeacherSessionsTable({ sessions, onJoin, onPostpone, joinPending = false }) {
   const t = useT();
   const navigate = useNavigate();
 
@@ -21,7 +21,7 @@ export function TeacherSessionsTable({ sessions, onJoin, joinPending = false }) 
         </thead>
         <tbody className="divide-y divide-line">
           {sessions.map((session, i) => {
-            const statusStyle = TEACHER_SESSION_STATUS_STYLES[session.status];
+            const statusStyle = TEACHER_SESSION_STATUS_STYLES[teacherSessionDisplayStatus(session)];
             const title = session.booking?.package?.title ?? session.course?.title ?? '—';
             // نفس نافذة الانضمام في الباك اند (قبل الموعد بخمس دقائق حتى نهايته) — كان الزر
             // يظهر دائماً لأي جلسة scheduled ثم يرفضه الباك اند 422 قبل موعدها.
@@ -57,6 +57,15 @@ export function TeacherSessionsTable({ sessions, onJoin, joinPending = false }) 
                         className="rounded-xl border-2 border-primary bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary-hover disabled:opacity-50"
                       >
                         {t('dashboard.teacherSessions.join')}
+                      </button>
+                    )}
+                    {onPostpone && canRequestTeacherReschedule(session) && (
+                      <button
+                        type="button"
+                        onClick={() => onPostpone(session)}
+                        className="rounded-xl border border-[#FF8D28] bg-[#FDF8F0] px-4 py-2 text-xs font-medium text-[#FF8D28] hover:bg-[#FF8D28]/10"
+                      >
+                        {t('dashboard.teacherSessions.postpone')}
                       </button>
                     )}
                   </div>

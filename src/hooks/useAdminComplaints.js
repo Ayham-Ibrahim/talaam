@@ -42,6 +42,14 @@ export function useAdminRescheduleRequests(filters = {}) {
   });
 }
 
+export function useAdminRescheduleRequestDetails(id) {
+  return useQuery({
+    queryKey: queryKeys.admin.rescheduleRequestDetail(id),
+    queryFn: () => adminComplaintsService.getRescheduleRequestDetails(id),
+    enabled: Boolean(id),
+  });
+}
+
 function useInvalidateReschedule() {
   const queryClient = useQueryClient();
   return () => queryClient.invalidateQueries({ queryKey: ['admin', 'reschedule-requests'] });

@@ -4,12 +4,15 @@ import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { TeacherSessionsFilterBar } from '@/components/dashboard/TeacherSessionsFilterBar';
 import { TeacherSessionsTable } from '@/components/dashboard/TeacherSessionsTable';
 import { Pagination } from '@/components/dashboard/Pagination';
+import { RescheduleRequestModal } from '@/components/dashboard/RescheduleRequestModal';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeacherSessions } from '@/hooks/useDashboard';
+import { useCreateRescheduleRequest } from '@/hooks/useReschedule';
 import { useJoinSession } from '@/hooks/useSessionJoin';
 import { handleSessionJoin } from '@/lib/joinSession';
 import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
+import { teacherSessionDisplayStatus } from '@/services';
 import { useT } from '@/hooks/useT';
 
 const PAGE_SIZE = 10;
@@ -22,6 +25,22 @@ export function TeacherSessionsPage() {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [page, setPage] = useState(1);
   const joinSession = useJoinSession();
+  const createRescheduleRequest = useCreateRescheduleRequest();
+  const [postponingSession, setPostponingSession] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const handleConfirmPostpone = ({ proposedScheduledAt, reason }) => {
+    createRescheduleRequest.mutate(
+      { sessionId: postponingSession.id, proposedScheduledAt, reason },
+      {
+        onSuccess: () => {
+          setPostponingSession(null);
+          setSuccessMessage(t('dashboard.rescheduleModal.success'));
+          setTimeout(() => setSuccessMessage(''), 4000);
+        },
+      }
+    );
+  };
 
   const statusOptions = useMemo(
     () => Object.entries(TEACHER_SESSION_STATUS_STYLES).map(([value, style]) => ({ value, label: style.label })),
@@ -33,7 +52,7 @@ export function TeacherSessionsPage() {
     const search = filters.search.trim().toLowerCase();
     return sessions.filter((session) => {
       const title = session.booking?.package?.title ?? session.course?.title ?? '';
-      if (filters.status && session.status !== filters.status) return false;
+      if (filters.status && teacherSessionDisplayStatus(session) !== filters.status) return false;
       if (filters.date && !session.scheduled_at.startsWith(filters.date)) return false;
       if (search && !title.toLowerCase().includes(search)) return false;
       return true;
@@ -56,6 +75,10 @@ export function TeacherSessionsPage() {
       <div className="flex flex-col gap-6">
         <TeacherSessionsFilterBar statuses={statusOptions} filters={filters} onChange={handleFilterChange} />
 
+        {successMessage && (
+          <div className="rounded-2xl bg-success-light px-4 py-3 text-sm font-medium text-success">{successMessage}</div>
+        )}
+
         {isError ? (
           <ErrorState onRetry={refetch} />
         ) : isLoading ? (
@@ -72,6 +95,10 @@ export function TeacherSessionsPage() {
               sessions={pageSessions}
               joinPending={joinSession.isPending}
               onJoin={(session) => handleSessionJoin(joinSession.mutateAsync, session.id)}
+              onPostpone={(session) => {
+                createRescheduleRequest.reset();
+                setPostponingSession(session);
+              }}
             />
             <div className="flex flex-wrap items-center justify-between gap-3">
               <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
@@ -84,6 +111,16 @@ export function TeacherSessionsPage() {
           </>
         )}
       </div>
+
+      {postponingSession && (
+        <RescheduleRequestModal
+          isPending={createRescheduleRequest.isPending}
+          error={createRescheduleRequest.error}
+          currentScheduledAt={postponingSession.scheduled_at}
+          onConfirm={handleConfirmPostpone}
+          onClose={() => setPostponingSession(null)}
+        />
+      )}
     </DashboardLayout>
   );
 }

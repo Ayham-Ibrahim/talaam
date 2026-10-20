@@ -68,6 +68,8 @@ export const queryKeys = {
     complaints: (filters) => ['admin', 'complaints', filters],
     complaintDetail: (id) => ['admin', 'complaint-detail', id],
     rescheduleRequests: (filters) => ['admin', 'reschedule-requests', filters],
+    // تحت نفس البادئة عمداً — useInvalidateReschedule يُحدّثها بعد القبول/الرفض
+    rescheduleRequestDetail: (id) => ['admin', 'reschedule-requests', 'detail', id],
     taxonomy: (type) => ['admin', 'taxonomy', type],
     payouts: (filters) => ['admin', 'payouts', filters],
     settings: () => ['admin', 'settings'],

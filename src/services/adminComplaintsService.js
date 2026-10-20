@@ -29,10 +29,18 @@ function mapRescheduleRequest(request) {
       : request.booking?.student?.user?.name ?? (attendeeCount > 1 ? `مجموعة (${attendeeCount} طلاب)` : firstAttendeeName)) ??
     '';
 
+  const requesterRole = request.requesterRole ?? request.requester_role ?? null;
+
   return {
     ...request,
     teacherName,
     studentName,
+    requesterRole,
+    requesterName:
+      request.requesterName ??
+      request.requester_name ??
+      request.requester?.name ??
+      (requesterRole === 'teacher' ? teacherName : requesterRole === 'student' ? studentName : null),
     originalScheduledAt:
       request.originalScheduledAt ?? request.original_scheduled_at ?? request.currentScheduledAt ?? request.current_scheduled_at ?? null,
     proposedScheduledAt: request.proposedScheduledAt ?? request.proposed_scheduled_at ?? null,
@@ -156,6 +164,16 @@ export const adminComplaintsService = {
     }
     const { data } = await client.get(endpoints.admin.rescheduleRequests, { params: filters });
     return { data: data.data.map(mapRescheduleRequest), total: data.meta?.total ?? data.data.length };
+  },
+
+  async getRescheduleRequestDetails(id) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      const request = findMockRescheduleRequest(id);
+      return request ? mapRescheduleRequest(request) : null;
+    }
+    const { data } = await client.get(endpoints.admin.rescheduleRequestDetail(id));
+    return mapRescheduleRequest(data.data);
   },
 
   async approveReschedule(id, alternativeScheduledAt, notes) {

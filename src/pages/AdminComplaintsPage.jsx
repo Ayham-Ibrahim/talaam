@@ -6,6 +6,7 @@ import { ComplaintsTable } from '@/components/dashboard/admin/ComplaintsTable';
 import { ComplaintDetailsModal } from '@/components/dashboard/admin/ComplaintDetailsModal';
 import { ResolveComplaintModal } from '@/components/dashboard/admin/ResolveComplaintModal';
 import { RescheduleRequestsTable } from '@/components/dashboard/admin/RescheduleRequestsTable';
+import { RescheduleRequestDetailsModal } from '@/components/dashboard/admin/RescheduleRequestDetailsModal';
 import { ApproveRescheduleModal } from '@/components/dashboard/admin/ApproveRescheduleModal';
 import { ReasonModal } from '@/components/dashboard/admin/ReasonModal';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
@@ -129,6 +130,7 @@ export function AdminComplaintsPage() {
               <RescheduleRequestsTable
                 requests={rescheduleQuery.data.data}
                 isActing={isActing}
+                onView={(request) => setModal({ type: 'viewReschedule', request })}
                 onApprove={(request) => approveReschedule.mutate({ id: request.id, alternativeScheduledAt: null })}
                 onApproveWithAlternative={(request) => setModal({ type: 'approveAlternative', request })}
                 onReject={(request) => setModal({ type: 'rejectReschedule', request })}
@@ -139,6 +141,8 @@ export function AdminComplaintsPage() {
       </div>
 
       {modal?.type === 'viewComplaint' && <ComplaintDetailsModal complaint={modal.complaint} onClose={closeModal} />}
+
+      {modal?.type === 'viewReschedule' && <RescheduleRequestDetailsModal request={modal.request} onClose={closeModal} />}
 
       {modal?.type === 'resolve' && (
         <ResolveComplaintModal
