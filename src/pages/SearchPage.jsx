@@ -14,12 +14,12 @@ import { useInfiniteScrollTrigger } from '@/hooks/useInfiniteScrollTrigger';
 import { useFilters } from '@/hooks/useMeta';
 import { useT } from '@/hooks/useT';
 
-const DEFAULT_FILTERS = { level: null, stage: null, grade: null, subject: null, curriculum: null, language: null, minPrice: null, maxPrice: null, minRating: null };
+const DEFAULT_FILTERS = { level: null, stage: null, grade: null, major: null, courseField: null, subject: null, curriculum: null, language: null, minPrice: null, maxPrice: null, minRating: null };
 
 // تغيير حقل أب يمسح الحقول التابعة له — كي لا تبقى مثلاً "الصف 11" مختارة بعد
 // التحويل لـ"جامعي"، أو مادة مدرسية بعد التحويل لـ"دورات" (قوائمها تتغير مع النوع).
 const DEPENDENTS = {
-  level: ['stage', 'grade', 'subject', 'curriculum'],
+  level: ['stage', 'grade', 'major', 'courseField', 'subject', 'curriculum'],
   stage: ['grade'],
 };
 
@@ -64,13 +64,15 @@ export function SearchPage() {
       stage: values.stage ?? undefined,
       grade: values.grade ?? undefined,
       language: values.language ?? undefined,
+      major: values.major ?? undefined,
+      courseField: values.courseField ?? undefined,
       q: q || undefined,
       minPrice: minPrice ?? undefined,
       maxPrice: maxPrice ?? undefined,
       minRating: values.minRating ?? undefined,
       sort: 'rating',
     }),
-    [q, values.level, values.subject, values.curriculum, values.stage, values.grade, values.language, values.minRating, minPrice, maxPrice]
+    [q, values.level, values.subject, values.curriculum, values.stage, values.grade, values.major, values.courseField, values.language, values.minRating, minPrice, maxPrice]
   );
 
   const {
@@ -116,6 +118,8 @@ export function SearchPage() {
     values.level && { key: 'level', label: typeLabels[['school', 'university', 'training'].indexOf(values.level)] },
     values.stage && { key: 'stage', label: optionLabel(meta?.stages, values.stage) },
     values.grade && { key: 'grade', label: optionLabel(meta?.grades, values.grade) },
+    values.major && { key: 'major', label: optionLabel(meta?.majors, values.major) },
+    values.courseField && { key: 'courseField', label: optionLabel(meta?.courseFields, values.courseField) },
     values.subject && { key: 'subject', label: optionLabel(meta?.subjects, values.subject) },
     values.curriculum && { key: 'curriculum', label: optionLabel(meta?.curricula, values.curriculum) },
     values.language && { key: 'language', label: optionLabel(meta?.languages, values.language) },

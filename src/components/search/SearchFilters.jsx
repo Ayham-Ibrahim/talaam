@@ -1,4 +1,4 @@
-import { SlidersHorizontal, Layers, Bookmark, BookOpen, GraduationCap, Globe, RotateCcw, Star, School, Library } from 'lucide-react';
+import { SlidersHorizontal, Layers, Bookmark, BookOpen, GraduationCap, Globe, RotateCcw, Star, School, Library, Briefcase, Shapes } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { PriceRangeInputs } from '@/components/search/PriceRangeInputs';
@@ -67,7 +67,7 @@ function Group({ title, children }) {
  * الفلاتر مرتّبة هرمياً: نوع التعليم ← المرحلة ← الصف، والمادة/المرحلة/المنهاج
  * تابعة للنوع (meta تُجلَب بـ education_type المختار من SearchPage). أي حقل
  * يعتمد على حقل قبله يظهر معطَّلاً مع تلميح حتى يُختار الأب، والحقول التي لا
- * معنى لها بنوع معيّن (الصف بغير المدرسي، المنهاج بالجامعي/الدورات) تُخفى.
+ * معنى لها بنوع معيّن (الصف بغير المدرسي، المنهاج بالدورات) تُخفى.
  * مسح الحقول التابعة عند تغيير الأب يعيش بـ SearchPage (handleChange) لا هنا.
  *
  * التغييرات تُطبَّق فوراً — لا زر "تطبيق". `onDone` (الموبايل فقط) يغلق
@@ -80,7 +80,7 @@ export function SearchFilters({ meta, value, onChange, onReset, onDone, resultsC
   // الصف مدرسي فقط — يظهر أيضاً قبل اختيار أي نوع لأن معظم البحث مدرسي
   const showGrade = !value.level || value.level === 'school';
   const showStage = value.level !== 'training';
-  const showCurriculum = value.level !== 'university' && value.level !== 'training';
+  const showCurriculum = value.level !== 'training';
 
   // بلا مرحلة مختارة: كل الصفوف. مع مرحلة: صفوف نطاقها فقط — وإن لم يكن لها
   // نطاق بـ stageGrades (مرحلة بلا grade_from/grade_to، أو mocks) نعرض الكل.
@@ -153,14 +153,39 @@ export function SearchFilters({ meta, value, onChange, onReset, onDone, resultsC
             />
           )}
 
-          <FilterSelect
-            icon={BookOpen}
-            label={t('search.subject')}
-            placeholder={t('search.all')}
-            options={meta?.subjects}
-            value={value.subject}
-            onChange={(v) => onChange('subject', v)}
-          />
+          {value.level === 'university' && (
+            <FilterSelect
+              icon={Briefcase}
+              label={t('search.major')}
+              placeholder={t('search.all')}
+              options={meta?.majors}
+              value={value.major}
+              onChange={(v) => onChange('major', v)}
+            />
+          )}
+
+          {value.level === 'training' && (
+            <FilterSelect
+              icon={Shapes}
+              label={t('search.courseField')}
+              placeholder={t('search.all')}
+              options={meta?.courseFields}
+              value={value.courseField}
+              onChange={(v) => onChange('courseField', v)}
+            />
+          )}
+
+          {/* الدورات تُصنَّف بمجال الدورة بدل المادة */}
+          {value.level !== 'training' && (
+            <FilterSelect
+              icon={BookOpen}
+              label={t('search.subject')}
+              placeholder={t('search.all')}
+              options={meta?.subjects}
+              value={value.subject}
+              onChange={(v) => onChange('subject', v)}
+            />
+          )}
 
           {showCurriculum && (
             <FilterSelect

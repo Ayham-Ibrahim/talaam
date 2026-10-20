@@ -16,6 +16,15 @@ function mapSessionRow(row) {
     category: row.course_id ? 'training' : (row.booking?.package?.session_format ?? null),
     teacherName: row.teacher?.user?.name ?? null,
     studentNames: attendees.map((a) => a.student?.user?.name).filter(Boolean),
+    students: attendees.map((a) => ({ studentId: a.student_id, name: a.student?.user?.name ?? null })),
+    // سجل الانضمام (زر "انضم") — يُرجعه الباك اند للأدمن فقط
+    // false = الجلسة بدأت قبل بدء تسجيل الانضمام، فلا يُستنتج منها "لم يحضر"
+    joinTracked: Boolean(row.join_tracked),
+    joinLogs: (row.join_logs ?? []).map((log) => ({
+      role: log.role,
+      studentId: log.student_id,
+      firstJoinedAt: log.first_joined_at,
+    })),
     scheduledAt: row.scheduled_at,
     originalScheduledAt: row.original_scheduled_at,
     durationMin: row.duration_min,

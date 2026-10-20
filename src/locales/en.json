@@ -482,6 +482,8 @@
     "sortBy": "Sort By",
     "sortRating": "Highest Rated",
     "fromPrefix": "From",
+    "major": "Major",
+    "courseField": "Course field",
     "upToPrefix": "To",
     "educationType": "Education type",
     "curriculum": "Curriculum",
