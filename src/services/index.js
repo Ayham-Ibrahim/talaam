@@ -661,7 +661,7 @@ function isBeforeSessionStart(session) {
 /** يطابق SessionService::EARLY_JOIN_MINUTES بالباك اند تماماً — يُسمح بالانضمام قبل الموعد بخمس دقائق */
 const EARLY_JOIN_MINUTES = 5;
 
-function canJoinSession(session, joinUrl) {
+export function canJoinSession(session, joinUrl) {
   if (!joinUrl) return false;
   if (['completed', 'cancelled', 'no_show_student', 'no_show_teacher'].includes(session.status)) {
     return false;

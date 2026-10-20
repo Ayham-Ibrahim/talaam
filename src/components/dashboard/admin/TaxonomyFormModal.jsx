@@ -11,8 +11,11 @@ const TAXONOMY_FIELD_LABELS = {
   name_en: 'الاسم بالإنجليزية',
   education_type: 'نوع التعليم',
   sort_order: 'الترتيب',
+  grade_from: 'الصف الأول',
+  grade_to: 'الصف الأخير',
   country: 'الدولة',
 };
+const GRADE_OPTIONS = Array.from({ length: 12 }, (_, i) => ({ value: String(i + 1), label: String(i + 1) }));
 const taxonomyErrorLabel = (path) => TAXONOMY_FIELD_LABELS[path] ?? path;
 
 export function TaxonomyFormModal({ typeConfig, item, isPending, error, onSave, onClose }) {
@@ -21,9 +24,18 @@ export function TaxonomyFormModal({ typeConfig, item, isPending, error, onSave, 
   const [code, setCode] = useState(item?.code ?? '');
   const [nameAr, setNameAr] = useState(item?.name_ar ?? '');
   const [educationType, setEducationType] = useState(item?.education_type ?? 'school');
+  const [gradeFrom, setGradeFrom] = useState(item?.grade_from ?? '');
+  const [gradeTo, setGradeTo] = useState(item?.grade_to ?? '');
   const [touched, setTouched] = useState(false);
 
-  const isValid = nameAr.trim() !== '' && (!typeConfig.hasCode || code.trim() !== '');
+  // نطاق الصفوف للمراحل المدرسية فقط — يحدّد ما يظهر بقائمة "الصف" بفلتر البحث
+  const hasGradeRange = typeConfig.key === 'stages' && educationType === 'school';
+  const gradeRangeValid =
+    !hasGradeRange ||
+    (gradeFrom === '' && gradeTo === '') ||
+    (gradeFrom !== '' && gradeTo !== '' && Number(gradeFrom) <= Number(gradeTo));
+
+  const isValid = nameAr.trim() !== '' && (!typeConfig.hasCode || code.trim() !== '') && gradeRangeValid;
 
   const handleSave = () => {
     setTouched(true);
@@ -31,6 +43,10 @@ export function TaxonomyFormModal({ typeConfig, item, isPending, error, onSave, 
     const payload = { name_ar: nameAr.trim() };
     if (typeConfig.hasCode) payload.code = code.trim();
     if (typeConfig.hasEducationType) payload.education_type = educationType;
+    if (typeConfig.key === 'stages') {
+      payload.grade_from = hasGradeRange && gradeFrom !== '' ? Number(gradeFrom) : null;
+      payload.grade_to = hasGradeRange && gradeTo !== '' ? Number(gradeTo) : null;
+    }
     onSave(payload);
   };
 
@@ -90,6 +106,32 @@ export function TaxonomyFormModal({ typeConfig, item, isPending, error, onSave, 
                 onChange={setEducationType}
                 options={Object.entries(EDUCATION_TYPE_LABELS).map(([value, label]) => ({ value, label }))}
               />
+            </div>
+          )}
+
+          {hasGradeRange && (
+            <div className="flex flex-col gap-1.5 text-right">
+              <span className="text-sm font-semibold text-ink">{t('dashboard.adminTaxonomy.gradeRangeLabel')}</span>
+              <div className="flex items-center gap-2">
+                <SmoothSelect
+                  className="flex-1"
+                  value={String(gradeFrom)}
+                  onChange={setGradeFrom}
+                  placeholder={t('dashboard.adminTaxonomy.gradeFrom')}
+                  options={GRADE_OPTIONS}
+                />
+                <span className="text-ink-soft">—</span>
+                <SmoothSelect
+                  className="flex-1"
+                  value={String(gradeTo)}
+                  onChange={setGradeTo}
+                  placeholder={t('dashboard.adminTaxonomy.gradeTo')}
+                  options={GRADE_OPTIONS}
+                />
+              </div>
+              {touched && !gradeRangeValid && (
+                <span className="text-xs text-accent-pink">{t('dashboard.adminTaxonomy.gradeRangeInvalid')}</span>
+              )}
             </div>
           )}
         </div>

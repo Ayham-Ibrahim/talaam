@@ -33,6 +33,7 @@ const PROFILE_FIELD_LABELS = {
   subject_ids: 'المواد',
   curriculum_ids: 'المناهج',
   language_ids: 'اللغات',
+  major_ids: 'التخصصات',
   display_name_en: 'الاسم بالإنجليزية',
   commercial_register: 'السجل التجاري',
 };
@@ -66,6 +67,7 @@ export function CompleteTeacherProfilePage() {
   const t = useT();
   const { user } = useAuth();
   const isTrainingCenter = user?.teacherType === 'training_center';
+  const isUniversity = user?.teacherType === 'university';
   const teacherId = user?.teacher?.id;
   const status = user?.teacher?.status;
 
@@ -85,6 +87,7 @@ export function CompleteTeacherProfilePage() {
     subject_ids: [],
     curriculum_ids: [],
     language_ids: [],
+    major_ids: [],
     display_name_en: '',
     commercial_register: '',
   });
@@ -101,6 +104,7 @@ export function CompleteTeacherProfilePage() {
   const { data: subjects = [] } = useTaxonomyList('subjects');
   const { data: curricula = [] } = useTaxonomyList('curricula');
   const { data: languages = [] } = useTaxonomyList('languages');
+  const { data: majors = [] } = useTaxonomyList('majors');
 
   useEffect(() => {
     if (teacher && !hydrated) {
@@ -111,6 +115,7 @@ export function CompleteTeacherProfilePage() {
         subject_ids: (teacher.subjects ?? []).map((s) => s.id),
         curriculum_ids: (teacher.curricula ?? []).map((c) => c.id),
         language_ids: (teacher.languages ?? []).map((l) => l.id),
+        major_ids: (teacher.majors ?? []).map((m) => m.id),
         display_name_en: teacher.display_name_en ?? '',
         commercial_register: teacher.commercial_register ?? '',
       });
@@ -214,6 +219,7 @@ export function CompleteTeacherProfilePage() {
         subject_ids: form.subject_ids,
         curriculum_ids: form.curriculum_ids,
         language_ids: form.language_ids,
+        ...(isUniversity ? { major_ids: form.major_ids } : {}),
         ...(isTrainingCenter
           ? { display_name_en: form.display_name_en, commercial_register: form.commercial_register }
           : {}),
@@ -348,6 +354,16 @@ export function CompleteTeacherProfilePage() {
                   />
                 </div>
 
+                {isUniversity && (
+                  <MultiSelectChips
+                    label={t('completeProfile.majorsLabel')}
+                    values={form.major_ids}
+                    onChange={(v) => setForm((prev) => ({ ...prev, major_ids: v }))}
+                    options={majors.map((m) => ({ value: m.id, label: m.name_ar }))}
+                    placeholder="—"
+                    max={20}
+                  />
+                )}
                 <MultiSelectChips
                   label={t('completeProfile.subjectsLabel')}
                   values={form.subject_ids}

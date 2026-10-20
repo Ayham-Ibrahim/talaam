@@ -8,6 +8,7 @@ import { useJoinSession } from '@/hooks/useSessionJoin';
 import { handleSessionJoin } from '@/lib/joinSession';
 import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { formatDateTime } from '@/lib/formatters';
+import { canJoinSession } from '@/services';
 import { useT } from '@/hooks/useT';
 
 export function TeacherSessionDetailsPage() {
@@ -21,7 +22,7 @@ export function TeacherSessionDetailsPage() {
 
   const statusStyle = session ? TEACHER_SESSION_STATUS_STYLES[session.status] : null;
   const title = session ? (session.booking?.package?.title ?? session.course?.title ?? '—') : '';
-  const canJoin = session && (session.status === 'scheduled' || session.status === 'active') && session.join_url_teacher;
+  const canJoin = session && canJoinSession(session, session.join_url_teacher);
   const showReason = session && ['cancelled', 'no_show_teacher', 'no_show_student'].includes(session.status) && session.cancellation_reason;
 
   const ITEMS = session

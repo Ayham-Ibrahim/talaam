@@ -142,6 +142,8 @@ export const teacherService = {
       stage_id: filters.stage || undefined,
       grade: filters.grade || undefined,
       language_id: filters.language || undefined,
+      major_id: filters.major || undefined,
+      course_field_id: filters.courseField || undefined,
       q: filters.q || undefined,
       min_rating: filters.minRating ?? undefined,
       min_price: filters.minPrice ?? undefined,

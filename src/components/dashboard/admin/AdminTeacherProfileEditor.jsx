@@ -53,6 +53,7 @@ const PROFILE_FIELD_LABELS = {
   subject_ids: 'المواد',
   curriculum_ids: 'المناهج',
   language_ids: 'اللغات',
+  major_ids: 'التخصصات',
   teaching_methods: 'طريقة التدريس',
   exam_prep: 'التحضير للامتحانات',
   display_name_en: 'الاسم بالإنجليزية',
@@ -83,6 +84,7 @@ const profileErrorLabel = (path) => PROFILE_FIELD_LABELS[path.replace(/\.\d+$/, 
 export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
   const t = useT();
   const isTrainingCenter = teacher.type === 'training_center';
+  const isUniversity = teacher.type === 'university';
   const rawStatus = teacher.rawStatus;
 
   // كان مقصوراً سابقاً على invited/active_unverified فقط (إكمال ملف لم يُكمله
@@ -124,6 +126,7 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
     subject_ids: [],
     curriculum_ids: [],
     language_ids: [],
+    major_ids: [],
     teaching_methods: [],
     exam_prep: [],
     display_name_en: '',
@@ -139,6 +142,7 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
   const { data: subjects = [] } = useTaxonomyList('subjects');
   const { data: curricula = [] } = useTaxonomyList('curricula');
   const { data: languages = [] } = useTaxonomyList('languages');
+  const { data: majors = [] } = useTaxonomyList('majors');
 
   useEffect(() => {
     if (teacher && !hydrated) {
@@ -154,6 +158,7 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
         subject_ids: (teacher.subjects ?? []).map((s) => s.id),
         curriculum_ids: (teacher.curricula ?? []).map((c) => c.id),
         language_ids: (teacher.languages ?? []).map((l) => l.id),
+        major_ids: (teacher.majors ?? []).map((m) => m.id),
         teaching_methods: teacher.teachingMethods ?? [],
         exam_prep: teacher.examPrep ?? [],
         display_name_en: teacher.displayNameEn ?? '',
@@ -210,6 +215,7 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
         subject_ids: form.subject_ids,
         curriculum_ids: form.curriculum_ids,
         language_ids: form.language_ids,
+        ...(isUniversity ? { major_ids: form.major_ids } : {}),
         teaching_methods: form.teaching_methods,
         exam_prep: form.exam_prep,
         ...(isTrainingCenter
@@ -397,6 +403,16 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
               />
             </label>
 
+            {isUniversity && (
+              <MultiSelectChips
+                label={t('dashboard.adminTeacherDetail.profileEditor.majorsLabel')}
+                values={form.major_ids}
+                onChange={(v) => setForm((prev) => ({ ...prev, major_ids: v }))}
+                options={majors.map((m) => ({ value: m.id, label: m.name_ar }))}
+                placeholder="—"
+                max={20}
+              />
+            )}
             <MultiSelectChips
               label={t('dashboard.adminTeacherDetail.profileEditor.subjectsLabel')}
               values={form.subject_ids}

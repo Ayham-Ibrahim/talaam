@@ -38,6 +38,7 @@ const FIELD_LABELS = {
   subject_ids: 'المواد',
   curriculum_ids: 'المناهج',
   language_ids: 'اللغات',
+  major_ids: 'التخصصات',
   teaching_methods: 'طريقة التدريس',
   exam_prep: 'التحضير للامتحانات',
 };
@@ -61,6 +62,9 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
   const { data: subjects = [] } = useTaxonomyList('subjects');
   const { data: curricula = [] } = useTaxonomyList('curricula');
   const { data: languages = [] } = useTaxonomyList('languages');
+  const { data: majors = [] } = useTaxonomyList('majors');
+  // التخصص للمعلم الجامعي فقط — يُفلتَر به في البحث عند اختيار "تعليم جامعي"
+  const isUniversity = teacher?.teacher_type === 'university';
 
   const [form, setForm] = useState(null);
   const [savedAt, setSavedAt] = useState(0);
@@ -83,6 +87,7 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
         subject_ids: idsOf(teacher.subjects),
         curriculum_ids: idsOf(teacher.curricula),
         language_ids: idsOf(teacher.languages),
+        major_ids: idsOf(teacher.majors),
         teaching_methods: teacher.teaching_methods ?? [],
         exam_prep: teacher.exam_prep ?? [],
       });
@@ -105,6 +110,7 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
       subject_ids: idsOf(teacher.subjects),
       curriculum_ids: idsOf(teacher.curricula),
       language_ids: idsOf(teacher.languages),
+      major_ids: idsOf(teacher.majors),
       teaching_methods: teacher.teaching_methods ?? [],
       exam_prep: teacher.exam_prep ?? [],
     });
@@ -126,6 +132,7 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
         subject_ids: form.subject_ids,
         curriculum_ids: form.curriculum_ids,
         language_ids: form.language_ids,
+        ...(isUniversity ? { major_ids: form.major_ids } : {}),
         teaching_methods: form.teaching_methods,
         exam_prep: form.exam_prep,
         // Backend re-validates the training-center required fields on every PUT
@@ -241,6 +248,16 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
           />
         </label>
 
+        {isUniversity && (
+          <MultiSelectChips
+            label={FIELD_LABELS.major_ids}
+            values={form.major_ids}
+            onChange={set('major_ids')}
+            options={majors.map((m) => ({ value: m.id, label: m.name_ar }))}
+            placeholder="—"
+            max={20}
+          />
+        )}
         <MultiSelectChips
           label={FIELD_LABELS.subject_ids}
           values={form.subject_ids}
