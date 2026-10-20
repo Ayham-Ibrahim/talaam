@@ -70,7 +70,7 @@
         "items": [
           "Register directly with your name, email, phone number, and password",
           "Choose your education type — school, university, or training courses — and complete its details (curriculum and grade, or university and major, or course field)",
-          "If you're a minor, you can add a guardian's details during registration"
+          "If you're a school student, add your guardian's details during registration"
         ]
       },
       {
@@ -151,9 +151,11 @@
         "no": "02",
         "title": "Completing Your Profile",
         "items": [
-          "Add your photo and a clear bio describing yourself and your teaching style",
-          "Set your qualification, years of experience, and the subjects, curricula, and languages you teach",
-          "Add a short intro video to help students get to know you before booking (optional, but it boosts your chances of being chosen)"
+          "Add a professional photo of yourself that reflects your credibility",
+          "Add a clear bio about yourself, along with a philosophy quote that represents you and tells us your teaching philosophy",
+          "Describe your teaching method, and how you help students prepare for exams",
+          "Add a short intro video to help students and parents get to know you before booking",
+          "Set your qualification, years of experience, and the subjects, curricula, and languages you teach"
         ]
       },
       {
@@ -302,6 +304,13 @@
         "label": "Smart notifications and alerts"
       }
     ]
+  },
+  "legal": {
+    "privacyTitle": "Privacy Policy",
+    "privacySubtitle": "How we collect, use, and protect your data on the Ta'alam platform",
+    "termsTitle": "Terms & Conditions",
+    "termsSubtitle": "The rules governing your use of the Ta'alam platform in every role",
+    "lastUpdated": "Last updated:"
   },
   "about": {
     "heroTitle": "About Us",
@@ -546,6 +555,9 @@
     "experienceCompleted": "Past",
     "showMore": "Show more",
     "showLess": "Show less",
+    "rateCtaTitle": "Share your opinion about this teacher",
+    "rateCtaSubtitle": "Rate the teacher anytime you like",
+    "rateModalTitle": "Rate the Teacher",
     "watchIntro": "Watch the intro video",
     "philosophyTitle": "My Teaching Philosophy",
     "faqBadge": "Frequently asked questions",
@@ -709,7 +721,25 @@
     "heroSubtitle": "Log in and keep track of your sessions, packages, and teachers all in one place",
     "backHome": "Back to Home",
     "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "hidePassword": "Hide password",
+    "areYouATeacher": "Are you a teacher?",
+    "registerAsTeacher": "Register as a teacher",
+    "areYouAStudent": "Are you a student?",
+    "registerAsStudent": "Register as a student",
+    "registerTeacher": {
+      "heroTitle": "Teach with Ta'alam",
+      "heroSubtitle": "Create your account and start reaching students looking for a teacher like you",
+      "title": "Create a Teacher Account",
+      "subtitle": "Create your account and complete your profile to start welcoming students",
+      "typeLabel": "Account Type",
+      "typePlaceholder": "Choose your account type",
+      "typeRequired": "Please choose an account type",
+      "typeSchool": "School Teacher",
+      "typeUniversity": "University Teacher",
+      "typeTrainingCenter": "Training Center",
+      "submit": "Create Teacher Account",
+      "submitting": "Creating account..."
+    }
   },
   "footer": {
     "contact": "Contact Us",
