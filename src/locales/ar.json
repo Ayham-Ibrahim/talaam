@@ -1976,7 +1976,15 @@
       "colTeacher": "المعلم",
       "colTime": "الموعد",
       "colStatus": "الحالة",
+      "colAttendance": "الحضور",
       "colActions": "الإجراءات",
+      "attendance": {
+        "teacher": "المعلم",
+        "joined": "حضر",
+        "notJoined": "لم يحضر",
+        "notJoinedYet": "لم يدخل بعد",
+        "joinedAt": "أول دخول"
+      },
       "category": {
         "individual": "فردية",
         "group": "جماعية",

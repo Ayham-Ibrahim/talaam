@@ -11,6 +11,77 @@ import { useT } from '@/hooks/useT';
 const STATUS_FILTERS = ['upcoming', 'attended', 'cancelled', 'all'];
 const PER_PAGE = 10;
 
+const ATTENDANCE_STYLES = {
+  joined: { bg: '#F0FDF3', color: '#34C759' },
+  notJoined: { bg: '#FDEFF2', color: '#B00852' },
+  notJoinedYet: { bg: '#F2F2F7', color: '#6B7280' },
+};
+
+/** جلسات لم يكن الانضمام إليها متاحاً أصلاً — لا معنى لعرض حضور فيها */
+const NO_ATTENDANCE_STATUSES = ['cancelled', 'suspended'];
+
+/**
+ * الحضور مُشتق من سجل الانضمام (زر "انضم" عبر المنصة) فقط: دخل → حضر، لم يدخل وقد
+ * انتهت الجلسة → لم يحضر، لم يدخل والجلسة جارية → لم يدخل بعد، قبل موعدها → لا شيء.
+ */
+function attendanceState(session, log) {
+  if (log) return 'joined';
+  const startsAt = session.scheduledAt ? new Date(session.scheduledAt).getTime() : NaN;
+  if (!Number.isFinite(startsAt) || Date.now() < startsAt) return null;
+  return Date.now() > startsAt + (session.durationMin ?? 0) * 60_000 ? 'notJoined' : 'notJoinedYet';
+}
+
+function AttendanceBadge({ state, joinedAt, t }) {
+  const style = ATTENDANCE_STYLES[state];
+  return (
+    <span
+      className="rounded-pill px-3 py-1 text-xs font-medium"
+      style={{ backgroundColor: style.bg, color: style.color }}
+      title={joinedAt ? `${t('dashboard.adminSessions.attendance.joinedAt')}: ${formatDateTime(joinedAt)}` : undefined}
+    >
+      {t(`dashboard.adminSessions.attendance.${state}`)}
+    </span>
+  );
+}
+
+function AttendanceCell({ session, studentId, t }) {
+  // بلا رابط انضمام لم يكن الدخول ممكناً، وقبل بدء التسجيل لا سجل أصلاً — كلاهما ليس غياباً
+  if (NO_ATTENDANCE_STATUSES.includes(session.status) || !session.hasJoinLink || !session.joinTracked) {
+    return <span className="text-xs text-ink-soft">—</span>;
+  }
+
+  const teacherLog = session.joinLogs.find((log) => log.role === 'teacher');
+  const students = studentId
+    ? session.students.filter((s) => String(s.studentId) === String(studentId))
+    : session.students;
+
+  const rows = [
+    { key: 'teacher', label: t('dashboard.adminSessions.attendance.teacher'), log: teacherLog },
+    ...students.map((s) => ({
+      key: `student-${s.studentId}`,
+      label: s.name,
+      log: session.joinLogs.find((log) => log.role === 'student' && String(log.studentId) === String(s.studentId)),
+    })),
+  ]
+    .map((row) => ({ ...row, state: attendanceState(session, row.log) }))
+    .filter((row) => row.state);
+
+  if (rows.length === 0) {
+    return <span className="text-xs text-ink-soft">—</span>;
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-1">
+      {rows.map((row) => (
+        <div key={row.key} className="flex items-center gap-1.5">
+          <span className="text-xs text-ink-soft">{row.label}</span>
+          <AttendanceBadge state={row.state} joinedAt={row.log?.firstJoinedAt} t={t} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /**
  * جدول جلسات لدى الأدمن مع زر "تعديل الموعد" — يُستخدم في تبويب "الجلسات" بملف
  * المعلم (teacherId) وفي نافذة جلسات الطالب من جدول الطلاب (studentId). عمود
@@ -66,6 +137,7 @@ export function AdminSessionsPanel({ teacherId, studentId }) {
                 </th>
                 <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.adminSessions.colTime')}</th>
                 <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.adminSessions.colStatus')}</th>
+                <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.adminSessions.colAttendance')}</th>
                 <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.adminSessions.colActions')}</th>
               </tr>
             </thead>
@@ -101,6 +173,9 @@ export function AdminSessionsPanel({ teacherId, studentId }) {
                       >
                         {statusStyle?.label ?? session.status}
                       </span>
+                    </td>
+                    <td className="px-4 py-4 text-center">
+                      <AttendanceCell session={session} studentId={studentId} t={t} />
                     </td>
                     <td className="px-4 py-4 text-center">
                       {session.canReschedule ? (
