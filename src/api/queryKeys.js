@@ -21,6 +21,9 @@ export const queryKeys = {
     stats: () => ['meta', 'stats'],
     contactInfo: () => ['meta', 'contact-info'],
   },
+  legalPages: {
+    detail: (slug) => ['legal-pages', slug],
+  },
   taxonomy: (type) => ['taxonomy', type],
   coupons: {
     list: (packageId) => ['coupons', 'list', packageId],

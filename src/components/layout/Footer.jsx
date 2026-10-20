@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Phone, Mail, Facebook, Instagram, Youtube } from "lucide-react";
 import { TikTokIcon, WhatsAppIcon } from "@/components/icons/SocialIcons";
 import { Logo } from "./Logo";
@@ -23,17 +24,18 @@ export function Footer() {
   const { data: contactInfo } = useContactInfo();
   const email = contactInfo?.email || EMAIL_FALLBACK;
 
+  // لا صفحة فعلية بعد لـ"الموارد التعليمية" — تبقى بلا رابط، بعكس بقية هذه الروابط
   const quickLinks = [
-    t("nav.resources"),
-    t("nav.howItWorks"),
-    t("nav.search"),
-    t("nav.home"),
+    { label: t("nav.resources"), to: null },
+    { label: t("nav.howItWorks"), to: "/how-it-works" },
+    { label: t("nav.search"), to: "/search" },
+    { label: t("nav.home"), to: "/" },
   ];
   const companyLinks = [
-    t("footer.about"),
-    t("footer.privacy"),
-    t("footer.terms"),
-    t("footer.contactUs"),
+    { label: t("footer.about"), to: "/about" },
+    { label: t("footer.privacy"), to: "/privacy-policy" },
+    { label: t("footer.terms"), to: "/terms-conditions" },
+    { label: t("footer.contactUs"), to: "/contact" },
   ];
 
   return (
@@ -63,10 +65,14 @@ export function Footer() {
             </SplitWords>
             <ul className="space-y-2.5 text-sm text-ink-soft">
               {quickLinks.map((l) => (
-                <li key={l}>
-                  <a href="#" className="hover:text-ink transition-colors">
-                    {l}
-                  </a>
+                <li key={l.label}>
+                  {l.to ? (
+                    <Link to={l.to} className="hover:text-ink transition-colors">
+                      {l.label}
+                    </Link>
+                  ) : (
+                    <span className="cursor-default text-ink-soft/70">{l.label}</span>
+                  )}
                 </li>
               ))}
             </ul>
@@ -87,10 +93,10 @@ export function Footer() {
             </SplitWords>
             <ul className="space-y-2.5 text-sm text-ink-soft">
               {companyLinks.map((l) => (
-                <li key={l}>
-                  <a href="#" className="hover:text-ink transition-colors">
-                    {l}
-                  </a>
+                <li key={l.label}>
+                  <Link to={l.to} className="hover:text-ink transition-colors">
+                    {l.label}
+                  </Link>
                 </li>
               ))}
             </ul>

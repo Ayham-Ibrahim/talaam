@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { packageService, courseService, reviewService, metaService } from '@/services';
+import { legalPageService } from '@/services/legalPageService';
 
 export function usePackages(teacherId) {
   return useQuery({
@@ -56,5 +57,15 @@ export function useContactInfo() {
     queryKey: queryKeys.meta.contactInfo(),
     queryFn: () => metaService.getContactInfo(),
     staleTime: 30 * 60 * 1000,
+  });
+}
+
+/** سياسة الخصوصية / الشروط والأحكام — عامة بلا مصادقة، تُعدَّل من لوحة الأدمن */
+export function useLegalPage(slug) {
+  return useQuery({
+    queryKey: queryKeys.legalPages.detail(slug),
+    queryFn: () => legalPageService.getBySlug(slug),
+    enabled: !!slug,
+    staleTime: 10 * 60 * 1000,
   });
 }
