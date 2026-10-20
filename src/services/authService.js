@@ -30,6 +30,12 @@ export const authService = {
     return { ...data.data, user: withTeacherType(data.data.user) };
   },
 
+  /** بلا فرع محاكاة — مثل registerStudent، هذه الشاشة مبنية مباشرة ضد الباك الحقيقي فقط */
+  async registerTeacher(payload) {
+    const { data } = await client.post(endpoints.auth.registerTeacher, payload);
+    return { ...data.data, user: withTeacherType(data.data.user) };
+  },
+
   async login({ email, password }) {
     if (config.useMocks) {
       await mockDelay(500);

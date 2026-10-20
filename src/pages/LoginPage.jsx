@@ -183,6 +183,12 @@ export function LoginPage() {
                   {t('auth.registerNow')}
                 </Link>
               </p>
+              <p className="text-center text-sm text-ink-soft">
+                {t('auth.areYouATeacher')}{' '}
+                <Link to="/register/teacher" className="font-medium text-primary hover:opacity-70">
+                  {t('auth.registerAsTeacher')}
+                </Link>
+              </p>
             </form>
           </motion.div>
         </div>
