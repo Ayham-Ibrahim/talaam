@@ -10,17 +10,20 @@ import { TeacherTeachingScopeSection } from '@/components/teacher/TeacherTeachin
 import { VideosSection } from '@/components/teacher/TeacherInfoSections';
 import { PackagesSection } from '@/components/teacher/PackagesSection';
 import { CoursesSection } from '@/components/teacher/CoursesSection';
+import { Star } from 'lucide-react';
 import { RatingReviews } from '@/components/teacher/RatingReviews';
 import { TeacherFAQSection } from '@/components/teacher/TeacherFAQSection';
 import { TeacherClosingSections } from '@/components/teacher/TeacherClosingSections';
 import { BookingWidget } from '@/components/teacher/BookingWidget';
 import { CourseEnrollWidget } from '@/components/teacher/CourseEnrollWidget';
+import { ReviewFormModal } from '@/components/dashboard/ReviewFormModal';
 import { ErrorState, Skeleton } from '@/components/ui';
 import { Drawer } from '@/components/ui/Drawer';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites, useToggleFavoriteTeacher } from '@/hooks/useFavorites';
 import { useTeacher } from '@/hooks/useTeachers';
 import { usePackages, useCourses, useRatingSummary, useReviews } from '@/hooks/useMeta';
+import { useMyReviews, useCreateTeacherReview } from '@/hooks/useMyReviews';
 import { useT } from '@/hooks/useT';
 
 
@@ -53,7 +56,7 @@ export function TeacherProfilePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { data: favorites } = useFavorites();
   const toggleFavoriteTeacher = useToggleFavoriteTeacher();
   const isFavorite = (favorites ?? []).some((f) => f.kind === 'teacher' && f.id === Number(id));
@@ -82,6 +85,18 @@ export function TeacherProfilePage() {
   } = useCourses(isCenter ? id : undefined);
   const { data: reviews, isLoading: reviewsLoading, isError: reviewsError, refetch: refetchReviews } = useReviews(id);
   const { data: ratingSummary, isLoading: summaryLoading } = useRatingSummary(id);
+
+  // "قيّم هذا المعلم" من بروفايله العامة مباشرة، بأي وقت وبصرف النظر عن وجود
+  // جلسة فعلية معه (طلب صريح) — عبر POST /teachers/{teacher}/reviews، upsert
+  // منفصل تماماً عن تقييمات الجلسات الحقيقية (StudentReviewsPage.jsx، التي
+  // تبقى كما هي بلا أي تغيير). إن كان للطالب تقييم حر سابق لهذا المعلم تحديداً
+  // (class_session_id فارغة) يُفتح النموذج مُعبَّأً بقيمته الحالية للتعديل.
+  const isStudent = isAuthenticated && user?.role === 'student';
+  const { data: myReviews } = useMyReviews();
+  const createTeacherReview = useCreateTeacherReview();
+  const [isRatingOpen, setIsRatingOpen] = useState(false);
+
+  const myFreeReview = (myReviews ?? []).find((r) => r.teacherId === Number(id) && r.classSessionId === null) ?? null;
 
   const [selectedPackageId, setSelectedPackageId] = useState(null);
   const [selectedCourseId, setSelectedCourseId] = useState(null);
@@ -174,6 +189,27 @@ export function TeacherProfilePage() {
           />
         )}
 
+        {isStudent && (
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4">
+            <div className="flex items-center gap-3 text-start">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Star size={18} />
+              </span>
+              <div>
+                <div className="text-sm font-bold text-ink">{t('teacher.rateCtaTitle')}</div>
+                <div className="text-xs text-ink-soft">{t('teacher.rateCtaSubtitle')}</div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsRatingOpen(true)}
+              className="shrink-0 rounded-xl border-2 border-primary px-4 py-2 text-xs font-bold text-primary transition-colors hover:bg-primary hover:text-white"
+            >
+              {myFreeReview ? t('studentReviews.edit') : t('studentReviews.addReview')}
+            </button>
+          </div>
+        )}
+
         <RatingReviews
           summary={ratingSummary}
           reviews={reviews ?? []}
@@ -196,6 +232,23 @@ export function TeacherProfilePage() {
         <Drawer open={Boolean(selectedPackage)} onClose={() => setSelectedPackageId(null)} title={t('booking.title')}>
           <BookingWidget selectedPackage={selectedPackage} bare />
         </Drawer>
+      )}
+
+      {isRatingOpen && (
+        <ReviewFormModal
+          title={t('teacher.rateModalTitle')}
+          initialRating={myFreeReview?.rating ?? 0}
+          initialComment={myFreeReview?.comment ?? ''}
+          isPending={createTeacherReview.isPending}
+          error={createTeacherReview.isError ? createTeacherReview.error : null}
+          onSubmit={({ rating, comment }) =>
+            createTeacherReview.mutate(
+              { teacherId: Number(id), rating, comment },
+              { onSuccess: () => setIsRatingOpen(false) },
+            )
+          }
+          onClose={() => setIsRatingOpen(false)}
+        />
       )}
     </PageContainer>
   );
