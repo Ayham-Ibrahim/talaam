@@ -90,7 +90,7 @@ export function AdminAcademicSupportersTable({ supporters }) {
             {supporters.map((supporter, i) => (
               <tr key={supporter.id} className={i % 2 === 1 ? 'bg-[#FAFBFD]' : ''}>
                 <td className="px-4 py-4 text-right">
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-start gap-2">
                     <Avatar name={supporter.name} src={supporter.avatar} size="sm" className="!h-9 !w-9" />
                     <div className="text-right">
                       <div className="font-semibold text-ink">{supporter.name}</div>
@@ -105,7 +105,7 @@ export function AdminAcademicSupportersTable({ supporters }) {
                 </td>
                 <td className="px-4 py-4 text-right text-ink-soft">{supporter.createdAt}</td>
                 <td className="px-4 py-4 text-right">
-                  <div className="flex flex-wrap items-center justify-end gap-3">
+                  <div className="flex flex-wrap items-center justify-start gap-3">
                     <Link
                       to={`/dashboard/admin/academic-supporters/${supporter.id}`}
                       className="inline-flex items-center gap-1.5 text-primary hover:opacity-70"
