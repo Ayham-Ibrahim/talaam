@@ -12,6 +12,7 @@ import {
   Home,
   LogOut,
   Settings,
+  ShieldCheck,
   Star,
   UserRound,
   Users,
@@ -35,6 +36,7 @@ const STUDENT_NAV_ITEMS = [
   { key: "academicSupport", icon: HandHeart, path: "/dashboard/student/academic-support", universityOnly: true },
   { key: "invoices", icon: FileText, path: "/dashboard/student/invoices" },
   { key: "reviews", icon: Star, path: "/dashboard/student/reviews" },
+  { key: "privacyPolicy", icon: ShieldCheck, path: "/privacy-policy" },
   { key: "settings", icon: Settings, path: "/dashboard/student/settings" },
 ];
 
@@ -55,6 +57,7 @@ const TEACHER_NAV_ITEMS = [
   },
   { key: "sessions", icon: FileText, path: "/dashboard/teacher/sessions" },
   { key: "students", icon: UserRound, path: "/dashboard/teacher/students" },
+  { key: "privacyPolicy", icon: ShieldCheck, path: "/privacy-policy" },
   { key: "settings", icon: Settings, path: "/dashboard/teacher/settings" },
 ];
 

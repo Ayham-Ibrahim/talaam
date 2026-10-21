@@ -3,6 +3,7 @@ import { HomePage } from '@/pages/HomePage';
 import { SearchPage } from '@/pages/SearchPage';
 import { TeachingTypePage } from '@/pages/TeachingTypePage';
 import { AboutPage } from '@/pages/AboutPage';
+import { LegalPage } from '@/pages/LegalPage';
 import { HowItWorksPage } from '@/pages/HowItWorksPage';
 import { ContactPage } from '@/pages/ContactPage';
 import { FavoritesPage } from '@/pages/FavoritesPage';
@@ -11,6 +12,7 @@ import { PaymentSuccessPage } from '@/pages/PaymentSuccessPage';
 import { PaymentCancelPage } from '@/pages/PaymentCancelPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
+import { RegisterTeacherPage } from '@/pages/RegisterTeacherPage';
 import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
 import { ResetPasswordPage } from '@/pages/ResetPasswordPage';
 import { CompleteProfilePage } from '@/pages/CompleteProfilePage';
@@ -32,6 +34,8 @@ import { FinanceBookingsPage } from '@/pages/FinanceBookingsPage';
 import { AdminAccountantsPage } from '@/pages/AdminAccountantsPage';
 import { TeacherSessionsReportPage } from '@/pages/TeacherSessionsReportPage';
 import { AdminNotificationLogsPage } from '@/pages/AdminNotificationLogsPage';
+import { AdminLegalPagesPage } from '@/pages/AdminLegalPagesPage';
+import { AdminLegalPageEditorPage } from '@/pages/AdminLegalPageEditorPage';
 import { AdminStudentImportPage } from '@/pages/AdminStudentImportPage';
 import { AdminTeacherImportPage } from '@/pages/AdminTeacherImportPage';
 import { AdminImportBatchesPage } from '@/pages/AdminImportBatchesPage';
@@ -68,12 +72,15 @@ export function AppRouter() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/how-it-works" element={<HowItWorksPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/privacy-policy" element={<LegalPage slug="privacy" />} />
+        <Route path="/terms-conditions" element={<LegalPage slug="terms" />} />
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/teacher/:id" element={<TeacherProfilePage />} />
         <Route path="/payments/success" element={<PaymentSuccessPage />} />
         <Route path="/payments/cancel" element={<PaymentCancelPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/register/teacher" element={<RegisterTeacherPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route
@@ -251,6 +258,22 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="admin">
               <AdminNotificationLogsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/legal-pages"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminLegalPagesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/legal-pages/:slug"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminLegalPageEditorPage />
             </ProtectedRoute>
           }
         />

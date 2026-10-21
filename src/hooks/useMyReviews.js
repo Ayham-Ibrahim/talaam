@@ -35,6 +35,15 @@ export function useCreateReview() {
   });
 }
 
+/** تقييم حر لمعلم من بروفايله مباشرة — بلا شرط جلسة، راجع ReviewService::createOrUpdateForTeacher */
+export function useCreateTeacherReview() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ teacherId, rating, comment }) => reviewService.createForTeacher(teacherId, { rating, comment }),
+    onSuccess: () => invalidateTeacherRatingViews(queryClient),
+  });
+}
+
 export function useUpdateReview() {
   const queryClient = useQueryClient();
   return useMutation({
