@@ -42,7 +42,7 @@ function mapSessionRow(row) {
 
 export const adminSessionsService = {
   /** جلسات معلم (teacherId) أو طالب (studentId) — ترقيم من السيرفر */
-  async list({ teacherId, studentId, status, page = 1, perPage = 10 } = {}) {
+  async list({ teacherId, studentId, status, from, to, sort, page = 1, perPage = 10 } = {}) {
     if (config.useMocks) {
       await mockDelay(300);
       return { data: [], meta: { current_page: 1, last_page: 1, total: 0 } };
@@ -52,8 +52,11 @@ export const adminSessionsService = {
         teacher_id: teacherId || undefined,
         student_id: studentId || undefined,
         status: status && status !== 'all' ? status : undefined,
-        // القادمة: الأقرب موعداً أولاً. غير ذلك: الأحدث أولاً (افتراضي الـ API).
-        sort: status === 'upcoming' ? 'asc' : 'desc',
+        from: from || undefined,
+        to: to || undefined,
+        // ترتيب صريح (صفحة "الجلسات")، وإلا: القادمة أو يوم محدد → الأقرب موعداً أولاً،
+        // غير ذلك → الأحدث أولاً (افتراضي الـ API).
+        sort: sort ?? (status === 'upcoming' || from ? 'asc' : 'desc'),
         page,
         per_page: perPage,
       },

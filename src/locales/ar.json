@@ -1585,6 +1585,7 @@
       "settings": "الإعدادات وسجل التدقيق",
       "bookings": "الحجوزات والمدفوعات",
       "accountants": "حسابات المحاسبين",
+      "sessions": "الجلسات",
       "teacherSessionsReport": "تقرير حصص المعلمين"
     },
     "financeBookings": {
@@ -1997,7 +1998,26 @@
       "senderEmailLabel": "بريد المُرسِل"
     },
     "adminSessions": {
+      "title": "الجلسات",
+      "subtitle": "جميع جلسات المنصة لكل المعلمين والطلاب مع الحضور وتعديل المواعيد",
       "studentSessionsTitle": "جلسات الطالب",
+      "dateFilters": {
+        "label": "التاريخ",
+        "any": "كل التواريخ",
+        "today": "اليوم",
+        "tomorrow": "غداً",
+        "pick": "اختر يوماً",
+        "prevDay": "اليوم السابق",
+        "nextDay": "اليوم التالي"
+      },
+      "sort": {
+        "asc": "الأقدم أولاً",
+        "desc": "الأحدث أولاً",
+        "toggle": "عكس الترتيب"
+      },
+      "statusLabel": "الحالة",
+      "total": "عدد الجلسات",
+      "resetFilters": "إعادة ضبط الفلاتر",
       "filters": {
         "upcoming": "القادمة",
         "attended": "المكتملة",

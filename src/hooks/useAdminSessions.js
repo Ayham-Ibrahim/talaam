@@ -2,12 +2,13 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { queryKeys } from '@/api/queryKeys';
 import { adminSessionsService } from '@/services/adminSessionsService';
 
-export function useAdminSessions(filters = {}) {
+/** all: صفحة "كل الجلسات" — بدونه لا يُطلب شيء قبل توفّر teacherId/studentId */
+export function useAdminSessions({ all = false, ...filters } = {}) {
   return useQuery({
     queryKey: queryKeys.admin.sessions(filters),
     queryFn: () => adminSessionsService.list(filters),
     placeholderData: keepPreviousData,
-    enabled: Boolean(filters.teacherId || filters.studentId),
+    enabled: all || Boolean(filters.teacherId || filters.studentId),
   });
 }
 
