@@ -98,7 +98,7 @@ export function AdminTeachersTable({ teachers }) {
             {teachers.map((teacher, i) => (
               <tr key={teacher.id} className={i % 2 === 1 ? 'bg-[#FAFBFD]' : ''}>
                 <td className="px-4 py-4 text-right">
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-start gap-2">
                     <Avatar name={teacher.name} src={teacher.avatar} size="sm" className="!h-9 !w-9" />
                     <div className="text-right">
                       <div className="font-semibold text-ink">{teacher.name}</div>
@@ -114,7 +114,7 @@ export function AdminTeachersTable({ teachers }) {
                 </td>
                 <td className="px-4 py-4 text-right text-ink-soft">{formatDate(teacher.submittedAt)}</td>
                 <td className="px-4 py-4 text-right">
-                  <div className="flex flex-wrap items-center justify-end gap-3">
+                  <div className="flex flex-wrap items-center justify-start gap-3">
                     <Link
                       to={`/dashboard/admin/teachers/${teacher.id}`}
                       className="inline-flex items-center gap-1.5 text-primary hover:opacity-70"

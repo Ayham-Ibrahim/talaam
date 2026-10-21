@@ -673,6 +673,27 @@ export function canJoinSession(session, joinUrl) {
   return nowMs >= startsAtMs - EARLY_JOIN_MINUTES * 60 * 1000 && nowMs <= endsAtMs;
 }
 
+/**
+ * زر "طلب تأجيل" في جدول جلسات المعلم — الجلسة هنا صف ClassSessionResource خام
+ * (لا تمر بـ mapSessionListRow)، فتُفحص نفس شروط canReschedule لدى الطالب مباشرة،
+ * وهي مرآة لما يرفضه RescheduleService::request بالباك اند بـ 422.
+ */
+export function canRequestTeacherReschedule(session) {
+  return (
+    session.status === 'scheduled' &&
+    !isSessionBookingInactive(session) &&
+    isBeforeSessionStart(session) &&
+    !hasPendingRescheduleRequest(session) &&
+    isSessionPaid(session) &&
+    isIndividualPackageSession(session)
+  );
+}
+
+/** حالة العرض في جدول المعلم — الباك اند يُبقي status='scheduled' أثناء انتظار طلب التأجيل */
+export function teacherSessionDisplayStatus(session) {
+  return session.status === 'scheduled' && hasPendingRescheduleRequest(session) ? 'reschedule_pending' : session.status;
+}
+
 function hasPendingRescheduleRequest(session) {
   if (session.has_pending_reschedule_request != null) {
     return Boolean(session.has_pending_reschedule_request);

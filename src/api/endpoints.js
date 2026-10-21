@@ -209,6 +209,7 @@ export const endpoints = {
     resolveComplaint: (id) => `/complaints/${id}/resolve`,
     escalateComplaint: (id) => `/complaints/${id}/escalate`,
     rescheduleRequests: '/reschedule-requests',
+    rescheduleRequestDetail: (id) => `/reschedule-requests/${id}`,
     approveReschedule: (id) => `/reschedule-requests/${id}/approve`,
     rejectReschedule: (id) => `/reschedule-requests/${id}/reject`,
     taxonomy: (type) => `/taxonomy/${type}`,

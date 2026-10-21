@@ -45,6 +45,9 @@ export function useCreateRescheduleRequest() {
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.calendarSessions() });
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.teacherCalendarSessions() });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'package-details'] });
+      // جلسات لوحة المعلم صفوف خام (snake_case) — إعادة الجلب تكفي لإظهار الحالة الجديدة
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.teacherSessions() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.teacherSessionDetails(sessionId) });
     },
   });
 }

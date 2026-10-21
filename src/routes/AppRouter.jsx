@@ -33,6 +33,7 @@ import { AdminPayoutsPage } from '@/pages/AdminPayoutsPage';
 import { FinanceBookingsPage } from '@/pages/FinanceBookingsPage';
 import { AdminAccountantsPage } from '@/pages/AdminAccountantsPage';
 import { TeacherSessionsReportPage } from '@/pages/TeacherSessionsReportPage';
+import { AdminSessionsPage } from '@/pages/AdminSessionsPage';
 import { AdminNotificationLogsPage } from '@/pages/AdminNotificationLogsPage';
 import { AdminLegalPagesPage } from '@/pages/AdminLegalPagesPage';
 import { AdminLegalPageEditorPage } from '@/pages/AdminLegalPageEditorPage';
@@ -216,6 +217,14 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="admin">
               <AdminAccountantsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/sessions"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminSessionsPage />
             </ProtectedRoute>
           }
         />

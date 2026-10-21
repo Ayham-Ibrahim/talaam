@@ -21,13 +21,13 @@ export function TaxonomyTable({ items, typeConfig, onEdit, onDelete }) {
         <tbody className="divide-y divide-line">
           {items.map((item, i) => (
             <tr key={item.id} className={i % 2 === 1 ? 'bg-[#FAFBFD]' : ''}>
-              {typeConfig.hasCode && <td className="px-4 py-4 text-right text-ink-soft" dir="ltr">{item.code}</td>}
+              {typeConfig.hasCode && <td className="px-4 py-4 text-right text-ink-soft"><span dir="ltr">{item.code}</span></td>}
               <td className="px-4 py-4 text-right font-semibold text-ink">{item.name_ar}</td>
               {typeConfig.hasEducationType && (
                 <td className="px-4 py-4 text-right text-ink-soft">{EDUCATION_TYPE_LABELS[item.education_type] ?? '—'}</td>
               )}
               <td className="px-4 py-4 text-right">
-                <div className="flex items-center justify-end gap-3">
+                <div className="flex items-center justify-start gap-3">
                   <button
                     type="button"
                     onClick={() => onEdit(item)}

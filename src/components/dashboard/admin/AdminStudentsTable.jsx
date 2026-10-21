@@ -48,7 +48,7 @@ export function AdminStudentsTable({ students }) {
           {students.map((student, i) => (
             <tr key={student.id} className={i % 2 === 1 ? 'bg-[#FAFBFD]' : ''}>
               <td className="px-4 py-4 text-right">
-                <div className="flex items-center justify-end gap-2">
+                <div className="flex items-center justify-start gap-2">
                   <Avatar name={student.name} src={student.avatar} size="sm" className="!h-9 !w-9" />
                   <div className="text-right">
                     <div className="font-semibold text-ink">{student.name}</div>
@@ -69,7 +69,7 @@ export function AdminStudentsTable({ students }) {
               </td>
               <td className="px-4 py-4 text-right text-ink-soft">{formatDate(student.createdAt)}</td>
               <td className="px-4 py-4 text-right">
-                <div className="flex flex-wrap items-center justify-end gap-3">
+                <div className="flex flex-wrap items-center justify-start gap-3">
                   <Link
                     to={`/dashboard/admin/students/${student.id}`}
                     className="inline-flex items-center gap-1.5 text-primary hover:opacity-70"

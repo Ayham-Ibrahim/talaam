@@ -1,9 +1,9 @@
-import { Check, CalendarClock, X as XIcon } from 'lucide-react';
+import { Check, CalendarClock, Eye, X as XIcon } from 'lucide-react';
 import { RescheduleStatusBadge } from './RescheduleStatusBadge';
 import { formatDateTime } from '@/lib/formatters';
 import { useT } from '@/hooks/useT';
 
-export function RescheduleRequestsTable({ requests, onApprove, onApproveWithAlternative, onReject, isActing }) {
+export function RescheduleRequestsTable({ requests, onView, onApprove, onApproveWithAlternative, onReject, isActing }) {
   const t = useT();
   const renderText = (value) => value || '—';
   // بتوقيت الطالب دوماً، لا بتوقيت متصفح الأدمن الذي يشاهد الجدول — الجلسة
@@ -61,41 +61,51 @@ export function RescheduleRequestsTable({ requests, onApprove, onApproveWithAlte
                 <RescheduleStatusBadge status={r.status} />
               </td>
               <td className="px-4 py-4 text-right">
-                {r.status === 'pending' && (
-                  <div className="flex flex-wrap items-center justify-end gap-3">
-                    {/* بلا موعد مقترح (تبليغ غياب) لا معنى للقبول البسيط — يجب على الأدمن
-                        تحديد موعد بديل دوماً عبر "قبول بموعد بديل" (RescheduleService::approve يرفضه خلاف ذلك) */}
-                    {r.proposedScheduledAt && (
+                <div className="flex flex-wrap items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => onView(r)}
+                    title={t('dashboard.adminReschedule.viewDetails')}
+                    className="flex items-center gap-1 text-sm font-medium text-ink-soft hover:opacity-70"
+                  >
+                    <Eye size={16} />
+                  </button>
+                  {r.status === 'pending' && (
+                    <>
+                      {/* بلا موعد مقترح (تبليغ غياب) لا معنى للقبول البسيط — يجب على الأدمن
+                          تحديد موعد بديل دوماً عبر "قبول بموعد بديل" (RescheduleService::approve يرفضه خلاف ذلك) */}
+                      {r.proposedScheduledAt && (
+                        <button
+                          type="button"
+                          disabled={isActing}
+                          onClick={() => onApprove(r)}
+                          title={t('dashboard.adminReschedule.approve')}
+                          className="flex items-center gap-1 text-sm font-medium text-success hover:opacity-70 disabled:opacity-50"
+                        >
+                          <Check size={16} />
+                        </button>
+                      )}
                       <button
                         type="button"
                         disabled={isActing}
-                        onClick={() => onApprove(r)}
-                        title={t('dashboard.adminReschedule.approve')}
-                        className="flex items-center gap-1 text-sm font-medium text-success hover:opacity-70 disabled:opacity-50"
+                        onClick={() => onApproveWithAlternative(r)}
+                        title={t('dashboard.adminReschedule.approveWithAlternative')}
+                        className="flex items-center gap-1 text-sm font-medium text-primary hover:opacity-70 disabled:opacity-50"
                       >
-                        <Check size={16} />
+                        <CalendarClock size={16} />
                       </button>
-                    )}
-                    <button
-                      type="button"
-                      disabled={isActing}
-                      onClick={() => onApproveWithAlternative(r)}
-                      title={t('dashboard.adminReschedule.approveWithAlternative')}
-                      className="flex items-center gap-1 text-sm font-medium text-primary hover:opacity-70 disabled:opacity-50"
-                    >
-                      <CalendarClock size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      disabled={isActing}
-                      onClick={() => onReject(r)}
-                      title={t('dashboard.adminReschedule.reject')}
-                      className="flex items-center gap-1 text-sm font-medium text-accent-pink hover:opacity-70 disabled:opacity-50"
-                    >
-                      <XIcon size={16} />
-                    </button>
-                  </div>
-                )}
+                      <button
+                        type="button"
+                        disabled={isActing}
+                        onClick={() => onReject(r)}
+                        title={t('dashboard.adminReschedule.reject')}
+                        className="flex items-center gap-1 text-sm font-medium text-accent-pink hover:opacity-70 disabled:opacity-50"
+                      >
+                        <XIcon size={16} />
+                      </button>
+                    </>
+                  )}
+                </div>
               </td>
             </tr>
           ))}

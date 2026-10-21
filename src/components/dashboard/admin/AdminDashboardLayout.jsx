@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   BarChart3,
+  CalendarDays,
   ChevronRight,
   FileSpreadsheet,
   GraduationCap,
@@ -36,6 +37,7 @@ const ADMIN_NAV_ITEMS = [
   { key: 'teachers', icon: GraduationCap, path: '/dashboard/admin/teachers', statKey: 'pendingVerificationsCount' },
   { key: 'academicSupporters', icon: HandHeart, path: '/dashboard/admin/academic-supporters' },
   { key: 'students', icon: Users, path: '/dashboard/admin/students' },
+  { key: 'sessions', icon: CalendarDays, path: '/dashboard/admin/sessions' },
   { key: 'packages', icon: Package, path: '/dashboard/admin/listings', statKey: 'pendingApprovalsCount' },
   { key: 'complaints', icon: MessageSquareWarning, path: '/dashboard/admin/complaints', statKey: 'openComplaintsCount' },
   { key: 'taxonomy', icon: ListTree, path: '/dashboard/admin/taxonomy' },
