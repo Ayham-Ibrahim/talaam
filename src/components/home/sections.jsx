@@ -108,7 +108,7 @@ export function EducationTypes() {
       </ScrollReveal>
       <div
         ref={gridRef}
-        className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 relative"
+        className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 relative"
       >
         {types.map((type) => {
           const Icon = EDUCATION_TYPE_ICONS[type.icon] || School;
