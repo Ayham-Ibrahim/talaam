@@ -3,6 +3,7 @@ import {
   CalendarCheck,
   GraduationCap,
   Landmark,
+  Languages as LanguagesIcon,
   MessageCircle,
   ShieldCheck,
   Star,
@@ -73,6 +74,20 @@ export function AcademicSupporterProfileHeader({ supporter }) {
         <div className="flex flex-1 flex-col items-start gap-4 text-start">
           <div>
             <h1 className="text-[28px] font-bold leading-tight text-white sm:text-[36px]">{supporter.name}</h1>
+
+            {supporter.languages?.length > 0 && (
+              <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                {supporter.languages.map((l) => (
+                  <span
+                    key={l.code}
+                    className="flex items-center gap-1 rounded-pill bg-white/10 px-3 py-1 text-xs font-medium text-white/85 ring-1 ring-white/20"
+                  >
+                    <LanguagesIcon size={12} />
+                    {l.name}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {bullets.length > 0 && (

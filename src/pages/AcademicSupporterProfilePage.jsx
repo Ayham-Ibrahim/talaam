@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
-import { GraduationCap, Languages as LanguagesIcon } from 'lucide-react';
+import { GraduationCap } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { AcademicSupporterProfileHeader } from '@/components/academicSupporter/AcademicSupporterProfileHeader';
 import { AssignmentsGallerySection } from '@/components/academicSupporter/AssignmentsGallerySection';
@@ -9,8 +9,10 @@ import { SupportPackageDetailsDrawer } from '@/components/academicSupporter/Supp
 import { ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useAcademicSupporterProfile } from '@/hooks/useAcademicSupporterBrowse';
+import { useT } from '@/hooks/useT';
 
 export function AcademicSupporterProfilePage() {
+  const t = useT();
   const { user } = useAuth();
   const { id } = useParams();
   const { data: supporter, isLoading, isError, refetch } = useAcademicSupporterProfile(id);
@@ -33,11 +35,18 @@ export function AcademicSupporterProfilePage() {
           <>
             <AcademicSupporterProfileHeader supporter={supporter} />
 
-            <div className="mt-6 rounded-2xl bg-white p-6 shadow-card">
-              {supporter.bio && <p className="text-right text-sm leading-relaxed text-ink-soft">{supporter.bio}</p>}
+            {supporter.bio && (
+              <div className="mt-6 rounded-2xl bg-white p-6 shadow-card">
+                <h3 className="mb-2 text-start font-bold text-ink">{t('academicSupporter.profile.bioTitle')}</h3>
+                <p className="text-right text-sm leading-relaxed text-ink-soft">{supporter.bio}</p>
+              </div>
+            )}
 
-              {supporter.subjects?.length > 0 && (
-                <div className="mt-4 flex flex-wrap justify-end gap-2">
+            {supporter.subjects?.length > 0 && (
+              <div className="mt-6 rounded-2xl bg-white p-5 shadow-card">
+                <h3 className="mb-1 text-start font-bold text-ink">{t('academicSupporter.profile.subjectsTitle')}</h3>
+                <p className="mb-3 text-start text-sm text-ink-soft">{t('academicSupporter.profile.subjectsHint')}</p>
+                <div className="flex flex-wrap justify-end gap-2">
                   {supporter.subjects.map((s) => (
                     <span key={s.id} className="flex items-center gap-1 rounded-pill bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
                       <GraduationCap size={13} />
@@ -45,19 +54,8 @@ export function AcademicSupporterProfilePage() {
                     </span>
                   ))}
                 </div>
-              )}
-
-              {supporter.languages?.length > 0 && (
-                <div className="mt-2 flex flex-wrap justify-end gap-2">
-                  {supporter.languages.map((l) => (
-                    <span key={l.code} className="flex items-center gap-1 rounded-pill bg-line/40 px-3 py-1 text-xs font-medium text-ink-soft">
-                      <LanguagesIcon size={13} />
-                      {l.name}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
+              </div>
+            )}
 
             <AssignmentsGallerySection items={supporter.galleryItems ?? []} />
 
