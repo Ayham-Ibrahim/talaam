@@ -61,7 +61,7 @@ export function CourseWizardBasicInfo({ data, onChange, onNext }) {
         />
       </div>
 
-      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <SmoothSelect
           label={t('dashboard.addCourse.levelLabel')}
           value={data.level}
@@ -75,6 +75,14 @@ export function CourseWizardBasicInfo({ data, onChange, onNext }) {
           onChange={(v) => onChange({ delivery_mode: v })}
           options={DELIVERY_MODE_OPTIONS}
           placeholder={t('dashboard.addPackage.selectPlaceholder')}
+        />
+        <MultiSelectChips
+          label={t('dashboard.addPackage.curriculumLabel')}
+          values={data.curriculum_ids}
+          onChange={(v) => onChange({ curriculum_ids: v })}
+          options={curriculumOptions}
+          placeholder={t('dashboard.addPackage.selectPlaceholder')}
+          max={20}
         />
       </div>
 
@@ -90,15 +98,6 @@ export function CourseWizardBasicInfo({ data, onChange, onNext }) {
           />
         </div>
       )}
-
-      <MultiSelectChips
-        label={t('dashboard.addPackage.curriculumLabel')}
-        values={data.curriculum_ids}
-        onChange={(v) => onChange({ curriculum_ids: v })}
-        options={curriculumOptions}
-        placeholder={t('dashboard.addPackage.selectPlaceholder')}
-        max={20}
-      />
 
       <div className="flex w-full flex-col items-start gap-1.5">
         <label className="text-sm font-semibold text-primary">{t('dashboard.addPackage.descriptionLabel')}</label>
