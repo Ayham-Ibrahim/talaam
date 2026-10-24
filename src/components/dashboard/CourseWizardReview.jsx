@@ -64,7 +64,7 @@ export function CourseWizardReview({ data, isPending, error, onSubmit, onBack })
     <div className="mt-8 flex flex-col gap-6">
       {error && <ApiErrorList error={error} labelFor={courseErrorLabel} />}
 
-      <div className="grid grid-cols-2 gap-4 rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card lg:grid-cols-4">
         <SummaryField label={t('dashboard.addCourse.courseFieldLabel')} value={courseFieldLabel} />
         <SummaryField label={t('dashboard.addCourse.levelLabel')} value={COURSE_LEVEL_LABELS[data.level]} />
         <SummaryField label={t('dashboard.addCourse.deliveryModeLabel')} value={COURSE_DELIVERY_MODE_LABELS[data.delivery_mode]} />
@@ -90,7 +90,7 @@ export function CourseWizardReview({ data, isPending, error, onSubmit, onBack })
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4 rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card sm:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card sm:grid-cols-3 lg:grid-cols-5">
         <SummaryField label={t('dashboard.addCourse.hasCertificateLabel')} value={t(data.has_certificate ? 'dashboard.addCourse.yes' : 'dashboard.addCourse.no')} />
         <SummaryField label={t('dashboard.addCourse.requiresLaptopLabel')} value={t(data.requires_laptop ? 'dashboard.addCourse.yes' : 'dashboard.addCourse.no')} />
         <SummaryField label={t('dashboard.addCourse.materialsIncludedLabel')} value={t(data.materials_included ? 'dashboard.addCourse.yes' : 'dashboard.addCourse.no')} />

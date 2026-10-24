@@ -181,7 +181,7 @@ export function CourseWizardPricing({ data, onChange, onNext, onBack }) {
         </div>
       </div>
 
-      <div className="flex items-start gap-3 rounded-2xl border border-dashed border-primary/30 bg-primary-light/40 p-5">
+      <div className="flex w-full items-start gap-3 rounded-2xl border border-dashed border-primary/30 bg-primary-light/40 p-5">
         <Info size={20} className="mt-0.5 shrink-0 text-primary" />
         <p className="text-sm text-ink">{t('dashboard.addPackage.pricingPolicyHint')}</p>
       </div>
