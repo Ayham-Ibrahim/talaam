@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Ticket } from 'lucide-react';
+import { Pencil, Ticket } from 'lucide-react';
 import { formatPrice } from '@/lib/formatters';
 import { ReasonModal } from './ReasonModal';
 import { SupportPackageCouponsModal } from './SupportPackageCouponsModal';
+import { EditSupportPackageModal } from './EditSupportPackageModal';
 import {
   useAdminApproveSupportPackage,
   useAdminRejectSupportPackage,
@@ -27,6 +28,7 @@ export function SupportPackagesApprovalPanel({ supporterId, supportPackages = []
   const t = useT();
   const [rejectingId, setRejectingId] = useState(null);
   const [couponsPackage, setCouponsPackage] = useState(null);
+  const [editingPackage, setEditingPackage] = useState(null);
   const approve = useAdminApproveSupportPackage(supporterId);
   const reject = useAdminRejectSupportPackage(supporterId);
   const disable = useAdminDisableSupportPackage(supporterId);
@@ -65,6 +67,14 @@ export function SupportPackagesApprovalPanel({ supporterId, supportPackages = []
             )}
 
             <div className="mt-3 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => setEditingPackage(sp)}
+                className="flex items-center gap-1.5 rounded-xl border border-line px-4 py-2 text-xs font-medium text-ink-soft hover:bg-line/30"
+              >
+                <Pencil size={14} />
+                {t('dashboard.addSupportPackage.edit')}
+              </button>
               {sp.status === 'pending_approval' && (
                 <>
                   <button
@@ -135,6 +145,14 @@ export function SupportPackagesApprovalPanel({ supporterId, supportPackages = []
           supportPackageId={couponsPackage.id}
           packageTitle={couponsPackage.title}
           onClose={() => setCouponsPackage(null)}
+        />
+      )}
+
+      {editingPackage && (
+        <EditSupportPackageModal
+          supporterId={supporterId}
+          supportPackage={editingPackage}
+          onClose={() => setEditingPackage(null)}
         />
       )}
     </div>

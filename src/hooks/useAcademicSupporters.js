@@ -89,6 +89,14 @@ export function useAdminRejectSupportPackage(supporterId) {
   });
 }
 
+export function useAdminUpdateSupportPackage(supporterId) {
+  const invalidate = useInvalidateAcademicSupporter(supporterId);
+  return useMutation({
+    mutationFn: ({ id, payload }) => academicSupporterService.updateSupportPackage(id, payload),
+    onSuccess: invalidate,
+  });
+}
+
 export function useAdminDisableSupportPackage(supporterId) {
   const invalidate = useInvalidateAcademicSupporter(supporterId);
   return useMutation({

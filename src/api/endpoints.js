@@ -90,6 +90,7 @@ export const endpoints = {
     list: '/support-packages',
     create: '/support-packages',
     detail: (id) => `/support-packages/${id}`,
+    update: (id) => `/support-packages/${id}`,
     approve: (id) => `/support-packages/${id}/approve`,
     reject: (id) => `/support-packages/${id}/reject`,
     disable: (id) => `/support-packages/${id}/disable`,

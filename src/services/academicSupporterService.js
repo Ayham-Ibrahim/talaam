@@ -9,6 +9,8 @@ const GALLERY_MIME_TYPES = [
   'application/vnd.ms-powerpoint',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/msword',
 ];
 
 /**
@@ -114,7 +116,7 @@ export const academicSupporterService = {
       mimeTypes: GALLERY_MIME_TYPES,
       field: 'file',
       sizeMessage: 'حجم الملف أكبر من الحد المسموح (20 ميغابايت كحد أقصى)',
-      typeMessage: 'صيغة الملف غير مدعومة — يُسمح فقط بصورة، PDF، أو ملف PowerPoint/Excel',
+      typeMessage: 'صيغة الملف غير مدعومة — يُسمح فقط بصورة، PDF، أو ملف Word/PowerPoint/Excel',
     });
     if (thumbnail) {
       assertFileWithinLimits(thumbnail, {
@@ -154,6 +156,12 @@ export const academicSupporterService = {
       return { id: Date.now(), status: 'pending_approval', ...payload };
     }
     const { data } = await client.post(endpoints.supportPackages.create, payload);
+    return data.data;
+  },
+
+  // ----- Admin: editing a supporter's support package (blocked backend-side if purchases exist) -----
+  async updateSupportPackage(id, payload) {
+    const { data } = await client.put(endpoints.supportPackages.update(id), payload);
     return data.data;
   },
 
