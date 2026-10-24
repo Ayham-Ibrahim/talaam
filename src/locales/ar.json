@@ -783,13 +783,13 @@
   },
   "teacherGallery": {
     "sectionTitle": "غاليري نماذج الأعمال",
-    "sectionHint": "ارفع نماذج من الاساينمنتس التي دعمت بها طلاباً (صور، PDF، PowerPoint، أو Excel) — تظهر في بروفايلك العام",
+    "sectionHint": "ارفع نماذج من الاساينمنتس التي دعمت بها طلاباً (صور، PDF، Word، PowerPoint، أو Excel) — تظهر في بروفايلك العام",
     "listLabel": "الملفات",
     "empty": "لا توجد ملفات مضافة بعد",
     "remove": "حذف",
     "download": "تنزيل",
     "uploadLabel": "اضغط أو اسحب ملفاً هنا للرفع",
-    "uploadHint": "صورة، PDF، PowerPoint، أو Excel — 20 ميغابايت كحد أقصى",
+    "uploadHint": "صورة، PDF، Word، PowerPoint، أو Excel — 20 ميغابايت كحد أقصى",
     "uploading": "جارٍ الرفع…",
     "addThumbnail": "إضافة صورة مصغّرة",
     "thumbnailHint": "اختياري — بلا صورة، تظهر أيقونة افتراضية لنوع الملف",
@@ -797,6 +797,11 @@
     "cancel": "إلغاء"
   },
   "academicSupporter": {
+    "profile": {
+      "bioTitle": "نبذة عني",
+      "subjectsTitle": "المواد التي أدعم بها",
+      "subjectsHint": "المواد الجامعية التي يقدّم فيها الداعم دعماً أكاديمياً"
+    },
     "assignmentsGallery": {
       "title": "نماذج أعمال سابقة",
       "hint": "اساينمنتس حقيقية دعم بها الداعم طلاباً سابقين"
@@ -1288,7 +1293,14 @@
       "descriptionRequired": "يرجى كتابة وصف للباقة",
       "submit": "إرسال للمراجعة",
       "submitting": "جارٍ الإرسال...",
-      "cancel": "إلغاء"
+      "cancel": "إلغاء",
+      "edit": "تعديل"
+    },
+    "editSupportPackage": {
+      "title": "تعديل باقة الدعم",
+      "hint": "التعديل متاح فقط طالما لا توجد عمليات شراء قائمة على هذه الباقة",
+      "submit": "حفظ التعديلات",
+      "submitting": "جارٍ الحفظ..."
     },
     "coupons": {
       "title": "كوبونات الخصم",
