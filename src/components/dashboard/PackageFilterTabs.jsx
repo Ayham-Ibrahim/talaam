@@ -7,12 +7,16 @@ const TABS = [
   { key: 'all', labelKey: 'filterAll' },
 ];
 
-export function PackageFilterTabs({ active, onChange }) {
+const ACADEMIC_SUPPORT_TAB = { key: 'academicSupport', labelKey: 'filterAcademicSupport' };
+
+/** showAcademicSupport: تبويب باقات الدعم الأكاديمي — للطالب الجامعي فقط (راجع PackagesPage) */
+export function PackageFilterTabs({ active, onChange, showAcademicSupport = false }) {
   const t = useT();
+  const tabs = showAcademicSupport ? [ACADEMIC_SUPPORT_TAB, ...TABS] : TABS;
 
   return (
     <div className="flex flex-wrap items-center justify-center gap-3">
-      {TABS.map((tab) => (
+      {tabs.map((tab) => (
         <button
           key={tab.key}
           type="button"
