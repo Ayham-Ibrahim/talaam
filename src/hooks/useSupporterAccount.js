@@ -60,14 +60,6 @@ export function useMySupportPackages() {
   });
 }
 
-export function useCreateSupportPackage() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (payload) => academicSupporterService.createSupportPackage(payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.supporter.supportPackagesList() }),
-  });
-}
-
 export function useDisableSupportPackage() {
   const queryClient = useQueryClient();
   return useMutation({

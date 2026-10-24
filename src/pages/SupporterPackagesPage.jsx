@@ -1,7 +1,5 @@
-import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
-import { AddSupportPackageModal } from '@/components/academicSupporter/AddSupportPackageModal';
 import { SupporterSupportPackagesTable } from '@/components/academicSupporter/SupporterSupportPackagesTable';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
@@ -12,11 +10,11 @@ import {
 } from '@/hooks/useSupporterAccount';
 import { useT } from '@/hooks/useT';
 
+/** الداعم لم يعد ينشئ باقاته بنفسه — الأدمن حصراً ينشئها ويربطها به (راجع SupportPackagesApprovalPanel بلوحة الأدمن)؛ هنا فقط يستعرض ويفعّل/يعطّل ما رُبط به */
 export function SupporterPackagesPage() {
   const t = useT();
   const { user } = useAuth();
   const { data: supportPackages, isLoading, isError, refetch } = useMySupportPackages();
-  const [isModalOpen, setModalOpen] = useState(false);
   const disable = useDisableSupportPackage();
   const enable = useEnableSupportPackage();
 
@@ -25,16 +23,6 @@ export function SupporterPackagesPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-6">
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={() => setModalOpen(true)}
-            className="rounded-xl bg-primary px-5 py-3 text-sm font-medium text-white hover:bg-primary-hover"
-          >
-            {t('dashboard.teacherSupportPackages.create')}
-          </button>
-        </div>
-
         {isError ? (
           <ErrorState onRetry={refetch} />
         ) : isLoading ? (
@@ -54,8 +42,6 @@ export function SupporterPackagesPage() {
           />
         )}
       </div>
-
-      {isModalOpen && <AddSupportPackageModal onClose={() => setModalOpen(false)} />}
     </DashboardLayout>
   );
 }

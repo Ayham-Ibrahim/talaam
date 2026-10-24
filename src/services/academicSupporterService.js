@@ -150,11 +150,8 @@ export const academicSupporterService = {
     return data.data;
   },
 
+  // ----- Admin: creating a support package and linking it to a chosen supporter (no self-creation anymore) -----
   async createSupportPackage(payload) {
-    if (config.useMocks) {
-      await mockDelay(500);
-      return { id: Date.now(), status: 'pending_approval', ...payload };
-    }
     const { data } = await client.post(endpoints.supportPackages.create, payload);
     return data.data;
   },
