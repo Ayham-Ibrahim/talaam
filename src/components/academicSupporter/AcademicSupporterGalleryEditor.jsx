@@ -182,7 +182,7 @@ export function AcademicSupporterGalleryEditor({ items = [], onAdd, isAdding = f
             <input
               ref={inputRef}
               type="file"
-              accept="image/jpeg,image/png,application/pdf,.pptx,.ppt,.xlsx,.xls"
+              accept="image/jpeg,image/png,application/pdf,.pptx,.ppt,.xlsx,.xls,.docx,.doc"
               className="hidden"
               onChange={(e) => {
                 stageFile(e.target.files?.[0]);

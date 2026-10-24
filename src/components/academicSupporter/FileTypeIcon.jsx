@@ -10,6 +10,8 @@ const FILE_TYPE_STYLES = {
   pdf: { icon: FileText, from: '#FF8A7A', to: '#D9480F' },
   pptx: { icon: Presentation, from: '#FFB07A', to: '#D04423' },
   xlsx: { icon: SheetIcon, from: '#6FE6B0', to: '#107C41' },
+  // أزرق Word الرسمي — نفس منطق ألوان الصيغ الأخرى (PDF أحمر، Excel أخضر، PPT برتقالي)
+  docx: { icon: FileText, from: '#6FA8E8', to: '#1F4E96' },
 };
 
 export function FileTypeIcon({ fileType, size = 'md' }) {
