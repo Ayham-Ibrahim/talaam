@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AlertTriangle, Award, Laptop, Package, FlaskConical, Video, CalendarDays, CheckCircle2, XCircle } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { Button, ApiErrorList } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useCreateEnrollment } from '@/hooks/useEnrollment';
 import { useCalendarSessions } from '@/hooks/useDashboard';
@@ -40,6 +40,13 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
 
   const schedules = selectedCourse?.schedules ?? [];
   const createEnrollment = useCreateEnrollment(selectedCourse?.id);
+
+  // حالة الـ mutation تبقى عبر تبديل الدورة (نفس الـ widget) — فلا تظهر رسالة
+  // خطأ دورة سابقة على الدورة المختارة الجديدة
+  const resetEnrollment = createEnrollment.reset;
+  useEffect(() => {
+    resetEnrollment();
+  }, [selectedCourse?.id, resetEnrollment]);
 
   // Student-side only — courses have no busy-slots endpoint (unlike
   // packages' GET /packages/{id}/busy-slots) to advisory-check the training
@@ -138,6 +145,10 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
             </p>
           )}
         </div>
+      )}
+
+      {createEnrollment.isError && (
+        <ApiErrorList error={createEnrollment.error} labelFor={() => null} />
       )}
 
       <div className="flex items-center justify-between border-t border-line pt-4">
