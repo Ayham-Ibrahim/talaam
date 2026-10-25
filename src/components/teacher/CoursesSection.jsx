@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Award, Laptop, Package, FlaskConical, Video, CalendarRange } from 'lucide-react';
+import { Award, Laptop, Package, FlaskConical, Video, CalendarRange, CheckCircle2, Clock, PlayCircle } from 'lucide-react';
 import { ErrorState, FavoriteButton, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites, useToggleFavoriteCourse } from '@/hooks/useFavorites';
@@ -27,28 +27,48 @@ function CourseFactBadge({ active, icon: Icon, label }) {
   );
 }
 
+/** رابط صفحة الاشتراك في لوحة الطالب — نفس معرّف `enrollment-{id}` الذي تبنيه قائمة باقاتي */
+export function enrollmentDetailsPath(enrollmentId) {
+  return `/dashboard/student/packages/enrollment-${enrollmentId}`;
+}
+
 function CourseCard({ course, index, selected, onSelect, isFavorite, onToggleFavorite }) {
   const t = useT();
+  const navigate = useNavigate();
   const currency = useCurrencyStore((s) => s.currency);
   const accent = COURSE_ACCENTS[index % COURSE_ACCENTS.length];
   const isEnded = isPastDate(course.endDate);
+  const enrollment = course.myEnrollment;
+  const isPendingPayment = enrollment?.status === 'pending_payment';
+  const elapsedCount = course.elapsedSessions?.length ?? 0;
 
   return (
     <div
       style={{ '--accent': accent.solid, '--accent-bg': accent.bg }}
       className={`group flex flex-col gap-3 rounded-2xl border p-4 transition-all duration-200 ${
-        isEnded
-          ? 'opacity-60 border-line bg-canvas'
-          : `hover:-translate-y-0.5 hover:shadow-lift ${
-              selected ? 'border-[var(--accent)] bg-[var(--accent-bg)]/40' : 'border-line bg-white hover:border-[var(--accent)]'
-            }`
+        enrollment
+          ? `hover:-translate-y-0.5 hover:shadow-lift border-2 ${isPendingPayment ? 'border-primary bg-primary/5' : 'border-success bg-success-light/40'}`
+          : isEnded
+            ? 'opacity-60 border-line bg-canvas'
+            : `hover:-translate-y-0.5 hover:shadow-lift ${
+                selected ? 'border-[var(--accent)] bg-[var(--accent-bg)]/40' : 'border-line bg-white hover:border-[var(--accent)]'
+              }`
       }`}
     >
       <div className="flex items-start justify-between gap-2 text-start">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h4 className="font-bold text-ink">{course.title}</h4>
-            {isEnded && (
+            {enrollment ? (
+              <span
+                className={`flex items-center gap-1 rounded-pill px-2 py-1 text-xs font-bold ${
+                  isPendingPayment ? 'bg-primary/10 text-primary' : 'bg-success-light text-success'
+                }`}
+              >
+                {isPendingPayment ? <Clock size={13} /> : <CheckCircle2 size={13} />}
+                {t(isPendingPayment ? 'teacher.course.pendingPaymentBadge' : 'teacher.course.enrolledBadge')}
+              </span>
+            ) : isEnded && (
               <span className="rounded-pill bg-ink-soft/10 px-2 py-1 text-xs font-bold text-ink-soft">
                 {t('teacher.course.ended')}
               </span>
@@ -58,6 +78,12 @@ function CourseCard({ course, index, selected, onSelect, isFavorite, onToggleFav
             <CalendarRange size={13} />
             {formatDate(course.startDate)} — {formatDate(course.endDate)}
           </p>
+          {!enrollment && !isEnded && elapsedCount > 0 && (
+            <p className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-[#B45309]">
+              <PlayCircle size={13} />
+              {t('teacher.course.startedProgress').replace('{n}', elapsedCount).replace('{total}', course.totalSessions)}
+            </p>
+          )}
         </div>
         <FavoriteButton active={isFavorite} onClick={() => onToggleFavorite(course.id)} className="shrink-0" />
       </div>
@@ -74,22 +100,34 @@ function CourseCard({ course, index, selected, onSelect, isFavorite, onToggleFav
         <span className="text-2xl font-bold text-[var(--accent)]">{formatPrice(course.price, currency)}</span>
       </div>
 
-      <button
-        type="button"
-        disabled={isEnded}
-        onClick={() => onSelect(course)}
-        className={`w-full rounded-2xl border py-2.5 text-sm font-medium transition-colors duration-200 ${
-          isEnded
-            ? 'cursor-not-allowed border-line bg-line/30 text-ink-soft'
-            : `border-[var(--accent)] ${
-                selected
-                  ? 'bg-[var(--accent)] text-white'
-                  : 'bg-transparent text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white'
-              }`
-        }`}
-      >
-        {isEnded ? t('teacher.course.ended') : t('teacher.course.chooseCourse')}
-      </button>
+      {enrollment ? (
+        <button
+          type="button"
+          onClick={() => navigate(enrollmentDetailsPath(enrollment.id))}
+          className={`w-full rounded-2xl py-2.5 text-sm font-bold text-white transition-opacity duration-200 hover:opacity-90 ${
+            isPendingPayment ? 'bg-primary' : 'bg-success'
+          }`}
+        >
+          {t(isPendingPayment ? 'teacher.course.completePayment' : 'teacher.course.viewMyEnrollment')}
+        </button>
+      ) : (
+        <button
+          type="button"
+          disabled={isEnded}
+          onClick={() => onSelect(course)}
+          className={`w-full rounded-2xl border py-2.5 text-sm font-medium transition-colors duration-200 ${
+            isEnded
+              ? 'cursor-not-allowed border-line bg-line/30 text-ink-soft'
+              : `border-[var(--accent)] ${
+                  selected
+                    ? 'bg-[var(--accent)] text-white'
+                    : 'bg-transparent text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white'
+                }`
+          }`}
+        >
+          {isEnded ? t('teacher.course.ended') : t('teacher.course.chooseCourse')}
+        </button>
+      )}
     </div>
   );
 }

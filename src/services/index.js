@@ -124,6 +124,10 @@ function mapStudentCourse(raw) {
     prerequisites: raw.prerequisites,
     cancellationPolicy: raw.cancellation_policy,
     schedules: raw.schedules ?? [],
+    // جلسات بدأ موعدها — لا تُعوَّض لمن يسجّل الآن
+    elapsedSessions: (raw.elapsed_sessions ?? []).map((s) => ({ sequenceNo: s.sequence_no, scheduledAt: s.scheduled_at })),
+    // اشتراك الطالب الحالي — null للزائر أو لغير المشترك
+    myEnrollment: raw.my_enrollment ?? null,
   };
 }
 

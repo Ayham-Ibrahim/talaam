@@ -10,6 +10,7 @@ import { useCurrencyStore } from '@/store';
 import { formatPrice } from '@/lib/currency';
 import { formatDate, isPastDate } from '@/lib/formatters';
 import { findRecurringConflict } from '@/lib/scheduleConflict';
+import { enrollmentDetailsPath } from '@/components/teacher/CoursesSection';
 
 function formatTime(t) {
   return t ? t.slice(0, 5) : t;
@@ -39,6 +40,9 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
   const weekdays = t('booking.weekdays');
 
   const schedules = selectedCourse?.schedules ?? [];
+  const elapsedSessions = selectedCourse?.elapsedSessions ?? [];
+  const enrollment = selectedCourse?.myEnrollment ?? null;
+  const isEnrollmentPending = enrollment?.status === 'pending_payment';
   const createEnrollment = useCreateEnrollment(selectedCourse?.id);
 
   // حالة الـ mutation تبقى عبر تبديل الدورة (نفس الـ widget) — فلا تظهر رسالة
@@ -147,6 +151,34 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
         </div>
       )}
 
+      {selectedCourse && !enrollment && elapsedSessions.length > 0 && (
+        <div className="rounded-2xl border border-[#F5C26B] bg-[#FFF8EB] p-3 text-start text-sm text-ink">
+          <p className="mb-1 flex items-center gap-1.5 font-bold text-[#B45309]">
+            <AlertTriangle size={15} />
+            {t('teacher.course.elapsedTitle')}
+          </p>
+          <p>
+            {t('teacher.course.elapsedBody')
+              .replace('{n}', elapsedSessions.length)
+              .replace('{total}', selectedCourse.totalSessions)}
+          </p>
+          <ul className="my-2 flex flex-col gap-1">
+            {elapsedSessions.map((s) => (
+              <li key={s.sequenceNo} className="flex items-center gap-1.5 text-xs text-ink-soft">
+                <XCircle size={13} className="text-[#B45309]" />
+                {t('teacher.course.elapsedSessionLabel').replace('{n}', s.sequenceNo)} · {formatDate(s.scheduledAt)}
+              </li>
+            ))}
+          </ul>
+          {selectedCourse.sessionsRecorded && (
+            <p className="flex items-center gap-1.5 font-semibold text-success">
+              <Video size={14} />
+              {t('teacher.course.elapsedRecorded')}
+            </p>
+          )}
+        </div>
+      )}
+
       {createEnrollment.isError && (
         <ApiErrorList error={createEnrollment.error} labelFor={() => null} />
       )}
@@ -156,7 +188,13 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
         <span className="text-sm font-bold text-ink">{t('booking.total')}</span>
       </div>
 
-      {isSuccess ? (
+      {enrollment ? (
+        <Button className="w-full justify-center" onClick={() => navigate(enrollmentDetailsPath(enrollment.id))}>
+          {t(isEnrollmentPending ? 'teacher.course.alreadyEnrolledPending' : 'teacher.course.alreadyEnrolled')}
+          {' · '}
+          {t(isEnrollmentPending ? 'teacher.course.completePayment' : 'teacher.course.viewMyEnrollment')}
+        </Button>
+      ) : isSuccess ? (
         <div className="flex items-center justify-center gap-2 rounded-btn bg-success-light py-3 text-sm font-bold text-success">
           <CheckCircle2 size={16} /> {t('booking.success')}
         </div>

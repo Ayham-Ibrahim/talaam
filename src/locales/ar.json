@@ -648,7 +648,18 @@
       "requiresLaptop": "يتطلب جهاز كمبيوتر",
       "materialsIncluded": "المواد متوفرة ضمن السعر",
       "hasPracticalExercises": "تطبيقات عملية",
-      "sessionsRecorded": "الجلسات مسجلة"
+      "sessionsRecorded": "الجلسات مسجلة",
+      "enrolledBadge": "أنت مشترك",
+      "pendingPaymentBadge": "بانتظار الدفع",
+      "viewMyEnrollment": "عرض اشتراكي",
+      "completePayment": "أكمل الدفع",
+      "startedProgress": "بدأت الدورة · أُعطيت {n} من {total} جلسات",
+      "elapsedTitle": "بدأت هذه الدورة",
+      "elapsedBody": "تم إعطاء {n} من أصل {total} جلسات من هذه الدورة، ولن يتم تعويض هذه الجلسات:",
+      "elapsedSessionLabel": "الجلسة {n}",
+      "elapsedRecorded": "يمكنك حضور الجلسات المعطاة مسجلة.",
+      "alreadyEnrolled": "أنت مشترك في هذه الدورة",
+      "alreadyEnrolledPending": "لديك تسجيل في هذه الدورة بانتظار الدفع"
     }
   },
   "booking": {
