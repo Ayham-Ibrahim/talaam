@@ -117,6 +117,7 @@ export function TeacherBookingRequestsPage() {
   const [activeRequestId, setActiveRequestId] = useState(null);
 
   if (!user) return <Navigate to="/login" replace />;
+  if (user.teacherType === 'training_center') return <Navigate to="/dashboard/teacher" replace />;
 
   const handleApprove = (id) => {
     setActiveRequestId(id);

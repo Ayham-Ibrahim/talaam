@@ -5,6 +5,7 @@ import { useT } from "@/hooks/useT";
 export function PackageListCard({ pkg }) {
   const t = useT();
   const typeStyle = PACKAGE_TYPE_STYLES[pkg.type];
+  const isCourse = pkg.type === "course";
 
   return (
     <Link
@@ -46,16 +47,21 @@ export function PackageListCard({ pkg }) {
             {pkg.totalSessions} {t("dashboard.myPackages.sessionsUnit")}
           </div>
         </div>
+        {/* الدورة لا رصيد جلسات يُستهلك — تُعرض جلساتها المنتهية والقادمة بدل المستخدمة/المتبقية */}
         <div>
-          <div className="text-xs text-primary">{t("dashboard.myPackages.used")}</div>
+          <div className="text-xs text-primary">
+            {t(isCourse ? "dashboard.myPackages.courseEndedSessions" : "dashboard.myPackages.used")}
+          </div>
           <div className="font-semibold text-ink">
-            {String(pkg.usedSessions).padStart(2, "0")} {t("dashboard.myPackages.sessionUnit")}
+            {String(isCourse ? pkg.endedSessions : pkg.usedSessions).padStart(2, "0")} {t("dashboard.myPackages.sessionUnit")}
           </div>
         </div>
         <div>
-          <div className="text-xs text-primary">{t("dashboard.myPackages.remaining")}</div>
+          <div className="text-xs text-primary">
+            {t(isCourse ? "dashboard.myPackages.courseUpcomingSessions" : "dashboard.myPackages.remaining")}
+          </div>
           <div className="font-semibold text-ink">
-            {String(pkg.remainingSessions).padStart(2, "0")} {t("dashboard.myPackages.sessionUnit")}
+            {String(isCourse ? pkg.upcomingSessions : pkg.remainingSessions).padStart(2, "0")} {t("dashboard.myPackages.sessionUnit")}
           </div>
         </div>
       </div>

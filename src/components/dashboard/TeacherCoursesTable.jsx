@@ -1,9 +1,12 @@
-import { Send } from 'lucide-react';
+import { Eye, Send, PauseCircle } from 'lucide-react';
 import { TEACHER_COURSE_STATUS_STYLES, COURSE_LEVEL_LABELS, COURSE_DELIVERY_MODE_LABELS } from '@/mocks/teacherCourses.mock';
 import { formatDate } from '@/lib/formatters';
 import { useT } from '@/hooks/useT';
 
-export function TeacherCoursesTable({ courses, onSubmit, isSubmitting }) {
+// الإيقاف متاح فقط لدورة نشطة بلا أي مشترك — الباك اند يفحص أيضاً من ينتظر الدفع
+const canDisable = (course) => course.status === 'active' && Number(course.enrolled_count) === 0;
+
+export function TeacherCoursesTable({ courses, onSubmit, isSubmitting, onDisable, isDisabling, onView }) {
   const t = useT();
 
   return (
@@ -45,6 +48,16 @@ export function TeacherCoursesTable({ courses, onSubmit, isSubmitting }) {
                 </td>
                 <td className="px-4 py-4 text-center font-semibold text-ink">{course.provider_price} د.إ</td>
                 <td className="px-4 py-4 text-center">
+                  <div className="flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => onView?.(course)}
+                    className="text-primary hover:opacity-70"
+                    aria-label={t('dashboard.teacherCourseDetails.view')}
+                    title={t('dashboard.teacherCourseDetails.view')}
+                  >
+                    <Eye size={18} />
+                  </button>
                   {course.status === 'draft' && (
                     <button
                       type="button"
@@ -57,6 +70,19 @@ export function TeacherCoursesTable({ courses, onSubmit, isSubmitting }) {
                       <Send size={18} />
                     </button>
                   )}
+                  {canDisable(course) && (
+                    <button
+                      type="button"
+                      disabled={isDisabling}
+                      onClick={() => onDisable?.(course)}
+                      className="text-accent-pink hover:opacity-70 disabled:opacity-40"
+                      aria-label={t('dashboard.teacherPackages.disableCourse')}
+                      title={t('dashboard.teacherPackages.disableCourse')}
+                    >
+                      <PauseCircle size={18} />
+                    </button>
+                  )}
+                  </div>
                 </td>
               </tr>
             );

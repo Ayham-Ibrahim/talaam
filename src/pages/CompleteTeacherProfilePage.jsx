@@ -337,14 +337,17 @@ export function CompleteTeacherProfilePage() {
                   <div className="text-left text-xs text-ink-soft/70">{form.bio.length}/500</div>
                 </label>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <SmoothSelect
-                    label={t('completeProfile.qualificationLabel')}
-                    value={form.qualification}
-                    onChange={(v) => setForm((prev) => ({ ...prev, qualification: v }))}
-                    options={QUALIFICATION_OPTIONS}
-                    placeholder="—"
-                  />
+                <div className={`grid grid-cols-1 gap-4 ${isTrainingCenter ? '' : 'sm:grid-cols-2'}`}>
+                  {/* لا مؤهل علمي للمركز التدريبي */}
+                  {!isTrainingCenter && (
+                    <SmoothSelect
+                      label={t('completeProfile.qualificationLabel')}
+                      value={form.qualification}
+                      onChange={(v) => setForm((prev) => ({ ...prev, qualification: v }))}
+                      options={QUALIFICATION_OPTIONS}
+                      placeholder="—"
+                    />
+                  )}
                   <SmoothSelect
                     label={t('completeProfile.experienceLabel')}
                     value={form.experience_years}

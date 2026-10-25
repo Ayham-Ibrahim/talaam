@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, Plus } from 'lucide-react';
-import { useT } from '@/hooks/useT';
+import { useProfileT } from '@/hooks/useProfileT';
 
 /** One accordion row — question always visible, answer reveals under it when open */
 function FaqItem({ faq, isOpen, onToggle }) {
@@ -52,7 +52,7 @@ function FaqItem({ faq, isOpen, onToggle }) {
  * (يعكس المرجع LTR بشكل صحيح لموقعنا RTL).
  */
 export function TeacherFAQSection({ teacher }) {
-  const t = useT();
+  const t = useProfileT(teacher);
   const faqs = teacher.faqs ?? [];
   const [openId, setOpenId] = useState(faqs[0]?.id ?? null);
 

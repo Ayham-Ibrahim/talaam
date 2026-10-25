@@ -778,5 +778,28 @@
   "session": {
     "session": "session",
     "sessions": "sessions"
+  },
+  "centerProfile": {
+    "verified": "Certified Training Center",
+    "about": "About the center",
+    "profileLabel": "Training center profile",
+    "intro": "About the center",
+    "rateCtaTitle": "Share your opinion of this center",
+    "rateCtaSubtitle": "Rate the center any time",
+    "rateModalTitle": "Rate the center",
+    "philosophyTitle": "Our training vision",
+    "subjects": "Fields we offer",
+    "teachingMethods": "Training style",
+    "faqSubtitle": "Quick answers to the questions trainees usually ask before enrolling in our courses.",
+    "defaultThankYouLine1": "Thank you for visiting our center.",
+    "defaultThankYouLine2": "Join one of our training courses to build your skills and reach your career goals with us.",
+    "stats": {
+      "teachingType": "Training type"
+    }
+  },
+  "centerExperiences": {
+    "listLabel": "Previous programs and projects",
+    "current": "Ongoing",
+    "completed": "Completed"
   }
 }

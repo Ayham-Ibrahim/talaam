@@ -1,7 +1,8 @@
 import { useT } from '@/hooks/useT';
 
 const TABS = [
-  { key: 'training', labelKey: 'filterTraining' },
+  // يطابق pkg.type في mapEnrollmentToPackageCard ('course')
+  { key: 'course', labelKey: 'filterTraining' },
   { key: 'group', labelKey: 'filterGroup' },
   { key: 'individual', labelKey: 'filterIndividual' },
   { key: 'all', labelKey: 'filterAll' },

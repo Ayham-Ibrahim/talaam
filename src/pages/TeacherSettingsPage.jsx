@@ -36,7 +36,9 @@ export function TeacherSettingsPage() {
   const weekdays = t('booking.weekdays');
   const teacherId = user?.teacher?.id;
 
-  const { data: days, isLoading, isError, refetch } = useAvailabilityDays(teacherId);
+  // المدرب (training_center) لا يملك باقات فردية، فلا معنى لأيام التوفر عنده
+  const isTrainingCenter = user?.teacherType === 'training_center';
+  const { data: days, isLoading, isError, refetch } = useAvailabilityDays(isTrainingCenter ? undefined : teacherId);
   const addDay = useAddAvailabilityDay(teacherId);
   const removeDay = useRemoveAvailabilityDay(teacherId);
   const updateProfile = useUpdateProfile();
@@ -54,7 +56,6 @@ export function TeacherSettingsPage() {
     uploadAvatar.mutate(croppedFile, { onSuccess: () => setCropFile(null) });
   };
 
-  const isTrainingCenter = user?.teacherType === 'training_center';
   const { data: teacher } = useMyTeacher(teacherId);
   const updateTeacherProfile = useUpdateMyTeacherProfile(teacherId);
   const addVideo = useAddVideo(teacherId);
@@ -187,6 +188,7 @@ export function TeacherSettingsPage() {
           </button>
         </div> */}
 
+        {!isTrainingCenter && (
         <div className="rounded-2xl bg-white p-6 shadow-card">
           <h2 className="flex items-center gap-2 font-bold text-ink">
             <CalendarCheck size={20} className="text-primary" />
@@ -227,6 +229,7 @@ export function TeacherSettingsPage() {
             </div>
           )}
         </div>
+        )}
 
         {teacherId && (
           <div className="rounded-2xl bg-white p-6 shadow-card">

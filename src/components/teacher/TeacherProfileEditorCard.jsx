@@ -29,8 +29,8 @@ const EXAM_PREP_SUGGESTIONS = ['SAT', 'ACT', 'IB', 'IGCSE', 'GCSE', 'A-Level', '
 const FIELD_LABELS = {
   name: 'الاسم',
   bio: 'نبذة عني',
-  teaching_philosophy_quote: 'مقولة عن فلسفتك في التدريس',
-  teaching_philosophy_text: 'فلسفتي في التدريس',
+  teaching_philosophy_quote: 'العبارة المميزة',
+  teaching_philosophy_text: 'شرح الفلسفة',
   thank_you_message: 'رسالة الشكر في نهاية الملف الشخصي',
   qualification: 'المؤهل العلمي',
   experience_years: 'سنوات الخبرة',
@@ -181,30 +181,38 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
           <span className="text-left text-xs text-ink-soft/70">{form.bio.length}/500</span>
         </label>
 
+        {/* حقلان لبطاقة واحدة في البروفايل: العبارة تظهر بخط بارز ثم الشرح تحتها */}
+        <fieldset className="flex flex-col gap-3 rounded-xl border border-line p-4">
+          <legend className="px-1 text-sm font-semibold text-primary">
+            {t(isTrainingCenter ? 'teacherSettings.philosophyGroupTitleCenter' : 'teacherSettings.philosophyGroupTitle')}
+          </legend>
+          <span className="text-xs text-ink-soft/70">{t('teacherSettings.philosophyGroupHint')}</span>
+
         <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-semibold text-primary">{FIELD_LABELS.teaching_philosophy_quote}</span>
+          <span className="text-sm font-semibold text-ink">{t('teacherSettings.philosophyQuoteLabel')}</span>
           <input
             type="text"
             maxLength={200}
             value={form.teaching_philosophy_quote}
-            placeholder={t('teacherSettings.philosophyQuotePlaceholder')}
+            placeholder={t(isTrainingCenter ? 'teacherSettings.philosophyQuotePlaceholderCenter' : 'teacherSettings.philosophyQuotePlaceholder')}
             onChange={(e) => set('teaching_philosophy_quote')(e.target.value)}
             className="w-full rounded-lg border border-[#E3E3E3] bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none"
           />
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-semibold text-primary">{FIELD_LABELS.teaching_philosophy_text}</span>
+          <span className="text-sm font-semibold text-ink">{t('teacherSettings.philosophyTextLabel')}</span>
           <textarea
             rows={3}
             maxLength={600}
             value={form.teaching_philosophy_text}
-            placeholder={t('teacherSettings.philosophyTextPlaceholder')}
+            placeholder={t(isTrainingCenter ? 'teacherSettings.philosophyTextPlaceholderCenter' : 'teacherSettings.philosophyTextPlaceholder')}
             onChange={(e) => set('teaching_philosophy_text')(e.target.value)}
             className="w-full resize-none rounded-lg border border-[#E3E3E3] bg-white p-3 text-sm leading-7 text-ink focus:border-primary focus:outline-none"
           />
           <span className="text-left text-xs text-ink-soft/70">{form.teaching_philosophy_text.length}/600</span>
         </label>
+        </fieldset>
 
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-semibold text-primary">{FIELD_LABELS.thank_you_message}</span>
@@ -219,14 +227,17 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
           <span className="text-xs text-ink-soft/70">{t('teacherSettings.thankYouHint')}</span>
         </label>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <SmoothSelect
-            label={FIELD_LABELS.qualification}
-            value={form.qualification}
-            onChange={set('qualification')}
-            options={QUALIFICATION_OPTIONS}
-            placeholder="—"
-          />
+        <div className={`grid grid-cols-1 gap-4 ${isTrainingCenter ? '' : 'sm:grid-cols-2'}`}>
+          {/* لا مؤهل علمي للمركز التدريبي */}
+          {!isTrainingCenter && (
+            <SmoothSelect
+              label={FIELD_LABELS.qualification}
+              value={form.qualification}
+              onChange={set('qualification')}
+              options={QUALIFICATION_OPTIONS}
+              placeholder="—"
+            />
+          )}
           <SmoothSelect
             label={FIELD_LABELS.experience_years}
             value={form.experience_years}
@@ -299,6 +310,7 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
         />
 
         <TeacherExperienceEditor
+          isTrainingCenter={isTrainingCenter}
           experiences={teacher.experiences ?? []}
           onAdd={(payload, opts) => addExperience.mutate(payload, opts)}
           isAdding={addExperience.isPending}

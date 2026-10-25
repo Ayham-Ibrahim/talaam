@@ -34,7 +34,7 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
   const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const currency = useCurrencyStore((s) => s.currency);
   const weekdays = t('booking.weekdays');
 
@@ -45,16 +45,24 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
   // packages' GET /packages/{id}/busy-slots) to advisory-check the training
   // center's own schedule against, so a center-side conflict can currently
   // only be caught by the backend's binding check at enrollment time.
-  const { data: myUpcomingSessions } = useCalendarSessions({ enabled: isAuthenticated });
+  // GET /class-sessions returns every session in the system for an admin
+  // (and the teacher's own for a teacher) — not a schedule of their own to
+  // conflict with, so the check runs for students only.
+  const isStudent = isAuthenticated && user?.role === 'student';
+  const { data: myUpcomingSessions } = useCalendarSessions({ enabled: isStudent });
   const scheduleConflict = useMemo(
-    () => findRecurringConflict(myUpcomingSessions, selectedCourse?.startDate, selectedCourse?.endDate, schedules),
-    [myUpcomingSessions, selectedCourse?.startDate, selectedCourse?.endDate, schedules]
+    () => isStudent
+      ? findRecurringConflict(myUpcomingSessions, selectedCourse?.startDate, selectedCourse?.endDate, schedules, selectedCourse?.id)
+      : null,
+    [isStudent, myUpcomingSessions, selectedCourse?.startDate, selectedCourse?.endDate, schedules, selectedCourse?.id]
   );
 
   // Defense in depth — the course card already disables selecting an ended
   // course, but a stale `selectedCourse` (e.g. held in state across a course
   // list refresh) shouldn't be submittable either.
-  const canSubmit = Boolean(selectedCourse) && !isPastDate(selectedCourse?.endDate) && !scheduleConflict;
+  // التسجيل مباشر بالدفع ما دام هناك مقعد شاغر — الباك اند يرفض أيضاً عند الامتلاء
+  const isFull = Boolean(selectedCourse) && (selectedCourse.enrolledCount ?? 0) >= selectedCourse.maxSeats;
+  const canSubmit = Boolean(selectedCourse) && !isPastDate(selectedCourse?.endDate) && !scheduleConflict && !isFull;
   const isPending = createEnrollment.isPending;
   const isSuccess = createEnrollment.isSuccess;
 
@@ -143,7 +151,13 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
         </div>
       ) : (
         <Button className="w-full justify-center" disabled={!canSubmit || isPending} onClick={handleSubmit}>
-          {isPending ? t('booking.submitting') : !isAuthenticated ? t('booking.loginToBook') : t('teacher.course.enrollNow')}
+          {isPending
+            ? t('booking.submitting')
+            : isFull
+              ? t('teacher.course.seatsFull')
+              : !isAuthenticated
+                ? t('booking.loginToBook')
+                : t('teacher.course.enrollNow')}
         </Button>
       )}
     </div>

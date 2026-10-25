@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { TeacherPackageStatsGrid } from '@/components/dashboard/TeacherPackageStatsGrid';
 import { TeacherPackagesFilterBar } from '@/components/dashboard/TeacherPackagesFilterBar';
@@ -8,13 +8,14 @@ import { TeacherCoursesTable } from '@/components/dashboard/TeacherCoursesTable'
 import { AddPackageModal } from '@/components/dashboard/AddPackageModal';
 import { AddCourseModal } from '@/components/dashboard/AddCourseModal';
 import { Pagination } from '@/components/dashboard/Pagination';
-import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
+import { ApiErrorList, EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useTeacherPackagesList,
   useSubmitTeacherPackage,
   useTeacherCoursesList,
   useSubmitTeacherCourse,
+  useDisableTeacherCourse,
 } from '@/hooks/useDashboard';
 import { useT } from '@/hooks/useT';
 
@@ -128,7 +129,14 @@ function CourseListView({ user }) {
   const t = useT();
   const { data: courses, isLoading, isError, refetch } = useTeacherCoursesList();
   const submitCourse = useSubmitTeacherCourse();
+  const disableCourse = useDisableTeacherCourse();
   const [isModalOpen, setModalOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleDisable = (course) => {
+    if (!window.confirm(t('dashboard.teacherPackages.disableCourseConfirm'))) return;
+    disableCourse.mutate(course.id);
+  };
 
   if (!user) return <Navigate to="/login" replace />;
 
@@ -164,7 +172,17 @@ function CourseListView({ user }) {
         ) : !courses || courses.length === 0 ? (
           <EmptyState title={t('dashboard.teacherPackages.empty')} />
         ) : (
-          <TeacherCoursesTable courses={courses} isSubmitting={submitCourse.isPending} onSubmit={(c) => submitCourse.mutate(c.id)} />
+          <>
+            {disableCourse.isError && <ApiErrorList error={disableCourse.error} />}
+            <TeacherCoursesTable
+              courses={courses}
+              isSubmitting={submitCourse.isPending}
+              onSubmit={(c) => submitCourse.mutate(c.id)}
+              isDisabling={disableCourse.isPending}
+              onDisable={handleDisable}
+              onView={(c) => navigate(`/dashboard/teacher/courses/${c.id}`)}
+            />
+          </>
         )}
       </div>
     </DashboardLayout>

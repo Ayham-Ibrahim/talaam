@@ -40,13 +40,22 @@ export function PackageDetailsPage() {
 
   return (
     <DashboardLayout>
-      {/* Breadcrumb */}
-      <div className="mb-4 flex items-center justify-end gap-2 text-sm">
-        <span className="font-bold text-ink">{t('dashboard.myPackages.detailsTitle')}</span>
-        <span className="h-1.5 w-1.5 rounded-full bg-line" />
+      {/* زر الرجوع + مسار التنقل في سطر واحد على بداية الصفحة (يميناً): باقاتي • التفاصيل */}
+      <div className="mb-4 flex items-center gap-3 text-sm">
+        <Link
+          to="/dashboard/student/packages"
+          aria-label="رجوع"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-white hover:bg-primary-hover"
+        >
+          <ArrowRight size={16} />
+        </Link>
         <Link to="/dashboard/student/packages" className="font-bold text-primary hover:underline">
           {t('dashboard.nav.packages')}
         </Link>
+        <span className="h-1.5 w-1.5 rounded-full bg-line" />
+        <span className="font-bold text-ink">
+          {t(kind === 'enrollment' ? 'dashboard.myPackages.courseDetailsTitle' : 'dashboard.myPackages.detailsTitle')}
+        </span>
       </div>
 
       {isError ? (
@@ -60,16 +69,6 @@ export function PackageDetailsPage() {
         <ErrorState onRetry={refetch} />
       ) : (
         <div className="flex flex-col gap-4">
-          <div className="flex justify-end">
-            <Link
-              to="/dashboard/student/packages"
-              aria-label="رجوع"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white hover:bg-primary-hover"
-            >
-              <ArrowRight size={18} />
-            </Link>
-          </div>
-
           {isPendingRequest && (
             <div className="flex items-center gap-2 rounded-2xl bg-[#FFF6E5] p-4 text-sm font-medium text-[#B8860B]">
               <Clock3 size={18} />
@@ -88,7 +87,8 @@ export function PackageDetailsPage() {
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-primary-light p-4">
               <span className="flex items-center gap-2 text-sm font-medium text-primary">
                 <CreditCard size={18} />
-                {t('dashboard.myPackages.approvedAwaitingPayment')}
+                {/* الدورة بلا موافقة معلم — التسجيل يُؤكَّد بالدفع مباشرة */}
+                {t(kind === 'enrollment' ? 'dashboard.myPackages.courseAwaitingPayment' : 'dashboard.myPackages.approvedAwaitingPayment')}
               </span>
               <button
                 type="button"

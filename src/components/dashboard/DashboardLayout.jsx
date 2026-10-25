@@ -54,6 +54,8 @@ const TEACHER_NAV_ITEMS = [
     key: "bookingRequests",
     icon: CalendarClock,
     path: "/dashboard/teacher/booking-requests",
+    // المركز التدريبي لا يملك باقات، والتسجيل في دوراته مباشر بالدفع بلا طلب حجز
+    hideForTrainingCenter: true,
   },
   { key: "sessions", icon: FileText, path: "/dashboard/teacher/sessions" },
   { key: "students", icon: UserRound, path: "/dashboard/teacher/students" },
@@ -86,7 +88,7 @@ function DashboardLayoutInner({ children }) {
 
   const NAV_ITEMS =
     user?.role === "teacher"
-      ? TEACHER_NAV_ITEMS
+      ? TEACHER_NAV_ITEMS.filter((item) => !item.hideForTrainingCenter || user?.teacherType !== "training_center")
       : user?.role === "academic_support"
         ? SUPPORTER_NAV_ITEMS
         // تاب الدعم الأكاديمي حصراً للطالب الجامعي — لا يظهر لطالب مدرسي/دورات تدريبية

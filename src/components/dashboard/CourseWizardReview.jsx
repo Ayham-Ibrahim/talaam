@@ -57,15 +57,18 @@ function SummaryField({ label, value }) {
 export function CourseWizardReview({ data, isPending, error, onSubmit, onBack }) {
   const t = useT();
   const { data: courseFields = [] } = useTaxonomyList('course_fields');
+  const { data: subjects = [] } = useTaxonomyList('subjects');
 
   const courseFieldLabel = courseFields.find((f) => f.id === Number(data.course_field_id))?.name_ar ?? '—';
+  const subjectLabel = subjects.find((s) => s.id === Number(data.subject_id))?.name_ar ?? '—';
 
   return (
     <div className="mt-8 flex flex-col gap-6">
       {error && <ApiErrorList error={error} labelFor={courseErrorLabel} />}
 
-      <div className="grid grid-cols-2 gap-4 rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card lg:grid-cols-5">
         <SummaryField label={t('dashboard.addCourse.courseFieldLabel')} value={courseFieldLabel} />
+        <SummaryField label={t('dashboard.addCourse.subjectLabel')} value={subjectLabel} />
         <SummaryField label={t('dashboard.addCourse.levelLabel')} value={COURSE_LEVEL_LABELS[data.level]} />
         <SummaryField label={t('dashboard.addCourse.deliveryModeLabel')} value={COURSE_DELIVERY_MODE_LABELS[data.delivery_mode]} />
         <SummaryField

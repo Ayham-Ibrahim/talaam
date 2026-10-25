@@ -8,6 +8,7 @@ import { useJoinSession } from '@/hooks/useSessionJoin';
 import { handleSessionJoin } from '@/lib/joinSession';
 import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { formatDateTime } from '@/lib/formatters';
+import { ATTENDANCE_STYLES, NO_ATTENDANCE_STATUSES, attendanceState } from '@/lib/sessionAttendance';
 import { canJoinSession } from '@/services';
 import { useT } from '@/hooks/useT';
 
@@ -25,12 +26,23 @@ export function TeacherSessionDetailsPage() {
   const canJoin = session && canJoinSession(session, session.join_url_teacher);
   const showReason = session && ['cancelled', 'no_show_teacher', 'no_show_student'].includes(session.status) && session.cancellation_reason;
 
+  // الحضور من سجل الانضمام (زر "انضمام") — لا من attendance الذي لا يتغيّر إلا يدوياً.
+  // جلسة سبقت بدء تسجيل الانضمام، أو ملغاة/مجمّدة: لا يُعرض حضور إطلاقاً (غياب السجل ليس غياباً)
+  const showAttendance = Boolean(session?.join_tracked) && !NO_ATTENDANCE_STATUSES.includes(session?.status);
+  const logFor = (studentId) =>
+    (session?.join_logs ?? []).find((log) => log.role === 'student' && String(log.student_id) === String(studentId));
+  const joinedCount = (session?.attendees ?? []).filter((a) => logFor(a.student_id)).length;
+  const joinTime = (iso) =>
+    new Intl.DateTimeFormat('ar', { hour: 'numeric', minute: '2-digit', ...(user?.timezone ? { timeZone: user.timezone } : {}) }).format(new Date(iso));
+
   const ITEMS = session
     ? [
         { key: 'date', icon: CalendarClock, label: t('dashboard.teacherSessions.date'), value: formatDateTime(session.scheduled_at) },
         { key: 'duration', icon: Clock, label: t('dashboard.teacherSessions.duration'), value: `${session.duration_min} ${t('dashboard.addPackage.review.durationUnit')}` },
         { key: 'subject', icon: BookOpen, label: t('dashboard.teacherSessions.package'), value: title },
-        { key: 'attendees', icon: Users, label: t('dashboard.teacherSessions.attendeesCount'), value: session.attendees?.length ?? 0 },
+        showAttendance
+          ? { key: 'attendees', icon: Users, label: t('dashboard.teacherSessions.joinedOfRegistered'), value: `${joinedCount} / ${session.attendees?.length ?? 0}` }
+          : { key: 'attendees', icon: Users, label: t('dashboard.teacherSessions.registeredCount'), value: session.attendees?.length ?? 0 },
       ]
     : [];
 
@@ -85,12 +97,27 @@ export function TeacherSessionDetailsPage() {
             <div className="rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card">
               <h3 className="mb-3 text-right text-sm font-bold text-ink">{t('dashboard.teacherSessions.attendeesTitle')}</h3>
               <ul className="flex flex-col divide-y divide-line">
-                {session.attendees.map((attendee) => (
-                  <li key={attendee.id} className="flex items-center justify-between py-2 text-sm">
-                    <span className="text-ink-soft">{attendee.attendance}</span>
-                    <span className="font-semibold text-ink">{attendee.student?.user?.name}</span>
-                  </li>
-                ))}
+                {session.attendees.map((attendee) => {
+                  const log = logFor(attendee.student_id);
+                  const state = showAttendance ? attendanceState(session.scheduled_at, session.duration_min, log) : null;
+                  const style = state ? ATTENDANCE_STYLES[state] : null;
+                  return (
+                    <li key={attendee.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                      <span className="font-semibold text-ink">{attendee.student?.user?.name}</span>
+                      {state ? (
+                        <span
+                          className="rounded-pill px-3 py-1 text-xs font-medium"
+                          style={{ backgroundColor: style.bg, color: style.color }}
+                        >
+                          {t(`dashboard.teacherSessions.attendance.${state}`)}
+                          {log && ` ${joinTime(log.first_joined_at)}`}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-ink-soft">—</span>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           )}

@@ -10,7 +10,9 @@ export function ListingApprovalPanel({ listing, actions, isActing }) {
 
   const marginNumber = Number(margin);
   const isValidMargin = margin.trim() !== '' && Number.isFinite(marginNumber) && marginNumber >= 0;
-  const preview = isValidMargin ? calculateStudentPrice(listing.teacherPrice, marginNumber) : null;
+  const isHourly = listing.pricingMode === 'hourly';
+  const providerTotal = listing.providerTotal ?? listing.teacherPrice;
+  const preview = isValidMargin ? calculateStudentPrice(providerTotal, marginNumber) : null;
 
   const handleApprove = () => {
     setTouched(true);
@@ -22,10 +24,27 @@ export function ListingApprovalPanel({ listing, actions, isActing }) {
     <div className="rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card sm:p-6">
       <h3 className="text-right text-base font-bold text-ink">{t('dashboard.adminListingDetail.pricingTitle')}</h3>
 
-      <div className="mt-4 flex items-center justify-between border-b border-line/60 pb-3">
-        <span className="text-sm font-semibold text-ink">{formatPrice(listing.teacherPrice)}</span>
-        <span className="text-sm text-ink-soft">{t('dashboard.adminListingDetail.teacherPrice')}</span>
-      </div>
+      {isHourly ? (
+        <div className="mt-4 flex flex-col gap-2 border-b border-line/60 pb-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-ink">{formatPrice(listing.teacherPrice)}</span>
+            <span className="text-sm text-ink-soft">{t('dashboard.adminListingDetail.hourlyPrice')}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-ink">{listing.totalHours}</span>
+            <span className="text-sm text-ink-soft">{t('dashboard.adminListingDetail.totalHours')}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-bold text-ink">{formatPrice(providerTotal)}</span>
+            <span className="text-sm text-ink-soft">{t('dashboard.adminListingDetail.providerTotal')}</span>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-4 flex items-center justify-between border-b border-line/60 pb-3">
+          <span className="text-sm font-semibold text-ink">{formatPrice(listing.teacherPrice)}</span>
+          <span className="text-sm text-ink-soft">{t('dashboard.adminListingDetail.teacherPrice')}</span>
+        </div>
+      )}
 
       {listing.status === 'pending_approval' && (
         <>
@@ -93,8 +112,7 @@ export function ListingApprovalPanel({ listing, actions, isActing }) {
           </button>
         )}
 
-        {/* إعادة التفعيل: الباقات العادية فقط — لا endpoint مماثل للدورات بالباك اند بعد */}
-        {listing.kind === 'package' && listing.status === 'disabled' && (
+        {listing.status === 'disabled' && (
           <button
             type="button"
             disabled={isActing}
@@ -108,7 +126,7 @@ export function ListingApprovalPanel({ listing, actions, isActing }) {
         {listing.status !== 'pending_approval' &&
           listing.status !== 'active' &&
           listing.status !== 'full' &&
-          !(listing.kind === 'package' && listing.status === 'disabled') && (
+          listing.status !== 'disabled' && (
             <p className="w-full text-center text-sm text-ink-soft">{t('dashboard.adminListingDetail.noActionsAvailable')}</p>
           )}
       </div>

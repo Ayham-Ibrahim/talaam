@@ -11,12 +11,16 @@ function FilterSelect({ label, value, onChange, options }) {
       value={value}
       onChange={onChange}
       placeholder={t('dashboard.selectPlaceholder')}
-      options={options.map((opt) => ({ value: opt, label: opt }))}
+      options={options.map((opt) => (typeof opt === 'object' ? opt : { value: opt, label: opt }))}
     />
   );
 }
 
-export function CalendarFilterBar({ filters, onChange, onApply, onReset }) {
+/**
+ * `fields` اختياري: [{ key, label, options }] يستبدل الفلاتر الافتراضية (المادة/الحالة/اللغة)
+ * — يستخدمه تقويم المركز التدريبي فقط.
+ */
+export function CalendarFilterBar({ filters, onChange, onApply, onReset, fields }) {
   const t = useT();
 
   return (
@@ -27,6 +31,18 @@ export function CalendarFilterBar({ filters, onChange, onApply, onReset }) {
       </h3>
 
       <div className="flex flex-wrap items-end justify-center gap-4">
+        {fields ? (
+          fields.map((field) => (
+            <FilterSelect
+              key={field.key}
+              label={field.label}
+              value={filters[field.key]}
+              onChange={(v) => onChange(field.key, v)}
+              options={field.options}
+            />
+          ))
+        ) : (
+          <>
         <FilterSelect
           label={t('dashboard.subjectLabel')}
           value={filters.subject}
@@ -45,6 +61,8 @@ export function CalendarFilterBar({ filters, onChange, onApply, onReset }) {
           onChange={(v) => onChange('language', v)}
           options={['عربي', 'انكليزي']}
         />
+          </>
+        )}
 
         <div className="flex shrink-0 items-center gap-4 pb-3">
           <button

@@ -5,65 +5,76 @@ import { useT } from '@/hooks/useT';
 
 const EMPTY_DRAFT = { title: '', company: '', period: '', location: '', description: '' };
 
+// المركز التدريبي: نفس البيانات بعناوين تناسبه (برامج ومشاريع لا خبرات وظيفية)
+const CENTER_OVERRIDES = new Set([
+  'listLabel', 'empty', 'titleLabel', 'titlePlaceholder', 'companyLabel', 'companyPlaceholder',
+  'descriptionPlaceholder', 'add', 'maxReached',
+]);
+
+function useExperienceLabels(isTrainingCenter) {
+  const t = useT();
+  return (key) => t(isTrainingCenter && CENTER_OVERRIDES.has(key) ? `centerExperiences.${key}` : `teacherExperiences.${key}`);
+}
+
 /** Shared title/company/location+period/description inputs — used identically for the "add new" form and an in-place edit form */
 function ExperienceFields({ draft, onChange, t }) {
   const set = (field) => (e) => onChange((prev) => ({ ...prev, [field]: e.target.value }));
   return (
     <>
       <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-semibold text-ink">{t('teacherExperiences.titleLabel')}</span>
+        <span className="text-xs font-semibold text-ink">{t('titleLabel')}</span>
         <input
           type="text"
           maxLength={200}
           value={draft.title}
           onChange={set('title')}
-          placeholder={t('teacherExperiences.titlePlaceholder')}
+          placeholder={t('titlePlaceholder')}
           className="w-full rounded-btn border border-line bg-white p-2.5 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
       </label>
       <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-semibold text-ink">{t('teacherExperiences.companyLabel')}</span>
+        <span className="text-xs font-semibold text-ink">{t('companyLabel')}</span>
         <input
           type="text"
           maxLength={200}
           value={draft.company}
           onChange={set('company')}
-          placeholder={t('teacherExperiences.companyPlaceholder')}
+          placeholder={t('companyPlaceholder')}
           className="w-full rounded-btn border border-line bg-white p-2.5 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
       </label>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-semibold text-ink">{t('teacherExperiences.locationLabel')}</span>
+          <span className="text-xs font-semibold text-ink">{t('locationLabel')}</span>
           <input
             type="text"
             maxLength={150}
             value={draft.location}
             onChange={set('location')}
-            placeholder={t('teacherExperiences.locationPlaceholder')}
+            placeholder={t('locationPlaceholder')}
             className="w-full rounded-btn border border-line bg-white p-2.5 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-semibold text-ink">{t('teacherExperiences.periodLabel')}</span>
+          <span className="text-xs font-semibold text-ink">{t('periodLabel')}</span>
           <input
             type="text"
             maxLength={100}
             value={draft.period}
             onChange={set('period')}
-            placeholder={t('teacherExperiences.periodPlaceholder')}
+            placeholder={t('periodPlaceholder')}
             className="w-full rounded-btn border border-line bg-white p-2.5 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
         </label>
       </div>
       <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-semibold text-ink">{t('teacherExperiences.descriptionLabel')}</span>
+        <span className="text-xs font-semibold text-ink">{t('descriptionLabel')}</span>
         <textarea
           rows={3}
           maxLength={2000}
           value={draft.description}
           onChange={set('description')}
-          placeholder={t('teacherExperiences.descriptionPlaceholder')}
+          placeholder={t('descriptionPlaceholder')}
           className="w-full resize-none rounded-btn border border-line bg-white p-2.5 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
       </label>
@@ -90,8 +101,9 @@ export function TeacherExperienceEditor({
   onRemove,
   removingId = null,
   maxExperiences = 10,
+  isTrainingCenter = false,
 }) {
-  const t = useT();
+  const t = useExperienceLabels(isTrainingCenter);
   const [draft, setDraft] = useState(EMPTY_DRAFT);
   const [editingId, setEditingId] = useState(null);
   const [editDraft, setEditDraft] = useState(EMPTY_DRAFT);
@@ -142,7 +154,7 @@ export function TeacherExperienceEditor({
     <div className="flex flex-col gap-4">
       <div>
         <span className="text-sm font-semibold text-ink">
-          {t('teacherExperiences.listLabel')} ({experiences.length}/{maxExperiences})
+          {t('listLabel')} ({experiences.length}/{maxExperiences})
         </span>
         <ul className="mt-2 flex flex-col gap-2">
           {experiences.map((exp) =>
@@ -158,7 +170,7 @@ export function TeacherExperienceEditor({
                     className="flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
                   >
                     <Check size={16} />
-                    {isUpdating && updatingId === exp.id ? t('teacherExperiences.saving') : t('teacherExperiences.save')}
+                    {isUpdating && updatingId === exp.id ? t('saving') : t('save')}
                   </button>
                   <button
                     type="button"
@@ -167,7 +179,7 @@ export function TeacherExperienceEditor({
                     className="flex items-center justify-center gap-1.5 rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-ink-soft transition-colors hover:bg-canvas disabled:opacity-50"
                   >
                     <X size={16} />
-                    {t('teacherExperiences.cancel')}
+                    {t('cancel')}
                   </button>
                 </div>
               </li>
@@ -178,7 +190,7 @@ export function TeacherExperienceEditor({
                     type="button"
                     onClick={() => onRemove?.(exp.id)}
                     disabled={removingId === exp.id}
-                    aria-label={t('teacherExperiences.remove')}
+                    aria-label={t('remove')}
                     className="mt-0.5 text-accent-pink hover:opacity-70 disabled:opacity-50"
                   >
                     <Trash2 size={16} />
@@ -187,7 +199,7 @@ export function TeacherExperienceEditor({
                     <button
                       type="button"
                       onClick={() => startEdit(exp)}
-                      aria-label={t('teacherExperiences.edit')}
+                      aria-label={t('edit')}
                       className="mt-0.5 text-primary hover:opacity-70"
                     >
                       <Pencil size={16} />
@@ -206,7 +218,7 @@ export function TeacherExperienceEditor({
               </li>
             ),
           )}
-          {experiences.length === 0 && <p className="text-sm text-ink-soft">{t('teacherExperiences.empty')}</p>}
+          {experiences.length === 0 && <p className="text-sm text-ink-soft">{t('empty')}</p>}
         </ul>
       </div>
 
@@ -220,14 +232,14 @@ export function TeacherExperienceEditor({
             className="flex items-center justify-center gap-1.5 self-start rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             <PlusCircle size={16} />
-            {isAdding ? t('teacherExperiences.adding') : t('teacherExperiences.add')}
+            {isAdding ? t('adding') : t('add')}
           </button>
         </div>
       )}
       {!canAddMore && (
         <p className="flex items-center gap-1.5 text-xs text-ink-soft">
           <HelpCircle size={13} />
-          {t('teacherExperiences.maxReached')}
+          {t('maxReached')}
         </p>
       )}
       {addError && <ApiErrorList error={addError} labelFor={() => null} className="text-xs" />}

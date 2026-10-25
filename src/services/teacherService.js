@@ -6,7 +6,7 @@ import { mockTeachers, filterMockTeachers } from '@/mocks/teachers.mock';
 export const TEACHER_TYPE_LABELS = {
   school: 'مدرسي',
   university: 'مدرس جامعي',
-  training_center: 'مدرب',
+  training_center: 'مركز تدريبي',
 };
 
 export const EXPERIENCE_LABELS = {
@@ -79,7 +79,8 @@ function mapPublicProfile(raw) {
     teachingPhilosophyText: raw.teaching_philosophy_text,
     thankYouMessage: raw.thank_you_message,
     city: raw.city,
-    qualifications: raw.qualification ? [QUALIFICATION_LABELS[raw.qualification] ?? raw.qualification] : [],
+    // لا مؤهل علمي للمركز التدريبي — حتى لو بقيت قيمة قديمة محفوظة
+    qualifications: raw.qualification && raw.teacher_type !== 'training_center' ? [QUALIFICATION_LABELS[raw.qualification] ?? raw.qualification] : [],
     experiences: (raw.experiences ?? []).map((e) => ({
       id: e.id,
       title: e.title,
