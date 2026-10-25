@@ -1318,7 +1318,6 @@
       "rejectionReason": "سبب الرفض"
     },
     "teacherSupportPackages": {
-      "create": "إنشاء باقة دعم",
       "empty": "لا توجد باقات دعم بعد",
       "tierBasic": "الباقة الأساسية",
       "tierPremium": "الباقة الشاملة",
@@ -1342,7 +1341,11 @@
     },
     "addSupportPackage": {
       "title": "باقة دعم طلابي جديدة",
-      "hint": "ستُرسَل باقتك للأدمن للمراجعة قبل نشرها — أنت من يحدد اسم الباقة وسعرها",
+      "hint": "تُنشَر الباقة فوراً في بروفايل الداعم المختار — حدّد السعر النهائي للطالب ونسبة ربح الداعم منه",
+      "steps": {
+        "basicInfo": "محتوى الباقة",
+        "pricing": "التسعير"
+      },
       "titleLabel": "اسم الباقة",
       "titlePlaceholder": "مثال: باقة تفوق في مواد الهندسة",
       "titleRequired": "يرجى كتابة اسم للباقة",
@@ -1352,16 +1355,21 @@
       "subjectLabel": "المواد",
       "subjectPlaceholder": "اختر مادة أو أكثر",
       "subjectRequired": "يرجى اختيار مادة واحدة على الأقل",
-      "priceLabel": "السعر",
+      "priceLabel": "السعر (ما يدفعه الطالب)",
       "pricePlaceholder": "أدخل سعر الباقة",
       "priceRequired": "يرجى إدخال سعر صحيح للباقة",
+      "supporterProfitPercentLabel": "نسبة ربح الداعم (%)",
+      "supporterProfitPercentPlaceholder": "مثال: 70",
+      "supporterProfitPercentRequired": "يرجى إدخال نسبة ربح صحيحة بين 1 و100",
+      "supporterEarns": "مستحق الداعم",
       "descriptionLabel": "وصف الباقة",
       "descriptionPlaceholder": "اشرح للطالب ما تقدّمه من دعم في هذه الباقة...",
       "descriptionRequired": "يرجى كتابة وصف للباقة",
-      "submit": "إرسال للمراجعة",
-      "submitting": "جارٍ الإرسال...",
+      "submit": "إنشاء الباقة",
+      "submitting": "جارٍ الإنشاء...",
       "cancel": "إلغاء",
-      "edit": "تعديل"
+      "edit": "تعديل",
+      "newPackage": "باقة جديدة"
     },
     "editSupportPackage": {
       "title": "تعديل باقة الدعم",
@@ -1563,7 +1571,8 @@
       "filterAll": "الكل",
       "filterIndividual": "الباقات الفردية",
       "filterGroup": "الباقات الجماعية",
-      "filterTraining": "الدورات"
+      "filterTraining": "الدورات",
+      "filterAcademicSupport": "الدعم الأكاديمي"
     },
     "sessionsPage": {
       "allStatuses": "جميع الحالات",
@@ -1598,6 +1607,9 @@
       "emptyTitle": "لا توجد اشتراكات حتى الآن",
       "emptyHint": "لم تشترك في أي دورة أو باقة بعد. استكشف المعلمين والباقات المتاحة وابدأ رحلتك التعليمية اليوم.",
       "exploreTeachers": "استكشف المعلمين",
+      "academicSupportEmptyTitle": "لا توجد اشتراكات دعم أكاديمي حتى الآن",
+      "academicSupportEmptyHint": "لم تشترك في أي باقة دعم أكاديمي بعد. استكشف الداعمين الأكاديميين المتاحين واشترك بالباقة المناسبة لك.",
+      "exploreSupporters": "استكشف الداعمين الأكاديميين",
       "detailsTitle": "تفاصيل الباقة",
       "courseDetailsTitle": "تفاصيل الدورة",
       "courseFieldLabel": "مجال الدورة",

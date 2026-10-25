@@ -98,5 +98,6 @@ export const queryKeys = {
   },
   supportPackagePurchases: {
     detail: (id) => ['support-package-purchases', 'detail', id],
+    myList: () => ['support-package-purchases', 'my-list'],
   },
 };

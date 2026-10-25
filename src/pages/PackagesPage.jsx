@@ -4,16 +4,28 @@ import { PackageOpen } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { PackageFilterTabs } from "@/components/dashboard/PackageFilterTabs";
 import { PackageListCard } from "@/components/dashboard/PackageListCard";
+import { SupportPackagePurchaseCard } from "@/components/dashboard/SupportPackagePurchaseCard";
 import { EmptyState, ErrorState, Skeleton } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import { usePackagesList } from "@/hooks/useDashboard";
+import { useMySupportPackagePurchases } from "@/hooks/useAcademicSupporterBrowse";
 import { useT } from "@/hooks/useT";
 
 export function PackagesPage() {
   const t = useT();
   const { user } = useAuth();
+  const isUniversity = user?.student?.education_type === "university";
   const { data: packages, isLoading, isError, refetch } = usePackagesList();
   const [activeTab, setActiveTab] = useState("all");
+
+  const isAcademicSupportTab = activeTab === "academicSupport";
+  const {
+    data: supportPurchasesData,
+    isLoading: isSupportPurchasesLoading,
+    isError: isSupportPurchasesError,
+    refetch: refetchSupportPurchases,
+  } = useMySupportPackagePurchases(isUniversity && isAcademicSupportTab);
+  const supportPurchases = supportPurchasesData?.data ?? [];
 
   const filteredPackages = useMemo(() => {
     if (!packages) return [];
@@ -26,9 +38,38 @@ export function PackagesPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-6">
-        <PackageFilterTabs active={activeTab} onChange={setActiveTab} />
+        <PackageFilterTabs active={activeTab} onChange={setActiveTab} showAcademicSupport={isUniversity} />
 
-        {isError ? (
+        {isAcademicSupportTab ? (
+          isSupportPurchasesError ? (
+            <ErrorState onRetry={refetchSupportPurchases} />
+          ) : isSupportPurchasesLoading ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-[180px] rounded-2xl" />
+              ))}
+            </div>
+          ) : supportPurchases.length === 0 ? (
+            <EmptyState
+              title={t("dashboard.myPackages.academicSupportEmptyTitle")}
+              hint={t("dashboard.myPackages.academicSupportEmptyHint")}
+              action={
+                <Link
+                  to="/dashboard/student/academic-support"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 text-sm font-normal text-white transition-colors hover:bg-primary-hover"
+                >
+                  {t("dashboard.myPackages.exploreSupporters")}
+                </Link>
+              }
+            />
+          ) : (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {supportPurchases.map((purchase) => (
+                <SupportPackagePurchaseCard key={purchase.id} purchase={purchase} />
+              ))}
+            </div>
+          )
+        ) : isError ? (
           <ErrorState onRetry={refetch} />
         ) : isLoading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Pencil, Ticket } from 'lucide-react';
+import { Pencil, Plus, Ticket } from 'lucide-react';
 import { formatPrice } from '@/lib/formatters';
 import { ReasonModal } from './ReasonModal';
 import { SupportPackageCouponsModal } from './SupportPackageCouponsModal';
 import { EditSupportPackageModal } from './EditSupportPackageModal';
+import { AddSupportPackageModal } from './AddSupportPackageModal';
 import {
   useAdminApproveSupportPackage,
   useAdminRejectSupportPackage,
@@ -29,6 +30,7 @@ export function SupportPackagesApprovalPanel({ supporterId, supportPackages = []
   const [rejectingId, setRejectingId] = useState(null);
   const [couponsPackage, setCouponsPackage] = useState(null);
   const [editingPackage, setEditingPackage] = useState(null);
+  const [isAdding, setAdding] = useState(false);
   const approve = useAdminApproveSupportPackage(supporterId);
   const reject = useAdminRejectSupportPackage(supporterId);
   const disable = useAdminDisableSupportPackage(supporterId);
@@ -36,12 +38,21 @@ export function SupportPackagesApprovalPanel({ supporterId, supportPackages = []
 
   const isActing = approve.isPending || reject.isPending || disable.isPending || enable.isPending;
 
-  if (!supportPackages.length) {
-    return <p className="text-sm text-ink-soft">{t('dashboard.adminAcademicSupporterDetail.noPackages')}</p>;
-  }
-
   return (
     <div className="flex flex-col gap-3">
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={() => setAdding(true)}
+          className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-medium text-white hover:bg-primary-hover"
+        >
+          <Plus size={14} />
+          {t('dashboard.addSupportPackage.newPackage')}
+        </button>
+      </div>
+
+      {!supportPackages.length && <p className="text-sm text-ink-soft">{t('dashboard.adminAcademicSupporterDetail.noPackages')}</p>}
+
       {supportPackages.map((sp) => {
         const style = STATUS_STYLES[sp.status] ?? STATUS_STYLES.disabled;
         return (
@@ -155,6 +166,8 @@ export function SupportPackagesApprovalPanel({ supporterId, supportPackages = []
           onClose={() => setEditingPackage(null)}
         />
       )}
+
+      {isAdding && <AddSupportPackageModal supporterId={supporterId} onClose={() => setAdding(false)} />}
     </div>
   );
 }

@@ -28,6 +28,15 @@ export function usePurchaseSupportPackage() {
   });
 }
 
+/** اشتراكات الطالب الجامعي بباقات الدعم الأكاديمي — تُعرَض بتاب "الباقات" إلى جانب باقات المعلمين العادية (تب منفصل) */
+export function useMySupportPackagePurchases(enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.supportPackagePurchases.myList(),
+    queryFn: () => academicSupporterService.getMyPurchases(),
+    enabled,
+  });
+}
+
 export function useSupportPackagePurchaseDetail(id) {
   return useQuery({
     queryKey: queryKeys.supportPackagePurchases.detail(id),
