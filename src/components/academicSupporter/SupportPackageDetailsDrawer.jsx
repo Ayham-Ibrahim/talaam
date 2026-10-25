@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GraduationCap } from 'lucide-react';
+import { Crown, GraduationCap } from 'lucide-react';
 import { Drawer } from '@/components/ui/Drawer';
 import { ApiErrorList } from '@/components/ui';
 import { useCurrencyStore } from '@/store';
@@ -41,7 +41,8 @@ export function SupportPackageDetailsDrawer({ supportPackage, onClose }) {
     <Drawer open={Boolean(supportPackage)} onClose={onClose} title={supportPackage?.title}>
       {supportPackage && (
         <div className="flex flex-col gap-5 text-start">
-          <span className="w-fit rounded-pill bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
+          <span className="inline-flex w-fit items-center gap-1.5 rounded-pill bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
+            {supportPackage.tier === 'premium' ? <Crown size={13} className="text-amber-500" /> : <GraduationCap size={13} />}
             {t(`academicSupporter.supportPackages.tier${supportPackage.tier === 'premium' ? 'Premium' : 'Basic'}`)}
           </span>
 
