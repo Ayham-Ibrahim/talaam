@@ -6,6 +6,7 @@ import { AcademicSupporterProfileHeader } from '@/components/academicSupporter/A
 import { AssignmentsGallerySection } from '@/components/academicSupporter/AssignmentsGallerySection';
 import { SupportPackagesSection } from '@/components/academicSupporter/SupportPackagesSection';
 import { SupportPackageDetailsDrawer } from '@/components/academicSupporter/SupportPackageDetailsDrawer';
+import { SupportPackageFullDetailsDrawer } from '@/components/academicSupporter/SupportPackageFullDetailsDrawer';
 import { ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useAcademicSupporterProfile } from '@/hooks/useAcademicSupporterBrowse';
@@ -17,6 +18,7 @@ export function AcademicSupporterProfilePage() {
   const { id } = useParams();
   const { data: supporter, isLoading, isError, refetch } = useAcademicSupporterProfile(id);
   const [selectedPackage, setSelectedPackage] = useState(null);
+  const [detailsPackage, setDetailsPackage] = useState(null);
 
   if (!user) return <Navigate to="/login" replace />;
   if (user.student?.education_type !== 'university') return <Navigate to="/dashboard/student" replace />;
@@ -59,9 +61,22 @@ export function AcademicSupporterProfilePage() {
 
             <AssignmentsGallerySection items={supporter.galleryItems ?? []} />
 
-            <SupportPackagesSection supportPackages={supporter.supportPackages ?? []} onSelect={setSelectedPackage} />
+            <SupportPackagesSection
+              supportPackages={supporter.supportPackages ?? []}
+              onBookNow={setSelectedPackage}
+              onViewDetails={setDetailsPackage}
+            />
 
             <SupportPackageDetailsDrawer supportPackage={selectedPackage} onClose={() => setSelectedPackage(null)} />
+
+            <SupportPackageFullDetailsDrawer
+              supportPackage={detailsPackage}
+              onClose={() => setDetailsPackage(null)}
+              onBookNow={(pkg) => {
+                setDetailsPackage(null);
+                setSelectedPackage(pkg);
+              }}
+            />
           </>
         )}
       </div>
