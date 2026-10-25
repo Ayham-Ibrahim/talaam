@@ -52,6 +52,7 @@ import { StudentSettingsPage } from '@/pages/StudentSettingsPage';
 import { TeacherPackagesPage } from '@/pages/TeacherPackagesPage';
 import { TeacherSessionsPage } from '@/pages/TeacherSessionsPage';
 import { TeacherSessionDetailsPage } from '@/pages/TeacherSessionDetailsPage';
+import { TeacherCourseDetailsPage } from '@/pages/TeacherCourseDetailsPage';
 import { TeacherStudentsPage } from '@/pages/TeacherStudentsPage';
 import { TeacherSettingsPage } from '@/pages/TeacherSettingsPage';
 import { TeacherBookingRequestsPage } from '@/pages/TeacherBookingRequestsPage';
@@ -427,6 +428,14 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="teacher">
               <TeacherPackagesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/teacher/courses/:id"
+          element={
+            <ProtectedRoute role="teacher">
+              <TeacherCourseDetailsPage />
             </ProtectedRoute>
           }
         />

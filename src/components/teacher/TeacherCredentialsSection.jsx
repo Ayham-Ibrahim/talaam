@@ -1,5 +1,5 @@
 import { BookOpen, Building2, GraduationCap } from "lucide-react";
-import { useT } from "@/hooks/useT";
+import { useProfileT } from "@/hooks/useProfileT";
 import { Chip, NEUTRAL_DOT, ScopeCard } from "./TeacherTeachingScopeSection";
 
 /** Rotating icon + soft pastel per timeline entry — purely decorative, same rhythm as the reference's alternating cards */
@@ -54,9 +54,11 @@ function SubjectsCard({ title, subjects }) {
  * items that now sit side by side in two columns.
  */
 export function TeacherCredentialsSection({ teacher }) {
-  const t = useT();
+  const t = useProfileT(teacher);
 
   const experiences = teacher.experiences ?? [];
+  // المركز التدريبي: نفس البيانات تُعرض كبرامج ومشاريع سابقة لا خبرات وظيفية
+  const isTrainingCenter = teacher.type === "training_center";
   const subjects = teacher.subjects ?? [];
   const curricula = teacher.curricula ?? [];
 
@@ -69,7 +71,7 @@ export function TeacherCredentialsSection({ teacher }) {
     <div className="mt-6 flex flex-col gap-6">
       {hasExperiences && (
         <section className="rounded-[28px] bg-white p-5 text-start shadow-[0_10px_30px_rgba(17,24,39,0.06)] sm:p-6">
-          <h3 className="text-lg font-bold text-[#1E1E1E]">{t("teacher.previousExperience")}</h3>
+          <h3 className="text-lg font-bold text-[#1E1E1E]">{t(isTrainingCenter ? "centerExperiences.listLabel" : "teacher.previousExperience")}</h3>
 
           {/* items-start (not the grid default of stretch) lets a card with a longer description grow on its own instead of forcing its row-mate to match height */}
           <div className="mt-5 grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
@@ -103,7 +105,9 @@ export function TeacherCredentialsSection({ teacher }) {
                   </div>
                   {exp.period && (
                     <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${statusBadge}`}>
-                      {isCurrent ? t("teacher.experienceCurrent") : t("teacher.experienceCompleted")}
+                      {isTrainingCenter
+                        ? t(isCurrent ? "centerExperiences.current" : "centerExperiences.completed")
+                        : isCurrent ? t("teacher.experienceCurrent") : t("teacher.experienceCompleted")}
                     </span>
                   )}
                 </div>

@@ -18,7 +18,10 @@ export function PackageSpecsRow({ pkg }) {
 
   return (
     <div className="flex flex-wrap gap-3">
-      <SpecBox label={t('dashboard.subjectLabel')} value={pkg.subject} />
+      <SpecBox
+        label={t(pkg.type === 'course' ? 'dashboard.myPackages.courseFieldLabel' : 'dashboard.subjectLabel')}
+        value={pkg.subject}
+      />
       <SpecBox label={t('dashboard.myPackages.curriculumLabel')} value={pkg.curriculum} />
       <SpecBox label={t('dashboard.myPackages.sessionTypeLabel')} value={typeStyle.label} valueColor={typeStyle.color} />
       <SpecBox label={t('dashboard.myPackages.sessionDuration')} value={`${pkg.durationMinutes} ${t('dashboard.minute')}`} />

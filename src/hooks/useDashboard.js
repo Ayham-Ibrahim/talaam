@@ -84,6 +84,30 @@ export function useSubmitTeacherCourse() {
   });
 }
 
+export function useTeacherCourse(id) {
+  return useQuery({
+    queryKey: queryKeys.dashboard.teacherCourseDetail(id),
+    queryFn: () => dashboardService.getTeacherCourse(id),
+    enabled: !!id,
+  });
+}
+
+export function useTeacherCourseEnrollments(courseId) {
+  return useQuery({
+    queryKey: queryKeys.dashboard.teacherCourseEnrollments(courseId),
+    queryFn: () => dashboardService.getTeacherCourseEnrollments(courseId),
+    enabled: !!courseId,
+  });
+}
+
+export function useDisableTeacherCourse() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => dashboardService.disableTeacherCourse(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.teacherCoursesList() }),
+  });
+}
+
 export function useTeacherSessions() {
   return useQuery({
     queryKey: queryKeys.dashboard.teacherSessions(),

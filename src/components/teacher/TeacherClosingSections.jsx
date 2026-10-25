@@ -1,5 +1,5 @@
 import { Heart, Lightbulb, Quote } from "lucide-react";
-import { useT } from "@/hooks/useT";
+import { useProfileT } from "@/hooks/useProfileT";
 
 /** Same neon palette as the profile header — reused so the philosophy card reads as one visual family with it */
 const NEON_GRADIENT = "linear-gradient(135deg, #060B24 0%, #0E1A4D 45%, #17237E 78%, #1B2E9C 100%)";
@@ -20,8 +20,8 @@ function GlowIcon({ icon: Icon, size = 72 }) {
 }
 
 /** "فلسفتي في التدريس" — same dark neon atmosphere as the hero header. Renders only with real content. */
-function PhilosophyCard({ quote, text }) {
-  const t = useT();
+function PhilosophyCard({ teacher, quote, text }) {
+  const t = useProfileT(teacher);
   if (!quote && !text) return null;
 
   return (
@@ -57,8 +57,8 @@ function PhilosophyCard({ quote, text }) {
 }
 
 /** "شكراً لزيارتك" — plain, background-free block; falls back to a two-sentence default when the teacher hasn't written one */
-function ThankYouCard({ message }) {
-  const t = useT();
+function ThankYouCard({ teacher, message }) {
+  const t = useProfileT(teacher);
   const custom = message?.trim();
 
   return (
@@ -98,8 +98,8 @@ function ThankYouCard({ message }) {
 export function TeacherClosingSections({ teacher }) {
   return (
     <div className="mt-6 flex flex-col gap-8">
-      <PhilosophyCard quote={teacher.teachingPhilosophyQuote} text={teacher.teachingPhilosophyText} />
-      <ThankYouCard message={teacher.thankYouMessage} />
+      <PhilosophyCard teacher={teacher} quote={teacher.teachingPhilosophyQuote} text={teacher.teachingPhilosophyText} />
+      <ThankYouCard teacher={teacher} message={teacher.thankYouMessage} />
     </div>
   );
 }

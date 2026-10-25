@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { ATTENDANCE_STYLES, NO_ATTENDANCE_STATUSES, attendanceState as attendanceStateFor } from '@/lib/sessionAttendance';
 import {
   ArrowDownWideNarrow,
   ArrowUpNarrowWide,
@@ -54,25 +55,8 @@ function localDayRange(ymd) {
   };
 }
 
-const ATTENDANCE_STYLES = {
-  joined: { bg: '#F0FDF3', color: '#34C759' },
-  notJoined: { bg: '#FDEFF2', color: '#B00852' },
-  notJoinedYet: { bg: '#F2F2F7', color: '#6B7280' },
-};
-
-/** جلسات لم يكن الانضمام إليها متاحاً أصلاً — لا معنى لعرض حضور فيها */
-const NO_ATTENDANCE_STATUSES = ['cancelled', 'suspended'];
-
-/**
- * الحضور مُشتق من سجل الانضمام (زر "انضم" عبر المنصة) فقط: دخل → حضر، لم يدخل وقد
- * انتهت الجلسة → لم يحضر، لم يدخل والجلسة جارية → لم يدخل بعد، قبل موعدها → لا شيء.
- */
-function attendanceState(session, log) {
-  if (log) return 'joined';
-  const startsAt = session.scheduledAt ? new Date(session.scheduledAt).getTime() : NaN;
-  if (!Number.isFinite(startsAt) || Date.now() < startsAt) return null;
-  return Date.now() > startsAt + (session.durationMin ?? 0) * 60_000 ? 'notJoined' : 'notJoinedYet';
-}
+/** الحضور مُشتق من سجل الانضمام — راجع attendanceState في lib/sessionAttendance */
+const attendanceState = (session, log) => attendanceStateFor(session.scheduledAt, session.durationMin, log);
 
 /** مجموعة أزرار متلاصقة يُختار منها واحد فقط */
 function Segmented({ options, value, onChange, labelFor }) {

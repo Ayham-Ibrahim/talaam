@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Clock3, Play, PlayCircle, Quote, X } from "lucide-react";
 import { YoutubeModal } from "@/components/common/YoutubeModal";
-import { useT } from "@/hooks/useT";
+import { useProfileT } from "@/hooks/useProfileT";
 
 /** Lightweight overlay for an uploaded (non-YouTube) intro video */
 function VideoModal({ src, onClose }) {
@@ -33,7 +33,7 @@ function VideoModal({ src, onClose }) {
 }
 
 export function TeacherAboutSection({ teacher }) {
-  const t = useT();
+  const t = useProfileT(teacher);
   const [showVideo, setShowVideo] = useState(false);
 
   const bio = teacher.bio?.trim();

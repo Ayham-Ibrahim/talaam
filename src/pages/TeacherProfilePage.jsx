@@ -25,6 +25,7 @@ import { useTeacher } from '@/hooks/useTeachers';
 import { usePackages, useCourses, useRatingSummary, useReviews } from '@/hooks/useMeta';
 import { useMyReviews, useCreateTeacherReview } from '@/hooks/useMyReviews';
 import { useT } from '@/hooks/useT';
+import { useProfileT } from '@/hooks/useProfileT';
 
 
 /** عنوان ووصف Meta من بيانات المعلم الحقيقية فقط — مادة/مدينة/منهج/لغات/خبرة، لا نص عام مكرر لكل معلم */
@@ -33,14 +34,16 @@ function buildTeacherSeo(teacher) {
   const curricula = (teacher.curricula ?? []).slice(0, 2).join('، ');
   const languages = (teacher.languages ?? []).map((l) => l.label).join('، ');
   const cityPart = teacher.city ? ` في ${teacher.city}` : '';
+  // المركز التدريبي لا يوصف بـ"مدرس"
+  const role = teacher.type === 'training_center' ? 'مركز تدريبي' : 'مدرس';
 
   const title = subjects
-    ? `${teacher.name} | مدرس ${subjects}${cityPart} - TAALAM`
+    ? `${teacher.name} | ${role} ${subjects}${cityPart} - TAALAM`
     : `${teacher.name} | TAALAM`;
 
   const descParts = [
-    subjects && `مدرس ${subjects}${cityPart}`,
-    curricula && `يُدرّس مناهج ${curricula}`,
+    subjects && `${role} ${subjects}${cityPart}`,
+    curricula && `${teacher.type === 'training_center' ? 'يقدّم' : 'يُدرّس'} مناهج ${curricula}`,
     languages && `بلغات ${languages}`,
     teacher.reviewsCount > 0 && `تقييم ${teacher.rating} من ${teacher.reviewsCount} تقييم`,
     teacher.experienceLabel, // يتضمّن كلمة "خبرة" نفسها بالفعل (راجع EXPERIENCE_LABELS)
@@ -71,6 +74,7 @@ export function TeacherProfilePage() {
 
   const { data: teacher, isLoading: teacherLoading, isError: teacherError, refetch: refetchTeacher } = useTeacher(id);
   const isCenter = teacher?.type === 'training_center';
+  const pt = useProfileT(teacher);
   const {
     data: packages,
     isLoading: packagesLoading,
@@ -148,7 +152,7 @@ export function TeacherProfilePage() {
 
       {/* Breadcrumb */}
       <div className="container-app flex items-center gap-3 pt-6 text-sm">
-        <span className="font-medium text-primary">{t('teacher.profileLabel')}</span>
+        <span className="font-medium text-primary">{pt('teacher.profileLabel')}</span>
         <span className="h-1.5 w-1.5 rounded-full bg-line" />
         <Link to="/search" className="font-bold text-[#2D2D2D] hover:text-primary">
           {t('nav.search')}
@@ -196,8 +200,8 @@ export function TeacherProfilePage() {
                 <Star size={18} />
               </span>
               <div>
-                <div className="text-sm font-bold text-ink">{t('teacher.rateCtaTitle')}</div>
-                <div className="text-xs text-ink-soft">{t('teacher.rateCtaSubtitle')}</div>
+                <div className="text-sm font-bold text-ink">{pt('teacher.rateCtaTitle')}</div>
+                <div className="text-xs text-ink-soft">{pt('teacher.rateCtaSubtitle')}</div>
               </div>
             </div>
             <button
@@ -236,7 +240,7 @@ export function TeacherProfilePage() {
 
       {isRatingOpen && (
         <ReviewFormModal
-          title={t('teacher.rateModalTitle')}
+          title={pt('teacher.rateModalTitle')}
           initialRating={myFreeReview?.rating ?? 0}
           initialComment={myFreeReview?.comment ?? ''}
           isPending={createTeacherReview.isPending}

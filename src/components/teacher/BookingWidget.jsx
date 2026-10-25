@@ -41,7 +41,7 @@ export function BookingWidget({ selectedPackage, bare = false }) {
   const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const currency = useCurrencyStore((s) => s.currency);
   const today = useMemo(() => startOfDay(new Date()), []);
 
@@ -87,7 +87,10 @@ export function BookingWidget({ selectedPackage, bare = false }) {
   // الطالب نفسه قد يكون لديه جلسة أخرى (من دورة، أو باقة أخرى فردية/جماعية) في
   // نفس الوقت — يشمل getCalendarSessions كل الأنواع معاً، على عكس busySlots
   // أعلاه (خاص بمعلم هذه الباقة فقط). نفس تحفظ "استشاري فقط" ينطبق هنا أيضاً.
-  const { data: myUpcomingSessions } = useCalendarSessions({ enabled: isAuthenticated });
+  // للطالب فقط: GET /class-sessions يُرجع للأدمن كل جلسات النظام (وللمعلم جلساته
+  // هو) — ليست جدولاً خاصاً به ليتعارض معه.
+  const { data: studentSessions } = useCalendarSessions({ enabled: isAuthenticated && user?.role === 'student' });
+  const myUpcomingSessions = user?.role === 'student' ? studentSessions : undefined;
 
   const selectedTimeConflict = useMemo(() => {
     if (!selectedDate || !selectedTime || !busySlots?.length) return null;

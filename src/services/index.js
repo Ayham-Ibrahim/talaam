@@ -644,7 +644,8 @@ function isLiveSubscriptionRecord(kind, record) {
  * لها لجلسات الدورات (course) هنا — خارج نطاق هذا الفحص.
  */
 function isIndividualPackageSession(session) {
-  return session.booking?.package?.session_format !== 'group';
+  // جلسة الدورة بلا booking — بدون فحص course_id كانت تُعامَل كجلسة فردية
+  return !session.course_id && session.booking?.package?.session_format !== 'group';
 }
 
 /**
@@ -734,7 +735,10 @@ function sessionTeacherAvatar(session) {
 }
 
 function sessionSubject(session) {
-  return session.booking?.package?.subject?.name_ar ?? session.course?.subject?.name_ar ?? null;
+  return session.booking?.package?.subject?.name_ar
+    ?? session.course?.subject?.name_ar
+    ?? session.course?.course_field?.name_ar
+    ?? null;
 }
 
 function sessionPackageTitle(session) {
@@ -834,7 +838,8 @@ function mapSessionListRow(session) {
     joinUrl: session.join_url_student ?? null,
     canJoin,
     canReschedule: !bookingInactive && isUpcoming && isBeforeSessionStart(session) && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
-    canCancel: !bookingInactive && isUpcoming,
+    // جلسات الدورة مشتركة بين كل المسجّلين — لا إلغاء فردي لها
+    canCancel: !session.course_id && !bookingInactive && isUpcoming,
     recordingUrl: session.recording_url ?? null,
     hasPendingRescheduleRequest: hasPendingReschedule,
     pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),
@@ -889,6 +894,7 @@ function mapCalendarSessionRow(session) {
     // already localized for display) — needed to compute real overlap
     // ranges for cross-package/course conflict checks (scheduleConflict.js).
     scheduledAt: session.scheduled_at,
+    courseId: session.course_id ?? null,
     type: sessionCategory(session),
     packageTitle: sessionPackageTitle(session),
     status,
@@ -978,7 +984,8 @@ function mapEnrollmentToPackageCard(enrollment, courseSessions = []) {
     type: 'course',
     teacherName: enrollment.teacher?.user?.name ?? null,
     teacherAvatar: enrollment.teacher?.user?.avatar_path ?? null,
-    subject: course?.subject?.name_ar ?? null,
+    // الدورة تُصنَّف بمجالها لا بمادة (المادة اختيارية ونادراً ما تُحدَّد)
+    subject: course?.course_field?.name_ar ?? course?.subject?.name_ar ?? null,
     packageTitle: course?.title ?? null,
     description: course?.description ?? null,
     curriculum: joinCurricula(course?.curricula),
@@ -987,8 +994,13 @@ function mapEnrollmentToPackageCard(enrollment, courseSessions = []) {
     usedSessions: used,
     remainingSessions: Math.max(total - used, 0),
     usagePercent: total > 0 ? Math.round((used / total) * 100) : 0,
+    // بنفس منطق حالة الجلسة في القائمة: جلسة مرّ وقتها تُعدّ منتهية حتى لو لم تُغلق رسمياً
+    endedSessions: courseSessions.filter((s) => mapSessionStatus(s.status, s.scheduled_at, s.duration_min) === 'attended').length,
+    upcomingSessions: courseSessions.filter((s) => mapSessionStatus(s.status, s.scheduled_at, s.duration_min) === 'upcoming').length,
     purchaseDate: formatDate(enrollment.created_at),
-    expiryDate: null,
+    courseStartDate: course?.start_date ? formatDate(course.start_date) : null,
+    courseEndDate: course?.end_date ? formatDate(course.end_date) : null,
+    expiryDate: course?.end_date ? formatDate(course.end_date) : null,
     price: Number(enrollment.amount_paid ?? 0),
   };
 }
@@ -1039,14 +1051,18 @@ function mapCurrentPackage(record, sessions) {
   if (isCourse) {
     const course = record.course;
     const total = course?.total_sessions ?? 0;
-    const used = sessions.filter((s) => s.course_id === record.course_id && s.status === 'completed').length;
+    // الدورة لا رصيد جلسات يُستهلك — نسبة "تقدّم الدورة" = جلساتها المنتهية من إجماليها
+    const ended = sessions.filter(
+      (s) => s.course_id === record.course_id && mapSessionStatus(s.status, s.scheduled_at, s.duration_min) === 'attended'
+    ).length;
     return {
+      isCourse: true,
       teacherName: record.teacher?.user?.name ?? null,
       teacherAvatar: record.teacher?.user?.avatar_path ?? null,
-      subject: course?.subject?.name_ar ?? null,
+      subject: course?.course_field?.name_ar ?? course?.subject?.name_ar ?? null,
       packageTitle: course?.title ?? null,
       durationMinutes: course?.session_duration_min ?? null,
-      usagePercent: total > 0 ? Math.round((used / total) * 100) : 0,
+      usagePercent: total > 0 ? Math.min(100, Math.round((ended / total) * 100)) : 0,
     };
   }
   const pkg = record.package;
@@ -1246,6 +1262,28 @@ export const dashboardService = {
       return submitMockTeacherCourse(id);
     }
     const { data } = await client.post(endpoints.courses.submit(id));
+    return data;
+  },
+
+  /** GET /courses/{id} للمركز — TeacherCourseResource مع الجدول والمناهج ومجال الدورة */
+  async getTeacherCourse(id) {
+    const { data } = await client.get(endpoints.courses.detail(id));
+    return data.data;
+  },
+
+  /** مشتركو دورة بعينها لدى المركز — GET /enrollments?course_id */
+  async getTeacherCourseEnrollments(courseId) {
+    const { data } = await client.get(endpoints.enrollments.list, { params: { course_id: courseId, per_page: 100 } });
+    return data.data;
+  },
+
+  /** المركز يوقف دورته — الباك اند يرفض (422) إن وُجد طالب مشترك أو بانتظار الدفع */
+  async disableTeacherCourse(id) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return null;
+    }
+    const { data } = await client.post(endpoints.courses.disable(id));
     return data;
   },
 

@@ -68,7 +68,7 @@ export function PackageWidget({ pkg }) {
           </svg>
           <div className="absolute flex flex-col items-center gap-1">
             <span className="text-[32px] font-bold leading-tight text-[#0A0A0A]">{percent}%</span>
-            <span className="text-sm font-medium text-[#737373]">{t('dashboard.usageRate')}</span>
+            <span className="text-sm font-medium text-[#737373]">{t(pkg?.isCourse ? 'dashboard.courseProgress' : 'dashboard.usageRate')}</span>
           </div>
         </div>
         <div className="flex items-center gap-2.5">

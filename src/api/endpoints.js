@@ -111,6 +111,8 @@ export const endpoints = {
     create: '/courses',
     update: (id) => `/courses/${id}`,
     submit: (id) => `/courses/${id}/submit`,
+    disable: (id) => `/courses/${id}/disable`,
+    detail: (id) => `/courses/${id}`,
   },
   classSessions: {
     list: '/class-sessions',
@@ -205,6 +207,7 @@ export const endpoints = {
     approveCourse: (id) => `/courses/${id}/approve`,
     rejectCourse: (id) => `/courses/${id}/reject`,
     disableCourse: (id) => `/courses/${id}/disable`,
+    enableCourse: (id) => `/courses/${id}/enable`,
     complaints: '/complaints',
     complaintDetail: (id) => `/complaints/${id}`,
     resolveComplaint: (id) => `/complaints/${id}/resolve`,

@@ -10,7 +10,41 @@ function StatRow({ label, value }) {
   );
 }
 
+/** الدورة لا تُستهلك كرصيد جلسات كالباقة — تُعرض جلساتها المنتهية والقادمة وتواريخها بدل "نسبة الاستخدام" */
+function CourseSidebarSummary({ pkg }) {
+  const t = useT();
+  const sessions = (n) => `${String(n).padStart(2, '0')} ${t('dashboard.myPackages.sessionUnit')}`;
+  const rows = [
+    [t('dashboard.myPackages.total'), `${pkg.totalSessions} ${t('dashboard.myPackages.sessionsUnit')}`],
+    [t('dashboard.myPackages.courseEndedSessions'), sessions(pkg.endedSessions)],
+    [t('dashboard.myPackages.courseUpcomingSessions'), sessions(pkg.upcomingSessions)],
+    [t('dashboard.myPackages.enrollmentDate'), pkg.purchaseDate],
+    pkg.courseStartDate && [t('dashboard.myPackages.courseStartDate'), pkg.courseStartDate],
+    pkg.courseEndDate && [t('dashboard.myPackages.courseEndDate'), pkg.courseEndDate],
+    [t('dashboard.myPackages.price'), `${pkg.price} د.إ`],
+  ].filter(Boolean);
+
+  // قائمة "عنوان ← قيمة" بمحاذاة ثابتة: العنوان يميناً والقيمة يساراً
+  return (
+    <div className="rounded-2xl bg-white p-6 shadow-card">
+      <dl className="divide-y divide-line">
+        {rows.map(([label, value]) => (
+          <div key={label} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+            <dt className="text-sm text-ink-soft">{label}</dt>
+            <dd className="text-sm font-bold text-ink">{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
 export function PackageSidebarSummary({ pkg }) {
+  if (pkg.type === 'course') return <CourseSidebarSummary pkg={pkg} />;
+  return <PackageUsageSummary pkg={pkg} />;
+}
+
+function PackageUsageSummary({ pkg }) {
   const t = useT();
   const radius = 60;
   const circumference = 2 * Math.PI * radius;

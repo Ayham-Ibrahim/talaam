@@ -630,6 +630,7 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
           <p className="mt-1 text-right text-xs text-ink-soft">{t('teacherExperiences.sectionHint')}</p>
           <div className="mt-3">
             <TeacherExperienceEditor
+              isTrainingCenter={isTrainingCenter}
               experiences={teacher.experiences ?? []}
               onAdd={(payload, opts) => addExperience.mutate(payload, opts)}
               isAdding={addExperience.isPending}

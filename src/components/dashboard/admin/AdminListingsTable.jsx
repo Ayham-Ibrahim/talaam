@@ -35,7 +35,12 @@ export function AdminListingsTable({ listings }) {
                 <div className="text-xs">{PROVIDER_TYPE_LABELS[listing.providerType]}</div>
               </td>
               <td className="px-4 py-4 text-right">
-                <div className="font-semibold text-ink">{formatPrice(listing.teacherPrice)}</div>
+                <div className="font-semibold text-ink">{formatPrice(listing.providerTotal ?? listing.teacherPrice)}</div>
+                {listing.pricingMode === 'hourly' && (
+                  <div className="text-xs text-ink-soft">
+                    {formatPrice(listing.teacherPrice)} {t('dashboard.adminListingDetail.perHour')}
+                  </div>
+                )}
                 {listing.studentPrice != null && (
                   <div className="text-xs text-price">{formatPrice(listing.studentPrice)}</div>
                 )}

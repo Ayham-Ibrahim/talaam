@@ -12,7 +12,7 @@ import {
   Video,
 } from "lucide-react";
 import { FavoriteButton } from "@/components/ui";
-import { useT } from "@/hooks/useT";
+import { useProfileT } from "@/hooks/useProfileT";
 
 const fmt = (n) => (n == null ? null : Number(n).toLocaleString("en-US"));
 
@@ -45,7 +45,7 @@ const FLOATING_ICONS = [
 ];
 
 export function TeacherProfileHeader({ teacher, isFavorite, onToggleFavorite }) {
-  const t = useT();
+  const t = useProfileT(teacher);
 
   const teachingType = teacher.teachingMethods?.slice(0, 2).join(" / ") || teacher.typeLabel;
 

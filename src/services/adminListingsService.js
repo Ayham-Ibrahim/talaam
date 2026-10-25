@@ -14,6 +14,14 @@ import { filterMockListings, findMockListing, updateMockListing } from '@/mocks/
  * since package ids and course ids are independent sequences.
  */
 function mapListing(raw, kind) {
+  const teacherPrice = kind === 'course' ? raw.provider_price : raw.teacher_price;
+  // دورة بتسعير بالساعة: provider_price سعر الساعة فقط — الإجمالي = سعر الساعة × total_hours
+  // (نفس units في CourseApprovalService). الباقات وتسعير الدورة الإجمالي: الإجمالي = السعر نفسه.
+  const pricingMode = kind === 'course' ? (raw.pricing_mode ?? 'total') : null;
+  const totalHours = pricingMode === 'hourly' ? Number(raw.total_hours) || 0 : null;
+  const providerTotal =
+    pricingMode === 'hourly' ? Math.round(Number(teacherPrice) * totalHours * 100) / 100 : teacherPrice;
+
   return {
     id: raw.id,
     kind,
@@ -29,7 +37,10 @@ function mapListing(raw, kind) {
     schedules: kind === 'course' ? [] : (raw.schedules ?? []),
     capacity: kind === 'course' ? raw.max_seats : raw.capacity,
     submittedAt: raw.submitted_at,
-    teacherPrice: kind === 'course' ? raw.provider_price : raw.teacher_price,
+    teacherPrice,
+    pricingMode,
+    totalHours,
+    providerTotal,
     marginPercent: raw.platform_margin_percent,
     studentPrice: raw.student_price,
     rejectionReason: raw.rejection_reason,
@@ -92,7 +103,7 @@ export const adminListingsService = {
     if (config.useMocks) {
       await mockDelay(400);
       const listing = findMockListing(id);
-      const { studentPrice, platformRevenue } = calculateStudentPrice(listing.teacherPrice, marginPercent);
+      const { studentPrice, platformRevenue } = calculateStudentPrice(listing.providerTotal ?? listing.teacherPrice, marginPercent);
       return updateMockListing(id, {
         status: 'active',
         marginPercent,
@@ -127,13 +138,13 @@ export const adminListingsService = {
     return mapListing(data.data, kind);
   },
 
-  // إعادة التفعيل: الباقات العادية فقط (لا الدورات — الباك اند لا يملك endpoint مماثل لها).
   async enableListing(id, kind) {
     if (config.useMocks) {
       await mockDelay(400);
       return updateMockListing(id, { status: 'active', disabledReason: null });
     }
-    const { data } = await client.post(endpoints.admin.enablePackage(id));
+    const url = kind === 'course' ? endpoints.admin.enableCourse(id) : endpoints.admin.enablePackage(id);
+    const { data } = await client.post(url);
     return mapListing(data.data, kind);
   },
 };

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Award } from "lucide-react";
 import { useT } from "@/hooks/useT";
+import { useProfileT } from "@/hooks/useProfileT";
 
 /** Same neon navy used across the header/philosophy sections — kept for one consistent "identity" family */
 const NEON_GRADIENT = "linear-gradient(135deg, #0E1A4D 0%, #17237E 60%, #1B2E9C 100%)";
@@ -190,7 +191,7 @@ export function ScopeCard({ title, children }) {
  * the subjects card in TeacherCredentialsSection). Cards with no data are dropped.
  */
 export function TeacherTeachingScopeSection({ teacher }) {
-  const t = useT();
+  const t = useProfileT(teacher);
 
   const row1 = [
     teacher.qualifications?.length > 0 && (
