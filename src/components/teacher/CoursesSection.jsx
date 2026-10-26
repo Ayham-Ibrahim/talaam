@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Award, Laptop, Package, FlaskConical, Video, CalendarRange, Check, GraduationCap } from 'lucide-react';
+import { Award, Laptop, Package, FlaskConical, Video, CalendarRange, Check, CheckCircle2, Clock, GraduationCap, PlayCircle } from 'lucide-react';
 import { ErrorState, FavoriteButton, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites, useToggleFavoriteCourse } from '@/hooks/useFavorites';
@@ -29,24 +29,44 @@ function CourseFactBadge({ active, icon: Icon, label }) {
   );
 }
 
+/** رابط صفحة الاشتراك في لوحة الطالب — نفس معرّف `enrollment-{id}` الذي تبنيه قائمة باقاتي */
+export function enrollmentDetailsPath(enrollmentId) {
+  return `/dashboard/student/packages/enrollment-${enrollmentId}`;
+}
+
 function CourseCard({ course, index, selected, onSelect, isFavorite, onToggleFavorite }) {
   const t = useT();
+  const navigate = useNavigate();
   const currency = useCurrencyStore((s) => s.currency);
   const gradient = CARD_GRADIENTS[index % CARD_GRADIENTS.length];
   const isEnded = isPastDate(course.endDate);
+  const enrollment = course.myEnrollment;
+  const isPendingPayment = enrollment?.status === 'pending_payment';
+  const elapsedCount = course.elapsedSessions?.length ?? 0;
 
   return (
     <div
       style={{ background: gradient }}
       className={`relative flex min-h-[290px] flex-col rounded-2xl p-5 text-start shadow-[0_6px_20px_rgba(0,0,0,0.15)] transition ${
-        isEnded ? 'opacity-60 grayscale-[30%]' : ''
+        isEnded && !enrollment ? 'opacity-60 grayscale-[30%]' : ''
       } ${selected ? 'ring-4 ring-white/80' : ''}`}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs font-semibold text-white ring-1 ring-white/30 backdrop-blur-sm">
-          <GraduationCap size={13} />
-          {t('teacher.course.sectionTitle')}
-        </span>
+        {enrollment ? (
+          <span
+            className={`inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold ${
+              isPendingPayment ? 'text-primary' : 'text-success'
+            }`}
+          >
+            {isPendingPayment ? <Clock size={13} /> : <CheckCircle2 size={13} />}
+            {t(isPendingPayment ? 'teacher.course.pendingPaymentBadge' : 'teacher.course.enrolledBadge')}
+          </span>
+        ) : (
+          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs font-semibold text-white ring-1 ring-white/30 backdrop-blur-sm">
+            <GraduationCap size={13} />
+            {t('teacher.course.sectionTitle')}
+          </span>
+        )}
         <FavoriteButton active={isFavorite} onClick={() => onToggleFavorite(course.id)} className="shrink-0" />
       </div>
 
@@ -56,6 +76,12 @@ function CourseCard({ course, index, selected, onSelect, isFavorite, onToggleFav
           <CalendarRange size={13} />
           {formatDate(course.startDate)} — {formatDate(course.endDate)}
         </p>
+        {!enrollment && !isEnded && elapsedCount > 0 && (
+          <p className="mt-1.5 inline-flex w-fit items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-[#B45309]">
+            <PlayCircle size={13} />
+            {t('teacher.course.startedProgress').replace('{n}', elapsedCount).replace('{total}', course.totalSessions)}
+          </p>
+        )}
       </div>
 
       <div className="mt-3 flex flex-wrap gap-1.5">
@@ -71,15 +97,27 @@ function CourseCard({ course, index, selected, onSelect, isFavorite, onToggleFav
           {isEnded ? t('teacher.course.ended') : formatPrice(course.price, currency)}
         </span>
 
-        <button
-          type="button"
-          disabled={isEnded}
-          onClick={() => onSelect(course)}
-          className="flex items-center justify-center gap-1.5 rounded-2xl bg-white py-3 text-sm font-semibold text-[#1E1E1E] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          {selected && <Check size={15} strokeWidth={3} />}
-          {isEnded ? t('teacher.course.ended') : t('teacher.course.chooseCourse')}
-        </button>
+        {enrollment ? (
+          <button
+            type="button"
+            onClick={() => navigate(enrollmentDetailsPath(enrollment.id))}
+            className={`flex items-center justify-center gap-1.5 rounded-2xl bg-white py-3 text-sm font-bold transition-opacity hover:opacity-90 ${
+              isPendingPayment ? 'text-primary' : 'text-success'
+            }`}
+          >
+            {t(isPendingPayment ? 'teacher.course.completePayment' : 'teacher.course.viewMyEnrollment')}
+          </button>
+        ) : (
+          <button
+            type="button"
+            disabled={isEnded}
+            onClick={() => onSelect(course)}
+            className="flex items-center justify-center gap-1.5 rounded-2xl bg-white py-3 text-sm font-semibold text-[#1E1E1E] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {selected && <Check size={15} strokeWidth={3} />}
+            {isEnded ? t('teacher.course.ended') : t('teacher.course.chooseCourse')}
+          </button>
+        )}
       </div>
     </div>
   );

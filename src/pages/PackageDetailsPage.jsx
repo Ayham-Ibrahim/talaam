@@ -1,4 +1,5 @@
-import { ArrowRight, Clock3, CreditCard } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowRight, Clock3, CreditCard, TicketPercent } from 'lucide-react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { PackageDetailSummary } from '@/components/dashboard/PackageDetailSummary';
@@ -6,11 +7,13 @@ import { PackageSpecsRow } from '@/components/dashboard/PackageSpecsRow';
 import { PackageSidebarSummary } from '@/components/dashboard/PackageSidebarSummary';
 import { PackageRebookBanner } from '@/components/dashboard/PackageRebookBanner';
 import { PackageSessionsList } from '@/components/dashboard/PackageSessionsList';
-import { ErrorState, Skeleton } from '@/components/ui';
+import { ApiErrorList, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { usePackageDetails } from '@/hooks/useDashboard';
-import { useCheckoutBooking } from '@/hooks/useBooking';
-import { useCheckoutEnrollment } from '@/hooks/useEnrollment';
+import { useApplyBookingCoupon, useCheckoutBooking } from '@/hooks/useBooking';
+import { useApplyEnrollmentCoupon, useCheckoutEnrollment } from '@/hooks/useEnrollment';
+import { formatPrice } from '@/lib/currency';
+import { useCurrencyStore } from '@/store';
 import { useT } from '@/hooks/useT';
 
 export function PackageDetailsPage() {
@@ -20,6 +23,10 @@ export function PackageDetailsPage() {
   const { data, isLoading, isError, refetch } = usePackageDetails(id);
   const checkoutBooking = useCheckoutBooking();
   const checkoutEnrollment = useCheckoutEnrollment();
+  const applyBookingCoupon = useApplyBookingCoupon();
+  const applyEnrollmentCoupon = useApplyEnrollmentCoupon();
+  const currency = useCurrencyStore((s) => s.currency);
+  const [couponCode, setCouponCode] = useState('');
 
   if (!user) return <Navigate to="/login" replace />;
 
@@ -29,6 +36,22 @@ export function PackageDetailsPage() {
   const isExpiredPendingRequest = kind === 'booking' && data?.package?.status === 'expired' && !!data?.package?.cancellationReason;
   const isPendingPayment = ['booking', 'enrollment'].includes(kind) && data?.package?.status === 'pending_payment';
   const checkout = kind === 'enrollment' ? checkoutEnrollment : checkoutBooking;
+  const applyCoupon = kind === 'enrollment' ? applyEnrollmentCoupon : applyBookingCoupon;
+
+  // الكوبون يغيّر المبلغ على الطلب نفسه وسطر الدفع (والباك يغلق جلسة Stripe القديمة) — ثم إعادة جلب التفاصيل لعرض السعر الجديد
+  const handleApplyCoupon = () => {
+    const code = couponCode.trim();
+    if (!code) return;
+    applyCoupon.mutate(
+      { id: rawId, couponCode: code },
+      {
+        onSuccess: () => {
+          setCouponCode('');
+          refetch();
+        },
+      },
+    );
+  };
 
   const handlePayNow = () => {
     checkout.mutate(rawId, {
@@ -100,6 +123,47 @@ export function PackageDetailsPage() {
               </button>
             </div>
           )}
+
+          {isPendingPayment &&
+            (data.package.hasCoupon ? (
+              <div className="flex items-center gap-2 rounded-2xl bg-success-light p-4 text-sm font-medium text-success">
+                <TicketPercent size={18} />
+                {t('dashboard.myPackages.couponApplied')}
+                {data.package.discountAmount > 0 && (
+                  <span className="font-bold">
+                    {' — '}
+                    {t('dashboard.myPackages.couponDiscount')} {formatPrice(data.package.discountAmount, currency)}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-4">
+                <span className="flex items-center gap-2 text-sm font-bold text-ink">
+                  <TicketPercent size={18} className="text-primary" />
+                  {t('booking.couponLabel')}
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
+                    placeholder={t('booking.couponPlaceholder')}
+                    dir="ltr"
+                    className="min-w-[200px] flex-1 rounded-xl border border-line bg-surface p-3 text-sm text-ink placeholder:text-ink-soft/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                  <button
+                    type="button"
+                    disabled={!couponCode.trim() || applyCoupon.isPending}
+                    onClick={handleApplyCoupon}
+                    className="rounded-xl border border-primary px-6 py-2.5 text-sm font-medium text-primary hover:bg-primary/5 disabled:opacity-50"
+                  >
+                    {applyCoupon.isPending ? t('dashboard.myPackages.applyingCoupon') : t('dashboard.myPackages.applyCoupon')}
+                  </button>
+                </div>
+                {applyCoupon.isError && <ApiErrorList error={applyCoupon.error} labelFor={() => null} />}
+              </div>
+            ))}
 
           <div className="flex flex-col gap-4 lg:flex-row">
             <div className="flex flex-1 flex-col gap-4">

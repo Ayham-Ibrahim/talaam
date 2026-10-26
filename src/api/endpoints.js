@@ -67,6 +67,7 @@ export const endpoints = {
     approve: (id) => `/bookings/${id}/approve`,
     reject: (id) => `/bookings/${id}/reject`,
     checkout: (id) => `/bookings/${id}/checkout`,
+    applyCoupon: (id) => `/bookings/${id}/coupon`,
     invoice: (id) => `/bookings/${id}/invoice`,
     delete: (id) => `/bookings/${id}`,
   },
@@ -76,6 +77,7 @@ export const endpoints = {
     create: (courseId) => `/courses/${courseId}/enrollments`,
     createManual: (courseId) => `/courses/${courseId}/enrollments/manual`,
     checkout: (id) => `/enrollments/${id}/checkout`,
+    applyCoupon: (id) => `/enrollments/${id}/coupon`,
     invoice: (id) => `/enrollments/${id}/invoice`,
   },
   packages: {
@@ -144,6 +146,12 @@ export const endpoints = {
     create: (packageId) => `/packages/${packageId}/coupons`,
     update: (id) => `/coupons/${id}`,
     delete: (id) => `/coupons/${id}`,
+  },
+  // كوبونات الأدمن متعددة الباقات — الحذف عبر coupons.delete أعلاه (نفس Coupon model)
+  multiPackageCoupons: {
+    list: '/admin/multi-package-coupons',
+    create: '/admin/multi-package-coupons',
+    update: (id) => `/admin/multi-package-coupons/${id}`,
   },
   supportPackageCoupons: {
     list: (supportPackageId) => `/support-packages/${supportPackageId}/coupons`,

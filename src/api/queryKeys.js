@@ -28,6 +28,8 @@ export const queryKeys = {
   coupons: {
     list: (packageId) => ['coupons', 'list', packageId],
     supportPackageList: (supportPackageId) => ['coupons', 'support-package-list', supportPackageId],
+    multiPackageList: () => ['coupons', 'multi-package-list'],
+    packageOptions: () => ['coupons', 'multi-package-options'],
   },
   bookings: {
     list: (filters) => ['bookings', 'list', filters],

@@ -648,7 +648,18 @@
       "requiresLaptop": "يتطلب جهاز كمبيوتر",
       "materialsIncluded": "المواد متوفرة ضمن السعر",
       "hasPracticalExercises": "تطبيقات عملية",
-      "sessionsRecorded": "الجلسات مسجلة"
+      "sessionsRecorded": "الجلسات مسجلة",
+      "enrolledBadge": "أنت مشترك",
+      "pendingPaymentBadge": "بانتظار الدفع",
+      "viewMyEnrollment": "عرض اشتراكي",
+      "completePayment": "أكمل الدفع",
+      "startedProgress": "بدأت الدورة · أُعطيت {n} من {total} جلسات",
+      "elapsedTitle": "بدأت هذه الدورة",
+      "elapsedBody": "تم إعطاء {n} من أصل {total} جلسات من هذه الدورة، ولن يتم تعويض هذه الجلسات:",
+      "elapsedSessionLabel": "الجلسة {n}",
+      "elapsedRecorded": "يمكنك حضور الجلسات المعطاة مسجلة.",
+      "alreadyEnrolled": "أنت مشترك في هذه الدورة",
+      "alreadyEnrolledPending": "لديك تسجيل في هذه الدورة بانتظار الدفع"
     }
   },
   "booking": {
@@ -1392,6 +1403,33 @@
       "submit": "حفظ التعديلات",
       "submitting": "جارٍ الحفظ..."
     },
+    "multiCoupons": {
+      "open": "كوبونات الخصم الشاملة",
+      "title": "كوبونات الخصم الشاملة",
+      "subtitle": "كوبون واحد يُطبَّق على عدة باقات معلمين ودورات مراكز تدريبية — الخصم يُقتطع من حصة المنصة فقط ولا يتجاوز هامشها على أي عنصر مختار",
+      "packagesLabel": "الباقات والدورات المشمولة",
+      "packagesSearch": "ابحث عن باقة أو دورة أو مقدّم خدمة",
+      "packagesSelected": "عنصر مختار",
+      "packagesEmpty": "لا توجد باقات أو دورات معتمدة",
+      "maxAllowedPercent": "أقصى نسبة مسموحة للعناصر المختارة",
+      "maxAllowedFixed": "أقصى مبلغ مسموح للعناصر المختارة",
+      "colPackages": "الباقات",
+      "allTeachers": "كل مقدّمي الخدمة",
+      "allSubjects": "كل المواد والمجالات",
+      "allFormats": "كل الأنواع",
+      "format": { "individual": "باقة فردية", "group": "باقة جماعية", "course": "دورة تدريبية" },
+      "onlySelected": "المختارة فقط",
+      "selectAllShown": "تحديد كل الظاهر",
+      "clearSelection": "إلغاء التحديد",
+      "colTitle": "العنوان",
+      "colTeacher": "مقدّم الخدمة",
+      "colSubject": "المادة / المجال",
+      "colFormat": "النوع",
+      "colPrice": "السعر",
+      "colMargin": "هامش المنصة",
+      "colPlatformShare": "حصة المنصة",
+      "empty": "لا توجد كوبونات بعد"
+    },
     "coupons": {
       "title": "كوبونات الخصم",
       "create": "إنشاء كوبون",
@@ -1650,6 +1688,10 @@
       "approvedAwaitingPayment": "وافق المعلم على طلبك — أكمل الدفع لتأكيد الحجز",
       "courseAwaitingPayment": "تسجيلك في الدورة بانتظار الدفع — إن أتممت الدفع للتو فسيتأكد التسجيل خلال لحظات",
       "payNow": "أكمل الدفع",
+      "applyCoupon": "تطبيق الكود",
+      "applyingCoupon": "جارِ التطبيق...",
+      "couponApplied": "تم تطبيق كود الخصم على هذا الطلب",
+      "couponDiscount": "قيمة الخصم",
       "processingPayment": "جارٍ التحويل للدفع..."
     },
     "invoices": {

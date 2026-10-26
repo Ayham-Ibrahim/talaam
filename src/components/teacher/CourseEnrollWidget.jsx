@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AlertTriangle, Award, Laptop, Package, FlaskConical, Video, CalendarDays, CheckCircle2, XCircle } from 'lucide-react';
 import { Button, ApiErrorList } from '@/components/ui';
@@ -10,6 +10,7 @@ import { useCurrencyStore } from '@/store';
 import { formatPrice } from '@/lib/currency';
 import { formatDate, isPastDate } from '@/lib/formatters';
 import { findRecurringConflict } from '@/lib/scheduleConflict';
+import { enrollmentDetailsPath } from '@/components/teacher/CoursesSection';
 
 function formatTime(t) {
   return t ? t.slice(0, 5) : t;
@@ -39,13 +40,18 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
   const weekdays = t('booking.weekdays');
 
   const schedules = selectedCourse?.schedules ?? [];
+  const elapsedSessions = selectedCourse?.elapsedSessions ?? [];
+  const enrollment = selectedCourse?.myEnrollment ?? null;
+  const isEnrollmentPending = enrollment?.status === 'pending_payment';
   const createEnrollment = useCreateEnrollment(selectedCourse?.id);
 
   // حالة الـ mutation تبقى عبر تبديل الدورة (نفس الـ widget) — فلا تظهر رسالة
   // خطأ دورة سابقة على الدورة المختارة الجديدة
   const resetEnrollment = createEnrollment.reset;
+  const [couponCode, setCouponCode] = useState('');
   useEffect(() => {
     resetEnrollment();
+    setCouponCode('');
   }, [selectedCourse?.id, resetEnrollment]);
 
   // Student-side only — courses have no busy-slots endpoint (unlike
@@ -79,7 +85,7 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
       return;
     }
     if (!canSubmit) return;
-    createEnrollment.mutate(undefined, {
+    createEnrollment.mutate(couponCode.trim() || undefined, {
       onSuccess: (data) => {
         if (data?.checkout_url) window.location.href = data.checkout_url;
       },
@@ -147,6 +153,49 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
         </div>
       )}
 
+      {selectedCourse && !enrollment && elapsedSessions.length > 0 && (
+        <div className="rounded-2xl border border-[#F5C26B] bg-[#FFF8EB] p-3 text-start text-sm text-ink">
+          <p className="mb-1 flex items-center gap-1.5 font-bold text-[#B45309]">
+            <AlertTriangle size={15} />
+            {t('teacher.course.elapsedTitle')}
+          </p>
+          <p>
+            {t('teacher.course.elapsedBody')
+              .replace('{n}', elapsedSessions.length)
+              .replace('{total}', selectedCourse.totalSessions)}
+          </p>
+          <ul className="my-2 flex flex-col gap-1">
+            {elapsedSessions.map((s) => (
+              <li key={s.sequenceNo} className="flex items-center gap-1.5 text-xs text-ink-soft">
+                <XCircle size={13} className="text-[#B45309]" />
+                {t('teacher.course.elapsedSessionLabel').replace('{n}', s.sequenceNo)} · {formatDate(s.scheduledAt)}
+              </li>
+            ))}
+          </ul>
+          {selectedCourse.sessionsRecorded && (
+            <p className="flex items-center gap-1.5 font-semibold text-success">
+              <Video size={14} />
+              {t('teacher.course.elapsedRecorded')}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* كود خصم اختياري — نفس حقل BookingWidget (كوبونات الأدمن متعددة الباقات تشمل الدورات) */}
+      {selectedCourse && !enrollment && (
+        <label className="flex flex-col gap-1.5 text-start">
+          <span className="text-sm font-bold text-ink">{t('booking.couponLabel')}</span>
+          <input
+            type="text"
+            value={couponCode}
+            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+            placeholder={t('booking.couponPlaceholder')}
+            dir="ltr"
+            className="w-full rounded-xl border border-line bg-surface p-3 text-sm text-ink placeholder:text-ink-soft/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          />
+        </label>
+      )}
+
       {createEnrollment.isError && (
         <ApiErrorList error={createEnrollment.error} labelFor={() => null} />
       )}
@@ -156,7 +205,13 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
         <span className="text-sm font-bold text-ink">{t('booking.total')}</span>
       </div>
 
-      {isSuccess ? (
+      {enrollment ? (
+        <Button className="w-full justify-center" onClick={() => navigate(enrollmentDetailsPath(enrollment.id))}>
+          {t(isEnrollmentPending ? 'teacher.course.alreadyEnrolledPending' : 'teacher.course.alreadyEnrolled')}
+          {' · '}
+          {t(isEnrollmentPending ? 'teacher.course.completePayment' : 'teacher.course.viewMyEnrollment')}
+        </Button>
+      ) : isSuccess ? (
         <div className="flex items-center justify-center gap-2 rounded-btn bg-success-light py-3 text-sm font-bold text-success">
           <CheckCircle2 size={16} /> {t('booking.success')}
         </div>

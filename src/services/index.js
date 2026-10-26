@@ -124,6 +124,10 @@ function mapStudentCourse(raw) {
     prerequisites: raw.prerequisites,
     cancellationPolicy: raw.cancellation_policy,
     schedules: raw.schedules ?? [],
+    // جلسات بدأ موعدها — لا تُعوَّض لمن يسجّل الآن
+    elapsedSessions: (raw.elapsed_sessions ?? []).map((s) => ({ sequenceNo: s.sequence_no, scheduledAt: s.scheduled_at })),
+    // اشتراك الطالب الحالي — null للزائر أو لغير المشترك
+    myEnrollment: raw.my_enrollment ?? null,
   };
 }
 
@@ -298,6 +302,16 @@ export const bookingService = {
     return data.data;
   },
 
+  /** الطالب يطبّق كود خصم على حجزه المعلَّق قبل الدفع — يُعيد الحجز بمبالغه الجديدة */
+  async applyBookingCoupon(bookingId, couponCode) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return null;
+    }
+    const { data } = await client.post(endpoints.bookings.applyCoupon(bookingId), { coupon_code: couponCode });
+    return data.data;
+  },
+
   /** Student fetches the Stripe checkout link once the teacher has approved */
   async checkoutBooking(bookingId) {
     if (config.useMocks) {
@@ -369,13 +383,15 @@ export const bookingService = {
 };
 
 export const enrollmentService = {
-  /** Student self-serve — joins the course's own fixed schedule, no body → { enrollment, checkout_url } */
-  async createEnrollment(courseId) {
+  /** Student self-serve — joins the course's own fixed schedule, optional coupon → { enrollment, checkout_url } */
+  async createEnrollment(courseId, couponCode) {
     if (config.useMocks) {
       await mockDelay(500);
       return { enrollment: { id: Math.floor(Math.random() * 100000), status: 'pending_payment' }, checkout_url: null };
     }
-    const { data } = await client.post(endpoints.enrollments.create(courseId));
+    const { data } = await client.post(endpoints.enrollments.create(courseId), {
+      coupon_code: couponCode || undefined,
+    });
     return data.data;
   },
 
@@ -395,6 +411,15 @@ export const enrollmentService = {
   },
 
   /** إعادة محاولة الدفع لتسجيل ما زال pending_payment (أغلق الطالب نافذة Stripe الأولى بلا إكمال الدفع) */
+  async applyEnrollmentCoupon(enrollmentId, couponCode) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return null;
+    }
+    const { data } = await client.post(endpoints.enrollments.applyCoupon(enrollmentId), { coupon_code: couponCode });
+    return data.data;
+  },
+
   async checkoutEnrollment(enrollmentId) {
     if (config.useMocks) {
       await mockDelay(500);
@@ -965,6 +990,8 @@ function mapBookingToPackageCard(booking) {
     purchaseDate: formatDate(booking.created_at),
     expiryDate: booking.expires_at ? formatDate(booking.expires_at) : null,
     price: Number(booking.amount_paid ?? 0),
+    discountAmount: Number(booking.discount_amount ?? 0),
+    hasCoupon: booking.coupon_id != null,
     cancellationReason: booking.cancellation_reason ?? null,
   };
 }
@@ -1002,6 +1029,8 @@ function mapEnrollmentToPackageCard(enrollment, courseSessions = []) {
     courseEndDate: course?.end_date ? formatDate(course.end_date) : null,
     expiryDate: course?.end_date ? formatDate(course.end_date) : null,
     price: Number(enrollment.amount_paid ?? 0),
+    discountAmount: Number(enrollment.discount_amount ?? 0),
+    hasCoupon: enrollment.coupon_id != null,
   };
 }
 
