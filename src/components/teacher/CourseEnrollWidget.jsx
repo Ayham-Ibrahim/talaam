@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AlertTriangle, Award, Laptop, Package, FlaskConical, Video, CalendarDays, CheckCircle2, XCircle } from 'lucide-react';
 import { Button, ApiErrorList } from '@/components/ui';
@@ -48,8 +48,10 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
   // حالة الـ mutation تبقى عبر تبديل الدورة (نفس الـ widget) — فلا تظهر رسالة
   // خطأ دورة سابقة على الدورة المختارة الجديدة
   const resetEnrollment = createEnrollment.reset;
+  const [couponCode, setCouponCode] = useState('');
   useEffect(() => {
     resetEnrollment();
+    setCouponCode('');
   }, [selectedCourse?.id, resetEnrollment]);
 
   // Student-side only — courses have no busy-slots endpoint (unlike
@@ -83,7 +85,7 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
       return;
     }
     if (!canSubmit) return;
-    createEnrollment.mutate(undefined, {
+    createEnrollment.mutate(couponCode.trim() || undefined, {
       onSuccess: (data) => {
         if (data?.checkout_url) window.location.href = data.checkout_url;
       },
@@ -177,6 +179,21 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
             </p>
           )}
         </div>
+      )}
+
+      {/* كود خصم اختياري — نفس حقل BookingWidget (كوبونات الأدمن متعددة الباقات تشمل الدورات) */}
+      {selectedCourse && !enrollment && (
+        <label className="flex flex-col gap-1.5 text-start">
+          <span className="text-sm font-bold text-ink">{t('booking.couponLabel')}</span>
+          <input
+            type="text"
+            value={couponCode}
+            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+            placeholder={t('booking.couponPlaceholder')}
+            dir="ltr"
+            className="w-full rounded-xl border border-line bg-surface p-3 text-sm text-ink placeholder:text-ink-soft/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          />
+        </label>
       )}
 
       {createEnrollment.isError && (

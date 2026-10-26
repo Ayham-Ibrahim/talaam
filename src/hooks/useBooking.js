@@ -70,6 +70,12 @@ export function useRejectBookingRequest() {
   });
 }
 
+export function useApplyBookingCoupon() {
+  return useMutation({
+    mutationFn: ({ id, couponCode }) => bookingService.applyBookingCoupon(id, couponCode),
+  });
+}
+
 export function useCheckoutBooking() {
   return useMutation({
     mutationFn: (bookingId) => bookingService.checkoutBooking(bookingId),

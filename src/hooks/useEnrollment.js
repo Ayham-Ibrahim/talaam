@@ -3,7 +3,13 @@ import { enrollmentService } from '@/services';
 
 export function useCreateEnrollment(courseId) {
   return useMutation({
-    mutationFn: () => enrollmentService.createEnrollment(courseId),
+    mutationFn: (couponCode) => enrollmentService.createEnrollment(courseId, couponCode),
+  });
+}
+
+export function useApplyEnrollmentCoupon() {
+  return useMutation({
+    mutationFn: ({ id, couponCode }) => enrollmentService.applyEnrollmentCoupon(id, couponCode),
   });
 }
 

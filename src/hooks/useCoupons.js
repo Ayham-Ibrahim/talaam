@@ -39,6 +39,50 @@ export function useDeleteCoupon(packageId) {
   });
 }
 
+// كوبونات الأدمن متعددة الباقات (باقات المعلمين فقط) — الحذف عبر couponService.remove المشترك
+export function useMultiPackageCoupons() {
+  return useQuery({
+    queryKey: queryKeys.coupons.multiPackageList(),
+    queryFn: () => couponService.listMultiPackage(),
+  });
+}
+
+export function useMultiCouponPackageOptions() {
+  return useQuery({
+    queryKey: queryKeys.coupons.packageOptions(),
+    queryFn: () => couponService.listPackageOptions(),
+  });
+}
+
+function useInvalidateMultiPackageCoupons() {
+  const queryClient = useQueryClient();
+  return () => queryClient.invalidateQueries({ queryKey: queryKeys.coupons.multiPackageList() });
+}
+
+export function useCreateMultiPackageCoupon() {
+  const invalidate = useInvalidateMultiPackageCoupons();
+  return useMutation({
+    mutationFn: (payload) => couponService.createMultiPackage(payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useUpdateMultiPackageCoupon() {
+  const invalidate = useInvalidateMultiPackageCoupons();
+  return useMutation({
+    mutationFn: ({ id, ...payload }) => couponService.updateMultiPackage(id, payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteMultiPackageCoupon() {
+  const invalidate = useInvalidateMultiPackageCoupons();
+  return useMutation({
+    mutationFn: (id) => couponService.remove(id),
+    onSuccess: invalidate,
+  });
+}
+
 // كوبونات باقات الدعم الأكاديمي — الأدمن فقط. update/delete أدناه يستخدمان نفس
 // couponService.update/remove (نفس Coupon model، نفس endpoints coupons/{id})، فقط invalidate يستهدف مفتاح الكاش الصحيح.
 export function useSupportPackageCoupons(supportPackageId) {
