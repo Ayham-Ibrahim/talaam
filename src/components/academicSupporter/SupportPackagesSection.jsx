@@ -1,4 +1,4 @@
-import { GraduationCap } from 'lucide-react';
+import { Crown, GraduationCap } from 'lucide-react';
 import { useT } from '@/hooks/useT';
 import { useCurrencyStore } from '@/store';
 import { convertPrice } from '@/lib/currency';
@@ -20,21 +20,19 @@ function priceLabel(amount, code) {
   return `${value} ${CURRENCY_SYMBOL[code] ?? code}`;
 }
 
-function SupportPackageCard({ pkg, index, onSelect }) {
+function SupportPackageCard({ pkg, index, onBookNow, onViewDetails }) {
   const t = useT();
   const currency = useCurrencyStore((s) => s.currency);
   const gradient = CARD_GRADIENTS[index % CARD_GRADIENTS.length];
   const subjects = pkg.subjects ?? [];
 
   return (
-    <button
-      type="button"
-      onClick={() => onSelect?.(pkg)}
+    <div
       style={{ background: gradient }}
       className="relative flex min-h-[290px] flex-col rounded-2xl p-5 text-start shadow-[0_6px_20px_rgba(0,0,0,0.15)] transition hover:-translate-y-0.5 hover:shadow-[0_10px_26px_rgba(0,0,0,0.2)]"
     >
       <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs font-semibold text-white ring-1 ring-white/30 backdrop-blur-sm">
-        <GraduationCap size={13} />
+        {pkg.tier === 'premium' ? <Crown size={13} className="text-amber-300" /> : <GraduationCap size={13} />}
         {t(`academicSupporter.supportPackages.tier${pkg.tier === 'premium' ? 'Premium' : 'Basic'}`)}
       </span>
 
@@ -63,20 +61,34 @@ function SupportPackageCard({ pkg, index, onSelect }) {
         <span dir="ltr" className="text-2xl font-bold leading-none text-white">
           {priceLabel(pkg.price, currency)}
         </span>
-        <span className="rounded-xl bg-white px-4 py-2 text-xs font-semibold text-[#1E1E1E]">
-          {t('academicSupporter.supportPackages.viewDetails')}
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => onViewDetails?.(pkg)}
+            className="rounded-xl bg-white/20 px-3 py-2 text-xs font-semibold text-white ring-1 ring-white/30 backdrop-blur-sm transition hover:bg-white/30"
+          >
+            {t('academicSupporter.supportPackages.fullDetails')}
+          </button>
+          <button
+            type="button"
+            onClick={() => onBookNow?.(pkg)}
+            className="rounded-xl bg-white px-4 py-2 text-xs font-semibold text-[#1E1E1E] transition hover:bg-white/90"
+          >
+            {t('academicSupporter.supportPackages.bookNow')}
+          </button>
+        </div>
       </div>
-    </button>
+    </div>
   );
 }
 
 /**
  * باقات دعم طلابي — نفس تصميم بطاقات باقات المعلم (PackagesSection.jsx) حرفياً:
- * بطاقة تدرّج ملوّن كامل، شارة نوع الباقة، السعر مثبّت بالأسفل. الضغط على
- * البطاقة يفتح درج التفاصيل (SupportPackageDetailsDrawer) بدل دفع مباشر من هنا.
+ * بطاقة تدرّج ملوّن كامل، شارة نوع الباقة، السعر مثبّت بالأسفل. زرّان بأسفل
+ * البطاقة: "احجز الآن" يفتح درج الدفع (SupportPackageDetailsDrawer)، و"كامل
+ * التفاصيل" يفتح درج وصف الباقة وخدماتها (SupportPackageFullDetailsDrawer).
  */
-export function SupportPackagesSection({ supportPackages = [], onSelect }) {
+export function SupportPackagesSection({ supportPackages = [], onBookNow, onViewDetails }) {
   const t = useT();
 
   if (!supportPackages.length) return null;
@@ -88,7 +100,7 @@ export function SupportPackagesSection({ supportPackages = [], onSelect }) {
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {supportPackages.map((sp, i) => (
-          <SupportPackageCard key={sp.id} pkg={sp} index={i} onSelect={onSelect} />
+          <SupportPackageCard key={sp.id} pkg={sp} index={i} onBookNow={onBookNow} onViewDetails={onViewDetails} />
         ))}
       </div>
     </div>

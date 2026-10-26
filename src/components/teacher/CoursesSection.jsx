@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Award, Laptop, Package, FlaskConical, Video, CalendarRange, CheckCircle2, Clock, PlayCircle } from 'lucide-react';
+import { Award, Laptop, Package, FlaskConical, Video, CalendarRange, Check, CheckCircle2, Clock, GraduationCap, PlayCircle } from 'lucide-react';
 import { ErrorState, FavoriteButton, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites, useToggleFavoriteCourse } from '@/hooks/useFavorites';
@@ -8,19 +8,21 @@ import { useCurrencyStore } from '@/store';
 import { formatPrice } from '@/lib/currency';
 import { formatDate, isPastDate } from '@/lib/formatters';
 
-const COURSE_ACCENTS = [
-  { bg: '#FDEAE3', solid: '#F74E28' },
-  { bg: '#EBE5FC', solid: '#7E57C2' },
-  { bg: '#E3F1FD', solid: '#2F80ED' },
-  { bg: '#F7E6EE', solid: '#B00852' },
-  { bg: '#E3F5EC', solid: '#2E9E6B' },
+/** نفس تدرّجات بطاقات باقات المعلم (PackagesSection.jsx) حرفياً — هوية بصرية واحدة لكل بطاقات الباقات بالمنصة */
+const CARD_GRADIENTS = [
+  'linear-gradient(135deg, #5B8DEF 0%, #3D63C9 100%)',
+  'linear-gradient(135deg, #8B7BEA 0%, #4E3FB0 100%)',
+  'linear-gradient(135deg, #EA7BA0 0%, #F0A868 100%)',
+  'linear-gradient(135deg, #34C3B8 0%, #2E8FC0 100%)',
+  'linear-gradient(135deg, #E0607A 0%, #B33B63 100%)',
+  'linear-gradient(135deg, #6DC0E0 0%, #4A6FE0 100%)',
 ];
 
 /** Structured yes/no facts every trainee should see regardless of how detailed the free-text description is */
 function CourseFactBadge({ active, icon: Icon, label }) {
   if (!active) return null;
   return (
-    <span className="flex items-center gap-1 rounded-pill bg-[#F2F2F7] px-2.5 py-1 text-xs font-medium text-ink-soft">
+    <span className="flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium text-white/85">
       <Icon size={13} />
       {label}
     </span>
@@ -36,7 +38,7 @@ function CourseCard({ course, index, selected, onSelect, isFavorite, onToggleFav
   const t = useT();
   const navigate = useNavigate();
   const currency = useCurrencyStore((s) => s.currency);
-  const accent = COURSE_ACCENTS[index % COURSE_ACCENTS.length];
+  const gradient = CARD_GRADIENTS[index % CARD_GRADIENTS.length];
   const isEnded = isPastDate(course.endDate);
   const enrollment = course.myEnrollment;
   const isPendingPayment = enrollment?.status === 'pending_payment';
@@ -44,51 +46,45 @@ function CourseCard({ course, index, selected, onSelect, isFavorite, onToggleFav
 
   return (
     <div
-      style={{ '--accent': accent.solid, '--accent-bg': accent.bg }}
-      className={`group flex flex-col gap-3 rounded-2xl border p-4 transition-all duration-200 ${
-        enrollment
-          ? `hover:-translate-y-0.5 hover:shadow-lift border-2 ${isPendingPayment ? 'border-primary bg-primary/5' : 'border-success bg-success-light/40'}`
-          : isEnded
-            ? 'opacity-60 border-line bg-canvas'
-            : `hover:-translate-y-0.5 hover:shadow-lift ${
-                selected ? 'border-[var(--accent)] bg-[var(--accent-bg)]/40' : 'border-line bg-white hover:border-[var(--accent)]'
-              }`
-      }`}
+      style={{ background: gradient }}
+      className={`relative flex min-h-[290px] flex-col rounded-2xl p-5 text-start shadow-[0_6px_20px_rgba(0,0,0,0.15)] transition ${
+        isEnded && !enrollment ? 'opacity-60 grayscale-[30%]' : ''
+      } ${selected ? 'ring-4 ring-white/80' : ''}`}
     >
-      <div className="flex items-start justify-between gap-2 text-start">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h4 className="font-bold text-ink">{course.title}</h4>
-            {enrollment ? (
-              <span
-                className={`flex items-center gap-1 rounded-pill px-2 py-1 text-xs font-bold ${
-                  isPendingPayment ? 'bg-primary/10 text-primary' : 'bg-success-light text-success'
-                }`}
-              >
-                {isPendingPayment ? <Clock size={13} /> : <CheckCircle2 size={13} />}
-                {t(isPendingPayment ? 'teacher.course.pendingPaymentBadge' : 'teacher.course.enrolledBadge')}
-              </span>
-            ) : isEnded && (
-              <span className="rounded-pill bg-ink-soft/10 px-2 py-1 text-xs font-bold text-ink-soft">
-                {t('teacher.course.ended')}
-              </span>
-            )}
-          </div>
-          <p className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-soft">
-            <CalendarRange size={13} />
-            {formatDate(course.startDate)} — {formatDate(course.endDate)}
-          </p>
-          {!enrollment && !isEnded && elapsedCount > 0 && (
-            <p className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-[#B45309]">
-              <PlayCircle size={13} />
-              {t('teacher.course.startedProgress').replace('{n}', elapsedCount).replace('{total}', course.totalSessions)}
-            </p>
-          )}
-        </div>
+      <div className="flex items-start justify-between gap-2">
+        {enrollment ? (
+          <span
+            className={`inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold ${
+              isPendingPayment ? 'text-primary' : 'text-success'
+            }`}
+          >
+            {isPendingPayment ? <Clock size={13} /> : <CheckCircle2 size={13} />}
+            {t(isPendingPayment ? 'teacher.course.pendingPaymentBadge' : 'teacher.course.enrolledBadge')}
+          </span>
+        ) : (
+          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs font-semibold text-white ring-1 ring-white/30 backdrop-blur-sm">
+            <GraduationCap size={13} />
+            {t('teacher.course.sectionTitle')}
+          </span>
+        )}
         <FavoriteButton active={isFavorite} onClick={() => onToggleFavorite(course.id)} className="shrink-0" />
       </div>
 
-      <div className="flex flex-wrap gap-1.5">
+      <div className="mt-4">
+        <h4 className="text-lg font-bold leading-snug text-white">{course.title}</h4>
+        <p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-white/75">
+          <CalendarRange size={13} />
+          {formatDate(course.startDate)} — {formatDate(course.endDate)}
+        </p>
+        {!enrollment && !isEnded && elapsedCount > 0 && (
+          <p className="mt-1.5 inline-flex w-fit items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-[#B45309]">
+            <PlayCircle size={13} />
+            {t('teacher.course.startedProgress').replace('{n}', elapsedCount).replace('{total}', course.totalSessions)}
+          </p>
+        )}
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-1.5">
         <CourseFactBadge active={course.hasCertificate} icon={Award} label={t('teacher.course.hasCertificate')} />
         <CourseFactBadge active={course.requiresLaptop} icon={Laptop} label={t('teacher.course.requiresLaptop')} />
         <CourseFactBadge active={course.materialsIncluded} icon={Package} label={t('teacher.course.materialsIncluded')} />
@@ -96,38 +92,33 @@ function CourseCard({ course, index, selected, onSelect, isFavorite, onToggleFav
         <CourseFactBadge active={course.sessionsRecorded} icon={Video} label={t('teacher.course.sessionsRecorded')} />
       </div>
 
-      <div className="flex items-baseline justify-end gap-2">
-        <span className="text-2xl font-bold text-[var(--accent)]">{formatPrice(course.price, currency)}</span>
-      </div>
+      <div className="mt-auto flex flex-col gap-3 pt-4">
+        <span dir="ltr" className="text-2xl font-bold leading-none text-white">
+          {isEnded ? t('teacher.course.ended') : formatPrice(course.price, currency)}
+        </span>
 
-      {enrollment ? (
-        <button
-          type="button"
-          onClick={() => navigate(enrollmentDetailsPath(enrollment.id))}
-          className={`w-full rounded-2xl py-2.5 text-sm font-bold text-white transition-opacity duration-200 hover:opacity-90 ${
-            isPendingPayment ? 'bg-primary' : 'bg-success'
-          }`}
-        >
-          {t(isPendingPayment ? 'teacher.course.completePayment' : 'teacher.course.viewMyEnrollment')}
-        </button>
-      ) : (
-        <button
-          type="button"
-          disabled={isEnded}
-          onClick={() => onSelect(course)}
-          className={`w-full rounded-2xl border py-2.5 text-sm font-medium transition-colors duration-200 ${
-            isEnded
-              ? 'cursor-not-allowed border-line bg-line/30 text-ink-soft'
-              : `border-[var(--accent)] ${
-                  selected
-                    ? 'bg-[var(--accent)] text-white'
-                    : 'bg-transparent text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white'
-                }`
-          }`}
-        >
-          {isEnded ? t('teacher.course.ended') : t('teacher.course.chooseCourse')}
-        </button>
-      )}
+        {enrollment ? (
+          <button
+            type="button"
+            onClick={() => navigate(enrollmentDetailsPath(enrollment.id))}
+            className={`flex items-center justify-center gap-1.5 rounded-2xl bg-white py-3 text-sm font-bold transition-opacity hover:opacity-90 ${
+              isPendingPayment ? 'text-primary' : 'text-success'
+            }`}
+          >
+            {t(isPendingPayment ? 'teacher.course.completePayment' : 'teacher.course.viewMyEnrollment')}
+          </button>
+        ) : (
+          <button
+            type="button"
+            disabled={isEnded}
+            onClick={() => onSelect(course)}
+            className="flex items-center justify-center gap-1.5 rounded-2xl bg-white py-3 text-sm font-semibold text-[#1E1E1E] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {selected && <Check size={15} strokeWidth={3} />}
+            {isEnded ? t('teacher.course.ended') : t('teacher.course.chooseCourse')}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -157,13 +148,13 @@ export function CoursesSection({ courses, isLoading, isError, refetch, selectedC
       {isError ? (
         <ErrorState onRetry={refetch} />
       ) : isLoading ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-44 rounded-2xl" />
+            <Skeleton key={i} className="h-[290px] rounded-2xl" />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {courses.map((course, i) => (
             <CourseCard
               key={course.id}
