@@ -79,6 +79,7 @@ export const queryKeys = {
     rescheduleRequestDetail: (id) => ['admin', 'reschedule-requests', 'detail', id],
     taxonomy: (type) => ['admin', 'taxonomy', type],
     payouts: (filters) => ['admin', 'payouts', filters],
+    payoutDetails: (id) => ['admin', 'payouts', 'details', id],
     settings: () => ['admin', 'settings'],
     auditLog: (filters) => ['admin', 'audit-log', filters],
     notificationLogs: (filters) => ['admin', 'notification-logs', filters],

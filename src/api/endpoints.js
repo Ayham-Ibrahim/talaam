@@ -228,6 +228,7 @@ export const endpoints = {
     taxonomy: (type) => `/taxonomy/${type}`,
     taxonomyItem: (type, id) => `/taxonomy/${type}/${id}`,
     payouts: '/payouts',
+    payoutDetails: (id) => `/payouts/${id}`,
     generatePayout: (teacherId) => `/teachers/${teacherId}/payouts/generate`,
     approvePayout: (id) => `/payouts/${id}/approve`,
     markPayoutPaid: (id) => `/payouts/${id}/mark-paid`,

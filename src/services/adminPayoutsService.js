@@ -1,7 +1,7 @@
 import { config } from '@/config/env';
 import { client, mockDelay } from '@/api/client';
 import { endpoints } from '@/api/endpoints';
-import { filterMockPayouts, updateMockPayout, createMockPayout } from '@/mocks/adminPayouts.mock';
+import { filterMockPayouts, findMockPayout, updateMockPayout, createMockPayout } from '@/mocks/adminPayouts.mock';
 
 export const adminPayoutsService = {
   async getPayouts(filters = {}) {
@@ -12,6 +12,17 @@ export const adminPayoutsService = {
     }
     const { data } = await client.get(endpoints.admin.payouts, { params: filters });
     return { data: data.data, total: data.meta?.total ?? data.data.length };
+  },
+
+  /** تفاصيل كشف: الإجماليات + بنوده (جلسة/تسوية) — PayoutController::show */
+  async getPayoutDetails(id) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      const payout = findMockPayout(id);
+      return payout ? { ...payout, grossAmount: payout.totalAmount, deductions: 0, items: [] } : null;
+    }
+    const { data } = await client.get(endpoints.admin.payoutDetails(id));
+    return data.data;
   },
 
   async generatePayout({ teacherId, periodStart, periodEnd }) {

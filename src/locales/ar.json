@@ -2362,7 +2362,41 @@
       "downloadFailed": "تعذّر تنزيل الفاتورة، حاول مرة أخرى",
       "exportExcel": "تصدير Excel",
       "exporting": "جارِ التصدير...",
-      "exportFailed": "تعذّر تصدير الملف، حاول مرة أخرى"
+      "exportFailed": "تعذّر تصدير الملف، حاول مرة أخرى",
+      "viewDetails": "عرض التفاصيل",
+      "details": {
+        "title": "تفاصيل المستحقات",
+        "createdAt": "تاريخ التوليد",
+        "sessionsTotal": "مستحق الجلسات",
+        "settlementsTotal": "تسويات التسجيل المتأخر",
+        "deductions": "الخصومات",
+        "approvedAt": "الاعتماد",
+        "paidAt": "تاريخ التحويل",
+        "transferReference": "مرجع التحويل",
+        "netAmount": "صافي المستحق",
+        "noItems": "لا توجد بنود في هذا الكشف",
+        "colDate": "موعد الجلسة",
+        "colTitle": "الدورة / الباقة",
+        "colType": "نوع البند",
+        "colAttendance": "الحضور",
+        "makeup": "تعويضية",
+        "kind": {
+          "course": "دورة",
+          "individual": "باقة فردية",
+          "group": "باقة جماعية"
+        },
+        "itemType": {
+          "session": "جلسة",
+          "settlement": "تسوية تسجيل متأخر"
+        },
+        "outcome": {
+          "attended": "عُقدت",
+          "student_no_show": "لم يحضر الطلاب",
+          "teacher_absent": "غاب المعلم",
+          "no_paid_attendee": "بلا اشتراك مدفوع",
+          "untracked": "قبل تتبع الحضور"
+        }
+      }
     },
     "teacherSessionsReport": {
       "title": "تقرير حصص المعلمين",

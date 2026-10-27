@@ -6,6 +6,7 @@ import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { PayoutsTable } from '@/components/dashboard/admin/PayoutsTable';
 import { GeneratePayoutModal } from '@/components/dashboard/admin/GeneratePayoutModal';
 import { MarkPayoutPaidModal } from '@/components/dashboard/admin/MarkPayoutPaidModal';
+import { PayoutDetailsModal } from '@/components/dashboard/admin/PayoutDetailsModal';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -28,6 +29,7 @@ export function AdminPayoutsPage({ variant = 'admin' }) {
   const [status, setStatus] = useState('');
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [markPaidPayoutId, setMarkPaidPayoutId] = useState(null);
+  const [detailsPayoutId, setDetailsPayoutId] = useState(null);
   const [downloadingInvoiceId, setDownloadingInvoiceId] = useState(null);
 
   const { data, isLoading, isError, refetch } = useAdminPayouts({ status });
@@ -117,6 +119,7 @@ export function AdminPayoutsPage({ variant = 'admin' }) {
           <PayoutsTable
             payouts={payouts}
             isActing={isActing}
+            onView={(id) => setDetailsPayoutId(id)}
             onApprove={(id) => approvePayout.mutate(id)}
             onMarkPaid={(id) => setMarkPaidPayoutId(id)}
             onDownloadInvoice={handleDownloadInvoice}
@@ -135,6 +138,10 @@ export function AdminPayoutsPage({ variant = 'admin' }) {
           }}
           onConfirm={(payload) => generatePayout.mutate(payload, { onSuccess: () => setShowGenerateModal(false) })}
         />
+      )}
+
+      {detailsPayoutId != null && (
+        <PayoutDetailsModal payoutId={detailsPayoutId} onClose={() => setDetailsPayoutId(null)} />
       )}
 
       {markPaidPayoutId != null && (

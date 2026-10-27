@@ -1,4 +1,4 @@
-import { Check, Download, Wallet } from 'lucide-react';
+import { Check, Download, Eye, Wallet } from 'lucide-react';
 import { PayoutStatusBadge } from './PayoutStatusBadge';
 import { PROVIDER_TYPE_LABELS } from '@/mocks/adminListings.mock';
 import { formatDate, formatPrice } from '@/lib/formatters';
@@ -9,7 +9,7 @@ function formatPeriod(periodStart, periodEnd) {
   return `${formatDate(periodStart)} - ${formatDate(periodEnd)}`;
 }
 
-export function PayoutsTable({ payouts, onApprove, onMarkPaid, onDownloadInvoice, downloadingInvoiceId, isActing }) {
+export function PayoutsTable({ payouts, onView, onApprove, onMarkPaid, onDownloadInvoice, downloadingInvoiceId, isActing }) {
   const t = useT();
 
   return (
@@ -40,6 +40,14 @@ export function PayoutsTable({ payouts, onApprove, onMarkPaid, onDownloadInvoice
               </td>
               <td className="px-4 py-4 text-right">
                 <div className="flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => onView(p.id)}
+                    className="flex items-center gap-1.5 text-sm font-medium text-ink-soft hover:text-ink"
+                  >
+                    {t('dashboard.adminPayouts.viewDetails')}
+                    <Eye size={16} />
+                  </button>
                   {p.status === 'pending' && (
                     <button
                       type="button"

@@ -10,6 +10,14 @@ export function useAdminPayouts(filters = {}) {
   });
 }
 
+export function usePayoutDetails(id) {
+  return useQuery({
+    queryKey: queryKeys.admin.payoutDetails(id),
+    queryFn: () => adminPayoutsService.getPayoutDetails(id),
+    enabled: id != null,
+  });
+}
+
 function useInvalidatePayouts() {
   const queryClient = useQueryClient();
   return () => queryClient.invalidateQueries({ queryKey: ['admin', 'payouts'] });
