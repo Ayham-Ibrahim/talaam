@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate, useParams, Link } from 'react-router-dom';
+import { Navigate, useParams, useSearchParams, Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
 import { TeacherProfileSummaryCard } from '@/components/dashboard/admin/TeacherProfileSummaryCard';
@@ -31,7 +31,11 @@ export function AdminTeacherDetailPage() {
   const { id } = useParams();
   const { data, isLoading, isError, refetch } = useAdminTeacherDetail(id);
   const [modal, setModal] = useState(null); // { type: 'rejectTeacher' | 'suspendTeacher' | 'rejectDocument', documentId? }
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'profile' | 'sessions'
+  // ?tab=sessions — قادم من زر "الجلسات" بجدول المعلمين
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(() =>
+    ['overview', 'profile', 'sessions'].includes(searchParams.get('tab')) ? searchParams.get('tab') : 'overview',
+  ); // 'overview' | 'profile' | 'sessions'
 
   const approveTeacher = useApproveTeacher(id);
   const rejectTeacher = useRejectTeacher(id);

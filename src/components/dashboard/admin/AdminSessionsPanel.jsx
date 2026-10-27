@@ -5,20 +5,31 @@ import {
   ArrowUpNarrowWide,
   CalendarClock,
   CalendarDays,
+  CalendarPlus,
   ChevronLeft,
   ChevronRight,
+  GraduationCap,
   ListFilter,
   RotateCcw,
 } from 'lucide-react';
 import { Pagination } from '@/components/dashboard/Pagination';
+import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
+import { useAdminTeachers } from '@/hooks/useAdmin';
+import { TEACHER_TYPE_LABELS } from '@/services/teacherService';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
+import { AdminMakeupSessionModal } from './AdminMakeupSessionModal';
 import { AdminRescheduleSessionModal } from './AdminRescheduleSessionModal';
+import { COMPENSABLE_OUTCOMES } from '@/services/adminSessionsService';
 import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { formatDateTime } from '@/lib/formatters';
 import { useAdminSessions } from '@/hooks/useAdminSessions';
 import { useT } from '@/hooks/useT';
 
-const STATUS_FILTERS = ['upcoming', 'attended', 'cancelled', 'all'];
+/**
+ * فلاتر الأدمن بنتيجة الحضور التلقائي لا بـ status وحدها — كل جلسة منتهية "مكتملة" أياً كان
+ * ما حدث فيها. needs_makeup: غاب فيها أحد ولم تُنشأ تعويضيتها بعد. راجع ClassSessionController::outcomeFilter
+ */
+const STATUS_FILTERS = ['upcoming', 'held', 'needs_makeup', 'teacher_absent', 'student_no_show', 'not_held', 'all'];
 const PER_PAGE = 10;
 
 /** YYYY-MM-DD لليوم (+ إزاحة أيام) بتوقيت المتصفح — نفس صيغة قيمة input[type=date] */
@@ -158,8 +169,35 @@ const QUICK_DAYS = [
   { key: 'any', offset: null },
 ];
 
-/** شريط فلاتر صفحة "الجلسات": اليوم، الحالة، اتجاه الترتيب */
-function SessionsFilterBar({ day, onDayChange, status, onStatusChange, sort, onSortToggle, total, isFiltered, onReset, t }) {
+/**
+ * اختيار المعلم — كل الحالات (جلسات معلم معلَّق/معطَّل تبقى في السجل)، بحث مدمج في SmoothSelect.
+ * per_page كبير: القائمة المنسدلة تحتاج كل المعلمين لا صفحتهم الأولى (20 افتراضياً).
+ */
+function TeacherFilter({ value, onChange, t }) {
+  const { data } = useAdminTeachers({ per_page: 500 });
+  const options = [
+    { value: '', label: t('dashboard.adminSessions.teacherFilter.all') },
+    ...(data?.data ?? []).map((teacher) => ({
+      value: String(teacher.id),
+      label: `${teacher.name} · ${TEACHER_TYPE_LABELS[teacher.type] ?? teacher.type}`,
+    })),
+  ];
+
+  return (
+    <div className="w-full sm:w-80">
+      <SmoothSelect
+        value={value}
+        onChange={onChange}
+        options={options}
+        placeholder={t('dashboard.adminSessions.teacherFilter.all')}
+        searchPlaceholder={t('dashboard.adminSessions.teacherFilter.search')}
+      />
+    </div>
+  );
+}
+
+/** شريط فلاتر صفحة "الجلسات": اليوم، المعلم، الحالة، اتجاه الترتيب */
+function SessionsFilterBar({ day, onDayChange, teacher, onTeacherChange, status, onStatusChange, sort, onSortToggle, total, isFiltered, onReset, t }) {
   return (
     <div className="flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-card sm:p-5">
       <FilterRow icon={CalendarDays} label={t('dashboard.adminSessions.dateFilters.label')}>
@@ -183,6 +221,12 @@ function SessionsFilterBar({ day, onDayChange, status, onStatusChange, sort, onS
             );
           })}
         </div>
+      </FilterRow>
+
+      <div className="border-t border-line" />
+
+      <FilterRow icon={GraduationCap} label={t('dashboard.adminSessions.teacherFilter.label')}>
+        <TeacherFilter value={teacher} onChange={onTeacherChange} t={t} />
       </FilterRow>
 
       <div className="border-t border-line" />
@@ -230,6 +274,43 @@ function AttendanceBadge({ state, joinedAt, t }) {
     >
       {t(`dashboard.adminSessions.attendance.${state}`)}
     </span>
+  );
+}
+
+/** نسبة مستحق المعلم من الجلسة — كاملة / جزئية / لا شيء. null = لم تُحسم بعد */
+function PayoutPercentBadge({ percent, t }) {
+  if (percent === null) {
+    return <span className="text-xs text-ink-soft">—</span>;
+  }
+
+  const tone =
+    percent >= 100 ? 'bg-green-50 text-green-700' : percent > 0 ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-600';
+
+  return (
+    <span className={`rounded-pill px-3 py-1 text-xs font-bold ${tone}`} title={t('dashboard.adminSessions.payoutHint')} dir="ltr">
+      {Number.isInteger(percent) ? percent : percent.toFixed(2)}%
+    </span>
+  );
+}
+
+/** مبلغ المعلم من الجلسة: المصروف فعلاً، أو المتوقع إن لم تدخل دفعة بعد */
+function PayoutAmount({ payout, t }) {
+  if (!payout) return null;
+
+  return (
+    <div className="mt-1.5 flex flex-col items-center text-xs">
+      <span className="font-bold text-ink" dir="ltr">
+        {payout.amount.toLocaleString('en', { maximumFractionDigits: 2 })} {t('dashboard.adminSessions.currency')}
+      </span>
+      <span className={payout.paid ? 'text-green-700' : 'text-ink-soft'}>
+        {t(payout.paid ? 'dashboard.adminSessions.payoutPaid' : 'dashboard.adminSessions.payoutExpected')}
+      </span>
+      {payout.capped && (
+        <span className="font-medium text-amber-700" title={t('dashboard.adminSessions.payoutCappedHint')}>
+          {t(payout.amount > 0 ? 'dashboard.adminSessions.payoutPartlyCapped' : 'dashboard.adminSessions.payoutCapped')}
+        </span>
+      )}
+    </div>
   );
 }
 
@@ -285,15 +366,17 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
   const [status, setStatus] = useState(defaults.status);
   const [day, setDay] = useState(defaults.day); // '' = كل التواريخ
   const [sort, setSort] = useState(defaults.sort);
+  const [teacherFilter, setTeacherFilter] = useState(''); // صفحة "الجلسات" فقط — '' = كل المعلمين
   const [page, setPage] = useState(1);
   const [editingSession, setEditingSession] = useState(null);
+  const [makeupSession, setMakeupSession] = useState(null);
 
   const range = day ? localDayRange(day) : {};
-  const isFiltered = day !== defaults.day || status !== defaults.status || sort !== defaults.sort;
+  const isFiltered = day !== defaults.day || status !== defaults.status || sort !== defaults.sort || teacherFilter !== '';
 
   const { data, isLoading, isError, refetch } = useAdminSessions({
     all,
-    teacherId,
+    teacherId: teacherId || teacherFilter || undefined,
     studentId,
     status,
     ...range,
@@ -316,6 +399,11 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
     setPage(1);
   };
 
+  const changeTeacher = (next) => {
+    setTeacherFilter(next);
+    setPage(1);
+  };
+
   const toggleSort = () => {
     setSort((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     setPage(1);
@@ -325,6 +413,7 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
     setDay(defaults.day);
     setStatus(defaults.status);
     setSort(defaults.sort);
+    setTeacherFilter('');
     setPage(1);
   };
 
@@ -334,6 +423,8 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
         <SessionsFilterBar
           day={day}
           onDayChange={changeDay}
+          teacher={teacherFilter}
+          onTeacherChange={changeTeacher}
           status={status}
           onStatusChange={changeStatus}
           sort={sort}
@@ -379,6 +470,7 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
                 <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.adminSessions.colTime')}</th>
                 <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.adminSessions.colStatus')}</th>
                 <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.adminSessions.colAttendance')}</th>
+                <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.adminSessions.colPayout')}</th>
                 <th className="px-4 py-4 text-center font-bold text-ink">{t('dashboard.adminSessions.colActions')}</th>
               </tr>
             </thead>
@@ -421,9 +513,23 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
                       >
                         {statusStyle?.label ?? session.status}
                       </span>
+                      {/* سبب يستدعي التعويض، أو سبب عدم انعقادها — المنعقدة يوضّحها عمود الحضور */}
+                      {COMPENSABLE_OUTCOMES.includes(session.attendanceOutcome) ? (
+                        <div className="mt-1.5 text-xs font-medium text-accent-pink">
+                          {t(`dashboard.adminSessions.outcome.${session.attendanceOutcome}`)}
+                        </div>
+                      ) : session.attendanceOutcome === 'no_paid_attendee' ? (
+                        <div className="mt-1.5 text-xs font-medium text-ink-soft">
+                          {t('dashboard.adminSessions.outcome.no_paid_attendee')}
+                        </div>
+                      ) : null}
                     </td>
                     <td className="px-4 py-4 text-center">
                       <AttendanceCell session={session} studentId={studentId} t={t} />
+                    </td>
+                    <td className="px-4 py-4 text-center">
+                      <PayoutPercentBadge percent={session.payoutPercent} t={t} />
+                      <PayoutAmount payout={session.payoutAmount} t={t} />
                     </td>
                     <td className="px-4 py-4 text-center">
                       {session.canReschedule ? (
@@ -435,6 +541,17 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
                           <CalendarClock size={14} />
                           {t('dashboard.adminSessions.reschedule')}
                         </button>
+                      ) : session.canCreateMakeup ? (
+                        <button
+                          type="button"
+                          onClick={() => setMakeupSession(session)}
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-primary bg-[#EDF0F5] px-3 py-2 text-xs font-medium text-primary hover:bg-primary/10"
+                        >
+                          <CalendarPlus size={14} />
+                          {t('dashboard.adminSessions.createMakeup')}
+                        </button>
+                      ) : session.hasMakeup ? (
+                        <span className="text-xs font-medium text-primary">{t('dashboard.adminSessions.makeupCreated')}</span>
                       ) : (
                         <span className="text-xs text-ink-soft">—</span>
                       )}
@@ -452,6 +569,7 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
       </div>
 
       {editingSession && <AdminRescheduleSessionModal session={editingSession} onClose={() => setEditingSession(null)} />}
+      {makeupSession && <AdminMakeupSessionModal session={makeupSession} onClose={() => setMakeupSession(null)} />}
     </div>
   );
 }

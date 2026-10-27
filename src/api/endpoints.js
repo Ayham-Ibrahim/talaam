@@ -122,6 +122,7 @@ export const endpoints = {
     rescheduleRequests: (id) => `/class-sessions/${id}/reschedule-requests`,
     join: (id) => `/class-sessions/${id}/join`,
     reschedule: (id) => `/class-sessions/${id}/schedule`,
+    makeup: (id) => `/class-sessions/${id}/makeup`,
   },
   accountants: {
     create: '/accountants',

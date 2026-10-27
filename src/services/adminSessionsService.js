@@ -5,6 +5,20 @@ import { endpoints } from '@/api/endpoints';
 /** حالات حضور تعني خصماً فعلياً من رصيد الطالب — الباك اند يرفض تعديل موعد جلسة عليها أي منها */
 const RECORDED_ATTENDANCE = ['present', 'absent', 'partial'];
 
+/** نتائج الحضور التلقائي التي تسمح بجلسة تعويضية — نفس SessionService::scheduleMakeupByAdmin */
+export const COMPENSABLE_OUTCOMES = ['teacher_absent', 'student_no_show'];
+
+/**
+ * نسبة مستحق المعلم من الجلسة — نفس PayoutService::payablePercent: تُثبَّت عند انتهائها،
+ * وNULL على جلسة مكتملة (قبل الحضور التلقائي) تُصرف كاملة. no_show_teacher (تسجيل يدوي قديم)
+ * لا تُصرف. null = لم تُحسم بعد (قادمة) أو ملغاة.
+ */
+function payoutPercentOf(row) {
+  if (row.status === 'no_show_teacher') return 0;
+  if (row.status !== 'completed') return null;
+  return row.teacher_payout_percent == null ? 100 : Number(row.teacher_payout_percent);
+}
+
 /** GET /class-sessions row → صف جدول جلسات الأدمن (ملف المعلم / جلسات الطالب) */
 function mapSessionRow(row) {
   const attendees = row.attendees ?? [];
@@ -30,6 +44,19 @@ function mapSessionRow(row) {
     durationMin: row.duration_min,
     status: row.status,
     isMakeup: Boolean(row.is_makeup),
+    // نتيجة الحضور التلقائي بعد انتهاء الجلسة — تُرجَع للأدمن فقط
+    attendanceOutcome: row.attendance_outcome ?? null,
+    hasMakeup: Boolean(row.has_makeup),
+    payoutPercent: payoutPercentOf(row),
+    // {amount, paid, capped}: المصروف فعلاً، أو المتوقع لجلسة مكتملة لم تُصرف — null لغير المكتملة.
+    // capped: سقط منها شيء بسقف الجلسات (الدورة أو الحجز) — صفر كلياً، أو حصص بعض الطلاب في المجموعة
+    payoutAmount: row.teacher_payout_amount
+      ? {
+          amount: Number(row.teacher_payout_amount.amount),
+          paid: Boolean(row.teacher_payout_amount.paid),
+          capped: Boolean(row.teacher_payout_amount.capped),
+        }
+      : null,
     hasJoinLink: Boolean(row.join_url_teacher || row.join_url_student),
     // نفس قيود RescheduleService::adminReschedule — يُخفي الزر مسبقاً، والباك اند يرفض 422 على أي حال
     canReschedule:
@@ -37,6 +64,9 @@ function mapSessionRow(row) {
       Number.isFinite(startsAt) &&
       Date.now() < startsAt &&
       !attendees.some((a) => RECORDED_ATTENDANCE.includes(a.attendance)),
+    // تعويضية واحدة لجلسة منتهية غاب عنها المعلم أو الطلاب — الباك اند يرفض 422 غير ذلك
+    canCreateMakeup:
+      row.status === 'completed' && COMPENSABLE_OUTCOMES.includes(row.attendance_outcome) && !row.has_makeup,
   };
 }
 
@@ -71,6 +101,19 @@ export const adminSessionsService = {
       return { message: 'تم تعديل موعد الجلسة' };
     }
     const { data } = await client.patch(endpoints.classSessions.reschedule(sessionId), {
+      scheduled_at: scheduledAt,
+      notes: notes || undefined,
+    });
+    return { message: data.message };
+  },
+
+  /** POST /class-sessions/{id}/makeup — جلسة جديدة بطلاب الأصلية المدفوعين، ويُبلَّغ المعلم والطلاب */
+  async createMakeup(sessionId, { scheduledAt, notes }) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return { message: 'تم إنشاء الجلسة التعويضية' };
+    }
+    const { data } = await client.post(endpoints.classSessions.makeup(sessionId), {
       scheduled_at: scheduledAt,
       notes: notes || undefined,
     });

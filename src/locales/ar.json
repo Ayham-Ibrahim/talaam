@@ -1889,6 +1889,7 @@
       "close": "إغلاق",
       "addSuccess": "تم إنشاء حساب المعلم بنجاح",
       "deleteTeacher": "حذف",
+      "sessions": "الجلسات",
       "deleteModalTitle": "حذف حساب المعلم",
       "deleteModalMessage": "سيتم حذف هذا الحساب وكل وثائقه وبياناته نهائياً ولا يمكن التراجع عن ذلك. هل أنت متأكد من حذف",
       "deleteConfirm": "نعم، احذف الحساب",
@@ -2178,12 +2179,20 @@
         "toggle": "عكس الترتيب"
       },
       "statusLabel": "الحالة",
+      "teacherFilter": {
+        "label": "المعلم",
+        "all": "كل المعلمين",
+        "search": "ابحث باسم المعلم..."
+      },
       "total": "عدد الجلسات",
       "resetFilters": "إعادة ضبط الفلاتر",
       "filters": {
         "upcoming": "القادمة",
-        "attended": "المكتملة",
-        "cancelled": "الملغاة والغياب",
+        "held": "انعقدت",
+        "needs_makeup": "بحاجة لتعويض",
+        "teacher_absent": "غياب المعلم",
+        "student_no_show": "غياب الطلاب",
+        "not_held": "ملغاة / لم تُعقد",
         "all": "الكل"
       },
       "colSession": "الجلسة",
@@ -2192,6 +2201,14 @@
       "colTime": "الموعد",
       "colStatus": "الحالة",
       "colAttendance": "الحضور",
+      "colPayout": "مستحق المعلم",
+      "payoutHint": "نسبة ما يُصرف للمعلم من مستحق هذه الجلسة — تُحسم تلقائياً من الحضور عند انتهائها",
+      "currency": "درهم",
+      "payoutPaid": "مصروف",
+      "payoutExpected": "متوقع",
+      "payoutCapped": "خارج السقف · لن تُصرف",
+      "payoutPartlyCapped": "بعض الحصص خارج السقف",
+      "payoutCappedHint": "لا يُصرف للمعلم عن الحجز/الدورة أكثر من عدد جلساتها المدفوعة — جلسات غياب المعلم لا تُحتسب، وغياب الطلاب يُصرف بنسبته خارج السقف",
       "colActions": "الإجراءات",
       "attendance": {
         "teacher": "المعلم",
@@ -2221,7 +2238,22 @@
       "notesPlaceholder": "مثال: بناءً على طلب ولي الأمر",
       "rescheduleHint": "رابط الجلسة لن يتغير. سيصل المعلم والطلاب إشعار بالموعد الجديد، وسيُرسل التذكير من جديد قبل الموعد.",
       "confirm": "حفظ الموعد",
-      "cancel": "إلغاء"
+      "cancel": "إلغاء",
+      "outcome": {
+        "teacher_absent": "غاب المعلم",
+        "student_no_show": "لم يحضر الطلاب",
+        "no_paid_attendee": "بلا اشتراك مدفوع"
+      },
+      "createMakeup": "جلسة تعويضية",
+      "makeupCreated": "أُنشئت تعويضية",
+      "makeupTitle": "إنشاء جلسة تعويضية",
+      "missedTime": "موعد الجلسة الفائتة",
+      "makeupTimeLabel": "موعد الجلسة التعويضية",
+      "makeupTimeRequired": "يرجى تحديد موعد الجلسة التعويضية",
+      "makeupTimePast": "يجب أن يكون الموعد في المستقبل",
+      "makeupNotesPlaceholder": "مثال: تعويضاً عن غياب المعلم",
+      "makeupHint": "تُنشأ جلسة جديدة لطلاب هذه الجلسة الذين دفعوا اشتراكهم، برابط انضمام جديد، ويصل المعلم والطلاب إشعار بموعدها. لكل جلسة تعويضية واحدة فقط.",
+      "makeupConfirm": "إنشاء الجلسة"
     },
     "adminReschedule": {
       "absenceReport": "تبليغ غياب — بانتظار تنسيقكم",
