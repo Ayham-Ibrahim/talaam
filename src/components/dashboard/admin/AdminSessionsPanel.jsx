@@ -7,12 +7,14 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
+  Link2,
   ListFilter,
   RotateCcw,
 } from 'lucide-react';
 import { Pagination } from '@/components/dashboard/Pagination';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { AdminRescheduleSessionModal } from './AdminRescheduleSessionModal';
+import { AdminSessionLinksModal } from './AdminSessionLinksModal';
 import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { formatDateTime } from '@/lib/formatters';
 import { useAdminSessions } from '@/hooks/useAdminSessions';
@@ -271,6 +273,35 @@ function AttendanceCell({ session, studentId, t }) {
   );
 }
 
+const ACTION_BUTTON_CLASS =
+  'inline-flex items-center gap-1.5 rounded-xl border border-primary bg-[#EDF0F5] px-3 py-2 text-xs font-medium text-primary hover:bg-primary/10';
+
+/** روابط BBB تُعرض بكل حالات الجلسة طالما أُنشئت غرفتها */
+function SessionActions({ session, onShowLinks, onReschedule, t }) {
+  const showLinks = Boolean(session.joinUrlTeacher || session.joinUrlStudent);
+
+  if (!session.canReschedule && !showLinks) {
+    return <span className="text-xs text-ink-soft">—</span>;
+  }
+
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-2">
+      {showLinks && (
+        <button type="button" onClick={onShowLinks} className={ACTION_BUTTON_CLASS}>
+          <Link2 size={14} />
+          {t('dashboard.adminSessions.links')}
+        </button>
+      )}
+      {session.canReschedule && (
+        <button type="button" onClick={onReschedule} className={ACTION_BUTTON_CLASS}>
+          <CalendarClock size={14} />
+          {t('dashboard.adminSessions.reschedule')}
+        </button>
+      )}
+    </div>
+  );
+}
+
 /**
  * جدول جلسات لدى الأدمن مع زر "تعديل الموعد" — يُستخدم في تبويب "الجلسات" بملف
  * المعلم (teacherId) وفي نافذة جلسات الطالب من جدول الطلاب (studentId)، وبلا أيٍّ
@@ -287,6 +318,7 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
   const [sort, setSort] = useState(defaults.sort);
   const [page, setPage] = useState(1);
   const [editingSession, setEditingSession] = useState(null);
+  const [linksSession, setLinksSession] = useState(null);
 
   const range = day ? localDayRange(day) : {};
   const isFiltered = day !== defaults.day || status !== defaults.status || sort !== defaults.sort;
@@ -426,18 +458,12 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
                       <AttendanceCell session={session} studentId={studentId} t={t} />
                     </td>
                     <td className="px-4 py-4 text-center">
-                      {session.canReschedule ? (
-                        <button
-                          type="button"
-                          onClick={() => setEditingSession(session)}
-                          className="inline-flex items-center gap-1.5 rounded-xl border border-primary bg-[#EDF0F5] px-3 py-2 text-xs font-medium text-primary hover:bg-primary/10"
-                        >
-                          <CalendarClock size={14} />
-                          {t('dashboard.adminSessions.reschedule')}
-                        </button>
-                      ) : (
-                        <span className="text-xs text-ink-soft">—</span>
-                      )}
+                      <SessionActions
+                        session={session}
+                        onShowLinks={() => setLinksSession(session)}
+                        onReschedule={() => setEditingSession(session)}
+                        t={t}
+                      />
                     </td>
                   </tr>
                 );
@@ -452,6 +478,7 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
       </div>
 
       {editingSession && <AdminRescheduleSessionModal session={editingSession} onClose={() => setEditingSession(null)} />}
+      {linksSession && <AdminSessionLinksModal session={linksSession} onClose={() => setLinksSession(null)} />}
     </div>
   );
 }
