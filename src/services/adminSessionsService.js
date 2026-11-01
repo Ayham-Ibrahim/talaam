@@ -58,6 +58,9 @@ function mapSessionRow(row) {
         }
       : null,
     hasJoinLink: Boolean(row.join_url_teacher || row.join_url_student),
+    // روابط BBB المباشرة — الباك اند يُرجع الاثنين للأدمن فقط (ClassSessionResource)
+    joinUrlTeacher: row.join_url_teacher ?? null,
+    joinUrlStudent: row.join_url_student ?? null,
     // نفس قيود RescheduleService::adminReschedule — يُخفي الزر مسبقاً، والباك اند يرفض 422 على أي حال
     canReschedule:
       row.status === 'scheduled' &&

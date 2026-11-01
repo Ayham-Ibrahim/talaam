@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   GraduationCap,
+  Link2,
   ListFilter,
   RotateCcw,
 } from 'lucide-react';
@@ -20,6 +21,7 @@ import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { AdminMakeupSessionModal } from './AdminMakeupSessionModal';
 import { AdminRescheduleSessionModal } from './AdminRescheduleSessionModal';
 import { COMPENSABLE_OUTCOMES } from '@/services/adminSessionsService';
+import { AdminSessionLinksModal } from './AdminSessionLinksModal';
 import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { formatDateTime } from '@/lib/formatters';
 import { useAdminSessions } from '@/hooks/useAdminSessions';
@@ -352,6 +354,43 @@ function AttendanceCell({ session, studentId, t }) {
   );
 }
 
+const ACTION_BUTTON_CLASS =
+  'inline-flex items-center gap-1.5 rounded-xl border border-primary bg-[#EDF0F5] px-3 py-2 text-xs font-medium text-primary hover:bg-primary/10';
+
+/** روابط BBB تُعرض بكل حالات الجلسة طالما أُنشئت غرفتها */
+function SessionActions({ session, onShowLinks, onReschedule, onCreateMakeup, t }) {
+  const showLinks = Boolean(session.joinUrlTeacher || session.joinUrlStudent);
+  const hasScheduleAction = session.canReschedule || session.canCreateMakeup || session.hasMakeup;
+
+  if (!hasScheduleAction && !showLinks) {
+    return <span className="text-xs text-ink-soft">—</span>;
+  }
+
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-2">
+      {showLinks && (
+        <button type="button" onClick={onShowLinks} className={ACTION_BUTTON_CLASS}>
+          <Link2 size={14} />
+          {t('dashboard.adminSessions.links')}
+        </button>
+      )}
+      {session.canReschedule ? (
+        <button type="button" onClick={onReschedule} className={ACTION_BUTTON_CLASS}>
+          <CalendarClock size={14} />
+          {t('dashboard.adminSessions.reschedule')}
+        </button>
+      ) : session.canCreateMakeup ? (
+        <button type="button" onClick={onCreateMakeup} className={ACTION_BUTTON_CLASS}>
+          <CalendarPlus size={14} />
+          {t('dashboard.adminSessions.createMakeup')}
+        </button>
+      ) : session.hasMakeup ? (
+        <span className="text-xs font-medium text-primary">{t('dashboard.adminSessions.makeupCreated')}</span>
+      ) : null}
+    </div>
+  );
+}
+
 /**
  * جدول جلسات لدى الأدمن مع زر "تعديل الموعد" — يُستخدم في تبويب "الجلسات" بملف
  * المعلم (teacherId) وفي نافذة جلسات الطالب من جدول الطلاب (studentId)، وبلا أيٍّ
@@ -370,6 +409,7 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
   const [page, setPage] = useState(1);
   const [editingSession, setEditingSession] = useState(null);
   const [makeupSession, setMakeupSession] = useState(null);
+  const [linksSession, setLinksSession] = useState(null);
 
   const range = day ? localDayRange(day) : {};
   const isFiltered = day !== defaults.day || status !== defaults.status || sort !== defaults.sort || teacherFilter !== '';
@@ -532,29 +572,13 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
                       <PayoutAmount payout={session.payoutAmount} t={t} />
                     </td>
                     <td className="px-4 py-4 text-center">
-                      {session.canReschedule ? (
-                        <button
-                          type="button"
-                          onClick={() => setEditingSession(session)}
-                          className="inline-flex items-center gap-1.5 rounded-xl border border-primary bg-[#EDF0F5] px-3 py-2 text-xs font-medium text-primary hover:bg-primary/10"
-                        >
-                          <CalendarClock size={14} />
-                          {t('dashboard.adminSessions.reschedule')}
-                        </button>
-                      ) : session.canCreateMakeup ? (
-                        <button
-                          type="button"
-                          onClick={() => setMakeupSession(session)}
-                          className="inline-flex items-center gap-1.5 rounded-xl border border-primary bg-[#EDF0F5] px-3 py-2 text-xs font-medium text-primary hover:bg-primary/10"
-                        >
-                          <CalendarPlus size={14} />
-                          {t('dashboard.adminSessions.createMakeup')}
-                        </button>
-                      ) : session.hasMakeup ? (
-                        <span className="text-xs font-medium text-primary">{t('dashboard.adminSessions.makeupCreated')}</span>
-                      ) : (
-                        <span className="text-xs text-ink-soft">—</span>
-                      )}
+                      <SessionActions
+                        session={session}
+                        onShowLinks={() => setLinksSession(session)}
+                        onReschedule={() => setEditingSession(session)}
+                        onCreateMakeup={() => setMakeupSession(session)}
+                        t={t}
+                      />
                     </td>
                   </tr>
                 );
@@ -570,6 +594,7 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
 
       {editingSession && <AdminRescheduleSessionModal session={editingSession} onClose={() => setEditingSession(null)} />}
       {makeupSession && <AdminMakeupSessionModal session={makeupSession} onClose={() => setMakeupSession(null)} />}
+      {linksSession && <AdminSessionLinksModal session={linksSession} onClose={() => setLinksSession(null)} />}
     </div>
   );
 }
