@@ -25,6 +25,7 @@ import { Avatar } from "@/components/ui";
 import { NotificationsBell } from "@/components/notifications/NotificationsBell";
 import { useAuth, useLogout } from "@/hooks/useAuth";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useSiblingFamily, useSwitchAccount } from "@/hooks/useSiblings";
 import { useT } from "@/hooks/useT";
 import { LocaleOverrideContext } from "@/context/LocaleOverrideContext";
 
@@ -80,6 +81,10 @@ function DashboardLayoutInner({ children }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  // حسابات العائلة (الأساسي + الإخوة) للتبديل السريع — تُجلب فقط عند فتح القائمة
+  const { data: family } = useSiblingFamily({ enabled: menuOpen });
+  const switchAccount = useSwitchAccount();
+  const otherAccounts = (family ?? []).filter((member) => !member.is_current);
 
   // Close sidebar on path change
   useEffect(() => {
@@ -191,7 +196,9 @@ function DashboardLayoutInner({ children }) {
                           ? "dashboard.roleTeacher"
                           : user?.role === "academic_support"
                             ? "dashboard.roleAcademicSupporter"
-                            : "dashboard.roleStudent",
+                            : user?.is_sibling_account
+                              ? "siblings.roleSibling"
+                              : "dashboard.roleStudent",
                     )}
                   </div>
                 </div>
@@ -208,7 +215,31 @@ function DashboardLayoutInner({ children }) {
                     className="fixed inset-0 z-10"
                     onClick={() => setMenuOpen(false)}
                   />
-                  <div className="absolute left-0 top-full z-20 mt-2 w-44 rounded-2xl border border-line bg-white py-2 shadow-lift">
+                  <div className="absolute left-0 top-full z-20 mt-2 w-56 rounded-2xl border border-line bg-white py-2 shadow-lift">
+                    {otherAccounts.length > 0 && (
+                      <div className="border-b border-line/60 pb-2 mb-2">
+                        <div className="px-4 py-1.5 text-right text-xs text-[#777777]">
+                          {t("siblings.switchMenuTitle")}
+                        </div>
+                        {otherAccounts.map((member) => (
+                          <button
+                            key={member.id}
+                            type="button"
+                            disabled={switchAccount.isPending}
+                            onClick={() => switchAccount.mutate(member.id)}
+                            className="flex w-full items-center justify-end gap-2 px-4 py-2 text-sm font-medium text-[#2D2D2D] hover:bg-line/30 disabled:opacity-50"
+                          >
+                            <span className="truncate">
+                              {member.name}
+                              {!member.is_sibling_account && (
+                                <span className="text-xs text-[#777777]"> ({t("siblings.primaryBadge")})</span>
+                              )}
+                            </span>
+                            <Avatar name={member.name} src={member.avatar} size="sm" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     <button
                       type="button"
                       onClick={() => logout.mutate()}

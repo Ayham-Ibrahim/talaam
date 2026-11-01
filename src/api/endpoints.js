@@ -18,6 +18,12 @@ export const endpoints = {
     update: '/me/profile',
     updatePassword: '/me/password',
   },
+  // حسابات الإخوة — الطالب الأساسي يضيف إخوته ويبدّل بين حسابات العائلة
+  siblings: {
+    list: '/me/siblings',
+    create: '/me/siblings',
+    switch: (userId) => `/me/switch-account/${userId}`,
+  },
   reviews: {
     mine: '/me/reviews',
     create: (sessionId) => `/class-sessions/${sessionId}/reviews`,

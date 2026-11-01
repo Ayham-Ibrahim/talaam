@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Navigate } from 'react-router-dom';
 import { Camera, GraduationCap, KeyRound, UserRound, Trash2, Eye, EyeOff } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
+import { SiblingsSection } from '@/components/dashboard/SiblingsSection';
 import {
   StudentAcademicProfileFields,
   STUDENT_ACADEMIC_INITIAL,
@@ -332,7 +333,11 @@ export function StudentSettingsPage() {
           )}
         </SectionCard>
 
-        {/* Password */}
+        {/* إخوتي — للحساب الأساسي فقط؛ حساب الأخ لا يضيف إخوة */}
+        {!user.is_sibling_account && <SiblingsSection />}
+
+        {/* Password — حساب الأخ بلا كلمة مرور أصلاً (يُفتح بالتبديل من الحساب الأساسي) */}
+        {!user.is_sibling_account && (
         <SectionCard icon={KeyRound} title={t('studentSettings.passwordTitle')} hint={t('studentSettings.passwordHint')}>
           <div className="flex flex-col gap-4">
             {updatePassword.isError && <ApiErrorList error={updatePassword.error} labelFor={passwordErrorLabel} />}
@@ -442,6 +447,7 @@ export function StudentSettingsPage() {
             </button>
           </div>
         </SectionCard>
+        )}
       </div>
     </DashboardLayout>
   );

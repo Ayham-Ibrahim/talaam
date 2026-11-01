@@ -103,4 +103,7 @@ export const queryKeys = {
     detail: (id) => ['support-package-purchases', 'detail', id],
     myList: () => ['support-package-purchases', 'my-list'],
   },
+  siblings: {
+    family: () => ['siblings', 'family'],
+  },
 };
