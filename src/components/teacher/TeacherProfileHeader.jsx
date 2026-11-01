@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import {
   BookOpen,
   CalendarCheck,
@@ -10,23 +12,33 @@ import {
   ShieldCheck,
   Star,
   Video,
+  Share2,
 } from "lucide-react";
+
 import { FavoriteButton } from "@/components/ui";
 import { useProfileT } from "@/hooks/useProfileT";
+import { ReviewFormModal } from "@/components/dashboard/ReviewFormModal";
 
 const fmt = (n) => (n == null ? null : Number(n).toLocaleString("en-US"));
 
 /** Deep-navy banner — the base the neon glow/wave layers sit on */
-const NEON_GRADIENT = "linear-gradient(135deg, #060B24 0%, #0E1A4D 45%, #17237E 78%, #1B2E9C 100%)";
+const NEON_GRADIENT =
+  "linear-gradient(135deg, #060B24 0%, #0E1A4D 45%, #17237E 78%, #1B2E9C 100%)";
 /** Rotating ring "shine" — cyan → indigo → transparent, spun by animate-spin-slow */
-const RING_SHINE = "conic-gradient(from 0deg, transparent 0%, #38E0FF 12%, transparent 30%, transparent 60%, #8B7BFF 76%, transparent 92%)";
+const RING_SHINE =
+  "conic-gradient(from 0deg, transparent 0%, #38E0FF 12%, transparent 30%, transparent 60%, #8B7BFF 76%, transparent 92%)";
 
 /** One glowing bubble floating around the photo — purely decorative, teaching-themed */
 function FloatingIcon({ Icon, style, delay, size = 40 }) {
   return (
     <div
       className="absolute flex items-center justify-center rounded-full bg-gradient-to-br from-[#3AD8FF] to-[#6C63FF] shadow-[0_0_18px_rgba(56,216,255,0.65)] motion-safe:animate-float"
-      style={{ width: size, height: size, animationDelay: `${delay}s`, ...style }}
+      style={{
+        width: size,
+        height: size,
+        animationDelay: `${delay}s`,
+        ...style,
+      }}
     >
       <Icon size={size * 0.45} className="text-white" strokeWidth={2} />
     </div>
@@ -34,20 +46,71 @@ function FloatingIcon({ Icon, style, delay, size = 40 }) {
 }
 
 const FLOATING_ICONS = [
-  { Icon: GraduationCap, style: { left: "48%", top: "-6%" }, delay: 0, size: 44 },
+  {
+    Icon: GraduationCap,
+    style: { left: "48%", top: "-6%" },
+    delay: 0,
+    size: 44,
+  },
   { Icon: Video, style: { left: "88%", top: "6%" }, delay: 0.6, size: 40 },
   { Icon: Star, style: { left: "98%", top: "42%" }, delay: 1.2, size: 36 },
-  { Icon: MessageCircle, style: { left: "86%", top: "80%" }, delay: 1.8, size: 38 },
+  {
+    Icon: MessageCircle,
+    style: { left: "86%", top: "80%" },
+    delay: 1.8,
+    size: 38,
+  },
   { Icon: BookOpen, style: { left: "46%", top: "96%" }, delay: 0.9, size: 42 },
   { Icon: Globe, style: { left: "6%", top: "80%" }, delay: 1.5, size: 36 },
-  { Icon: ShieldCheck, style: { left: "-6%", top: "40%" }, delay: 0.3, size: 40 },
-  { Icon: CalendarCheck, style: { left: "8%", top: "6%" }, delay: 2.1, size: 36 },
+  {
+    Icon: ShieldCheck,
+    style: { left: "-6%", top: "40%" },
+    delay: 0.3,
+    size: 40,
+  },
+  {
+    Icon: CalendarCheck,
+    style: { left: "8%", top: "6%" },
+    delay: 2.1,
+    size: 36,
+  },
 ];
 
-export function TeacherProfileHeader({ teacher, isFavorite, onToggleFavorite }) {
+export function TeacherProfileHeader({
+  teacher,
+  isFavorite,
+  onToggleFavorite,
+  onSubmitReview,
+  isReviewPending = false,
+  reviewError = null,
+}) {
   const t = useProfileT(teacher);
 
-  const teachingType = teacher.teachingMethods?.slice(0, 2).join(" / ") || teacher.typeLabel;
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
+
+  const handleShare = async () => {
+    const url = window.location.href;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: teacher.name,
+          text: `Check out ${teacher.name}'s teacher profile`,
+          url,
+        });
+      } else {
+        await navigator.clipboard.writeText(url);
+        // Optional: show your project's success toast here
+      }
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error("Failed to share profile:", error);
+      }
+    }
+  };
+
+  const teachingType =
+    teacher.teachingMethods?.slice(0, 2).join(" / ") || teacher.typeLabel;
 
   // The 4 feature-bullets under the title — real teacher data, styled like the reference's icon+label row
   const bullets = [
@@ -98,29 +161,63 @@ export function TeacherProfileHeader({ teacher, isFavorite, onToggleFavorite }) 
       <div className="relative z-10 flex flex-col items-stretch gap-8 p-6 pb-9 sm:p-10 sm:pb-12 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
         {/* ── Text column — start side (left in English, right in Arabic) ─── */}
         <div className="flex flex-1 flex-col items-start gap-4 text-start">
-          <div className="flex w-full items-center justify-between">
-            {teacher.isVerified && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#0E1A4D] backdrop-blur-sm">
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#2E9E6B]">
-                  <Check size={11} className="text-white" strokeWidth={3} />
+          <div className="flex w-full items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              {teacher.isVerified && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#0E1A4D] backdrop-blur-sm">
+                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#2E9E6B]">
+                    <Check size={11} className="text-white" strokeWidth={3} />
+                  </span>
+                  {t("teacher.verified")}
                 </span>
-                {t("teacher.verified")}
-              </span>
-            )}
+              )}
+
+              {/* Rate Teacher */}
+              <button
+                type="button"
+                onClick={() => setIsReviewOpen(true)}
+                className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-3 py-2 text-xs font-semibold text-white backdrop-blur-sm transition hover:bg-white/25"
+              >
+                <Star size={15} className="text-[#FFC94A]" />
+                {t("teacher.rateTeacher")}
+              </button>
+
+              {/* Share Profile */}
+              <button
+                type="button"
+                onClick={handleShare}
+                aria-label={t("teacher.shareProfile")}
+                title={t("teacher.shareProfile")}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/15 text-white backdrop-blur-sm transition hover:bg-white/25"
+              >
+                <Share2 size={17} />
+              </button>
+            </div>
+
             {onToggleFavorite && (
-              <FavoriteButton active={isFavorite} onClick={onToggleFavorite} className="!bg-white/15 [&_svg]:!text-white" />
+              <FavoriteButton
+                active={isFavorite}
+                onClick={onToggleFavorite}
+                className="!bg-white/15 [&_svg]:!text-white"
+              />
             )}
           </div>
 
           <div>
-            <h1 className="text-[28px] font-bold leading-tight text-white sm:text-[36px]">{teacher.name}</h1>
+            <h1 className="text-[28px] font-bold leading-tight text-white sm:text-[36px]">
+              {teacher.name}
+            </h1>
             {subtitleBits.length > 0 && (
               <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm font-medium text-white/75 sm:text-base">
                 {subtitleBits.map(({ icon: Icon, text, iconClass }, i) => (
                   <span key={i} className="flex items-center gap-3.5">
                     {i > 0 && <span className="h-3.5 w-px bg-white/25" />}
                     <span className="inline-flex items-center gap-1.5">
-                      <Icon size={16} className={iconClass ?? "text-[#5FE4FF]"} strokeWidth={2} />
+                      <Icon
+                        size={16}
+                        className={iconClass ?? "text-[#5FE4FF]"}
+                        strokeWidth={2}
+                      />
                       {text}
                     </span>
                   </span>
@@ -137,7 +234,9 @@ export function TeacherProfileHeader({ teacher, isFavorite, onToggleFavorite }) 
                     <Icon size={18} strokeWidth={2} />
                   </span>
                   <span className="flex flex-col leading-tight">
-                    <span className="text-sm font-bold text-white">{value}</span>
+                    <span className="text-sm font-bold text-white">
+                      {value}
+                    </span>
                     <span className="text-xs text-white/60">{label}</span>
                   </span>
                 </div>
@@ -159,20 +258,38 @@ export function TeacherProfileHeader({ teacher, isFavorite, onToggleFavorite }) 
           </div>
 
           {/* rotating neon ring */}
-          <div className="absolute inset-0 rounded-full motion-safe:animate-spin-slow" style={{ background: RING_SHINE }} />
+          <div
+            className="absolute inset-0 rounded-full motion-safe:animate-spin-slow"
+            style={{ background: RING_SHINE }}
+          />
           {/* thin bright ring against the photo */}
           <div className="absolute inset-[6px] rounded-full bg-white/90" />
           {/* photo */}
           <div className="absolute inset-[10px] overflow-hidden rounded-full">
             <img
               src={teacher.avatar || "/teacher.webp"}
-              alt={teacher.subjects?.[0] ? `${teacher.name} - مدرس ${teacher.subjects[0]}` : teacher.name}
+              alt={
+                teacher.subjects?.[0]
+                  ? `${teacher.name} - مدرس ${teacher.subjects[0]}`
+                  : teacher.name
+              }
               decoding="async"
               className="h-full w-full object-cover object-top"
             />
           </div>
         </div>
       </div>
+      {isReviewOpen && (
+        <ReviewFormModal
+          title={t("teacher.rateTeacher")}
+          isPending={isReviewPending}
+          error={reviewError}
+          onClose={() => setIsReviewOpen(false)}
+          onSubmit={(reviewData) => {
+            onSubmitReview?.(reviewData);
+          }}
+        />
+      )}
     </div>
   );
 }

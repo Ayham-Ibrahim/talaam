@@ -557,6 +557,8 @@
     }
   },
   "teacher": {
+    "rateTeacher": "Rate Teacher",
+    "shareProfile": "Share Profile",
     "verified": "Certified Teacher",
     "perSession": "per session",
     "reviews": "reviews",
