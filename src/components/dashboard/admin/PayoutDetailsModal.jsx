@@ -80,10 +80,6 @@ export function PayoutDetailsModal({ payoutId, onClose }) {
                 <SummaryField label={t('dashboard.adminPayouts.details.sessionsTotal')} value={formatPrice(sum(sessionItems))} />
                 <SummaryField label={t('dashboard.adminPayouts.details.settlementsTotal')} value={formatPrice(sum(settlementItems))} />
                 <SummaryField label={t('dashboard.adminPayouts.details.deductions')} value={formatPrice(payout.deductions)} />
-                <SummaryField
-                  label={t('dashboard.adminPayouts.details.approvedAt')}
-                  value={payout.approvedAt ? `${formatDate(payout.approvedAt)}${payout.approvedBy ? ` — ${payout.approvedBy}` : ''}` : null}
-                />
                 <SummaryField label={t('dashboard.adminPayouts.details.paidAt')} value={formatDate(payout.paidAt)} />
                 <SummaryField label={t('dashboard.adminPayouts.details.transferReference')} value={payout.transferReference} />
               </div>

@@ -23,18 +23,10 @@ function useInvalidatePayouts() {
   return () => queryClient.invalidateQueries({ queryKey: ['admin', 'payouts'] });
 }
 
-export function useGeneratePayout() {
+export function useGeneratePayouts() {
   const invalidate = useInvalidatePayouts();
   return useMutation({
-    mutationFn: (payload) => adminPayoutsService.generatePayout(payload),
-    onSuccess: invalidate,
-  });
-}
-
-export function useApprovePayout() {
-  const invalidate = useInvalidatePayouts();
-  return useMutation({
-    mutationFn: (id) => adminPayoutsService.approvePayout(id),
+    mutationFn: () => adminPayoutsService.generatePayouts(),
     onSuccess: invalidate,
   });
 }

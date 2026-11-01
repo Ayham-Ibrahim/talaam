@@ -1,7 +1,7 @@
 import { config } from '@/config/env';
 import { client, mockDelay } from '@/api/client';
 import { endpoints } from '@/api/endpoints';
-import { filterMockPayouts, findMockPayout, updateMockPayout, createMockPayout } from '@/mocks/adminPayouts.mock';
+import { filterMockPayouts, findMockPayout, updateMockPayout } from '@/mocks/adminPayouts.mock';
 
 export const adminPayoutsService = {
   async getPayouts(filters = {}) {
@@ -25,24 +25,13 @@ export const adminPayoutsService = {
     return data.data;
   },
 
-  async generatePayout({ teacherId, periodStart, periodEnd }) {
+  /** كشف لكل معلم بكل مستحقاته غير المصروفة حتى لحظة الضغط — PayoutController::generate، يُرجع { created } */
+  async generatePayouts() {
     if (config.useMocks) {
       await mockDelay(400);
-      return createMockPayout(teacherId);
+      return { created: 0 };
     }
-    const { data } = await client.post(endpoints.admin.generatePayout(teacherId), {
-      period_start: periodStart,
-      period_end: periodEnd,
-    });
-    return data.data;
-  },
-
-  async approvePayout(id) {
-    if (config.useMocks) {
-      await mockDelay(350);
-      return updateMockPayout(id, { status: 'approved', approvedAt: new Date().toISOString().slice(0, 10) });
-    }
-    const { data } = await client.post(endpoints.admin.approvePayout(id));
+    const { data } = await client.post(endpoints.admin.generatePayouts);
     return data.data;
   },
 
@@ -55,7 +44,7 @@ export const adminPayoutsService = {
     return data.data;
   },
 
-  /** PDF — متاح فقط لمستحقات approved/paid (PayoutController::downloadInvoice) */
+  /** PDF — متاح بحالتَي الكشف: غير مدفوع ومدفوع (PayoutController::downloadInvoice) */
   async downloadInvoice(id) {
     if (config.useMocks) {
       await mockDelay(400);

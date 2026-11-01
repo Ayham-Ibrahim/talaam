@@ -1,4 +1,4 @@
-import { Check, Download, Eye, Wallet } from 'lucide-react';
+import { Download, Eye, Wallet } from 'lucide-react';
 import { PayoutStatusBadge } from './PayoutStatusBadge';
 import { PROVIDER_TYPE_LABELS } from '@/mocks/adminListings.mock';
 import { formatDate, formatPrice } from '@/lib/formatters';
@@ -9,7 +9,7 @@ function formatPeriod(periodStart, periodEnd) {
   return `${formatDate(periodStart)} - ${formatDate(periodEnd)}`;
 }
 
-export function PayoutsTable({ payouts, onView, onApprove, onMarkPaid, onDownloadInvoice, downloadingInvoiceId, isActing }) {
+export function PayoutsTable({ payouts, onView, onMarkPaid, onDownloadInvoice, downloadingInvoiceId, isActing }) {
   const t = useT();
 
   return (
@@ -52,17 +52,6 @@ export function PayoutsTable({ payouts, onView, onApprove, onMarkPaid, onDownloa
                     <button
                       type="button"
                       disabled={isActing}
-                      onClick={() => onApprove(p.id)}
-                      className="flex items-center gap-1.5 text-sm font-medium text-primary hover:opacity-70 disabled:opacity-50"
-                    >
-                      {t('dashboard.adminPayouts.approve')}
-                      <Check size={16} />
-                    </button>
-                  )}
-                  {p.status === 'approved' && (
-                    <button
-                      type="button"
-                      disabled={isActing}
                       onClick={() => onMarkPaid(p.id)}
                       className="flex items-center gap-1.5 text-sm font-medium text-success hover:opacity-70 disabled:opacity-50"
                     >
@@ -70,17 +59,15 @@ export function PayoutsTable({ payouts, onView, onApprove, onMarkPaid, onDownloa
                       <Wallet size={16} />
                     </button>
                   )}
-                  {(p.status === 'approved' || p.status === 'paid') && (
-                    <button
-                      type="button"
-                      disabled={downloadingInvoiceId === p.id}
-                      onClick={() => onDownloadInvoice(p)}
-                      className="flex items-center gap-1.5 text-sm font-medium text-primary hover:opacity-70 disabled:opacity-50"
-                    >
-                      {t('dashboard.adminPayouts.downloadInvoice')}
-                      <Download size={16} />
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    disabled={downloadingInvoiceId === p.id}
+                    onClick={() => onDownloadInvoice(p)}
+                    className="flex items-center gap-1.5 text-sm font-medium text-primary hover:opacity-70 disabled:opacity-50"
+                  >
+                    {t('dashboard.adminPayouts.downloadInvoice')}
+                    <Download size={16} />
+                  </button>
                 </div>
               </td>
             </tr>
