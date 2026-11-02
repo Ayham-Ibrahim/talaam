@@ -5,6 +5,7 @@ import { Eye, EyeOff, GraduationCap, Mail, Lock, User, Phone, ArrowRight } from 
 import { motion } from 'framer-motion';
 import { Logo } from '@/components/layout/Logo';
 import { ApiErrorList, Button } from '@/components/ui';
+import { PolicyAcceptanceCheckbox } from '@/components/auth/PolicyAcceptanceCheckbox';
 import {
   StudentAcademicProfileFields,
   STUDENT_ACADEMIC_INITIAL,
@@ -32,6 +33,7 @@ const REGISTER_FIELD_LABELS = {
   course_field_id: 'مجال الدورة',
   guardian_name: 'اسم ولي الأمر',
   guardian_phone: 'هاتف ولي الأمر',
+  accept_policy: 'الموافقة على السياسة',
 };
 const registerErrorLabel = (path) => REGISTER_FIELD_LABELS[path] ?? path;
 
@@ -59,7 +61,7 @@ export function RegisterPage() {
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm({ defaultValues: { name: '', email: '', phone: '', password: '', password_confirmation: '' } });
+  } = useForm({ defaultValues: { name: '', email: '', phone: '', password: '', password_confirmation: '', accept_policy: false } });
 
   const password = watch('password');
 
@@ -76,6 +78,7 @@ export function RegisterPage() {
         phone: values.phone.trim() || undefined,
         password: values.password,
         password_confirmation: values.password_confirmation,
+        accept_policy: values.accept_policy,
         // منطقة الطالب الفعلية تُلتقَط مرة واحدة هنا فقط، عند إنشاء الحساب — لا تُعاد مزامنتها تلقائياً بعد ذلك
         timezone: getBrowserTimezone(),
         ...buildStudentAcademicPayload(academicForm),
@@ -267,6 +270,12 @@ export function RegisterPage() {
                   requireGuardian={false}
                 />
               </div>
+
+              <PolicyAcceptanceCheckbox
+                policySlug="student-policy"
+                registration={register('accept_policy', { required: t('auth.policyAgreeRequired') })}
+                error={errors.accept_policy}
+              />
 
               {registerStudent.isError && <ApiErrorList error={registerStudent.error} labelFor={registerErrorLabel} />}
 

@@ -79,7 +79,8 @@ export function AdminListingDetailPage() {
 
         <div className="flex items-center gap-2">
           {/* كوبونات الخصم متاحة فقط للباقات (لا الدورات) — نفس القيد المفروض في CreateCouponRequest بالباك اند */}
-          {listing?.kind === 'package' && listing?.status === 'active' && (
+          {/* باقة مجانية: لا كوبونات — لا سعر يُخصم منه أصلاً */}
+          {listing?.kind === 'package' && listing?.status === 'active' && !listing?.isTrial && (
             <button
               type="button"
               onClick={() => setCouponsOpen(true)}

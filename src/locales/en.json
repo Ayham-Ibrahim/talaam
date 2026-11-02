@@ -310,6 +310,10 @@
     "privacySubtitle": "How we collect, use, and protect your data on the Ta'alam platform",
     "termsTitle": "Terms & Conditions",
     "termsSubtitle": "The rules governing your use of the Ta'alam platform in every role",
+    "studentPolicyTitle": "Student Policy",
+    "studentPolicySubtitle": "Attendance, cancellation, make-up and payment rules for students and guardians",
+    "teacherPolicyTitle": "Teacher Policy",
+    "teacherPolicySubtitle": "Teachers' professional commitments, attendance and payout rules on Ta'alam",
     "lastUpdated": "Last updated:"
   },
   "about": {
@@ -610,6 +614,12 @@
     "packageBadge": { "individual": "Individual", "group": "Group" },
     "rating": "Rating",
     "sessionMinutes": "minutes",
+    "freePackage": "Free",
+    "trialBadge": "Intro session",
+    "trialRibbon": "Free",
+    "trialTagline": "Meet the teacher before you subscribe",
+    "trialOneSession": "1 session",
+    "trialCta": "Book your free session",
     "perSessionLabel": "per session",
     "discount": "Discount",
     "intro": "About the Teacher",
@@ -620,6 +630,8 @@
   },
   "booking": {
     "title": "Book Your Session",
+    "courseOwnConflictWarning": "Heads up: some of this course's sessions overlap other sessions you already have. You can still enroll, but you won't be able to attend both sessions at the same time.",
+    "groupOwnConflictWarning": "Heads up: the dates highlighted in yellow overlap other sessions you already have. You can still join this group, but you won't be able to attend both sessions at the same time.",
     "selectedPackage": "Selected Package",
     "subjectLabel": "Subject",
     "chooseDate": "Choose a Date",
@@ -710,6 +722,10 @@
     "commentPlaceholder": "Share your thoughts about the session..."
   },
   "auth": {
+    "policyAgreePrefix": "I have read and agree to the",
+    "policyAgreeSep": ", the ",
+    "policyAgreeLastSep": " and the ",
+    "policyAgreeRequired": "You must accept the policy to create an account",
     "title": "Log In",
     "subtitle": "Log in to access your dashboard",
     "emailLabel": "Email",
@@ -758,6 +774,15 @@
       "submitting": "Creating account..."
     }
   },
+  "policyNotice": {
+    "readPolicy": "Read the full policy",
+    "payment": "Fees are non-refundable once the subscription is confirmed, except for the compensation cases set out in the Student Policy.",
+    "rescheduleStudent": "Reschedule or cancellation requests must be submitted at least 12 hours before the session; later cancellations count as an absence. Every request requires the management's approval.",
+    "rescheduleTeacher": "Reschedule requests must be submitted at least 6 hours before the session. They require the management's approval, and the student is notified of the decision.",
+    "sessionStudent": "Joining opens 5 minutes before the session. Joining after the first 20 minutes counts as an absence and is not made up; if the teacher is more than 20 minutes late, you get a free make-up session. Join with the \"Join\" button so your attendance is recorded. Sessions are recorded for quality assurance.",
+    "sessionTeacher": "Join with the \"Join\" button so your attendance is recorded. Not joining within the first 20 minutes counts as an absence with no payout; if no student joins within that time, you are credited the compensation set by the platform. Stay in the session for the whole waiting period. Sessions are recorded for quality assurance.",
+    "bookingRequests": "Teachers must respond to booking requests within one hour; a request is cancelled automatically if the session time arrives without approval."
+  },
   "footer": {
     "contact": "Contact Us",
     "company": "Company",
@@ -765,6 +790,8 @@
     "about": "About Us",
     "privacy": "Privacy Policy",
     "terms": "Terms & Conditions",
+    "studentPolicy": "Student Policy",
+    "teacherPolicy": "Teacher Policy",
     "contactUs": "Contact Us",
     "copyright": "All rights reserved 2026"
   },

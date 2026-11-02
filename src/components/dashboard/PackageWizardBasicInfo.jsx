@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, User } from "lucide-react";
+import { Users, User, Gift, Wallet, Check } from "lucide-react";
 import { SmoothSelect } from "./SmoothSelect";
 import { MultiSelectChips } from "./MultiSelectChips";
 import { ApiErrorList } from "@/components/ui";
@@ -18,6 +18,14 @@ function remainingErrors(serverErrors) {
 
 /* Training centers never reach this wizard at all (they get their own course wizard) —
    so the only two real session_format values the backend accepts apply here. */
+/* نوع العرض أولاً — يحدد شكل بقية النموذج: المدفوعة كما هي، والمجانية قيمها ثابتة */
+const OFFER_TYPES = [
+  { key: "paid", trial: false, icon: Wallet, bg: "#F0F4FF", color: "#4A6FE0" },
+  { key: "trial", trial: true, icon: Gift, bg: "#EAF8EF", color: "#34C759" },
+];
+
+const TRIAL_FACTS = ["factIndividual", "factOneSession", "factFree", "factNoSubject"];
+
 const SESSION_TYPES = [
   { key: "individual", icon: User, bg: "#F0FAFD", color: "#6BCEEE" },
   { key: "group", icon: Users, bg: "#FEEDEA", color: "#F74E28" },
@@ -47,15 +55,15 @@ export function PackageWizardBasicInfo({ data, onChange, onNext, serverErrors })
     label: `${t("dashboard.addPackage.gradeOptionLabel")} ${i + 1}`,
   }));
 
+  const isTrial = !!data.is_trial;
   const isGroup = data.session_format === "group";
   const capacityValid = isGroup ? Number(data.capacity) >= 2 : true;
   // مسافات فقط تُعتبر فارغة — نفس معيار الباك اند (CreatePackageRequest يقلّمها قبل الفحص)
   const descriptionValid = data.description.trim() !== "";
+  // المجانية بلا مادة ولا عدد جلسات يحدده المعلم — قيمها ثابتة (جلسة فردية واحدة)
   const isValid =
     data.title.trim() !== "" &&
-    data.subject_id !== "" &&
-    Number(data.sessions_count) > 0 &&
-    capacityValid &&
+    (isTrial || (data.subject_id !== "" && Number(data.sessions_count) > 0 && capacityValid)) &&
     descriptionValid;
 
   // خطأ الباك اند (بعد محاولة حفظ فعلية) له الأولوية دوماً على فحص الفرونت
@@ -90,11 +98,74 @@ export function PackageWizardBasicInfo({ data, onChange, onNext, serverErrors })
     });
   };
 
+  /** المجانية فردية بجلسة واحدة وسعر صفر، بلا مادة/مناهج/مراحل/صفوف/خصم — الباك اند يفرض ذلك ويرفض غيره */
+  const selectOfferType = (trial) => {
+    if (trial === isTrial) return;
+    if (!trial) {
+      onChange({ is_trial: false, sessions_count: "", teacher_price: "" });
+      return;
+    }
+    onChange({
+      is_trial: true,
+      session_format: "individual",
+      capacity: "1",
+      sessions_count: "1",
+      teacher_price: "0",
+      subject_id: "",
+      curriculum_ids: [],
+      stage_ids: [],
+      grades: [],
+      discount_percent: "",
+      // الجدول يختلف شكله بين الفردية والجماعية — لا يصح نقله من جماعية
+      schedules: data.session_format === "individual" ? data.schedules : [],
+    });
+  };
+
   const otherErrors = remainingErrors(serverErrors);
 
   return (
     <div className="mt-8 flex flex-col items-end gap-6">
       {otherErrors && <ApiErrorList error={otherErrors} labelFor={packageErrorLabel} className="w-full" />}
+
+      <h3 className="w-full text-right text-base font-bold text-ink">
+        {t("dashboard.addPackage.trial.offerTypeLabel")}
+      </h3>
+
+      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+        {OFFER_TYPES.map((type) => {
+          const Icon = type.icon;
+          const selected = isTrial === type.trial;
+          return (
+            <button
+              key={type.key}
+              type="button"
+              onClick={() => selectOfferType(type.trial)}
+              aria-pressed={selected}
+              className={`relative flex flex-col items-center gap-2 rounded-2xl border-2 bg-white p-4 pt-8 text-center shadow-card transition-colors ${
+                selected ? "border-primary" : "border-[#F2F2F7] hover:border-primary/30"
+              }`}
+            >
+              <span
+                className={`absolute left-3 top-3 flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                  selected ? "border-primary" : "border-[#626262]"
+                }`}
+              >
+                {selected && <span className="h-3 w-3 rounded-full bg-primary" />}
+              </span>
+
+              <div className="flex h-[60px] w-[60px] items-center justify-center rounded-xl" style={{ background: type.bg }}>
+                <Icon size={30} style={{ color: type.color }} />
+              </div>
+
+              <h4 className="font-bold text-[#2D2D2D]">{t(`dashboard.addPackage.trial.offerTypes.${type.key}.title`)}</h4>
+              <p className="text-sm text-ink-soft">{t(`dashboard.addPackage.trial.offerTypes.${type.key}.desc`)}</p>
+              <span className="rounded-pill px-3 py-1 text-sm" style={{ background: type.bg, color: type.color }}>
+                {t(`dashboard.addPackage.trial.offerTypes.${type.key}.badge`)}
+              </span>
+            </button>
+          );
+        })}
+      </div>
 
       <div className="flex w-full flex-col items-start gap-1.5">
         <label className="text-sm font-semibold text-primary">
@@ -113,133 +184,157 @@ export function PackageWizardBasicInfo({ data, onChange, onNext, serverErrors })
         {titleError && <p className="text-xs text-accent-pink">{titleError}</p>}
       </div>
 
-      <h3 className="w-full text-right text-base font-bold text-ink">
-        {t("dashboard.addPackage.sessionTypeLabel")}
-      </h3>
-
-      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-        {SESSION_TYPES.map((type) => {
-          const Icon = type.icon;
-          const selected = data.session_format === type.key;
-          return (
-            <button
-              key={type.key}
-              type="button"
-              onClick={() => selectSessionFormat(type.key)}
-              className="relative flex flex-col items-center gap-2 rounded-2xl border border-[#F2F2F7] bg-white p-4 pt-8 text-center shadow-card transition-colors"
-            >
+      {isTrial && (
+        <div className="w-full rounded-2xl border border-[#D6F2DF] bg-[#F4FCF6] p-4 text-right">
+          <p className="text-sm font-semibold text-[#2D2D2D]">{t("dashboard.addPackage.trial.factsTitle")}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {TRIAL_FACTS.map((fact) => (
               <span
-                className={`absolute left-3 top-3 flex h-5 w-5 items-center justify-center rounded-full border-2 ${
-                  selected ? "border-primary" : "border-[#626262]"
+                key={fact}
+                className="inline-flex items-center gap-1.5 rounded-pill bg-white px-3 py-1.5 text-xs font-semibold text-[#2E9E4F] ring-1 ring-[#D6F2DF]"
+              >
+                <Check size={13} strokeWidth={3} />
+                {t(`dashboard.addPackage.trial.${fact}`)}
+              </span>
+            ))}
+          </div>
+          <p className="mt-3 text-xs text-ink-soft">{t("dashboard.addPackage.trial.factsHint")}</p>
+        </div>
+      )}
+
+      {!isTrial && (
+        <>
+          <h3 className="w-full text-right text-base font-bold text-ink">
+            {t("dashboard.addPackage.sessionTypeLabel")}
+          </h3>
+
+          <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+            {SESSION_TYPES.map((type) => {
+              const Icon = type.icon;
+              const selected = data.session_format === type.key;
+              return (
+                <button
+                  key={type.key}
+                  type="button"
+                  onClick={() => selectSessionFormat(type.key)}
+                  className="relative flex flex-col items-center gap-2 rounded-2xl border border-[#F2F2F7] bg-white p-4 pt-8 text-center shadow-card transition-colors"
+                >
+                  <span
+                    className={`absolute left-3 top-3 flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                      selected ? "border-primary" : "border-[#626262]"
+                    }`}
+                  >
+                    {selected && (
+                      <span className="h-3 w-3 rounded-full bg-primary" />
+                    )}
+                  </span>
+
+                  <div
+                    className="flex h-[60px] w-[60px] items-center justify-center rounded-xl"
+                    style={{ background: type.bg }}
+                  >
+                    <Icon size={30} style={{ color: type.color }} />
+                  </div>
+
+                  <h4 className="font-bold text-[#2D2D2D]">
+                    {t(`dashboard.addPackage.sessionTypes.${type.key}.title`)}
+                  </h4>
+                  <p className="text-sm text-ink-soft">
+                    {t(`dashboard.addPackage.sessionTypes.${type.key}.desc`)}
+                  </p>
+                  <span
+                    className="rounded-pill px-3 py-1 text-sm"
+                    style={{ background: type.bg, color: type.color }}
+                  >
+                    {t(`dashboard.addPackage.sessionTypes.${type.key}.badge`)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+            <SmoothSelect
+              label={t("dashboard.addPackage.subjectLabel")}
+              value={data.subject_id}
+              onChange={(v) => onChange({ subject_id: v })}
+              options={subjectOptions}
+              placeholder={t("dashboard.addPackage.selectPlaceholder")}
+              error={!!subjectError}
+              errorMessage={subjectError}
+            />
+
+            <div className="flex flex-col items-start gap-1.5">
+              <label className="text-sm font-semibold text-primary">
+                {t("dashboard.addPackage.capacityLabel")}
+              </label>
+              <input
+                type="number"
+                min={isGroup ? 2 : 1}
+                max="100"
+                disabled={!isGroup}
+                value={data.capacity}
+                onChange={(e) => onChange({ capacity: e.target.value })}
+                aria-invalid={!!capacityError}
+                className={`w-full rounded-lg border bg-white px-3 py-3 text-right text-sm text-ink disabled:bg-[#F7F8FA] disabled:text-ink-soft focus:outline-none ${
+                  capacityError ? "border-accent-pink" : "border-[#E3E3E3] focus:border-primary"
                 }`}
-              >
-                {selected && (
-                  <span className="h-3 w-3 rounded-full bg-primary" />
-                )}
-              </span>
+              />
+              {capacityError && <p className="text-xs text-accent-pink">{capacityError}</p>}
+            </div>
+          </div>
 
-              <div
-                className="flex h-[60px] w-[60px] items-center justify-center rounded-xl"
-                style={{ background: type.bg }}
-              >
-                <Icon size={30} style={{ color: type.color }} />
-              </div>
-
-              <h4 className="font-bold text-[#2D2D2D]">
-                {t(`dashboard.addPackage.sessionTypes.${type.key}.title`)}
-              </h4>
-              <p className="text-sm text-ink-soft">
-                {t(`dashboard.addPackage.sessionTypes.${type.key}.desc`)}
-              </p>
-              <span
-                className="rounded-pill px-3 py-1 text-sm"
-                style={{ background: type.bg, color: type.color }}
-              >
-                {t(`dashboard.addPackage.sessionTypes.${type.key}.badge`)}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-        <SmoothSelect
-          label={t("dashboard.addPackage.subjectLabel")}
-          value={data.subject_id}
-          onChange={(v) => onChange({ subject_id: v })}
-          options={subjectOptions}
-          placeholder={t("dashboard.addPackage.selectPlaceholder")}
-          error={!!subjectError}
-          errorMessage={subjectError}
-        />
-
-        <div className="flex flex-col items-start gap-1.5">
-          <label className="text-sm font-semibold text-primary">
-            {t("dashboard.addPackage.capacityLabel")}
-          </label>
-          <input
-            type="number"
-            min={isGroup ? 2 : 1}
-            max="100"
-            disabled={!isGroup}
-            value={data.capacity}
-            onChange={(e) => onChange({ capacity: e.target.value })}
-            aria-invalid={!!capacityError}
-            className={`w-full rounded-lg border bg-white px-3 py-3 text-right text-sm text-ink disabled:bg-[#F7F8FA] disabled:text-ink-soft focus:outline-none ${
-              capacityError ? "border-accent-pink" : "border-[#E3E3E3] focus:border-primary"
-            }`}
-          />
-          {capacityError && <p className="text-xs text-accent-pink">{capacityError}</p>}
-        </div>
-      </div>
-
-      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-        <MultiSelectChips
-          label={t("dashboard.addPackage.curriculumLabel")}
-          values={data.curriculum_ids}
-          onChange={(v) => onChange({ curriculum_ids: v })}
-          options={curriculumOptions}
-          placeholder={t("dashboard.addPackage.selectPlaceholder")}
-          max={20}
-        />
-        <MultiSelectChips
-          label={t("dashboard.addPackage.stageLabel")}
-          values={data.stage_ids}
-          onChange={(v) => onChange({ stage_ids: v })}
-          options={stageOptions}
-          placeholder={t("dashboard.addPackage.selectPlaceholder")}
-          max={20}
-        />
-      </div>
-      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-        <MultiSelectChips
-          label={t("dashboard.addPackage.gradeLabel")}
-          values={data.grades}
-          onChange={(v) => onChange({ grades: v })}
-          options={gradeOptions}
-          placeholder={t("dashboard.addPackage.selectPlaceholder")}
-          max={12}
-        />
-      </div>
-      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="flex w-full flex-col items-start gap-1.5">
-          <label className="text-sm font-semibold text-primary">
-            {t("dashboard.addPackage.sessionsCountLabel")}
-          </label>
-          <input
-            type="number"
-            min="1"
-            max="200"
-            value={data.sessions_count}
-            onChange={(e) => onChange({ sessions_count: e.target.value })}
-            placeholder={t("dashboard.addPackage.sessionsCountPlaceholder")}
-            aria-invalid={!!sessionsCountError}
-            className={`w-full   rounded-lg border bg-white px-3 py-3 text-right text-sm text-ink placeholder:text-[#AEAEB2] focus:outline-none  ${
-              sessionsCountError ? "border-accent-pink" : "border-[#E3E3E3] focus:border-primary"
-            }`}
-          />
-          {sessionsCountError && <p className="text-xs text-accent-pink">{sessionsCountError}</p>}
-        </div>
+          <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+            <MultiSelectChips
+              label={t("dashboard.addPackage.curriculumLabel")}
+              values={data.curriculum_ids}
+              onChange={(v) => onChange({ curriculum_ids: v })}
+              options={curriculumOptions}
+              placeholder={t("dashboard.addPackage.selectPlaceholder")}
+              max={20}
+            />
+            <MultiSelectChips
+              label={t("dashboard.addPackage.stageLabel")}
+              values={data.stage_ids}
+              onChange={(v) => onChange({ stage_ids: v })}
+              options={stageOptions}
+              placeholder={t("dashboard.addPackage.selectPlaceholder")}
+              max={20}
+            />
+          </div>
+          <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+            <MultiSelectChips
+              label={t("dashboard.addPackage.gradeLabel")}
+              values={data.grades}
+              onChange={(v) => onChange({ grades: v })}
+              options={gradeOptions}
+              placeholder={t("dashboard.addPackage.selectPlaceholder")}
+              max={12}
+            />
+          </div>
+        </>
+      )}
+      <div className={`grid w-full grid-cols-1 gap-4 ${isTrial ? "" : "sm:grid-cols-2"}`}>
+        {!isTrial && (
+          <div className="flex w-full flex-col items-start gap-1.5">
+            <label className="text-sm font-semibold text-primary">
+              {t("dashboard.addPackage.sessionsCountLabel")}
+            </label>
+            <input
+              type="number"
+              min="1"
+              max="200"
+              value={data.sessions_count}
+              onChange={(e) => onChange({ sessions_count: e.target.value })}
+              placeholder={t("dashboard.addPackage.sessionsCountPlaceholder")}
+              aria-invalid={!!sessionsCountError}
+              className={`w-full   rounded-lg border bg-white px-3 py-3 text-right text-sm text-ink placeholder:text-[#AEAEB2] focus:outline-none  ${
+                sessionsCountError ? "border-accent-pink" : "border-[#E3E3E3] focus:border-primary"
+              }`}
+            />
+            {sessionsCountError && <p className="text-xs text-accent-pink">{sessionsCountError}</p>}
+          </div>
+        )}
 
         <div className="flex w-full flex-col items-start gap-1.5">
           <label className="text-sm font-semibold text-primary">

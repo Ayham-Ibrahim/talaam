@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { ApiErrorList } from '@/components/ui';
+import { PolicyNotice } from '@/components/common/PolicyNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { useT } from '@/hooks/useT';
 import { zonedWallTimeToUtcIso } from '@/lib/zonedDateTime';
@@ -27,6 +28,7 @@ function isReasonRequired(currentScheduledAt) {
 export function RescheduleRequestModal({ isPending, error, currentScheduledAt, onConfirm, onClose }) {
   const t = useT();
   const { user } = useAuth();
+  const isTeacher = user?.role === 'teacher';
   const [isAbsenceReport, setIsAbsenceReport] = useState(false);
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
@@ -81,6 +83,11 @@ export function RescheduleRequestModal({ isPending, error, currentScheduledAt, o
         </div>
 
         <p className="mb-4 text-sm text-ink-soft">{t('dashboard.rescheduleModal.hint')}</p>
+
+        {/* مهلة الطلب من سياسة الدور: 12 ساعة للطالب و6 للمعلم — الموافقة للأدمن دائماً */}
+        <PolicyNotice policySlug={isTeacher ? 'teacher-policy' : 'student-policy'} className="mb-4">
+          {t(isTeacher ? 'policyNotice.rescheduleTeacher' : 'policyNotice.rescheduleStudent')}
+        </PolicyNotice>
 
         {showApiSummary && <ApiErrorList error={error} labelFor={rescheduleFieldLabel} className="mb-4" />}
 

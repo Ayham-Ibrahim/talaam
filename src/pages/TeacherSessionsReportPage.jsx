@@ -10,11 +10,22 @@ import { saveBlob } from '@/lib/download';
 import { useT } from '@/hooks/useT';
 
 /**
- * تقرير "كل مدرس: عدد الحصص والعائد" — للأدمن والمحاسب (variant). الحصص
- * المحسوبة هنا هي الحصص "المحقَّقة فعلاً" فقط (معلم وطالب حاضران)، وليست كل
- * حصة انقضى وقتها فقط — الفرق يتحدد بالكامل في TeacherSessionsReportService
- * بالباك (status='completed' + حضور فعلي)، لا شيء هنا يُعيد حساب ذلك.
+ * تقرير "كل مدرس: عدد الحصص والعائد" — للأدمن والمحاسب (variant). كل الأرقام من
+ * TeacherSessionsReportService بالباك، على نفس حساب كشوف المستحقات (الحضور التلقائي،
+ * النسبة، السقف، التسويات) — مستحق المعلم = المُدرَج في كشوف + ما لم يُدرَج بعد.
  */
+const REPORT_COLUMNS = [
+  'teacher',
+  'sessionsCount',
+  'studentNoShowCount',
+  'teacherAbsentCount',
+  'teacherRevenue',
+  'inPayoutsAmount',
+  'notInPayoutsAmount',
+  'settlementsAmount',
+  'platformRevenue',
+];
+
 export function TeacherSessionsReportPage({ variant = 'admin' }) {
   const t = useT();
   const { user } = useAuth();
@@ -28,7 +39,7 @@ export function TeacherSessionsReportPage({ variant = 'admin' }) {
   if (!user) return <Navigate to="/login" replace />;
 
   const rows = data?.rows ?? [];
-  const totals = data?.totals ?? { sessionsCount: 0, teacherRevenue: 0, platformRevenue: 0 };
+  const totals = data?.totals ?? { sessionsCount: 0, teacherRevenue: 0, inPayoutsAmount: 0, notInPayoutsAmount: 0, platformRevenue: 0 };
 
   const handleApplyFilters = () => setAppliedFilters({ from: from || undefined, to: to || undefined });
 
@@ -89,7 +100,7 @@ export function TeacherSessionsReportPage({ variant = 'admin' }) {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           <div className="flex items-center gap-3 rounded-2xl border border-[#F2F2F7] bg-white p-4 shadow-card">
             <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-xl" style={{ background: '#EDF0F5' }}>
               <BarChart3 size={28} style={{ color: '#4B6898' }} />
@@ -117,6 +128,24 @@ export function TeacherSessionsReportPage({ variant = 'admin' }) {
               <div className="text-2xl font-bold text-[#2D2D2D]">{formatPrice(totals.teacherRevenue)}</div>
             </div>
           </div>
+          <div className="flex items-center gap-3 rounded-2xl border border-[#F2F2F7] bg-white p-4 shadow-card">
+            <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-xl" style={{ background: '#E3F5EC' }}>
+              <Wallet size={28} style={{ color: '#2E9E6B' }} />
+            </div>
+            <div className="text-right">
+              <div className="text-sm font-bold text-[#2D2D2D]">{t('dashboard.teacherSessionsReport.totalInPayouts')}</div>
+              <div className="text-2xl font-bold text-[#2D2D2D]">{formatPrice(totals.inPayoutsAmount)}</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 rounded-2xl border border-[#F2F2F7] bg-white p-4 shadow-card">
+            <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-xl" style={{ background: '#FEF3E2' }}>
+              <Wallet size={28} style={{ color: '#B7791F' }} />
+            </div>
+            <div className="text-right">
+              <div className="text-sm font-bold text-[#2D2D2D]">{t('dashboard.teacherSessionsReport.totalNotInPayouts')}</div>
+              <div className="text-2xl font-bold text-[#2D2D2D]">{formatPrice(totals.notInPayoutsAmount)}</div>
+            </div>
+          </div>
         </div>
 
         {isError ? (
@@ -131,10 +160,10 @@ export function TeacherSessionsReportPage({ variant = 'admin' }) {
           <EmptyState title={t('dashboard.teacherSessionsReport.empty')} />
         ) : (
           <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
-            <table className="w-full min-w-[700px] text-sm">
+            <table className="w-full min-w-[1000px] text-sm">
               <thead>
                 <tr className="border-b border-line text-right">
-                  {['teacher', 'sessionsCount', 'teacherRevenue', 'platformRevenue'].map((col) => (
+                  {REPORT_COLUMNS.map((col) => (
                     <th key={col} className="px-4 py-3 font-bold text-ink">
                       {t(`dashboard.teacherSessionsReport.cols.${col}`)}
                     </th>
@@ -146,7 +175,12 @@ export function TeacherSessionsReportPage({ variant = 'admin' }) {
                   <tr key={row.teacherId} className={i % 2 === 1 ? 'bg-[#FAFBFD]' : ''}>
                     <td className="px-4 py-3 font-semibold text-ink">{row.teacherName ?? '—'}</td>
                     <td className="px-4 py-3 text-ink-soft">{formatNumber(row.sessionsCount)}</td>
-                    <td className="px-4 py-3 text-ink">{formatPrice(row.teacherRevenue)}</td>
+                    <td className="px-4 py-3 text-ink-soft">{formatNumber(row.studentNoShowCount)}</td>
+                    <td className="px-4 py-3 text-ink-soft">{formatNumber(row.teacherAbsentCount)}</td>
+                    <td className="px-4 py-3 font-semibold text-ink">{formatPrice(row.teacherRevenue)}</td>
+                    <td className="px-4 py-3 text-ink-soft">{formatPrice(row.inPayoutsAmount)}</td>
+                    <td className="px-4 py-3 text-ink-soft">{formatPrice(row.notInPayoutsAmount)}</td>
+                    <td className="px-4 py-3 text-ink-soft">{formatPrice(row.settlementsAmount)}</td>
                     <td className="px-4 py-3 font-semibold text-success">{formatPrice(row.platformRevenue)}</td>
                   </tr>
                 ))}

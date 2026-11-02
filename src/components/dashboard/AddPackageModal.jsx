@@ -10,6 +10,7 @@ import { useCreateTeacherPackage, useTeacherPackage, useUpdateTeacherPackage } f
 import { useT } from '@/hooks/useT';
 
 const INITIAL_DATA = {
+  is_trial: false,
   title: '',
   session_format: 'individual',
   capacity: '1',
@@ -41,6 +42,7 @@ function mapPackageToWizardData(pkg) {
   );
 
   return {
+    is_trial: !!pkg.is_trial,
     title: pkg.title ?? '',
     session_format: pkg.session_format ?? 'individual',
     capacity: pkg.capacity ?? '1',
@@ -113,21 +115,32 @@ export function AddPackageModal({ onClose, packageId, readOnly = false }) {
   };
 
   const handleSaveDraft = () => {
-    const payload = {
-      title: data.title.trim(),
-      description: data.description.trim(),
-      subject_id: Number(data.subject_id),
-      session_format: data.session_format,
-      capacity: Number(data.capacity),
-      sessions_count: Number(data.sessions_count),
-      teacher_price: Number(data.teacher_price),
-      currency: 'AED',
-      discount_percent: data.discount_percent ? Number(data.discount_percent) : null,
-      curriculum_ids: data.curriculum_ids,
-      stage_ids: data.stage_ids,
-      grades: data.grades,
-      schedules: data.schedules,
-    };
+    // المجانية: الباك اند يفرض قيمها الثابتة (فردية، جلسة واحدة، سعر صفر) ويرفض أي مادة/مناهج/مراحل/صفوف/خصم
+    const payload = data.is_trial
+      ? {
+          is_trial: true,
+          title: data.title.trim(),
+          description: data.description.trim(),
+          session_format: 'individual',
+          currency: 'AED',
+          schedules: data.schedules,
+        }
+      : {
+          is_trial: false,
+          title: data.title.trim(),
+          description: data.description.trim(),
+          subject_id: Number(data.subject_id),
+          session_format: data.session_format,
+          capacity: Number(data.capacity),
+          sessions_count: Number(data.sessions_count),
+          teacher_price: Number(data.teacher_price),
+          currency: 'AED',
+          discount_percent: data.discount_percent ? Number(data.discount_percent) : null,
+          curriculum_ids: data.curriculum_ids,
+          stage_ids: data.stage_ids,
+          grades: data.grades,
+          schedules: data.schedules,
+        };
 
     if (isEditing) {
       updatePackage.mutate({ id: packageId, payload }, { onSuccess: () => onClose?.() });

@@ -5,6 +5,7 @@ import { Logo } from "./Logo";
 import { useContactInfo } from "@/hooks/useMeta";
 import { useT } from "@/hooks/useT";
 import { SplitWords } from "@/motion/scroll/SplitWords";
+import { LEGAL_PAGES } from "@/lib/legalPages";
 
 // رقم الهاتف/واتساب الرسمي الوحيد — يُستخدَم للعرض وللرابطين (tel:/wa.me) معاً.
 const PHONE_DISPLAY = "+971 52 942 6077";
@@ -35,6 +36,8 @@ export function Footer() {
     { label: t("footer.about"), to: "/about" },
     { label: t("footer.privacy"), to: "/privacy-policy" },
     { label: t("footer.terms"), to: "/terms-conditions" },
+    { label: t("footer.studentPolicy"), to: LEGAL_PAGES["student-policy"].path },
+    { label: t("footer.teacherPolicy"), to: LEGAL_PAGES["teacher-policy"].path },
     { label: t("footer.contactUs"), to: "/contact" },
   ];
 

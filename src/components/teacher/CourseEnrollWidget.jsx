@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AlertTriangle, Award, Laptop, Package, FlaskConical, Video, CalendarDays, CheckCircle2, XCircle } from 'lucide-react';
 import { Button, ApiErrorList } from '@/components/ui';
+import { PolicyNotice } from '@/components/common/PolicyNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { useCreateEnrollment } from '@/hooks/useEnrollment';
 import { useCalendarSessions } from '@/hooks/useDashboard';
@@ -75,7 +76,8 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
   // list refresh) shouldn't be submittable either.
   // التسجيل مباشر بالدفع ما دام هناك مقعد شاغر — الباك اند يرفض أيضاً عند الامتلاء
   const isFull = Boolean(selectedCourse) && (selectedCourse.enrolledCount ?? 0) >= selectedCourse.maxSeats;
-  const canSubmit = Boolean(selectedCourse) && !isPastDate(selectedCourse?.endDate) && !scheduleConflict && !isFull;
+  // تعارض جدول الطالب نفسه تحذير فقط لا يمنع التسجيل — الباك يسمح به (initiateEnrollment)
+  const canSubmit = Boolean(selectedCourse) && !isPastDate(selectedCourse?.endDate) && !isFull;
   const isPending = createEnrollment.isPending;
   const isSuccess = createEnrollment.isSuccess;
 
@@ -145,10 +147,10 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
           )}
 
           {scheduleConflict && (
-            <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-[#FF383C]">
-              <AlertTriangle size={13} />
-              {t('booking.ownTimeConflict')}
-            </p>
+            <div className="mt-2 flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
+              <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+              <span>{t('booking.courseOwnConflictWarning')}</span>
+            </div>
           )}
         </div>
       )}
@@ -199,6 +201,8 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
       {createEnrollment.isError && (
         <ApiErrorList error={createEnrollment.error} labelFor={() => null} />
       )}
+
+      <PolicyNotice policySlug="student-policy">{t('policyNotice.payment')}</PolicyNotice>
 
       <div className="flex items-center justify-between border-t border-line pt-4">
         <span className="text-xl font-bold text-primary">{formatPrice(selectedCourse?.price ?? 0, currency)}</span>

@@ -31,33 +31,74 @@ import { useAuth, useLogout } from '@/hooks/useAuth';
 import { useAdminOverview } from '@/hooks/useAdmin';
 import { useT } from '@/hooks/useT';
 
-/** كل عنصر مرتبط بعدّاد من overview.stats — نقطة حمراء عند > 0. مؤقت ريثما تُستبدَل بإشعارات Firebase لحظية */
-const ADMIN_NAV_ITEMS = [
-  { key: 'home', icon: Home, path: '/dashboard/admin', end: true },
-  { key: 'teachers', icon: GraduationCap, path: '/dashboard/admin/teachers', statKey: 'pendingVerificationsCount' },
-  { key: 'academicSupporters', icon: HandHeart, path: '/dashboard/admin/academic-supporters' },
-  { key: 'students', icon: Users, path: '/dashboard/admin/students' },
-  { key: 'sessions', icon: CalendarDays, path: '/dashboard/admin/sessions' },
-  { key: 'packages', icon: Package, path: '/dashboard/admin/listings', statKey: 'pendingApprovalsCount' },
-  { key: 'complaints', icon: MessageSquareWarning, path: '/dashboard/admin/complaints', statKey: 'openComplaintsCount' },
-  { key: 'taxonomy', icon: ListTree, path: '/dashboard/admin/taxonomy' },
-  { key: 'payouts', icon: Wallet, path: '/dashboard/admin/payouts' },
-  { key: 'bookings', icon: Receipt, path: '/dashboard/admin/bookings' },
-  { key: 'teacherSessionsReport', icon: BarChart3, path: '/dashboard/admin/teacher-sessions-report' },
-  { key: 'accountants', icon: UserCog, path: '/dashboard/admin/accountants' },
-  { key: 'studentImport', icon: FileSpreadsheet, path: '/dashboard/admin/student-import' },
-  { key: 'teacherImport', icon: FileSpreadsheet, path: '/dashboard/admin/teacher-import' },
-  { key: 'importBatches', icon: History, path: '/dashboard/admin/import-batches' },
-  { key: 'notificationLogs', icon: Mail, path: '/dashboard/admin/notification-logs' },
-  { key: 'legalPages', icon: ShieldCheck, path: '/dashboard/admin/legal-pages' },
-  { key: 'settings', icon: Settings, path: '/dashboard/admin/settings' },
+/**
+ * عناصر القائمة مجمَّعة حسب الوظيفة — عنوان كل مجموعة من dashboard.adminNavGroups (group: null بلا عنوان).
+ * كل عنصر مرتبط بعدّاد من overview.stats — نقطة حمراء عند > 0. مؤقت ريثما تُستبدَل بإشعارات Firebase لحظية
+ */
+const ADMIN_NAV_GROUPS = [
+  {
+    group: null,
+    items: [{ key: 'home', icon: Home, path: '/dashboard/admin', end: true }],
+  },
+  {
+    group: 'users',
+    items: [
+      { key: 'teachers', icon: GraduationCap, path: '/dashboard/admin/teachers', statKey: 'pendingVerificationsCount' },
+      { key: 'academicSupporters', icon: HandHeart, path: '/dashboard/admin/academic-supporters' },
+      { key: 'students', icon: Users, path: '/dashboard/admin/students' },
+      { key: 'accountants', icon: UserCog, path: '/dashboard/admin/accountants' },
+    ],
+  },
+  {
+    group: 'teaching',
+    items: [
+      { key: 'sessions', icon: CalendarDays, path: '/dashboard/admin/sessions' },
+      { key: 'packages', icon: Package, path: '/dashboard/admin/listings', statKey: 'pendingApprovalsCount' },
+      { key: 'taxonomy', icon: ListTree, path: '/dashboard/admin/taxonomy' },
+    ],
+  },
+  {
+    group: 'finance',
+    items: [
+      { key: 'payouts', icon: Wallet, path: '/dashboard/admin/payouts' },
+      { key: 'bookings', icon: Receipt, path: '/dashboard/admin/bookings' },
+      { key: 'teacherSessionsReport', icon: BarChart3, path: '/dashboard/admin/teacher-sessions-report' },
+    ],
+  },
+  {
+    group: 'support',
+    items: [
+      { key: 'complaints', icon: MessageSquareWarning, path: '/dashboard/admin/complaints', statKey: 'openComplaintsCount' },
+      { key: 'notificationLogs', icon: Mail, path: '/dashboard/admin/notification-logs' },
+    ],
+  },
+  {
+    group: 'import',
+    items: [
+      { key: 'studentImport', icon: FileSpreadsheet, path: '/dashboard/admin/student-import' },
+      { key: 'teacherImport', icon: FileSpreadsheet, path: '/dashboard/admin/teacher-import' },
+      { key: 'importBatches', icon: History, path: '/dashboard/admin/import-batches' },
+    ],
+  },
+  {
+    group: 'system',
+    items: [
+      { key: 'legalPages', icon: ShieldCheck, path: '/dashboard/admin/legal-pages' },
+      { key: 'settings', icon: Settings, path: '/dashboard/admin/settings' },
+    ],
+  },
 ];
 
-/** لوحة المحاسب: نسخة مالية فقط من لوحة الأدمن — نفس الهيكل، بعناصر مالية فقط */
-const ACCOUNTANT_NAV_ITEMS = [
-  { key: 'payouts', icon: Wallet, path: '/dashboard/accountant/payouts', end: false },
-  { key: 'bookings', icon: Receipt, path: '/dashboard/accountant/bookings' },
-  { key: 'teacherSessionsReport', icon: BarChart3, path: '/dashboard/accountant/teacher-sessions-report' },
+/** لوحة المحاسب: نسخة مالية فقط من لوحة الأدمن — نفس الهيكل، بعناصر مالية فقط (مجموعة واحدة بلا عنوان) */
+const ACCOUNTANT_NAV_GROUPS = [
+  {
+    group: null,
+    items: [
+      { key: 'payouts', icon: Wallet, path: '/dashboard/accountant/payouts', end: false },
+      { key: 'bookings', icon: Receipt, path: '/dashboard/accountant/bookings' },
+      { key: 'teacherSessionsReport', icon: BarChart3, path: '/dashboard/accountant/teacher-sessions-report' },
+    ],
+  },
 ];
 
 export function AdminDashboardLayout({ children, variant = 'admin' }) {
@@ -70,7 +111,8 @@ export function AdminDashboardLayout({ children, variant = 'admin' }) {
   const isAccountant = variant === 'accountant';
   // عدّادات الأدمن (overview) لا يملك المحاسب صلاحية جلبها — لا تُطلَب أصلاً لغيره
   const { data: overview } = useAdminOverview({ enabled: !isAccountant });
-  const NAV_ITEMS = isAccountant ? ACCOUNTANT_NAV_ITEMS : ADMIN_NAV_ITEMS;
+  const NAV_GROUPS = isAccountant ? ACCOUNTANT_NAV_GROUPS : ADMIN_NAV_GROUPS;
+  const NAV_ITEMS = NAV_GROUPS.flatMap((g) => g.items);
 
   // Close sidebar on path change
   useEffect(() => {
@@ -112,39 +154,37 @@ export function AdminDashboardLayout({ children, variant = 'admin' }) {
             </button>
           </div>
           <nav dir="ltr" className="flex flex-1 w-full flex-col gap-1 py-4">
-          {NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
-            if (!item.path) {
-              return (
-                <div
-                  key={item.key}
-                  className="flex cursor-not-allowed items-center justify-end gap-3.5 px-8 py-4 text-base font-medium text-[#2D2D2D]/60"
-                >
-                  {t(`dashboard.adminNav.${item.key}`)}
-                  <Icon size={22} />
+          {NAV_GROUPS.map(({ group, items }) => (
+            <div key={group ?? 'main'} className="flex flex-col gap-1">
+              {group && (
+                <div className="mt-3 px-8 pb-1 pt-2 text-right text-xs font-bold text-[#999999]">
+                  {t(`dashboard.adminNavGroups.${group}`)}
                 </div>
-              );
-            }
-            const pendingCount = item.statKey ? overview?.stats?.[item.statKey] : 0;
-            return (
-              <NavLink
-                key={item.key}
-                to={item.path}
-                end={item.end}
-                className={({ isActive }) =>
-                  `flex items-center justify-end gap-3.5 rounded-l-2xl px-8 py-4 text-base font-medium transition-colors ${
-                    isActive ? 'bg-primary text-white' : 'text-[#2D2D2D] hover:bg-line/40'
-                  }`
-                }
-              >
-                {t(`dashboard.adminNav.${item.key}`)}
-                <span className="relative">
-                  <Icon size={22} />
-                  {!!pendingCount && <span className="absolute -left-1 -top-1 h-2.5 w-2.5 rounded-full bg-accent-pink" />}
-                </span>
-              </NavLink>
-            );
-          })}
+              )}
+              {items.map((item) => {
+                const Icon = item.icon;
+                const pendingCount = item.statKey ? overview?.stats?.[item.statKey] : 0;
+                return (
+                  <NavLink
+                    key={item.key}
+                    to={item.path}
+                    end={item.end}
+                    className={({ isActive }) =>
+                      `flex items-center justify-end gap-3.5 rounded-l-2xl px-8 py-3 text-base font-medium transition-colors ${
+                        isActive ? 'bg-primary text-white' : 'text-[#2D2D2D] hover:bg-line/40'
+                      }`
+                    }
+                  >
+                    {t(`dashboard.adminNav.${item.key}`)}
+                    <span className="relative">
+                      <Icon size={22} />
+                      {!!pendingCount && <span className="absolute -left-1 -top-1 h-2.5 w-2.5 rounded-full bg-accent-pink" />}
+                    </span>
+                  </NavLink>
+                );
+              })}
+            </div>
+          ))}
         </nav>
         </div>
       </aside>

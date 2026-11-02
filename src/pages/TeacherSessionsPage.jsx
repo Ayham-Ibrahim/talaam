@@ -6,6 +6,7 @@ import { TeacherSessionsTable } from '@/components/dashboard/TeacherSessionsTabl
 import { Pagination } from '@/components/dashboard/Pagination';
 import { RescheduleRequestModal } from '@/components/dashboard/RescheduleRequestModal';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
+import { PolicyNotice } from '@/components/common/PolicyNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeacherSessions } from '@/hooks/useDashboard';
 import { useCreateRescheduleRequest } from '@/hooks/useReschedule';
@@ -74,6 +75,9 @@ export function TeacherSessionsPage() {
     <DashboardLayout>
       <div className="flex flex-col gap-6">
         <TeacherSessionsFilterBar statuses={statusOptions} filters={filters} onChange={handleFilterChange} />
+
+        {/* حضور المعلم ومستحقه يُحسمان تلقائياً من دخوله — لا صفحة مستحقات للمعلم، فالقاعدة هنا */}
+        <PolicyNotice policySlug="teacher-policy">{t('policyNotice.sessionTeacher')}</PolicyNotice>
 
         {successMessage && (
           <div className="rounded-2xl bg-success-light px-4 py-3 text-sm font-medium text-success">{successMessage}</div>

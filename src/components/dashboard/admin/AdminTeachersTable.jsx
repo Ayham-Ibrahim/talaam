@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, KeyRound, Trash2, X } from 'lucide-react';
+import { CalendarDays, Eye, KeyRound, Trash2, X } from 'lucide-react';
 import { Avatar, ApiErrorList } from '@/components/ui';
 import { TeacherStatusBadge } from './TeacherStatusBadge';
 import { ChangeTeacherPasswordModal } from './ChangeTeacherPasswordModal';
@@ -121,6 +121,13 @@ export function AdminTeachersTable({ teachers }) {
                     >
                       <Eye size={18} />
                       {t('dashboard.adminTeachers.view')}
+                    </Link>
+                    <Link
+                      to={`/dashboard/admin/teachers/${teacher.id}?tab=sessions`}
+                      className="inline-flex items-center gap-1.5 text-primary hover:opacity-70"
+                    >
+                      <CalendarDays size={18} />
+                      {t('dashboard.adminTeachers.sessions')}
                     </Link>
                     <button
                       type="button"

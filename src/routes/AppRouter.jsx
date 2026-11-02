@@ -4,6 +4,7 @@ import { SearchPage } from '@/pages/SearchPage';
 import { TeachingTypePage } from '@/pages/TeachingTypePage';
 import { AboutPage } from '@/pages/AboutPage';
 import { LegalPage } from '@/pages/LegalPage';
+import { LEGAL_PAGES, LEGAL_PAGE_SLUGS } from '@/lib/legalPages';
 import { HowItWorksPage } from '@/pages/HowItWorksPage';
 import { ContactPage } from '@/pages/ContactPage';
 import { FavoritesPage } from '@/pages/FavoritesPage';
@@ -74,8 +75,9 @@ export function AppRouter() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/how-it-works" element={<HowItWorksPage />} />
         <Route path="/contact" element={<ContactPage />} />
-        <Route path="/privacy-policy" element={<LegalPage slug="privacy" />} />
-        <Route path="/terms-conditions" element={<LegalPage slug="terms" />} />
+        {LEGAL_PAGE_SLUGS.map((slug) => (
+          <Route key={slug} path={LEGAL_PAGES[slug].path} element={<LegalPage key={slug} slug={slug} />} />
+        ))}
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/teacher/:id" element={<TeacherProfilePage />} />
         <Route path="/payments/success" element={<PaymentSuccessPage />} />

@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { AlertTriangle, CalendarDays, CheckCircle2, Clock, Pencil, Trash2 } from 'lucide-react';
 import { Button, ApiErrorList } from '@/components/ui';
 import { AvailabilityCalendar } from '@/components/teacher/AvailabilityCalendar';
+import { PolicyNotice } from '@/components/common/PolicyNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { useRequestIndividualBooking, useCreateGroupBooking, usePackageBusySlots, usePackageBusySlotsForDates } from '@/hooks/useBooking';
 import { useCalendarSessions } from '@/hooks/useDashboard';
@@ -17,10 +18,27 @@ function formatTime(t) {
   return t ? t.slice(0, 5) : t;
 }
 
+function formatHHmmLocal(date) {
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
 function startOfDay(date) {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
   return d;
+}
+
+/**
+ * لحظة بداية موعد مجموعة الفعلية. date/start_time بمنطقة المعلم لا المتصفح —
+ * starts_at (من الباك) هو المرجع؛ البناء المحلي احتياط لاستجابة قديمة بلا starts_at.
+ */
+function scheduleStart(sch) {
+  if (sch.starts_at) return new Date(sch.starts_at);
+  if (!sch.date || !sch.start_time) return null;
+  const [h, m] = sch.start_time.split(':').map(Number);
+  const start = new Date(`${sch.date}T00:00:00`);
+  start.setHours(h, m, 0, 0);
+  return start;
 }
 
 function toISODate(date) {
@@ -132,30 +150,33 @@ export function BookingWidget({ selectedPackage, bare = false }) {
   // already set) — every one of them needs checking up front, both against
   // the teacher's busy times and the student's own existing sessions, before
   // the "join" button can be enabled at all.
+  // اليوم بتقويم المتصفح (لا sch.date — ذاك يوم المعلم) — نفس اليوم الذي يجلبه
+  // busy-slots بعد إرسال منطقة المتصفح معه.
   const groupDatesISO = useMemo(
-    () => (isGroup ? [...new Set(schedules.map((s) => s.date).filter(Boolean))] : []),
+    () => (isGroup ? [...new Set(schedules.map(scheduleStart).filter(Boolean).map(toISODate))] : []),
     [isGroup, schedules]
   );
   const { data: groupBusyByDate } = usePackageBusySlotsForDates(selectedPackage?.id, groupDatesISO);
 
-  const groupScheduleConflict = useMemo(() => {
-    if (!isGroup) return null;
+  // تعارض جدول المعلم يمنع الانضمام (الباك يرفضه). تعارض جدول الطالب نفسه تحذير
+  // فقط — موعد المجموعة ثابت لا يختاره، والباك يسمح بالانضمام رغمه (joinGroupPackage).
+  const { teacherConflictId, ownConflictIds } = useMemo(() => {
+    const result = { teacherConflictId: null, ownConflictIds: new Set() };
+    if (!isGroup) return result;
     for (const sch of schedules) {
-      if (!sch.date || !sch.start_time) continue;
-      const [h, m] = sch.start_time.split(':').map(Number);
-      const start = new Date(`${sch.date}T00:00:00`);
-      start.setHours(h, m, 0, 0);
+      const start = scheduleStart(sch);
+      if (!start) continue;
       const end = new Date(start.getTime() + durationMinutes * 60000);
 
-      const busy = groupBusyByDate?.find((d) => d.dateISO === sch.date)?.busySlots ?? [];
-      if (busy.some((slot) => rangesOverlap(start, end, slot.start, slot.end))) {
-        return { date: sch.date, reason: 'teacher' };
+      const busy = groupBusyByDate?.find((d) => d.dateISO === toISODate(start))?.busySlots ?? [];
+      if (result.teacherConflictId === null && busy.some((slot) => rangesOverlap(start, end, slot.start, slot.end))) {
+        result.teacherConflictId = sch.id;
       }
       if (findOwnConflict(myUpcomingSessions, start, end)) {
-        return { date: sch.date, reason: 'own' };
+        result.ownConflictIds.add(sch.id);
       }
     }
-    return null;
+    return result;
   }, [isGroup, schedules, groupBusyByDate, myUpcomingSessions, durationMinutes]);
 
   const isEditingSlot = activeIndex < sessionsCount;
@@ -166,7 +187,7 @@ export function BookingWidget({ selectedPackage, bare = false }) {
   // package whose last dated session has passed, but a stale
   // `selectedPackage` shouldn't be submittable either.
   const canSubmitGroup =
-    Boolean(selectedPackage) && schedules.length > 0 && !isPastDate(lastScheduleDate(schedules)) && !groupScheduleConflict;
+    Boolean(selectedPackage) && schedules.length > 0 && !isPastDate(lastScheduleDate(schedules)) && teacherConflictId === null;
   const isPending = requestIndividual.isPending || createGroup.isPending;
   const isSuccess = requestIndividual.isSuccess || createGroup.isSuccess;
 
@@ -242,7 +263,9 @@ export function BookingWidget({ selectedPackage, bare = false }) {
         <h3 className="mb-2 text-start text-sm font-bold text-ink">{t('booking.selectedPackage')}</h3>
         {selectedPackage ? (
           <div className="flex items-center justify-between rounded-2xl border border-line p-3">
-            <span className="text-xl font-bold text-primary">{formatPrice(selectedPackage.price, currency)}</span>
+            <span className="text-xl font-bold text-primary">
+              {selectedPackage.isTrial ? t('teacher.freePackage') : formatPrice(selectedPackage.price, currency)}
+            </span>
             <div className="text-start">
               <div className="text-sm font-semibold text-ink">{selectedPackage.title}</div>
               <div className="text-xs text-ink-soft">
@@ -266,27 +289,44 @@ export function BookingWidget({ selectedPackage, bare = false }) {
           ) : (
             <ul className="flex flex-col gap-2">
               {schedules.map((s) => {
-                const hasConflict = groupScheduleConflict?.date === s.date;
+                const hasConflict = teacherConflictId !== null && teacherConflictId === s.id;
+                const hasOwnConflict = !hasConflict && ownConflictIds.has(s.id);
+                const start = scheduleStart(s);
                 return (
                   <li
                     key={s.id ?? s.date}
                     className={`flex items-center justify-end gap-2 rounded-xl border px-3 py-2 text-sm ${
-                      hasConflict ? 'border-[#FF383C] bg-[#FDF0F0] text-[#FF383C]' : 'border-line text-ink'
+                      hasConflict
+                        ? 'border-[#FF383C] bg-[#FDF0F0] text-[#FF383C]'
+                        : hasOwnConflict
+                          ? 'border-amber-400 bg-amber-50 text-amber-700'
+                          : 'border-line text-ink'
                     }`}
                   >
-                    {formatDate(s.date)} · {formatTime(s.start_time)}
-                    <CalendarDays size={14} className={hasConflict ? 'text-[#FF383C]' : 'text-ink-soft'} />
+                    {/* بتوقيت الطالب لا المعلم — نفس اللحظة التي فُحص تعارضها أعلاه */}
+                    {start ? `${formatDate(start)} · ${formatHHmmLocal(start)}` : `${formatDate(s.date)} · ${formatTime(s.start_time)}`}
+                    <CalendarDays
+                      size={14}
+                      className={hasConflict ? 'text-[#FF383C]' : hasOwnConflict ? 'text-amber-600' : 'text-ink-soft'}
+                    />
                   </li>
                 );
               })}
             </ul>
           )}
 
-          {groupScheduleConflict && (
+          {teacherConflictId !== null && (
             <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-[#FF383C]">
               <AlertTriangle size={13} />
-              {t(groupScheduleConflict.reason === 'own' ? 'booking.ownTimeConflict' : 'booking.timeUnavailable')}
+              {t('booking.timeUnavailable')}
             </p>
+          )}
+
+          {ownConflictIds.size > 0 && (
+            <div className="mt-2 flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
+              <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+              <span>{t('booking.groupOwnConflictWarning')}</span>
+            </div>
           )}
         </div>
       )}
@@ -400,8 +440,8 @@ export function BookingWidget({ selectedPackage, bare = false }) {
         </div>
       )}
 
-      {/* كود خصم اختياري — يُبلَّغ به الطالب خارج المنصة (اتصال/رسالة) */}
-      {selectedPackage && (
+      {/* كود خصم اختياري — يُبلَّغ به الطالب خارج المنصة (اتصال/رسالة). لا معنى له على باقة مجانية */}
+      {selectedPackage && !selectedPackage.isTrial && (
         <label className="flex flex-col gap-1.5 text-start">
           <span className="text-sm font-bold text-ink">{t('booking.couponLabel')}</span>
           <input
@@ -419,9 +459,13 @@ export function BookingWidget({ selectedPackage, bare = false }) {
         <ApiErrorList error={requestIndividual.error ?? createGroup.error} labelFor={() => null} />
       )}
 
+      <PolicyNotice policySlug="student-policy">{t('policyNotice.payment')}</PolicyNotice>
+
       {/* Total + CTA */}
       <div className="flex items-center justify-between border-t border-line pt-4">
-        <span className="text-xl font-bold text-primary">{formatPrice(selectedPackage?.price ?? 0, currency)}</span>
+        <span className="text-xl font-bold text-primary">
+          {selectedPackage?.isTrial ? t('teacher.freePackage') : formatPrice(selectedPackage?.price ?? 0, currency)}
+        </span>
         <span className="text-sm font-bold text-ink">{t('booking.total')}</span>
       </div>
 
