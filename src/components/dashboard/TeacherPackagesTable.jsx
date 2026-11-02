@@ -45,7 +45,14 @@ export function TeacherPackagesTable({ packages, onEdit, onView, onSubmit, isSub
             const subjectName = subjects.find((s) => s.id === pkg.subject_id)?.name_ar ?? '—';
             return (
               <tr key={pkg.id} className={i % 2 === 1 ? 'bg-[#FAFBFD]' : ''}>
-                <td className="px-4 py-4 text-right font-semibold text-ink">{pkg.title}</td>
+                <td className="px-4 py-4 text-right font-semibold text-ink">
+                  {pkg.title}
+                  {pkg.is_trial && (
+                    <span className="mr-2 rounded-pill bg-[#EAF8EF] px-2.5 py-0.5 text-xs font-bold text-[#34C759]">
+                      {t('dashboard.addPackage.trial.badge')}
+                    </span>
+                  )}
+                </td>
                 <td className="px-4 py-4 text-center font-semibold" style={{ color: typeStyle?.color }}>
                   {typeStyle?.label}
                 </td>
@@ -61,7 +68,9 @@ export function TeacherPackagesTable({ packages, onEdit, onView, onSubmit, isSub
                     {statusStyle.label}
                   </span>
                 </td>
-                <td className="px-4 py-4 text-center font-semibold text-ink">{pkg.teacher_price} د.إ</td>
+                <td className="px-4 py-4 text-center font-semibold text-ink">
+                  {pkg.is_trial ? t('dashboard.addPackage.trial.free') : `${pkg.teacher_price} د.إ`}
+                </td>
                 <td className="px-4 py-4 text-center">
                   <div className="flex items-center justify-center gap-3">
                     {pkg.status === 'draft' && (

@@ -621,6 +621,12 @@
     "seatsReservedSuffix": "مقاعد محجوزة",
     "packageBadge": { "individual": "فردية", "group": "مجموعة" },
     "packageEnded": "انتهت الباقة",
+    "freePackage": "مجانية",
+    "trialBadge": "جلسة تعريفية",
+    "trialRibbon": "مجاناً",
+    "trialTagline": "تعرّف على المعلم قبل أن تشترك",
+    "trialOneSession": "جلسة واحدة",
+    "trialCta": "احجز جلستك المجانية",
     "rating": "التقييم",
     "sessionMinutes": "دقيقة",
     "perSessionLabel": "كل جلسة",
@@ -1564,7 +1570,32 @@
         "teacherPriceLabel": "سعرك (المعلم)",
         "scheduleLabel": "مواعيد الجلسات"
       },
-      "scheduleEndsAt": "تنتهي الساعة"
+      "scheduleEndsAt": "تنتهي الساعة",
+      "trial": {
+        "offerTypeLabel": "نوع العرض",
+        "offerTypes": {
+          "paid": {
+            "title": "باقة مدفوعة",
+            "desc": "جلسات بمادة وعدد وسعر تحددها أنت",
+            "badge": "تحدد سعرك"
+          },
+          "trial": {
+            "title": "جلسة تعريفية مجانية",
+            "desc": "جلسة واحدة يتعرّف فيها الطالب عليك قبل الاشتراك",
+            "badge": "مجانية للطالب"
+          }
+        },
+        "factsTitle": "تفاصيل الجلسة التعريفية ثابتة:",
+        "factIndividual": "فردية",
+        "factOneSession": "جلسة واحدة",
+        "factFree": "بدون مقابل",
+        "factNoSubject": "بدون مادة محددة",
+        "factsHint": "اكتب عنواناً ووصفاً يعرّفان الطالب بك، ثم اختر أيام توفّرك في الخطوة التالية.",
+        "badge": "مجانية",
+        "pricingHint": "هذه باقة مجانية — لا سعر لها، والطالب لا يدفع شيئاً. تمر بمراجعة الأدمن كباقي الباقات.",
+        "reviewType": "فردية · مجانية تعريفية",
+        "free": "مجانية"
+      }
     },
     "addCourse": {
       "steps": {
@@ -2117,6 +2148,7 @@
       "allStatuses": "جميع الحالات",
       "searchPlaceholder": "ابحث بالعنوان أو مقدّم الخدمة",
       "colListing": "العرض",
+      "trialPackage": "باقة مجانية تعريفية",
       "colProvider": "مقدّم الخدمة",
       "colPrice": "السعر",
       "colStatus": "الحالة",

@@ -24,6 +24,7 @@ export function PackageWizardReview({ data, isPending, error, onSubmit, onBack, 
   const subjectLabel = subjects.find((s) => s.id === Number(data.subject_id))?.name_ar ?? '—';
   const curriculumLabels = curricula.filter((c) => data.curriculum_ids.includes(c.id)).map((c) => c.name_ar);
   const stageLabels = stages.filter((s) => data.stage_ids.includes(s.id)).map((s) => s.name_ar);
+  const isTrial = !!data.is_trial;
   const gradeLabels = [...data.grades].sort((a, b) => a - b).map((g) => `${t('dashboard.addPackage.gradeOptionLabel')} ${g}`);
 
   return (
@@ -31,8 +32,11 @@ export function PackageWizardReview({ data, isPending, error, onSubmit, onBack, 
       {error && <ApiErrorList error={error} labelFor={packageErrorLabel} />}
 
       <div className="grid grid-cols-1 gap-4 rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card sm:grid-cols-3">
-        <SummaryField label={t('dashboard.addPackage.review.typeLabel')} value={SESSION_FORMAT_LABELS[data.session_format]} />
-        <SummaryField label={t('dashboard.addPackage.review.subjectLabel')} value={subjectLabel} />
+        <SummaryField
+          label={t('dashboard.addPackage.review.typeLabel')}
+          value={isTrial ? t('dashboard.addPackage.trial.reviewType') : SESSION_FORMAT_LABELS[data.session_format]}
+        />
+        <SummaryField label={t('dashboard.addPackage.review.subjectLabel')} value={isTrial ? '—' : subjectLabel} />
         <SummaryField
           label={t('dashboard.addPackage.review.sessionsCountLabel')}
           value={`${data.sessions_count} ${t('dashboard.addPackage.review.sessionsUnit')}`}
@@ -98,7 +102,10 @@ export function PackageWizardReview({ data, isPending, error, onSubmit, onBack, 
       )}
 
       <div className="rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card">
-        <SummaryField label={t('dashboard.addPackage.review.teacherPriceLabel')} value={`${data.teacher_price} د.إ`} />
+        <SummaryField
+          label={t('dashboard.addPackage.review.teacherPriceLabel')}
+          value={isTrial ? t('dashboard.addPackage.trial.free') : `${data.teacher_price} د.إ`}
+        />
       </div>
 
       <div className="flex w-full items-center justify-between">

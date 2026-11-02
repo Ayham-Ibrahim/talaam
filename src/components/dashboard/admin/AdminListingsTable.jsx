@@ -27,7 +27,8 @@ export function AdminListingsTable({ listings }) {
               <td className="px-4 py-4 text-right">
                 <div className="font-semibold text-ink">{listing.title}</div>
                 <div className="text-xs text-ink-soft">
-                  {LISTING_KIND_LABELS[listing.kind]} · {listing.subjectName}
+                  {LISTING_KIND_LABELS[listing.kind]} ·{' '}
+                  {listing.isTrial ? t('dashboard.adminListings.trialPackage') : listing.subjectName}
                 </div>
               </td>
               <td className="px-4 py-4 text-right text-ink-soft">

@@ -122,7 +122,8 @@ export const couponService = {
       platformRevenue: raw.platform_revenue != null ? Number(raw.platform_revenue) : null,
     });
     return [
-      ...packagesRes.data.data.map((raw) => map(raw, 'package')),
+      // الباقة المجانية لا سعر لها يُخصم منه — لا تُضمّ لأي كوبون
+      ...packagesRes.data.data.filter((raw) => !raw.is_trial).map((raw) => map(raw, 'package')),
       ...coursesRes.data.data.map((raw) => map(raw, 'course')),
     ];
   },

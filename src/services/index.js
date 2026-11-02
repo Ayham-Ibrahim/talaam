@@ -54,6 +54,7 @@ function mapStudentPackage(raw) {
     title: raw.title,
     description: raw.description,
     sessionFormat: raw.session_format,
+    isTrial: !!raw.is_trial,
     capacity: raw.capacity,
     enrolledCount: raw.enrolled_count,
     sessionsCount: raw.sessions_count,

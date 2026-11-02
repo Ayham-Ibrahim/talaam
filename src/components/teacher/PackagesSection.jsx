@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BookOpen, CalendarDays, Check, Clock, GraduationCap, Layers, Users } from 'lucide-react';
+import { BookOpen, CalendarDays, Check, Clock, Gift, GraduationCap, Layers, Sparkles, Users } from 'lucide-react';
 import { ErrorState, Skeleton } from '@/components/ui';
 import { Drawer } from '@/components/ui/Drawer';
 import { useT } from '@/hooks/useT';
@@ -18,6 +18,9 @@ const CARD_GRADIENTS = [
   'linear-gradient(135deg, #E0607A 0%, #B33B63 100%)',
   'linear-gradient(135deg, #6DC0E0 0%, #4A6FE0 100%)',
 ];
+
+/** الجلسة التعريفية المجانية لها هويتها الخاصة — خارج تدوير الألوان كي لا تشبه أي باقة مدفوعة */
+const TRIAL_GRADIENT = 'linear-gradient(135deg, #10B981 0%, #047857 100%)';
 
 /** "50 $" — number then symbol, matching the design */
 function priceLabel(amountUSD, code) {
@@ -68,6 +71,11 @@ function PackageDetailsDrawer({ pkg, onClose }) {
             >
               {t(`teacher.packageBadge.${isGroup ? 'group' : 'individual'}`)}
             </span>
+            {pkg.isTrial && (
+              <span className="rounded-pill bg-[#EAF8EF] px-3 py-1.5 text-xs font-semibold text-[#34C759]">
+                {t('teacher.trialBadge')}
+              </span>
+            )}
             {pkg.curricula?.map((c) => (
               <span key={c} className="rounded-pill bg-canvas px-3 py-1.5 text-xs font-semibold text-ink-soft">
                 {c}
@@ -125,7 +133,9 @@ function PackageDetailsDrawer({ pkg, onClose }) {
 
           <div className="flex items-center justify-between rounded-2xl bg-primary-light px-4 py-3.5">
             <span className="text-sm font-bold text-ink">{t('booking.total')}</span>
-            <span className="text-2xl font-bold text-primary">{priceLabel(pkg.price, currency)}</span>
+            <span className="text-2xl font-bold text-primary">
+              {pkg.isTrial ? t('teacher.freePackage') : priceLabel(pkg.price, currency)}
+            </span>
           </div>
         </div>
       )}
@@ -139,30 +149,56 @@ function PackageCard({ pkg, index, selected, onSelect, onDetails }) {
   const t = useT();
   const currency = useCurrencyStore((s) => s.currency);
   const isGroup = pkg.sessionFormat === 'group';
+  const isTrial = pkg.isTrial;
   const isEnded = isGroup && isPastDate(lastScheduleDate(pkg.schedules));
 
   const capacity = pkg.capacity ?? 0;
   const enrolled = Math.min(pkg.enrolledCount ?? 0, capacity);
   const reservedPct = capacity > 0 ? Math.round((enrolled / capacity) * 100) : 0;
-  const gradient = CARD_GRADIENTS[index % CARD_GRADIENTS.length];
+  const gradient = isTrial ? TRIAL_GRADIENT : CARD_GRADIENTS[index % CARD_GRADIENTS.length];
 
   return (
     <div
       style={{ background: gradient }}
-      className={`relative flex min-h-[290px] flex-col rounded-2xl p-5 text-start shadow-[0_6px_20px_rgba(0,0,0,0.15)] transition ${
+      className={`relative flex min-h-[290px] flex-col overflow-hidden rounded-2xl p-5 text-start shadow-[0_6px_20px_rgba(0,0,0,0.15)] transition ${
         isEnded ? 'opacity-60 grayscale-[30%]' : ''
-      } ${selected ? 'ring-4 ring-white/80' : ''}`}
+      } ${selected ? 'ring-4 ring-white/80' : isTrial ? 'ring-2 ring-[#FCD34D] shadow-[0_8px_28px_rgba(16,185,129,0.45)]' : ''}`}
     >
+      {isTrial && (
+        <>
+          {/* هدية كبيرة شفافة في الخلفية — هوية بصرية للجلسة المجانية */}
+          <Gift
+            size={150}
+            strokeWidth={1.25}
+            className="pointer-events-none absolute -bottom-6 -left-6 -rotate-12 text-white/15"
+            aria-hidden="true"
+          />
+          <span className="absolute left-4 top-4 inline-flex items-center gap-1 rounded-full bg-[#FCD34D] px-3 py-1.5 text-xs font-bold text-[#78350F] shadow-md">
+            <Sparkles size={13} />
+            {t('teacher.trialRibbon')}
+          </span>
+        </>
+      )}
+
       {/* Session-type badge */}
-      <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs font-semibold text-white ring-1 ring-white/30 backdrop-blur-sm">
-        {isGroup ? <Users size={13} /> : <BookOpen size={13} />}
-        {t(`teacher.packageBadge.${isGroup ? 'group' : 'individual'}`)}
-      </span>
+      <div className="flex flex-wrap gap-2">
+        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs font-semibold text-white ring-1 ring-white/30 backdrop-blur-sm">
+          {isGroup ? <Users size={13} /> : <BookOpen size={13} />}
+          {t(`teacher.packageBadge.${isGroup ? 'group' : 'individual'}`)}
+        </span>
+        {pkg.isTrial && (
+          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#34C759]">
+            <Gift size={13} />
+            {t('teacher.trialBadge')}
+          </span>
+        )}
+      </div>
 
       {/* Title + subject — no attendee avatars, just the package's own data */}
       <div className="mt-4">
         <h4 className="text-lg font-bold leading-snug text-white">{pkg.title}</h4>
         {pkg.subject && <p className="text-sm font-medium text-white/75">{pkg.subject}</p>}
+        {isTrial && <p className="mt-1 text-sm font-medium text-white/85">{t('teacher.trialTagline')}</p>}
       </div>
 
       {/* Sessions / duration line — replaces the reference's "N Files" row */}
@@ -170,7 +206,7 @@ function PackageCard({ pkg, index, selected, onSelect, onDetails }) {
         {pkg.sessionsCount != null && (
           <span className="inline-flex items-center gap-1.5">
             <Layers size={15} />
-            {pkg.sessionsCount} {t('teacher.sessionsCountLabel')}
+            {isTrial ? t('teacher.trialOneSession') : `${pkg.sessionsCount} ${t('teacher.sessionsCountLabel')}`}
           </span>
         )}
         {pkg.durationPerSession != null && (
@@ -206,9 +242,16 @@ function PackageCard({ pkg, index, selected, onSelect, onDetails }) {
 
       {/* Bottom block — pinned to the card bottom, price above the buttons */}
       <div className="mt-auto flex flex-col gap-3 pt-4">
-        <span dir="ltr" className="text-2xl font-bold leading-none text-white">
-          {isEnded ? t('teacher.packageEnded') : priceLabel(pkg.price, currency)}
-        </span>
+        {isTrial ? (
+          <span className="inline-flex items-center gap-2 text-2xl font-bold leading-none text-white">
+            <Gift size={22} />
+            {t('teacher.freePackage')}
+          </span>
+        ) : (
+          <span dir="ltr" className="text-2xl font-bold leading-none text-white">
+            {isEnded ? t('teacher.packageEnded') : priceLabel(pkg.price, currency)}
+          </span>
+        )}
 
         <div className="flex gap-2">
           <button
@@ -218,7 +261,7 @@ function PackageCard({ pkg, index, selected, onSelect, onDetails }) {
             className="flex flex-1 items-center justify-center gap-1.5 rounded-2xl bg-white py-3 text-sm font-semibold text-[#1E1E1E] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {selected && <Check size={15} strokeWidth={3} />}
-            {isGroup ? t('teacher.bookSeat') : t('teacher.choosePackage')}
+            {isGroup ? t('teacher.bookSeat') : isTrial ? t('teacher.trialCta') : t('teacher.choosePackage')}
           </button>
           <button
             type="button"
@@ -239,6 +282,10 @@ export function PackagesSection({ packages, isLoading, isError, refetch, selecte
   const t = useT();
   const [detailsPkg, setDetailsPkg] = useState(null);
 
+  // الجلسة التعريفية المجانية أولاً — أول ما يراه الطالب، وبلا أثر على ترتيب الباقات المدفوعة بينها
+  const sortedPackages = [...(packages ?? [])].sort((a, b) => Number(b.isTrial) - Number(a.isTrial));
+  const trialCount = sortedPackages.filter((p) => p.isTrial).length;
+
   if (!isLoading && !isError && packages.length === 0) return null;
 
   return (
@@ -255,11 +302,11 @@ export function PackagesSection({ packages, isLoading, isError, refetch, selecte
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {packages.map((pkg, i) => (
+          {sortedPackages.map((pkg, i) => (
             <PackageCard
               key={pkg.id}
               pkg={pkg}
-              index={i}
+              index={i - trialCount}
               selected={pkg.id === selectedPackageId}
               onSelect={onSelect}
               onDetails={setDetailsPkg}

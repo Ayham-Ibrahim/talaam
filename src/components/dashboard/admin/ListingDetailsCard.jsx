@@ -30,7 +30,10 @@ export function ListingDetailsCard({ listing }) {
       <div className="mt-4 flex flex-col gap-3">
         <InfoRow label={t('dashboard.adminListingDetail.provider')} value={listing.providerName} />
         <InfoRow label={t('dashboard.adminListingDetail.providerType')} value={PROVIDER_TYPE_LABELS[listing.providerType]} />
-        <InfoRow label={t('dashboard.adminListingDetail.subject')} value={listing.subjectName} />
+        <InfoRow
+          label={t('dashboard.adminListingDetail.subject')}
+          value={listing.isTrial ? t('dashboard.adminListings.trialPackage') : listing.subjectName}
+        />
         <InfoRow label={t('dashboard.adminListingDetail.sessionsCount')} value={listing.sessionsCount} />
         {listing.sessionFormat && (
           <InfoRow label={t('dashboard.adminListingDetail.sessionFormat')} value={SESSION_FORMAT_LABELS[listing.sessionFormat]} />

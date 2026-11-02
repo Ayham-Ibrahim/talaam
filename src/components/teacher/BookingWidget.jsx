@@ -263,7 +263,9 @@ export function BookingWidget({ selectedPackage, bare = false }) {
         <h3 className="mb-2 text-start text-sm font-bold text-ink">{t('booking.selectedPackage')}</h3>
         {selectedPackage ? (
           <div className="flex items-center justify-between rounded-2xl border border-line p-3">
-            <span className="text-xl font-bold text-primary">{formatPrice(selectedPackage.price, currency)}</span>
+            <span className="text-xl font-bold text-primary">
+              {selectedPackage.isTrial ? t('teacher.freePackage') : formatPrice(selectedPackage.price, currency)}
+            </span>
             <div className="text-start">
               <div className="text-sm font-semibold text-ink">{selectedPackage.title}</div>
               <div className="text-xs text-ink-soft">
@@ -438,8 +440,8 @@ export function BookingWidget({ selectedPackage, bare = false }) {
         </div>
       )}
 
-      {/* كود خصم اختياري — يُبلَّغ به الطالب خارج المنصة (اتصال/رسالة) */}
-      {selectedPackage && (
+      {/* كود خصم اختياري — يُبلَّغ به الطالب خارج المنصة (اتصال/رسالة). لا معنى له على باقة مجانية */}
+      {selectedPackage && !selectedPackage.isTrial && (
         <label className="flex flex-col gap-1.5 text-start">
           <span className="text-sm font-bold text-ink">{t('booking.couponLabel')}</span>
           <input
@@ -461,7 +463,9 @@ export function BookingWidget({ selectedPackage, bare = false }) {
 
       {/* Total + CTA */}
       <div className="flex items-center justify-between border-t border-line pt-4">
-        <span className="text-xl font-bold text-primary">{formatPrice(selectedPackage?.price ?? 0, currency)}</span>
+        <span className="text-xl font-bold text-primary">
+          {selectedPackage?.isTrial ? t('teacher.freePackage') : formatPrice(selectedPackage?.price ?? 0, currency)}
+        </span>
         <span className="text-sm font-bold text-ink">{t('booking.total')}</span>
       </div>
 
