@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { AlertTriangle, CalendarDays, CheckCircle2, Clock, Pencil, Trash2 } from 'lucide-react';
 import { Button, ApiErrorList } from '@/components/ui';
 import { AvailabilityCalendar } from '@/components/teacher/AvailabilityCalendar';
+import { PolicyNotice } from '@/components/common/PolicyNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { useRequestIndividualBooking, useCreateGroupBooking, usePackageBusySlots, usePackageBusySlotsForDates } from '@/hooks/useBooking';
 import { useCalendarSessions } from '@/hooks/useDashboard';
@@ -455,6 +456,8 @@ export function BookingWidget({ selectedPackage, bare = false }) {
       {(requestIndividual.isError || createGroup.isError) && (
         <ApiErrorList error={requestIndividual.error ?? createGroup.error} labelFor={() => null} />
       )}
+
+      <PolicyNotice policySlug="student-policy">{t('policyNotice.payment')}</PolicyNotice>
 
       {/* Total + CTA */}
       <div className="flex items-center justify-between border-t border-line pt-4">

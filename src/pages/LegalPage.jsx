@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { ShieldCheck } from "lucide-react";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Seo } from "@/components/seo/Seo";
 import { Card, ErrorState, Skeleton } from "@/components/ui";
 import { useLegalPage } from "@/hooks/useMeta";
 import { useLocaleStore } from "@/store";
 import { useT } from "@/hooks/useT";
+import { LEGAL_PAGES } from "@/lib/legalPages";
 
 /** نفس تدرّج هيرو About/Contact/HowItWorks حرفياً — هويتنا البصرية الفعلية، لا ألوان جديدة */
-function LegalHero({ title, subtitle }) {
+function LegalHero({ title, subtitle, icon: Icon }) {
   return (
     <section className="container-app mt-8">
       <div className="relative overflow-hidden rounded-[24px] px-8 py-14 shadow-[0_1px_5px_rgba(0,0,0,0.1)] lg:px-16 lg:py-16">
@@ -26,7 +26,7 @@ function LegalHero({ title, subtitle }) {
 
         <div className="relative z-10 flex items-center gap-5">
           <span className="hidden h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm sm:flex">
-            <ShieldCheck size={30} className="text-white" />
+            <Icon size={30} className="text-white" />
           </span>
           <div className="max-w-2xl text-start">
             <h1 className="font-cairo text-3xl font-bold text-white lg:text-4xl">{title}</h1>
@@ -52,8 +52,9 @@ export function LegalPage({ slug }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const sectionRefs = useRef([]);
 
-  const pageTitle = slug === "privacy" ? t("legal.privacyTitle") : t("legal.termsTitle");
-  const pageSubtitle = slug === "privacy" ? t("legal.privacySubtitle") : t("legal.termsSubtitle");
+  const page = LEGAL_PAGES[slug];
+  const pageTitle = t(page.titleKey);
+  const pageSubtitle = t(page.subtitleKey);
 
   useEffect(() => {
     if (!sections.length) return undefined;
@@ -77,9 +78,9 @@ export function LegalPage({ slug }) {
 
   return (
     <PageContainer>
-      <Seo title={`${pageTitle} | TAALAM`} description={pageSubtitle} path={slug === "privacy" ? "/privacy-policy" : "/terms-conditions"} />
+      <Seo title={`${pageTitle} | TAALAM`} description={pageSubtitle} path={page.path} />
 
-      <LegalHero title={pageTitle} subtitle={pageSubtitle} />
+      <LegalHero title={pageTitle} subtitle={pageSubtitle} icon={page.icon} />
 
       <section className="container-app mt-14 mb-20">
         {isError ? (

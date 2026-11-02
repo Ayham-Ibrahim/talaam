@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AlertTriangle, Award, Laptop, Package, FlaskConical, Video, CalendarDays, CheckCircle2, XCircle } from 'lucide-react';
 import { Button, ApiErrorList } from '@/components/ui';
+import { PolicyNotice } from '@/components/common/PolicyNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { useCreateEnrollment } from '@/hooks/useEnrollment';
 import { useCalendarSessions } from '@/hooks/useDashboard';
@@ -200,6 +201,8 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
       {createEnrollment.isError && (
         <ApiErrorList error={createEnrollment.error} labelFor={() => null} />
       )}
+
+      <PolicyNotice policySlug="student-policy">{t('policyNotice.payment')}</PolicyNotice>
 
       <div className="flex items-center justify-between border-t border-line pt-4">
         <span className="text-xl font-bold text-primary">{formatPrice(selectedCourse?.price ?? 0, currency)}</span>

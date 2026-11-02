@@ -7,6 +7,7 @@ import { SessionsFilterBar } from '@/components/dashboard/SessionsFilterBar';
 import { SessionsList } from '@/components/dashboard/SessionsList';
 import { Pagination } from '@/components/dashboard/Pagination';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
+import { PolicyNotice } from '@/components/common/PolicyNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { useSessions } from '@/hooks/useDashboard';
 import { SESSION_STATUS_LABEL_KEYS } from '@/mocks/dashboard.mock';
@@ -75,6 +76,8 @@ export function SessionsPage() {
     <DashboardLayout>
       <div className="flex flex-col gap-6">
         <SessionsFilterTabs active={activeTab} onChange={handleTabChange} />
+
+        <PolicyNotice policySlug="student-policy">{t('policyNotice.sessionStudent')}</PolicyNotice>
 
         {isError ? (
           <ErrorState onRetry={refetch} />

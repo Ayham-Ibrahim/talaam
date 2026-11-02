@@ -8,6 +8,7 @@ import { PackageSidebarSummary } from '@/components/dashboard/PackageSidebarSumm
 import { PackageRebookBanner } from '@/components/dashboard/PackageRebookBanner';
 import { PackageSessionsList } from '@/components/dashboard/PackageSessionsList';
 import { ApiErrorList, ErrorState, Skeleton } from '@/components/ui';
+import { PolicyNotice } from '@/components/common/PolicyNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { usePackageDetails } from '@/hooks/useDashboard';
 import { useApplyBookingCoupon, useCheckoutBooking } from '@/hooks/useBooking';
@@ -121,6 +122,9 @@ export function PackageDetailsPage() {
               >
                 {checkout.isPending ? t('dashboard.myPackages.processingPayment') : t('dashboard.myPackages.payNow')}
               </button>
+              <PolicyNotice policySlug="student-policy" className="w-full bg-white/70">
+                {t('policyNotice.payment')}
+              </PolicyNotice>
             </div>
           )}
 
