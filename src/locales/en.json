@@ -620,6 +620,8 @@
   },
   "booking": {
     "title": "Book Your Session",
+    "courseOwnConflictWarning": "Heads up: some of this course's sessions overlap other sessions you already have. You can still enroll, but you won't be able to attend both sessions at the same time.",
+    "groupOwnConflictWarning": "Heads up: the dates highlighted in yellow overlap other sessions you already have. You can still join this group, but you won't be able to attend both sessions at the same time.",
     "selectedPackage": "Selected Package",
     "subjectLabel": "Subject",
     "chooseDate": "Choose a Date",

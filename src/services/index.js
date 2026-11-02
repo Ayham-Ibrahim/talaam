@@ -90,7 +90,10 @@ export const packageService = {
       await mockDelay(200);
       return [];
     }
-    const { data } = await client.get(endpoints.packages.busySlots(packageId), { params: { date: dateISO } });
+    // dateISO يوم بتقويم المتصفح — نرسل منطقته كي يجلب الباك نفس هذا اليوم بالضبط،
+    // لا يوم منطقة الملف الشخصي (قد تختلف عن المتصفح).
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const { data } = await client.get(endpoints.packages.busySlots(packageId), { params: { date: dateISO, timezone } });
     return data.data.map((slot) => ({ start: new Date(slot.start), end: new Date(slot.end) }));
   },
 };
