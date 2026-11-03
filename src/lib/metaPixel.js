@@ -29,6 +29,9 @@ export function initMetaPixel() {
   // الموقع SPA: البكسل يرسل PageView تلقائياً مع كل pushState، ونحن نرسله يدوياً من
   // الـ Router (MetaPixelPageViews) — إبقاء الاثنين = كل زيارة صفحة تُحسب مرتين
   window.fbq.disablePushState = true;
+  // وبدونه يعتبر البكسل كل PageView بعد الأول (في نفس تحميل الصفحة) مكرراً ويتجاهله بصمت —
+  // التكرار الفعلي يمنعه MetaPixelPageViews (مرة واحدة لكل location.key)
+  window.fbq.allowDuplicatePageViews = true;
   window.fbq('init', config.metaPixelId);
 }
 
