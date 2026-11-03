@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLegalPage } from '@/hooks/useMeta';
 import { useUpdateLegalPage } from '@/hooks/useAdminSettings';
 import { useT } from '@/hooks/useT';
+import { LEGAL_PAGES } from '@/lib/legalPages';
 
 const BLANK_SECTION = { title_ar: '', title_en: '', body_ar: '', body_en: '' };
 
@@ -28,7 +29,7 @@ export function AdminLegalPageEditorPage() {
 
   if (!user) return <Navigate to="/login" replace />;
 
-  const docTitle = slug === 'privacy' ? t('legal.privacyTitle') : t('legal.termsTitle');
+  const docTitle = LEGAL_PAGES[slug] ? t(LEGAL_PAGES[slug].titleKey) : slug;
 
   const updateField = (index, field, value) => {
     setSections((prev) => prev.map((s, i) => (i === index ? { ...s, [field]: value } : s)));

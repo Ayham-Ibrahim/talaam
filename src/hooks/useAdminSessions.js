@@ -24,3 +24,14 @@ export function useAdminRescheduleSession() {
     },
   });
 }
+
+export function useAdminCreateMakeupSession() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ sessionId, scheduledAt, notes }) => adminSessionsService.createMakeup(sessionId, { scheduledAt, notes }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'sessions'] });
+    },
+  });
+}

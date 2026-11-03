@@ -6,6 +6,7 @@ import { useCurrencyStore } from '@/store';
 import { convertPrice } from '@/lib/currency';
 import { usePurchaseSupportPackage } from '@/hooks/useAcademicSupporterBrowse';
 import { useT } from '@/hooks/useT';
+import { trackInitiateCheckout } from '@/lib/metaPixel';
 
 const CURRENCY_SYMBOL = { USD: '$', EUR: '€', GBP: '£', AED: 'د.إ' };
 
@@ -31,7 +32,13 @@ export function SupportPackageDetailsDrawer({ supportPackage, onClose }) {
       { supportPackageId: supportPackage.id, couponCode: couponCode.trim() || undefined },
       {
         onSuccess: (data) => {
-          if (data?.checkout_url) window.location.href = data.checkout_url;
+          if (!data?.checkout_url) return;
+          trackInitiateCheckout({
+            value: data.purchase?.amount,
+            target: data.purchase?.id && `support-package-purchase-${data.purchase.id}`,
+            contentCategory: 'support_package_purchase',
+          });
+          window.location.href = data.checkout_url;
         },
       },
     );

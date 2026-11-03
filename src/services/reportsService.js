@@ -4,11 +4,11 @@ import { endpoints } from '@/api/endpoints';
 
 /** تقارير مالية مشتركة بين الأدمن والمحاسب (Gate: view-finance-reports). */
 export const reportsService = {
-  /** كل مدرس: عدد الحصص المحقَّقة فعلاً (حضور حقيقي، لا مجرد انقضاء الوقت) وعائدها للمنصة */
+  /** كل مدرس: الحصص التي استحق عنها، ومستحقه مطابقاً لكشوف المستحقات (مُدرَج/لم يُدرَج بعد)، وعائدها للمنصة */
   async getTeacherSessionsReport({ from, to, teacherId } = {}) {
     if (config.useMocks) {
       await mockDelay(300);
-      return { rows: [], totals: { sessionsCount: 0, teacherRevenue: 0, platformRevenue: 0 } };
+      return { rows: [], totals: { sessionsCount: 0, teacherRevenue: 0, inPayoutsAmount: 0, notInPayoutsAmount: 0, platformRevenue: 0 } };
     }
     const { data } = await client.get(endpoints.reports.teacherSessions, {
       params: { from: from || undefined, to: to || undefined, teacher_id: teacherId || undefined },

@@ -13,5 +13,7 @@ export const config = {
   locale: 'ar-SA',
   // النطاق النهائي للموقع (مؤكَّد) — يُستخدَم لبناء canonical URLs وstructured data
   // وsitemap.xml. راجع SEO_IMPLEMENTATION.md.
+  // Meta Pixel — فارغ = التتبع معطّل بالكامل (راجع src/lib/metaPixel.js)
+  metaPixelId: import.meta.env.VITE_META_PIXEL_ID || '',
   siteUrl: (import.meta.env.VITE_SITE_URL || 'https://t3allem.com').replace(/\/$/, ''),
 };

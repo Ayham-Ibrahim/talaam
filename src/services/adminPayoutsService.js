@@ -1,7 +1,7 @@
 import { config } from '@/config/env';
 import { client, mockDelay } from '@/api/client';
 import { endpoints } from '@/api/endpoints';
-import { filterMockPayouts, updateMockPayout, createMockPayout } from '@/mocks/adminPayouts.mock';
+import { filterMockPayouts, findMockPayout, updateMockPayout } from '@/mocks/adminPayouts.mock';
 
 export const adminPayoutsService = {
   async getPayouts(filters = {}) {
@@ -14,24 +14,24 @@ export const adminPayoutsService = {
     return { data: data.data, total: data.meta?.total ?? data.data.length };
   },
 
-  async generatePayout({ teacherId, periodStart, periodEnd }) {
+  /** تفاصيل كشف: الإجماليات + بنوده (جلسة/تسوية) — PayoutController::show */
+  async getPayoutDetails(id) {
     if (config.useMocks) {
-      await mockDelay(400);
-      return createMockPayout(teacherId);
+      await mockDelay(300);
+      const payout = findMockPayout(id);
+      return payout ? { ...payout, grossAmount: payout.totalAmount, deductions: 0, items: [] } : null;
     }
-    const { data } = await client.post(endpoints.admin.generatePayout(teacherId), {
-      period_start: periodStart,
-      period_end: periodEnd,
-    });
+    const { data } = await client.get(endpoints.admin.payoutDetails(id));
     return data.data;
   },
 
-  async approvePayout(id) {
+  /** كشف لكل معلم بكل مستحقاته غير المصروفة حتى لحظة الضغط — PayoutController::generate، يُرجع { created } */
+  async generatePayouts() {
     if (config.useMocks) {
-      await mockDelay(350);
-      return updateMockPayout(id, { status: 'approved', approvedAt: new Date().toISOString().slice(0, 10) });
+      await mockDelay(400);
+      return { created: 0 };
     }
-    const { data } = await client.post(endpoints.admin.approvePayout(id));
+    const { data } = await client.post(endpoints.admin.generatePayouts);
     return data.data;
   },
 
@@ -44,7 +44,7 @@ export const adminPayoutsService = {
     return data.data;
   },
 
-  /** PDF — متاح فقط لمستحقات approved/paid (PayoutController::downloadInvoice) */
+  /** PDF — متاح بحالتَي الكشف: غير مدفوع ومدفوع (PayoutController::downloadInvoice) */
   async downloadInvoice(id) {
     if (config.useMocks) {
       await mockDelay(400);

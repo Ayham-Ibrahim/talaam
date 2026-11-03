@@ -18,6 +18,12 @@ export const endpoints = {
     update: '/me/profile',
     updatePassword: '/me/password',
   },
+  // حسابات الإخوة — الطالب الأساسي يضيف إخوته ويبدّل بين حسابات العائلة
+  siblings: {
+    list: '/me/siblings',
+    create: '/me/siblings',
+    switch: (userId) => `/me/switch-account/${userId}`,
+  },
   reviews: {
     mine: '/me/reviews',
     create: (sessionId) => `/class-sessions/${sessionId}/reviews`,
@@ -122,6 +128,7 @@ export const endpoints = {
     rescheduleRequests: (id) => `/class-sessions/${id}/reschedule-requests`,
     join: (id) => `/class-sessions/${id}/join`,
     reschedule: (id) => `/class-sessions/${id}/schedule`,
+    makeup: (id) => `/class-sessions/${id}/makeup`,
   },
   accountants: {
     create: '/accountants',
@@ -227,8 +234,8 @@ export const endpoints = {
     taxonomy: (type) => `/taxonomy/${type}`,
     taxonomyItem: (type, id) => `/taxonomy/${type}/${id}`,
     payouts: '/payouts',
-    generatePayout: (teacherId) => `/teachers/${teacherId}/payouts/generate`,
-    approvePayout: (id) => `/payouts/${id}/approve`,
+    payoutDetails: (id) => `/payouts/${id}`,
+    generatePayouts: '/payouts/generate',
     markPayoutPaid: (id) => `/payouts/${id}/mark-paid`,
     payoutInvoice: (id) => `/payouts/${id}/invoice`,
     exportPayouts: '/payouts/export',

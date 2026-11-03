@@ -5,6 +5,7 @@ import { Eye, EyeOff, GraduationCap, Mail, Lock, User, Phone, ArrowRight } from 
 import { motion } from 'framer-motion';
 import { Logo } from '@/components/layout/Logo';
 import { ApiErrorList, Button } from '@/components/ui';
+import { PolicyAcceptanceCheckbox } from '@/components/auth/PolicyAcceptanceCheckbox';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { NAME_VALIDATION_PATTERN, EMAIL_PATTERN, PHONE_PATTERN } from '@/lib/accountFormValidation';
 import { useAuth, useRegisterTeacher } from '@/hooks/useAuth';
@@ -19,6 +20,7 @@ const REGISTER_FIELD_LABELS = {
   phone: 'رقم الهاتف',
   password: 'كلمة المرور',
   teacher_type: 'نوع الحساب',
+  accept_policy: 'الموافقة على السياسة',
 };
 const registerErrorLabel = (path) => REGISTER_FIELD_LABELS[path] ?? path;
 
@@ -45,7 +47,7 @@ export function RegisterTeacherPage() {
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm({ defaultValues: { name: '', email: '', phone: '', password: '', password_confirmation: '' } });
+  } = useForm({ defaultValues: { name: '', email: '', phone: '', password: '', password_confirmation: '', accept_policy: false } });
 
   const password = watch('password');
 
@@ -69,6 +71,7 @@ export function RegisterTeacherPage() {
         teacher_type: teacherType,
         password: values.password,
         password_confirmation: values.password_confirmation,
+        accept_policy: values.accept_policy,
       },
       { onSuccess: () => navigate('/dashboard/teacher', { replace: true }) },
     );
@@ -265,6 +268,12 @@ export function RegisterTeacherPage() {
                   <span className="text-xs text-accent-pink">{errors.password_confirmation.message}</span>
                 )}
               </label>
+
+              <PolicyAcceptanceCheckbox
+                policySlug="teacher-policy"
+                registration={register('accept_policy', { required: t('auth.policyAgreeRequired') })}
+                error={errors.accept_policy}
+              />
 
               {registerTeacher.isError && <ApiErrorList error={registerTeacher.error} labelFor={registerErrorLabel} />}
 

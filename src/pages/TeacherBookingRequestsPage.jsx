@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { CalendarClock, Check, X } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { ApiErrorList, Avatar, EmptyState, ErrorState, Skeleton } from '@/components/ui';
+import { PolicyNotice } from '@/components/common/PolicyNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { usePendingBookingRequests, useApproveBookingRequest, useRejectBookingRequest } from '@/hooks/useBooking';
 import { useT } from '@/hooks/useT';
@@ -133,6 +134,8 @@ export function TeacherBookingRequestsPage() {
     <DashboardLayout>
       <div className="flex flex-col gap-4">
         <h2 className="font-bold text-ink">{t('dashboard.bookingRequests.title')}</h2>
+
+        <PolicyNotice policySlug="teacher-policy">{t('policyNotice.bookingRequests')}</PolicyNotice>
 
         {isError ? (
           <ErrorState onRetry={refetch} />

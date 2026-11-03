@@ -1,14 +1,12 @@
 import { Navigate, Link } from 'react-router-dom';
-import { ShieldCheck, FileText, ChevronLeft } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { useLegalPage } from '@/hooks/useMeta';
 import { useT } from '@/hooks/useT';
+import { LEGAL_PAGES, LEGAL_PAGE_SLUGS } from '@/lib/legalPages';
 
-const DOCS = [
-  { slug: 'privacy', icon: ShieldCheck, titleKey: 'privacyTitle' },
-  { slug: 'terms', icon: FileText, titleKey: 'termsTitle' },
-];
+const DOCS = LEGAL_PAGE_SLUGS.map((slug) => ({ slug, ...LEGAL_PAGES[slug] }));
 
 function DocCard({ doc }) {
   const t = useT();
@@ -25,7 +23,7 @@ function DocCard({ doc }) {
           <Icon size={22} />
         </span>
         <div className="text-right">
-          <div className="font-bold text-ink">{t(`legal.${doc.titleKey}`)}</div>
+          <div className="font-bold text-ink">{t(doc.titleKey)}</div>
           {isError ? (
             <button type="button" onClick={(e) => { e.preventDefault(); refetch(); }} className="text-xs text-accent-pink">
               {t('dashboard.adminLegalPages.loadError')}

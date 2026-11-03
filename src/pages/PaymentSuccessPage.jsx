@@ -8,6 +8,8 @@ import { queryKeys } from '@/api/queryKeys';
 import { dashboardService } from '@/services';
 import { useSupportPackagePurchaseDetail } from '@/hooks/useAcademicSupporterBrowse';
 import { useT } from '@/hooks/useT';
+import { config } from '@/config/env';
+import { trackMetaEventOnce } from '@/lib/metaPixel';
 
 /**
  * Stripe redirects here after a successful checkout. The booking itself is
@@ -47,6 +49,26 @@ export function PaymentSuccessPage() {
     : target
       ? `/dashboard/student/packages/${target}`
       : '/dashboard/student/sessions';
+
+  // الوصول لهذه الصفحة لا يعني تأكيد الدفع — Purchase فقط بعد أن يؤكّده webhook Stripe
+  // (خروج الحالة من pending_payment). نفس event_id يرسله السيرفر من الـ webhook نفسه
+  // (MetaConversionsService::trackPurchase)، وtrackMetaEventOnce يمنع تكراره عند تحديث الصفحة.
+  const paidAmount = isSupportPackagePurchase ? purchase?.amount : data?.package?.price;
+  useEffect(() => {
+    if (!target || !bookingStatus || bookingStatus === 'pending_payment') return;
+    trackMetaEventOnce(
+      'Purchase',
+      {
+        value: Number(paidAmount) || 0,
+        currency: config.defaultCurrency,
+        content_type: 'product',
+        content_ids: [target],
+        content_category: kind,
+        num_items: 1,
+      },
+      `purchase_${target}`,
+    );
+  }, [bookingStatus, target]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!target || !isAuthenticated) return;

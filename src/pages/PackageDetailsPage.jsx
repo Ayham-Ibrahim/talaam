@@ -8,6 +8,7 @@ import { PackageSidebarSummary } from '@/components/dashboard/PackageSidebarSumm
 import { PackageRebookBanner } from '@/components/dashboard/PackageRebookBanner';
 import { PackageSessionsList } from '@/components/dashboard/PackageSessionsList';
 import { ApiErrorList, ErrorState, Skeleton } from '@/components/ui';
+import { PolicyNotice } from '@/components/common/PolicyNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { usePackageDetails } from '@/hooks/useDashboard';
 import { useApplyBookingCoupon, useCheckoutBooking } from '@/hooks/useBooking';
@@ -15,6 +16,7 @@ import { useApplyEnrollmentCoupon, useCheckoutEnrollment } from '@/hooks/useEnro
 import { formatPrice } from '@/lib/currency';
 import { useCurrencyStore } from '@/store';
 import { useT } from '@/hooks/useT';
+import { trackInitiateCheckout } from '@/lib/metaPixel';
 
 export function PackageDetailsPage() {
   const t = useT();
@@ -56,7 +58,10 @@ export function PackageDetailsPage() {
   const handlePayNow = () => {
     checkout.mutate(rawId, {
       onSuccess: (result) => {
-        if (result?.checkout_url) window.location.href = result.checkout_url;
+        if (!result?.checkout_url) return;
+        // السعر هنا بعد الكوبون (amount_paid) — id بصيغة booking-12 / enrollment-12
+        trackInitiateCheckout({ value: data?.package?.price, target: id, contentCategory: kind });
+        window.location.href = result.checkout_url;
       },
     });
   };
@@ -121,6 +126,9 @@ export function PackageDetailsPage() {
               >
                 {checkout.isPending ? t('dashboard.myPackages.processingPayment') : t('dashboard.myPackages.payNow')}
               </button>
+              <PolicyNotice policySlug="student-policy" className="w-full bg-white/70">
+                {t('policyNotice.payment')}
+              </PolicyNotice>
             </div>
           )}
 

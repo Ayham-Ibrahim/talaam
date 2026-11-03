@@ -10,23 +10,23 @@ export function useAdminPayouts(filters = {}) {
   });
 }
 
+export function usePayoutDetails(id) {
+  return useQuery({
+    queryKey: queryKeys.admin.payoutDetails(id),
+    queryFn: () => adminPayoutsService.getPayoutDetails(id),
+    enabled: id != null,
+  });
+}
+
 function useInvalidatePayouts() {
   const queryClient = useQueryClient();
   return () => queryClient.invalidateQueries({ queryKey: ['admin', 'payouts'] });
 }
 
-export function useGeneratePayout() {
+export function useGeneratePayouts() {
   const invalidate = useInvalidatePayouts();
   return useMutation({
-    mutationFn: (payload) => adminPayoutsService.generatePayout(payload),
-    onSuccess: invalidate,
-  });
-}
-
-export function useApprovePayout() {
-  const invalidate = useInvalidatePayouts();
-  return useMutation({
-    mutationFn: (id) => adminPayoutsService.approvePayout(id),
+    mutationFn: () => adminPayoutsService.generatePayouts(),
     onSuccess: invalidate,
   });
 }
