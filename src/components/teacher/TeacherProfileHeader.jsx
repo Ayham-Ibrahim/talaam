@@ -100,7 +100,6 @@ export function TeacherProfileHeader({
         });
       } else {
         await navigator.clipboard.writeText(url);
-        // Optional: show your project's success toast here
       }
     } catch (error) {
       if (error.name !== "AbortError") {
@@ -112,7 +111,6 @@ export function TeacherProfileHeader({
   const teachingType =
     teacher.teachingMethods?.slice(0, 2).join(" / ") || teacher.typeLabel;
 
-  // The 4 feature-bullets under the title — real teacher data, styled like the reference's icon+label row
   const bullets = [
     (teacher.experienceShort || teacher.experienceLabel) && {
       icon: CalendarCheck,
@@ -159,10 +157,10 @@ export function TeacherProfileHeader({
       <div className="pointer-events-none absolute -left-16 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-white/25 blur-[70px] motion-safe:animate-flare-pulse" />
 
       <div className="relative z-10 flex flex-col items-stretch gap-8 p-6 pb-9 sm:p-10 sm:pb-12 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
-        {/* ── Text column — start side (left in English, right in Arabic) ─── */}
+        {/* ── Text column — start side ─── */}
         <div className="flex flex-1 flex-col items-start gap-4 text-start">
           <div className="flex w-full items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2.5">
               {teacher.isVerified && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#0E1A4D] backdrop-blur-sm">
                   <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#2E9E6B]">
@@ -172,25 +170,30 @@ export function TeacherProfileHeader({
                 </span>
               )}
 
-              {/* Rate Teacher */}
+              {/* Rate Teacher - Neon Squircle with Wave Gradient Animation */}
               <button
                 type="button"
                 onClick={() => setIsReviewOpen(true)}
-                className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-3 py-2 text-xs font-semibold text-white backdrop-blur-sm transition hover:bg-white/25"
+                className="inline-flex items-center gap-2 rounded-2xl bg-[linear-gradient(270deg,#3AD8FF,#6C63FF,#3AD8FF)] bg-[length:200%_auto] px-3.5 py-2 text-xs font-bold text-white shadow-[0_0_20px_rgba(58,216,255,0.45)] transition-all hover:scale-105 hover:shadow-[0_0_25px_rgba(108,99,255,0.65)] motion-safe:animate-[gradient-x_3s_ease_infinite]"
               >
-                <Star size={15} className="text-[#FFC94A]" />
-                {t("teacher.rateTeacher")}
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20">
+                  <Star size={14} className="fill-[#FFC94A] text-[#FFC94A]" />
+                </div>
+                <span>{t("teacher.rateTeacher")}</span>
               </button>
 
-              {/* Share Profile */}
+              {/* Share Profile - Neon Squircle with Text & Wave Gradient Animation */}
               <button
                 type="button"
                 onClick={handleShare}
                 aria-label={t("teacher.shareProfile")}
                 title={t("teacher.shareProfile")}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/15 text-white backdrop-blur-sm transition hover:bg-white/25"
+                className="inline-flex items-center gap-2 rounded-2xl bg-[linear-gradient(270deg,#3AD8FF,#6C63FF,#3AD8FF)] bg-[length:200%_auto] px-3.5 py-2 text-xs font-bold text-white shadow-[0_0_20px_rgba(58,216,255,0.45)] transition-all hover:scale-105 hover:shadow-[0_0_25px_rgba(108,99,255,0.65)] motion-safe:animate-[gradient-x_3s_ease_infinite]"
               >
-                <Share2 size={17} />
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20">
+                  <Share2 size={14} />
+                </div>
+                <span>{t("teacher.shareProfile") || "مشاركة / Share"}</span>
               </button>
             </div>
 
@@ -245,32 +248,27 @@ export function TeacherProfileHeader({
           )}
         </div>
 
-        {/* ── Photo column — neon ring + floating teaching icons, right side ── */}
+        {/* ── Photo column ── */}
         <div className="relative mx-auto h-[220px] w-[220px] shrink-0 sm:h-[260px] sm:w-[260px] lg:mx-0 lg:me-6">
-          {/* soft outer bloom, pulses */}
           <div className="absolute inset-[-14px] rounded-full bg-[#38E0FF]/25 blur-3xl motion-safe:animate-glow-pulse" />
 
-          {/* floating teaching-icon bubbles */}
           <div className="absolute inset-0 hidden sm:block">
             {FLOATING_ICONS.map((f, i) => (
               <FloatingIcon key={i} {...f} />
             ))}
           </div>
 
-          {/* rotating neon ring */}
           <div
             className="absolute inset-0 rounded-full motion-safe:animate-spin-slow"
             style={{ background: RING_SHINE }}
           />
-          {/* thin bright ring against the photo */}
           <div className="absolute inset-[6px] rounded-full bg-white/90" />
-          {/* photo */}
           <div className="absolute inset-[10px] overflow-hidden rounded-full">
             <img
               src={teacher.avatar || "/teacher.webp"}
               alt={
                 teacher.subjects?.[0]
-                  ? `${teacher.name} - مدرس ${teacher.subjects[0]}`
+                  ? `${teacher.name} مدرس ${teacher.subjects[0]}`
                   : teacher.name
               }
               decoding="async"
