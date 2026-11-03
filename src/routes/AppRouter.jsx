@@ -64,10 +64,12 @@ import { SupporterStudentsPage } from '@/pages/SupporterStudentsPage';
 import { AcademicSupporterBrowsePage } from '@/pages/AcademicSupporterBrowsePage';
 import { AcademicSupporterProfilePage } from '@/pages/AcademicSupporterProfilePage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { MetaPixelPageViews } from '@/components/analytics/MetaPixelPageViews';
 
 export function AppRouter() {
   return (
     <BrowserRouter>
+      <MetaPixelPageViews />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/search" element={<SearchPage />} />

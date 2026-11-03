@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { config } from '@/config/env';
 import { useAuthStore } from '@/store';
+import { getMetaRequestHeaders } from '@/lib/metaPixel';
 
 /**
  * Central Axios instance.
@@ -21,6 +22,7 @@ client.interceptors.request.use(
   (req) => {
     const token = getAuthToken();
     if (token) req.headers.Authorization = `Bearer ${token}`;
+    Object.assign(req.headers, getMetaRequestHeaders());
     return req;
   },
   (error) => Promise.reject(error)

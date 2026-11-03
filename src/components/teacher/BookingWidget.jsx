@@ -12,6 +12,7 @@ import { useCurrencyStore } from '@/store';
 import { formatPrice } from '@/lib/currency';
 import { formatDate, isPastDate, lastScheduleDate } from '@/lib/formatters';
 import { rangesOverlap, findOwnConflict } from '@/lib/scheduleConflict';
+import { trackInitiateCheckout } from '@/lib/metaPixel';
 
 /** Backend TIME columns serialize as "H:i:s" — trim to "H:i" for display */
 function formatTime(t) {
@@ -242,7 +243,13 @@ export function BookingWidget({ selectedPackage, bare = false }) {
       if (!canSubmitGroup) return;
       createGroup.mutate(couponCode.trim() || undefined, {
         onSuccess: (data) => {
-          if (data?.checkout_url) window.location.href = data.checkout_url;
+          if (!data?.checkout_url) return;
+          trackInitiateCheckout({
+            value: data.booking?.amount_paid,
+            target: data.booking?.id && `booking-${data.booking.id}`,
+            contentCategory: 'booking',
+          });
+          window.location.href = data.checkout_url;
         },
       });
       return;

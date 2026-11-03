@@ -16,6 +16,7 @@ import { useApplyEnrollmentCoupon, useCheckoutEnrollment } from '@/hooks/useEnro
 import { formatPrice } from '@/lib/currency';
 import { useCurrencyStore } from '@/store';
 import { useT } from '@/hooks/useT';
+import { trackInitiateCheckout } from '@/lib/metaPixel';
 
 export function PackageDetailsPage() {
   const t = useT();
@@ -57,7 +58,10 @@ export function PackageDetailsPage() {
   const handlePayNow = () => {
     checkout.mutate(rawId, {
       onSuccess: (result) => {
-        if (result?.checkout_url) window.location.href = result.checkout_url;
+        if (!result?.checkout_url) return;
+        // السعر هنا بعد الكوبون (amount_paid) — id بصيغة booking-12 / enrollment-12
+        trackInitiateCheckout({ value: data?.package?.price, target: id, contentCategory: kind });
+        window.location.href = result.checkout_url;
       },
     });
   };
