@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Seo } from '@/components/seo/Seo';
@@ -26,6 +26,7 @@ import { usePackages, useCourses, useRatingSummary, useReviews } from '@/hooks/u
 import { useMyReviews, useCreateTeacherReview } from '@/hooks/useMyReviews';
 import { useT } from '@/hooks/useT';
 import { useProfileT } from '@/hooks/useProfileT';
+import { trackViewContent } from '@/lib/metaPixel';
 
 
 /** عنوان ووصف Meta من بيانات المعلم الحقيقية فقط — مادة/مدينة/منهج/لغات/خبرة، لا نص عام مكرر لكل معلم */
@@ -107,6 +108,25 @@ export function TeacherProfilePage() {
 
   const selectedPackage = packages?.find((p) => p.id === selectedPackageId) ?? null;
   const selectedCourse = courses?.find((c) => c.id === selectedCourseId) ?? null;
+
+  // لا يُتتبَّع المعلمون/الأدمن وهم يتصفحون — الجمهور المستهدف بالإعلانات زوار وطلاب فقط
+  const isTrackedVisitor = !isAuthenticated || isStudent;
+
+  useEffect(() => {
+    if (!teacher || !isTrackedVisitor) return;
+    trackViewContent({ contentId: `teacher-${teacher.id}`, contentName: teacher.name, contentCategory: 'teacher' });
+  }, [teacher?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // الدورة بلا صفحة مستقلة — تُعرض في Drawer عند اختيارها، فاختيارها هو "مشاهدتها"
+  useEffect(() => {
+    if (!selectedCourse || !isTrackedVisitor) return;
+    trackViewContent({
+      contentId: `course-${selectedCourse.id}`,
+      contentName: selectedCourse.title,
+      contentCategory: 'course',
+      value: selectedCourse.price,
+    });
+  }, [selectedCourse?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (teacherLoading) {
     return (
