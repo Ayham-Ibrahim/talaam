@@ -4,11 +4,14 @@ import { Button, EmptyState } from "@/components/ui";
 import { getSessionTypeColor } from "@/mocks/dashboard.mock";
 import { useJoinSession } from "@/hooks/useSessionJoin";
 import { handleSessionJoin } from "@/lib/joinSession";
+import { useNow } from "@/hooks/useNow";
+import { isSessionRowJoinable } from "@/services";
 import { useT } from "@/hooks/useT";
 
 function SessionRow({ session }) {
   const t = useT();
   const joinSession = useJoinSession();
+  const canJoin = isSessionRowJoinable(session, useNow());
 
   return (
     <div className="flex flex-wrap items-center w-full justify-between gap-4 py-4">
@@ -65,7 +68,7 @@ function SessionRow({ session }) {
             </div>
           </>
         )}
-        {session.joinUrl && (
+        {canJoin && (
           <Button
             variant="outline"
             size="sm"

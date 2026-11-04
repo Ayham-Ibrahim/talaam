@@ -17,7 +17,12 @@ import { teacherSessionDisplayStatus } from '@/services';
 import { useT } from '@/hooks/useT';
 
 const PAGE_SIZE = 10;
-const DEFAULT_FILTERS = { status: '', date: '', search: '' };
+// الافتراضي "قادمة" مرتبة من الأقدم للأحدث — فأقرب جلسة للمعلم أول صف عند الدخول
+const DEFAULT_FILTERS = { status: 'scheduled', date: '', search: '' };
+
+function sortOldestFirst(sessions) {
+  return [...sessions].sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at) || a.id - b.id);
+}
 
 export function TeacherSessionsPage() {
   const t = useT();
@@ -44,21 +49,26 @@ export function TeacherSessionsPage() {
   };
 
   const statusOptions = useMemo(
-    () => Object.entries(TEACHER_SESSION_STATUS_STYLES).map(([value, style]) => ({ value, label: style.label })),
-    []
+    // خيار "جميع الحالات" صريح — الفلتر الافتراضي لم يعد فارغاً، فبدونه لا طريق للعودة لعرض الكل
+    () => [
+      { value: '', label: t('dashboard.teacherSessions.allStatuses') },
+      ...Object.entries(TEACHER_SESSION_STATUS_STYLES).map(([value, style]) => ({ value, label: style.label })),
+    ],
+    [t]
   );
 
+  const sortedSessions = useMemo(() => (sessions ? sortOldestFirst(sessions) : []), [sessions]);
+
   const filteredSessions = useMemo(() => {
-    if (!sessions) return [];
     const search = filters.search.trim().toLowerCase();
-    return sessions.filter((session) => {
+    return sortedSessions.filter((session) => {
       const title = session.booking?.package?.title ?? session.course?.title ?? '';
       if (filters.status && teacherSessionDisplayStatus(session) !== filters.status) return false;
       if (filters.date && !session.scheduled_at.startsWith(filters.date)) return false;
       if (search && !title.toLowerCase().includes(search)) return false;
       return true;
     });
-  }, [sessions, filters]);
+  }, [sortedSessions, filters]);
 
   const totalPages = Math.max(1, Math.ceil(filteredSessions.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);

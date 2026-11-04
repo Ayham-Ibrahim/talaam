@@ -38,6 +38,8 @@ function mapSessionRow(row) {
       role: log.role,
       studentId: log.student_id,
       firstJoinedAt: log.first_joined_at,
+      // سجّله الأدمن يدوياً ولم يدخل عبر المنصة ولو مرة — SessionJoinLogService::recordByAdmin
+      manual: log.join_count === 0,
     })),
     scheduledAt: row.scheduled_at,
     originalScheduledAt: row.original_scheduled_at,
@@ -119,6 +121,22 @@ export const adminSessionsService = {
     const { data } = await client.post(endpoints.classSessions.makeup(sessionId), {
       scheduled_at: scheduledAt,
       notes: notes || undefined,
+    });
+    return { message: data.message };
+  },
+
+  /**
+   * POST /class-sessions/{id}/attendance — حضور يدوي للمعلم (role=teacher) أو لطالب (role=student)
+   * أثناء الجلسة فقط، يُحتسب كحضور طبيعي في الوقت
+   */
+  async markAttendance(sessionId, { role, studentId }) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return { message: 'تم تسجيل الحضور' };
+    }
+    const { data } = await client.post(endpoints.classSessions.attendance(sessionId), {
+      role,
+      student_id: role === 'student' ? studentId : undefined,
     });
     return { message: data.message };
   },

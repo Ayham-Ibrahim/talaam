@@ -409,7 +409,7 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
   const [page, setPage] = useState(1);
   const [editingSession, setEditingSession] = useState(null);
   const [makeupSession, setMakeupSession] = useState(null);
-  const [linksSession, setLinksSession] = useState(null);
+  const [linksSessionSnapshot, setLinksSession] = useState(null);
 
   const range = day ? localDayRange(day) : {};
   const isFiltered = day !== defaults.day || status !== defaults.status || sort !== defaults.sort || teacherFilter !== '';
@@ -425,6 +425,8 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
     perPage: PER_PAGE,
   });
   const sessions = data?.data ?? [];
+  // نافذة الروابط تقرأ الجلسة من القائمة الحالية لا نسخة لحظة فتحها — فيظهر الحضور المسجَّل منها فور إعادة الجلب
+  const linksSession = linksSessionSnapshot ? (sessions.find((s) => s.id === linksSessionSnapshot.id) ?? linksSessionSnapshot) : null;
   const totalPages = data?.meta?.last_page ?? 1;
   const isTeacherContext = Boolean(teacherId);
   const isGlobalContext = all;

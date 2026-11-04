@@ -10,6 +10,7 @@ import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { formatDateTime } from '@/lib/formatters';
 import { ATTENDANCE_STYLES, NO_ATTENDANCE_STATUSES, attendanceState } from '@/lib/sessionAttendance';
 import { canJoinSession } from '@/services';
+import { useNow } from '@/hooks/useNow';
 import { useT } from '@/hooks/useT';
 
 export function TeacherSessionDetailsPage() {
@@ -18,12 +19,13 @@ export function TeacherSessionDetailsPage() {
   const { id } = useParams();
   const { data: session, isLoading, isError, refetch } = useTeacherSessionDetails(id);
   const joinSession = useJoinSession();
+  const now = useNow();
 
   if (!user) return <Navigate to="/login" replace />;
 
   const statusStyle = session ? TEACHER_SESSION_STATUS_STYLES[session.status] : null;
   const title = session ? (session.booking?.package?.title ?? session.course?.title ?? '—') : '';
-  const canJoin = session && canJoinSession(session, session.join_url_teacher);
+  const canJoin = session && canJoinSession(session, session.join_url_teacher, now);
   const showReason = session && ['cancelled', 'no_show_teacher', 'no_show_student'].includes(session.status) && session.cancellation_reason;
 
   // الحضور من سجل الانضمام (زر "انضمام") — لا من attendance الذي لا يتغيّر إلا يدوياً.
