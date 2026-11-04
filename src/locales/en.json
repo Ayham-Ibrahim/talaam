@@ -528,6 +528,8 @@
     "teacherWord": "teacher",
     "resultsCount": "certified teachers",
     "filterTitle": "Filter teachers",
+    "trainingFilterTitle": "Filter Training Centers",
+
     "subject": "Subject",
     "specialization": "Specialization / Curriculum",
     "rating": "Minimum rating",

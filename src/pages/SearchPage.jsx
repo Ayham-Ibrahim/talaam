@@ -1,26 +1,41 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Search, ChevronDown, SlidersHorizontal, X, Star } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { PageContainer } from '@/components/layout/PageContainer';
-import { Seo } from '@/components/seo/Seo';
-import { teacherListJsonLd } from '@/lib/seo';
-import { SearchHero } from '@/components/search/SearchHero';
-import { SearchFilters } from '@/components/search/SearchFilters';
-import { TeacherCard, TeacherCardSkeleton } from '@/components/teacher/TeacherCard';
-import { Button, EmptyState, ErrorState } from '@/components/ui';
-import { useInfiniteTeachers } from '@/hooks/useTeachers';
-import { useInfiniteScrollTrigger } from '@/hooks/useInfiniteScrollTrigger';
-import { useFilters } from '@/hooks/useMeta';
-import { useT } from '@/hooks/useT';
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Search, ChevronDown, SlidersHorizontal, X, Star } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { Seo } from "@/components/seo/Seo";
+import { teacherListJsonLd } from "@/lib/seo";
+import { SearchHero } from "@/components/search/SearchHero";
+import { SearchFilters } from "@/components/search/SearchFilters";
+import {
+  TeacherCard,
+  TeacherCardSkeleton,
+} from "@/components/teacher/TeacherCard";
+import { Button, EmptyState, ErrorState } from "@/components/ui";
+import { useInfiniteTeachers } from "@/hooks/useTeachers";
+import { useInfiniteScrollTrigger } from "@/hooks/useInfiniteScrollTrigger";
+import { useFilters } from "@/hooks/useMeta";
+import { useT } from "@/hooks/useT";
 
-const DEFAULT_FILTERS = { level: null, stage: null, grade: null, major: null, courseField: null, subject: null, curriculum: null, language: null, minPrice: null, maxPrice: null, minRating: null };
+const DEFAULT_FILTERS = {
+  level: null,
+  stage: null,
+  grade: null,
+  major: null,
+  courseField: null,
+  subject: null,
+  curriculum: null,
+  language: null,
+  minPrice: null,
+  maxPrice: null,
+  minRating: null,
+};
 
 // تغيير حقل أب يمسح الحقول التابعة له — كي لا تبقى مثلاً "الصف 11" مختارة بعد
 // التحويل لـ"جامعي"، أو مادة مدرسية بعد التحويل لـ"دورات" (قوائمها تتغير مع النوع).
 const DEPENDENTS = {
-  level: ['stage', 'grade', 'major', 'courseField', 'subject', 'curriculum'],
-  stage: ['grade'],
+  level: ["stage", "grade", "major", "courseField", "subject", "curriculum"],
+  stage: ["grade"],
 };
 
 const PRICE_DEBOUNCE_MS = 500;
@@ -35,7 +50,8 @@ function useDebouncedValue(value, delay) {
 }
 
 const optionLabel = (options, value) =>
-  options?.find((o) => String(o.value) === String(value))?.label ?? String(value);
+  options?.find((o) => String(o.value) === String(value))?.label ??
+  String(value);
 
 export function SearchPage() {
   const t = useT();
@@ -44,10 +60,13 @@ export function SearchPage() {
   // يدعم الدخول المباشر برابط مُفلتَر مسبقاً (مثلاً بطاقات "أنواع التعليم" في
   // الصفحة الرئيسية: /search?type=school) — القيمة الأولية فقط عبر دالة lazy
   // init، لا تتزامن مع الرابط بعدها؛ اختيار المستخدم اليدوي هو مصدر الحقيقة لاحقاً.
-  const [q, setQ] = useState(searchParams.get('q') ?? '');
+  const [q, setQ] = useState(searchParams.get("q") ?? "");
   // الفلاتر تُطبَّق فوراً عند الاختيار (لا draft/زر تطبيق) — ما عدا حقلَي
   // السعر المكتوبين يدوياً فيُؤخَّران قليلاً كي لا يُرسَل طلب لكل رقم.
-  const [values, setValues] = useState(() => ({ ...DEFAULT_FILTERS, level: searchParams.get('type') }));
+  const [values, setValues] = useState(() => ({
+    ...DEFAULT_FILTERS,
+    level: searchParams.get("type"),
+  }));
   const [filtersOpen, setFiltersOpen] = useState(false);
   const minPrice = useDebouncedValue(values.minPrice, PRICE_DEBOUNCE_MS);
   const maxPrice = useDebouncedValue(values.maxPrice, PRICE_DEBOUNCE_MS);
@@ -70,9 +89,22 @@ export function SearchPage() {
       minPrice: minPrice ?? undefined,
       maxPrice: maxPrice ?? undefined,
       minRating: values.minRating ?? undefined,
-      sort: 'rating',
+      sort: "rating",
     }),
-    [q, values.level, values.subject, values.curriculum, values.stage, values.grade, values.major, values.courseField, values.language, values.minRating, minPrice, maxPrice]
+    [
+      q,
+      values.level,
+      values.subject,
+      values.curriculum,
+      values.stage,
+      values.grade,
+      values.major,
+      values.courseField,
+      values.language,
+      values.minRating,
+      minPrice,
+      maxPrice,
+    ],
   );
 
   const {
@@ -84,9 +116,13 @@ export function SearchPage() {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteTeachers(filters);
-  const teachers = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
+  const teachers = useMemo(
+    () => data?.pages.flatMap((page) => page.data) ?? [],
+    [data],
+  );
   const total = data?.pages[0]?.total;
-
+  console.log("Full API Response Data:", data);
+  console.log("Flattened Teachers Array:", teachers);
   const sentinelRef = useInfiniteScrollTrigger({
     onIntersect: fetchNextPage,
     enabled: Boolean(hasNextPage) && !isFetchingNextPage && !isLoading,
@@ -100,9 +136,10 @@ export function SearchPage() {
         next[dep] = null;
       });
       // الصف قد يُختار قبل المرحلة — نُبقيه إن كان ضمن نطاق المرحلة الجديدة
-      if (key === 'stage' && prev.grade) {
+      if (key === "stage" && prev.grade) {
         const stageGrades = value ? meta?.stageGrades?.[value] : null;
-        if (!stageGrades || stageGrades.includes(String(prev.grade))) next.grade = prev.grade;
+        if (!stageGrades || stageGrades.includes(String(prev.grade)))
+          next.grade = prev.grade;
       }
       return next;
     });
@@ -113,24 +150,58 @@ export function SearchPage() {
 
   // شرائح الفلاتر النشطة فوق النتائج — كل شريحة تُزال بنقرة وتمرّ بنفس
   // handleChange فتمسح توابعها كذلك.
-  const typeLabels = t('search.categories');
+  const typeLabels = t("search.categories");
   const activeChips = [
-    values.level && { key: 'level', label: typeLabels[['school', 'university', 'training'].indexOf(values.level)] },
-    values.stage && { key: 'stage', label: optionLabel(meta?.stages, values.stage) },
-    values.grade && { key: 'grade', label: optionLabel(meta?.grades, values.grade) },
-    values.major && { key: 'major', label: optionLabel(meta?.majors, values.major) },
-    values.courseField && { key: 'courseField', label: optionLabel(meta?.courseFields, values.courseField) },
-    values.subject && { key: 'subject', label: optionLabel(meta?.subjects, values.subject) },
-    values.curriculum && { key: 'curriculum', label: optionLabel(meta?.curricula, values.curriculum) },
-    values.language && { key: 'language', label: optionLabel(meta?.languages, values.language) },
-    values.minRating != null && { key: 'minRating', label: <>{values.minRating}{values.minRating < 5 && '+'} <Star size={12} className="fill-star text-star" /></> },
+    values.level && {
+      key: "level",
+      label:
+        typeLabels[["school", "university", "training"].indexOf(values.level)],
+    },
+    values.stage && {
+      key: "stage",
+      label: optionLabel(meta?.stages, values.stage),
+    },
+    values.grade && {
+      key: "grade",
+      label: optionLabel(meta?.grades, values.grade),
+    },
+    values.major && {
+      key: "major",
+      label: optionLabel(meta?.majors, values.major),
+    },
+    values.courseField && {
+      key: "courseField",
+      label: optionLabel(meta?.courseFields, values.courseField),
+    },
+    values.subject && {
+      key: "subject",
+      label: optionLabel(meta?.subjects, values.subject),
+    },
+    values.curriculum && {
+      key: "curriculum",
+      label: optionLabel(meta?.curricula, values.curriculum),
+    },
+    values.language && {
+      key: "language",
+      label: optionLabel(meta?.languages, values.language),
+    },
+    values.minRating != null && {
+      key: "minRating",
+      label: (
+        <>
+          {values.minRating}
+          {values.minRating < 5 && "+"}{" "}
+          <Star size={12} className="fill-star text-star" />
+        </>
+      ),
+    },
     (values.minPrice != null || values.maxPrice != null) && {
-      key: 'price',
-      label: `${t('search.price')}: ${values.minPrice ?? 0} – ${values.maxPrice ?? '∞'}`,
+      key: "price",
+      label: `${t("search.price")}: ${values.minPrice ?? 0} – ${values.maxPrice ?? "∞"}`,
     },
   ].filter(Boolean);
   const removeChip = (key) => {
-    if (key === 'price') {
+    if (key === "price") {
       setValues((prev) => ({ ...prev, minPrice: null, maxPrice: null }));
     } else {
       handleChange(key, null);
@@ -139,14 +210,19 @@ export function SearchPage() {
 
   const seoTitle = q
     ? `نتائج البحث عن "${q}" | مدرسون معتمدون - TAALAM`
-    : 'ابحث عن معلم خصوصي معتمد | TAALAM';
+    : "ابحث عن معلم خصوصي معتمد | TAALAM";
   const seoDescription = q
     ? `تصفّح أفضل المعلمين المعتمدين لـ "${q}" على TAALAM — قارن التقييمات والمناهج واللغات واحجز حصتك مباشرة.`
-    : 'تصفّح وقارن بين مئات المعلمين المعتمدين حسب المادة والمرحلة والمنهج واللغة والتقييم، واحجز حصتك الخصوصية الآن على TAALAM.';
+    : "تصفّح وقارن بين مئات المعلمين المعتمدين حسب المادة والمرحلة والمنهج واللغة والتقييم، واحجز حصتك الخصوصية الآن على TAALAM.";
 
   return (
     <PageContainer>
-      <Seo title={seoTitle} description={seoDescription} path="/search" jsonLd={teacherListJsonLd(teachers)} />
+      <Seo
+        title={seoTitle}
+        description={seoDescription}
+        path="/search"
+        jsonLd={teacherListJsonLd(teachers)}
+      />
       <div className="container-app py-8">
         <div className="flex flex-col gap-8 lg:flex-row">
           {/*
@@ -159,11 +235,19 @@ export function SearchPage() {
             toggle further down the page (see below).
           */}
           <div className="hidden lg:block">
-            <SearchFilters meta={meta} value={values} onChange={handleChange} onReset={handleReset} />
+            <SearchFilters
+              meta={meta}
+              value={values}
+              onChange={handleChange}
+              onReset={handleReset}
+            />
           </div>
 
           <div className="flex-1">
-            <SearchHero activeType={values.level} onSelectType={(v) => handleChange('level', v)} />
+            <SearchHero
+              activeType={values.level}
+              onSelectType={(v) => handleChange("level", v)}
+            />
 
             {/* Mobile-only filter toggle + collapsible drawer */}
             <div className="mt-4 lg:hidden">
@@ -175,9 +259,11 @@ export function SearchPage() {
               >
                 <span className="flex items-center gap-2">
                   <SlidersHorizontal size={16} />
-                  {t('search.filterTitle')}
+                  {t("search.filterTitle")}
                   {activeChips.length > 0 && (
-                    <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-white">{activeChips.length}</span>
+                    <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-white">
+                      {activeChips.length}
+                    </span>
                   )}
                 </span>
                 <motion.span
@@ -192,9 +278,9 @@ export function SearchPage() {
                 {filtersOpen && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
+                    animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25, ease: 'easeInOut' }}
+                    transition={{ duration: 0.25, ease: "easeInOut" }}
                     className="overflow-hidden"
                   >
                     <div className="mt-3 rounded-2xl border border-line bg-surface p-5">
@@ -220,7 +306,7 @@ export function SearchPage() {
                   <input
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
-                    placeholder={t('search.searchPlaceholder')}
+                    placeholder={t("search.searchPlaceholder")}
                     className="flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-ink-soft"
                   />
                   <Search size={18} className="text-ink-soft" />
@@ -230,12 +316,16 @@ export function SearchPage() {
               <div className="flex items-center gap-2">
                 {total != null && (
                   <span className="text-sm text-ink-soft">
-                    <span className="font-bold text-ink">{total}</span> {t('search.resultsCount')}
+                    <span className="font-bold text-ink">{total}</span>{" "}
+                    {t("search.resultsCount")}
                   </span>
                 )}
-                <span className="text-sm font-bold text-primary">{t('search.sortBy')}</span>
+                <span className="text-sm font-bold text-primary">
+                  {t("search.sortBy")}
+                </span>
                 <span className="inline-flex items-center gap-1 rounded-xl border border-line bg-surface px-3 py-1.5 text-sm text-ink">
-                  {t('search.sortRating')} <ChevronDown size={14} className="text-ink-soft" />
+                  {t("search.sortRating")}{" "}
+                  <ChevronDown size={14} className="text-ink-soft" />
                 </span>
               </div>
             </div>
@@ -253,8 +343,12 @@ export function SearchPage() {
                     <X size={12} />
                   </button>
                 ))}
-                <button type="button" onClick={handleReset} className="text-xs font-medium text-ink-soft underline-offset-2 hover:text-ink hover:underline">
-                  {t('search.clearAll')}
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="text-xs font-medium text-ink-soft underline-offset-2 hover:text-ink hover:underline"
+                >
+                  {t("search.clearAll")}
                 </button>
               </div>
             )}
@@ -269,24 +363,40 @@ export function SearchPage() {
               ) : (
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-x-4 lg:gap-y-3">
                   {isLoading
-                    ? Array.from({ length: 8 }).map((_, i) => <TeacherCardSkeleton key={i} />)
-                    : teachers.map((teacher) => <TeacherCard key={teacher.id} teacher={teacher} />)}
+                    ? Array.from({ length: 8 }).map((_, i) => (
+                        <TeacherCardSkeleton key={i} />
+                      ))
+                    : teachers.map((teacher) => (
+                        <TeacherCard key={teacher.id} teacher={teacher} />
+                      ))}
                   {isFetchingNextPage &&
-                    Array.from({ length: 3 }).map((_, i) => <TeacherCardSkeleton key={`next-${i}`} />)}
+                    Array.from({ length: 3 }).map((_, i) => (
+                      <TeacherCardSkeleton key={`next-${i}`} />
+                    ))}
                 </div>
               )}
-              {!isLoading && hasNextPage && <div ref={sentinelRef} aria-hidden="true" className="h-1" />}
-              {!isLoading && !isError && teachers.length === 0 && (
-                activeChips.length > 0 ? (
+              {!isLoading && hasNextPage && (
+                <div ref={sentinelRef} aria-hidden="true" className="h-1" />
+              )}
+              {!isLoading &&
+                !isError &&
+                teachers.length === 0 &&
+                (activeChips.length > 0 ? (
                   <EmptyState
-                    title={t('search.emptyFiltered')}
-                    hint={t('search.emptyFilteredHint')}
-                    action={<Button variant="outline" onClick={handleReset}>{t('search.clearAll')}</Button>}
+                    title={t("search.emptyFiltered")}
+                    hint={t("search.emptyFilteredHint")}
+                    action={
+                      <Button variant="outline" onClick={handleReset}>
+                        {t("search.clearAll")}
+                      </Button>
+                    }
                   />
                 ) : (
-                  <EmptyState title={t('states.empty')} hint={t('states.emptyHint')} />
-                )
-              )}
+                  <EmptyState
+                    title={t("states.empty")}
+                    hint={t("states.emptyHint")}
+                  />
+                ))}
             </div>
           </div>
         </div>
