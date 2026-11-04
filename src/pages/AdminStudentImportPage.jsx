@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import { Navigate, Link } from 'react-router-dom';
-import { Download, Plus, History } from 'lucide-react';
-import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
-import { StudentImportDropzone } from '@/components/dashboard/admin/StudentImportDropzone';
-import { StudentImportResults } from '@/components/dashboard/admin/StudentImportResults';
-import { ImportBatchStatus } from '@/components/dashboard/admin/ImportBatchStatus';
-import { AddStudentAccountModal } from '@/components/dashboard/admin/AddStudentAccountModal';
-import { useAuth } from '@/hooks/useAuth';
-import { useImportStudents } from '@/hooks/useAdminStudentImport';
-import { useImportBatch } from '@/hooks/useImportBatches';
-import { downloadStudentImportTemplate } from '@/lib/csvTemplate';
-import { useT } from '@/hooks/useT';
+import { useState } from "react";
+import { Navigate, Link } from "react-router-dom";
+import { Download, Plus, History } from "lucide-react";
+import { AdminDashboardLayout } from "@/components/dashboard/admin/AdminDashboardLayout";
+import { StudentImportDropzone } from "@/components/dashboard/admin/StudentImportDropzone";
+import { StudentImportResults } from "@/components/dashboard/admin/StudentImportResults";
+import { ImportBatchStatus } from "@/components/dashboard/admin/ImportBatchStatus";
+import { AddStudentAccountModal } from "@/components/dashboard/admin/AddStudentAccountModal";
+import { useAuth } from "@/hooks/useAuth";
+import { useImportStudents } from "@/hooks/useAdminStudentImport";
+import { useImportBatch } from "@/hooks/useImportBatches";
+import { downloadStudentImportTemplate } from "@/lib/csvTemplate";
+import { useT } from "@/hooks/useT";
 
 export function AdminStudentImportPage() {
   const t = useT();
@@ -40,8 +40,12 @@ export function AdminStudentImportPage() {
       <div className="mx-auto flex max-w-2xl flex-col gap-6">
         <div className="flex flex-wrap items-center justify-between gap-4 text-right">
           <div>
-            <h1 className="text-xl font-bold text-ink">{t('dashboard.adminStudentImport.title')}</h1>
-            <p className="mt-1 text-sm text-ink-soft">{t('dashboard.adminStudentImport.subtitle')}</p>
+            <h1 className="text-xl font-bold text-ink">
+              {t("dashboard.adminStudentImport.title")}
+            </h1>
+            <p className="mt-1 text-sm text-ink-soft">
+              {t("dashboard.adminStudentImport.subtitle")}
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <Link
@@ -49,7 +53,7 @@ export function AdminStudentImportPage() {
               className="flex items-center gap-1.5 rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-ink hover:bg-line/30"
             >
               <History size={16} />
-              {t('dashboard.importBatches.title')}
+              {t("dashboard.importBatches.title")}
             </Link>
             <button
               type="button"
@@ -57,14 +61,14 @@ export function AdminStudentImportPage() {
               className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-hover"
             >
               <Plus size={16} />
-              {t('dashboard.adminStudentImport.addStudent')}
+              {t("dashboard.adminStudentImport.addStudent")}
             </button>
             <button
               type="button"
               onClick={downloadStudentImportTemplate}
               className="flex items-center gap-1.5 rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-ink hover:bg-line/30"
             >
-              {t('dashboard.adminStudentImport.downloadTemplate')}
+              {t("dashboard.adminStudentImport.downloadTemplate")}
               <Download size={16} />
             </button>
           </div>
@@ -74,7 +78,8 @@ export function AdminStudentImportPage() {
 
         {importStudents.isError && (
           <div className="rounded-btn bg-accent-pink/10 px-4 py-3 text-sm text-accent-pink">
-            {importStudents.error?.message || t('dashboard.adminStudentImport.errorGeneric')}
+            {importStudents.error?.message ||
+              t("dashboard.adminStudentImport.errorGeneric")}
           </div>
         )}
 
@@ -84,15 +89,22 @@ export function AdminStudentImportPage() {
           onClick={handleImport}
           className="rounded-xl bg-primary py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
         >
-          {importStudents.isPending ? t('dashboard.adminStudentImport.importing') : t('dashboard.adminStudentImport.import')}
+          {importStudents.isPending
+            ? t("dashboard.adminStudentImport.importing")
+            : t("dashboard.adminStudentImport.import")}
         </button>
 
         {batch && (
-          <ImportBatchStatus batch={batch} renderResults={(result) => <StudentImportResults result={result} />} />
+          <ImportBatchStatus
+            batch={batch}
+            renderResults={(result) => <StudentImportResults result={result} />}
+          />
         )}
       </div>
 
-      {showAddModal && <AddStudentAccountModal onClose={() => setShowAddModal(false)} />}
+      {showAddModal && (
+        <AddStudentAccountModal onClose={() => setShowAddModal(false)} />
+      )}
     </AdminDashboardLayout>
   );
 }

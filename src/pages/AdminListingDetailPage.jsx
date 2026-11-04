@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import { Navigate, useParams, useSearchParams, Link } from 'react-router-dom';
-import { ArrowRight, UserPlus, Tag } from 'lucide-react';
-import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
-import { ListingDetailsCard } from '@/components/dashboard/admin/ListingDetailsCard';
-import { ListingApprovalPanel } from '@/components/dashboard/admin/ListingApprovalPanel';
-import { ReasonModal } from '@/components/dashboard/admin/ReasonModal';
-import { ManualBookingModal } from '@/components/dashboard/admin/ManualBookingModal';
-import { PackageCouponsModal } from '@/components/dashboard/PackageCouponsModal';
-import { ApiErrorList, ErrorState, Skeleton } from '@/components/ui';
-import { useAuth } from '@/hooks/useAuth';
+import { useState } from "react";
+import { Navigate, useParams, useSearchParams, Link } from "react-router-dom";
+import { ArrowRight, UserPlus, Tag } from "lucide-react";
+import { AdminDashboardLayout } from "@/components/dashboard/admin/AdminDashboardLayout";
+import { ListingDetailsCard } from "@/components/dashboard/admin/ListingDetailsCard";
+import { ListingApprovalPanel } from "@/components/dashboard/admin/ListingApprovalPanel";
+import { ReasonModal } from "@/components/dashboard/admin/ReasonModal";
+import { ManualBookingModal } from "@/components/dashboard/admin/ManualBookingModal";
+import { PackageCouponsModal } from "@/components/dashboard/PackageCouponsModal";
+import { ApiErrorList, ErrorState, Skeleton } from "@/components/ui";
+import { useAuth } from "@/hooks/useAuth";
 import {
   useAdminListingDetail,
   useApproveListing,
@@ -17,16 +17,21 @@ import {
   useEnableListing,
   useCreateManualBooking,
   useCreateManualEnrollment,
-} from '@/hooks/useAdminListings';
-import { useT } from '@/hooks/useT';
+} from "@/hooks/useAdminListings";
+import { useT } from "@/hooks/useT";
 
 export function AdminListingDetailPage() {
   const t = useT();
   const { user } = useAuth();
   const { id } = useParams();
   const [searchParams] = useSearchParams();
-  const kind = searchParams.get('kind');
-  const { data: listing, isLoading, isError, refetch } = useAdminListingDetail(id, kind);
+  const kind = searchParams.get("kind");
+  const {
+    data: listing,
+    isLoading,
+    isError,
+    refetch,
+  } = useAdminListingDetail(id, kind);
   const [modal, setModal] = useState(null); // 'reject' | 'disable'
   const [manualBookingOpen, setManualBookingOpen] = useState(false);
   const [manualBookingResult, setManualBookingResult] = useState(null);
@@ -39,32 +44,52 @@ export function AdminListingDetailPage() {
   const createManualBooking = useCreateManualBooking();
   const createManualEnrollment = useCreateManualEnrollment();
 
-  const isActing = approveListing.isPending || rejectListing.isPending || disableListing.isPending || enableListing.isPending;
-  const isBooking = createManualBooking.isPending || createManualEnrollment.isPending;
+  const isActing =
+    approveListing.isPending ||
+    rejectListing.isPending ||
+    disableListing.isPending ||
+    enableListing.isPending;
+  const isBooking =
+    createManualBooking.isPending || createManualEnrollment.isPending;
 
   if (!user) return <Navigate to="/login" replace />;
 
   const handleModalConfirm = (reason) => {
-    if (modal === 'reject') {
-      rejectListing.mutate({ listingId: id, reason }, { onSuccess: () => setModal(null) });
-    } else if (modal === 'disable') {
-      disableListing.mutate({ listingId: id, reason }, { onSuccess: () => setModal(null) });
+    if (modal === "reject") {
+      rejectListing.mutate(
+        { listingId: id, reason },
+        { onSuccess: () => setModal(null) },
+      );
+    } else if (modal === "disable") {
+      disableListing.mutate(
+        { listingId: id, reason },
+        { onSuccess: () => setModal(null) },
+      );
     }
   };
 
-  const activeModalMutation = modal === 'reject' ? rejectListing : disableListing;
-  const manualBookingMutation = listing?.kind === 'course' ? createManualEnrollment : createManualBooking;
+  const activeModalMutation =
+    modal === "reject" ? rejectListing : disableListing;
+  const manualBookingMutation =
+    listing?.kind === "course" ? createManualEnrollment : createManualBooking;
 
   const handleManualBookingConfirm = ({ studentId, reason, slots }) => {
-    const payload = { student_id: studentId, reason, ...(slots ? { slots } : {}) };
-    const mutation = listing.kind === 'course' ? createManualEnrollment : createManualBooking;
+    const payload = {
+      student_id: studentId,
+      reason,
+      ...(slots ? { slots } : {}),
+    };
+    const mutation =
+      listing.kind === "course" ? createManualEnrollment : createManualBooking;
     const args =
-      listing.kind === 'course' ? { courseId: id, payload } : { packageId: id, payload };
+      listing.kind === "course"
+        ? { courseId: id, payload }
+        : { packageId: id, payload };
 
     mutation.mutate(args, {
       onSuccess: () => {
         setManualBookingOpen(false);
-        setManualBookingResult(t('dashboard.adminManualBooking.success'));
+        setManualBookingResult(t("dashboard.adminManualBooking.success"));
       },
     });
   };
@@ -72,25 +97,30 @@ export function AdminListingDetailPage() {
   return (
     <AdminDashboardLayout>
       <div className="mb-4 flex items-center justify-between">
-        <Link to="/dashboard/admin/listings" className="flex items-center gap-1.5 text-sm font-medium text-ink-soft hover:text-primary">
-          {t('dashboard.adminListingDetail.back')}
+        <Link
+          to="/dashboard/admin/listings"
+          className="flex items-center gap-1.5 text-sm font-medium text-ink-soft hover:text-primary"
+        >
+          {t("dashboard.adminListingDetail.back")}
           <ArrowRight size={15} />
         </Link>
 
         <div className="flex items-center gap-2">
           {/* كوبونات الخصم متاحة فقط للباقات (لا الدورات) — نفس القيد المفروض في CreateCouponRequest بالباك اند */}
           {/* باقة مجانية: لا كوبونات — لا سعر يُخصم منه أصلاً */}
-          {listing?.kind === 'package' && listing?.status === 'active' && !listing?.isTrial && (
-            <button
-              type="button"
-              onClick={() => setCouponsOpen(true)}
-              className="flex items-center gap-1.5 rounded-xl border border-success px-4 py-2 text-sm font-medium text-success hover:bg-success-light"
-            >
-              <Tag size={16} />
-              {t('dashboard.coupons.title')}
-            </button>
-          )}
-          {listing?.status === 'active' && (
+          {listing?.kind === "package" &&
+            listing?.status === "active" &&
+            !listing?.isTrial && (
+              <button
+                type="button"
+                onClick={() => setCouponsOpen(true)}
+                className="flex items-center gap-1.5 rounded-xl border border-success px-4 py-2 text-sm font-medium text-success hover:bg-success-light"
+              >
+                <Tag size={16} />
+                {t("dashboard.coupons.title")}
+              </button>
+            )}
+          {listing?.status === "active" && (
             <button
               type="button"
               onClick={() => {
@@ -100,21 +130,25 @@ export function AdminListingDetailPage() {
               className="flex items-center gap-1.5 rounded-xl border border-primary px-4 py-2 text-sm font-medium text-primary hover:bg-primary/5"
             >
               <UserPlus size={16} />
-              {t('dashboard.adminManualBooking.button')}
+              {t("dashboard.adminManualBooking.button")}
             </button>
           )}
         </div>
       </div>
 
       {manualBookingResult && (
-        <div className="mb-4 rounded-2xl bg-success-light px-4 py-3 text-sm font-medium text-success">{manualBookingResult}</div>
+        <div className="mb-4 rounded-2xl bg-success-light px-4 py-3 text-sm font-medium text-success">
+          {manualBookingResult}
+        </div>
       )}
 
       {/* إعادة التفعيل إجراء مباشر بلا نافذة سبب — خطأ قاعدة العمل (جلسات نشطة/وشيكة) يُعرَض هنا */}
-      {enableListing.isError && <ApiErrorList error={enableListing.error} className="mb-4" />}
+      {enableListing.isError && (
+        <ApiErrorList error={enableListing.error} className="mb-4" />
+      )}
 
       {!kind ? (
-        <ErrorState message={t('dashboard.adminListingDetail.notFound')} />
+        <ErrorState message={t("dashboard.adminListingDetail.notFound")} />
       ) : isError ? (
         <ErrorState onRetry={refetch} />
       ) : isLoading ? (
@@ -123,7 +157,7 @@ export function AdminListingDetailPage() {
           <Skeleton className="h-40 rounded-2xl" />
         </div>
       ) : !listing ? (
-        <ErrorState message={t('dashboard.adminListingDetail.notFound')} />
+        <ErrorState message={t("dashboard.adminListingDetail.notFound")} />
       ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <ListingDetailsCard listing={listing} />
@@ -131,9 +165,10 @@ export function AdminListingDetailPage() {
             listing={listing}
             isActing={isActing}
             actions={{
-              onApprove: (marginPercent) => approveListing.mutate({ listingId: id, marginPercent }),
-              onReject: () => setModal('reject'),
-              onDisable: () => setModal('disable'),
+              onApprove: (marginPercent) =>
+                approveListing.mutate({ listingId: id, marginPercent }),
+              onReject: () => setModal("reject"),
+              onDisable: () => setModal("disable"),
               onEnable: () => enableListing.mutate({ listingId: id }),
             }}
           />
@@ -142,7 +177,9 @@ export function AdminListingDetailPage() {
 
       {modal && (
         <ReasonModal
-          titleKey={modal === 'reject' ? 'rejectListingTitle' : 'disableListingTitle'}
+          titleKey={
+            modal === "reject" ? "rejectListingTitle" : "disableListingTitle"
+          }
           isPending={isActing}
           error={activeModalMutation.isError ? activeModalMutation.error : null}
           onConfirm={handleModalConfirm}
@@ -154,14 +191,20 @@ export function AdminListingDetailPage() {
         <ManualBookingModal
           listing={listing}
           isPending={isBooking}
-          error={manualBookingMutation.isError ? manualBookingMutation.error : null}
+          error={
+            manualBookingMutation.isError ? manualBookingMutation.error : null
+          }
           onConfirm={handleManualBookingConfirm}
           onClose={() => setManualBookingOpen(false)}
         />
       )}
 
       {couponsOpen && (
-        <PackageCouponsModal packageId={id} packageTitle={listing?.title} onClose={() => setCouponsOpen(false)} />
+        <PackageCouponsModal
+          packageId={id}
+          packageTitle={listing?.title}
+          onClose={() => setCouponsOpen(false)}
+        />
       )}
     </AdminDashboardLayout>
   );

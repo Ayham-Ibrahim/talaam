@@ -1,70 +1,70 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { HomePage } from '@/pages/HomePage';
-import { SearchPage } from '@/pages/SearchPage';
-import { TeachingTypePage } from '@/pages/TeachingTypePage';
-import { AboutPage } from '@/pages/AboutPage';
-import { LegalPage } from '@/pages/LegalPage';
-import { LEGAL_PAGES, LEGAL_PAGE_SLUGS } from '@/lib/legalPages';
-import { HowItWorksPage } from '@/pages/HowItWorksPage';
-import { ContactPage } from '@/pages/ContactPage';
-import { FavoritesPage } from '@/pages/FavoritesPage';
-import { TeacherProfilePage } from '@/pages/TeacherProfilePage';
-import { PaymentSuccessPage } from '@/pages/PaymentSuccessPage';
-import { PaymentCancelPage } from '@/pages/PaymentCancelPage';
-import { LoginPage } from '@/pages/LoginPage';
-import { RegisterPage } from '@/pages/RegisterPage';
-import { RegisterTeacherPage } from '@/pages/RegisterTeacherPage';
-import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
-import { ResetPasswordPage } from '@/pages/ResetPasswordPage';
-import { CompleteProfilePage } from '@/pages/CompleteProfilePage';
-import { StudentDashboardPage } from '@/pages/StudentDashboardPage';
-import { TeacherDashboardPage } from '@/pages/TeacherDashboardPage';
-import { AdminDashboardPage } from '@/pages/AdminDashboardPage';
-import { AdminTeachersPage } from '@/pages/AdminTeachersPage';
-import { AdminStudentsPage } from '@/pages/AdminStudentsPage';
-import { AdminTeacherDetailPage } from '@/pages/AdminTeacherDetailPage';
-import { AdminAcademicSupportersPage } from '@/pages/AdminAcademicSupportersPage';
-import { AdminAcademicSupporterDetailPage } from '@/pages/AdminAcademicSupporterDetailPage';
-import { AdminStudentDetailPage } from '@/pages/AdminStudentDetailPage';
-import { AdminListingsPage } from '@/pages/AdminListingsPage';
-import { AdminListingDetailPage } from '@/pages/AdminListingDetailPage';
-import { AdminComplaintsPage } from '@/pages/AdminComplaintsPage';
-import { AdminTaxonomyPage } from '@/pages/AdminTaxonomyPage';
-import { AdminPayoutsPage } from '@/pages/AdminPayoutsPage';
-import { FinanceBookingsPage } from '@/pages/FinanceBookingsPage';
-import { AdminAccountantsPage } from '@/pages/AdminAccountantsPage';
-import { TeacherSessionsReportPage } from '@/pages/TeacherSessionsReportPage';
-import { AdminSessionsPage } from '@/pages/AdminSessionsPage';
-import { AdminNotificationLogsPage } from '@/pages/AdminNotificationLogsPage';
-import { AdminLegalPagesPage } from '@/pages/AdminLegalPagesPage';
-import { AdminLegalPageEditorPage } from '@/pages/AdminLegalPageEditorPage';
-import { AdminStudentImportPage } from '@/pages/AdminStudentImportPage';
-import { AdminTeacherImportPage } from '@/pages/AdminTeacherImportPage';
-import { AdminImportBatchesPage } from '@/pages/AdminImportBatchesPage';
-import { AdminSettingsPage } from '@/pages/AdminSettingsPage';
-import { CalendarPage } from '@/pages/CalendarPage';
-import { TeacherCalendarPage } from '@/pages/TeacherCalendarPage';
-import { SessionsPage } from '@/pages/SessionsPage';
-import { PackagesPage } from '@/pages/PackagesPage';
-import { PackageDetailsPage } from '@/pages/PackageDetailsPage';
-import { InvoicesPage } from '@/pages/InvoicesPage';
-import { StudentReviewsPage } from '@/pages/StudentReviewsPage';
-import { StudentSettingsPage } from '@/pages/StudentSettingsPage';
-import { TeacherPackagesPage } from '@/pages/TeacherPackagesPage';
-import { TeacherSessionsPage } from '@/pages/TeacherSessionsPage';
-import { TeacherSessionDetailsPage } from '@/pages/TeacherSessionDetailsPage';
-import { TeacherCourseDetailsPage } from '@/pages/TeacherCourseDetailsPage';
-import { TeacherStudentsPage } from '@/pages/TeacherStudentsPage';
-import { TeacherSettingsPage } from '@/pages/TeacherSettingsPage';
-import { TeacherBookingRequestsPage } from '@/pages/TeacherBookingRequestsPage';
-import { TeacherStudentDetailsPage } from '@/pages/TeacherStudentDetailsPage';
-import { SupporterSettingsPage } from '@/pages/SupporterSettingsPage';
-import { SupporterPackagesPage } from '@/pages/SupporterPackagesPage';
-import { SupporterStudentsPage } from '@/pages/SupporterStudentsPage';
-import { AcademicSupporterBrowsePage } from '@/pages/AcademicSupporterBrowsePage';
-import { AcademicSupporterProfilePage } from '@/pages/AcademicSupporterProfilePage';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { MetaPixelPageViews } from '@/components/analytics/MetaPixelPageViews';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HomePage } from "@/pages/HomePage";
+import { SearchPage } from "@/pages/SearchPage";
+import { TeachingTypePage } from "@/pages/TeachingTypePage";
+import { AboutPage } from "@/pages/AboutPage";
+import { LegalPage } from "@/pages/LegalPage";
+import { LEGAL_PAGES, LEGAL_PAGE_SLUGS } from "@/lib/legalPages";
+import { HowItWorksPage } from "@/pages/HowItWorksPage";
+import { ContactPage } from "@/pages/ContactPage";
+import { FavoritesPage } from "@/pages/FavoritesPage";
+import { TeacherProfilePage } from "@/pages/TeacherProfilePage";
+import { PaymentSuccessPage } from "@/pages/PaymentSuccessPage";
+import { PaymentCancelPage } from "@/pages/PaymentCancelPage";
+import { LoginPage } from "@/pages/LoginPage";
+import { RegisterPage } from "@/pages/RegisterPage";
+import { RegisterTeacherPage } from "@/pages/RegisterTeacherPage";
+import { ForgotPasswordPage } from "@/pages/ForgotPasswordPage";
+import { ResetPasswordPage } from "@/pages/ResetPasswordPage";
+import { CompleteProfilePage } from "@/pages/CompleteProfilePage";
+import { StudentDashboardPage } from "@/pages/StudentDashboardPage";
+import { TeacherDashboardPage } from "@/pages/TeacherDashboardPage";
+import { AdminDashboardPage } from "@/pages/AdminDashboardPage";
+import { AdminTeachersPage } from "@/pages/AdminTeachersPage";
+import { AdminStudentsPage } from "@/pages/AdminStudentsPage";
+import { AdminTeacherDetailPage } from "@/pages/AdminTeacherDetailPage";
+import { AdminAcademicSupportersPage } from "@/pages/AdminAcademicSupportersPage";
+import { AdminAcademicSupporterDetailPage } from "@/pages/AdminAcademicSupporterDetailPage";
+import { AdminStudentDetailPage } from "@/pages/AdminStudentDetailPage";
+import { AdminListingsPage } from "@/pages/AdminListingsPage";
+import { AdminListingDetailPage } from "@/pages/AdminListingDetailPage";
+import { AdminComplaintsPage } from "@/pages/AdminComplaintsPage";
+import { AdminTaxonomyPage } from "@/pages/AdminTaxonomyPage";
+import { AdminPayoutsPage } from "@/pages/AdminPayoutsPage";
+import { FinanceBookingsPage } from "@/pages/FinanceBookingsPage";
+import { AdminAccountantsPage } from "@/pages/AdminAccountantsPage";
+import { TeacherSessionsReportPage } from "@/pages/TeacherSessionsReportPage";
+import { AdminSessionsPage } from "@/pages/AdminSessionsPage";
+import { AdminNotificationLogsPage } from "@/pages/AdminNotificationLogsPage";
+import { AdminLegalPagesPage } from "@/pages/AdminLegalPagesPage";
+import { AdminLegalPageEditorPage } from "@/pages/AdminLegalPageEditorPage";
+import { AdminStudentImportPage } from "@/pages/AdminStudentImportPage";
+import { AdminTeacherImportPage } from "@/pages/AdminTeacherImportPage";
+import { AdminImportBatchesPage } from "@/pages/AdminImportBatchesPage";
+import { AdminSettingsPage } from "@/pages/AdminSettingsPage";
+import { CalendarPage } from "@/pages/CalendarPage";
+import { TeacherCalendarPage } from "@/pages/TeacherCalendarPage";
+import { SessionsPage } from "@/pages/SessionsPage";
+import { PackagesPage } from "@/pages/PackagesPage";
+import { PackageDetailsPage } from "@/pages/PackageDetailsPage";
+import { InvoicesPage } from "@/pages/InvoicesPage";
+import { StudentReviewsPage } from "@/pages/StudentReviewsPage";
+import { StudentSettingsPage } from "@/pages/StudentSettingsPage";
+import { TeacherPackagesPage } from "@/pages/TeacherPackagesPage";
+import { TeacherSessionsPage } from "@/pages/TeacherSessionsPage";
+import { TeacherSessionDetailsPage } from "@/pages/TeacherSessionDetailsPage";
+import { TeacherCourseDetailsPage } from "@/pages/TeacherCourseDetailsPage";
+import { TeacherStudentsPage } from "@/pages/TeacherStudentsPage";
+import { TeacherSettingsPage } from "@/pages/TeacherSettingsPage";
+import { TeacherBookingRequestsPage } from "@/pages/TeacherBookingRequestsPage";
+import { TeacherStudentDetailsPage } from "@/pages/TeacherStudentDetailsPage";
+import { SupporterSettingsPage } from "@/pages/SupporterSettingsPage";
+import { SupporterPackagesPage } from "@/pages/SupporterPackagesPage";
+import { SupporterStudentsPage } from "@/pages/SupporterStudentsPage";
+import { AcademicSupporterBrowsePage } from "@/pages/AcademicSupporterBrowsePage";
+import { AcademicSupporterProfilePage } from "@/pages/AcademicSupporterProfilePage";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { MetaPixelPageViews } from "@/components/analytics/MetaPixelPageViews";
 
 export function AppRouter() {
   return (
@@ -78,7 +78,11 @@ export function AppRouter() {
         <Route path="/how-it-works" element={<HowItWorksPage />} />
         <Route path="/contact" element={<ContactPage />} />
         {LEGAL_PAGE_SLUGS.map((slug) => (
-          <Route key={slug} path={LEGAL_PAGES[slug].path} element={<LegalPage key={slug} slug={slug} />} />
+          <Route
+            key={slug}
+            path={LEGAL_PAGES[slug].path}
+            element={<LegalPage key={slug} slug={slug} />}
+          />
         ))}
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/teacher/:id" element={<TeacherProfilePage />} />
@@ -242,7 +246,10 @@ export function AppRouter() {
           }
         />
         {/* لوحة المحاسب: مالية فقط — نفس صفحات الأدمن المالية بوضع variant="accountant" */}
-        <Route path="/dashboard/accountant" element={<Navigate to="/dashboard/accountant/payouts" replace />} />
+        <Route
+          path="/dashboard/accountant"
+          element={<Navigate to="/dashboard/accountant/payouts" replace />}
+        />
         <Route
           path="/dashboard/accountant/payouts"
           element={
