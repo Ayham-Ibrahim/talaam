@@ -524,7 +524,10 @@
     "backToHome": "Back to home",
     "exploreCta": "Browse teachers",
     "teachersHeading": "Certified teachers",
+    "trainingCentersHeading": "Certified Training Centers",
+
     "teachersSubheading": "Pick your teacher and start learning",
+    "trainingCentersSubheading": "Pick your training center and start learning",
     "teacherWord": "teacher",
     "resultsCount": "certified teachers",
     "filterTitle": "Filter teachers",

@@ -94,7 +94,7 @@ export function TeachingTypePage() {
     setSelected(DEFAULT_FILTERS);
     setFiltersOpen(false);
   };
-
+  const isTrainingPage = slug === "training";
   if (!isValidSlug) return <Navigate to="/" replace />;
 
   const typeLabel = TYPE_SEO_LABEL[slug];
@@ -126,12 +126,19 @@ export function TeachingTypePage() {
       <div className="container-app py-8">
         <TeachingTypeBanner slug={slug} teachersCount={total} />
 
+        {/* العنوان الرئيسي والعنوان الفرعي مع تطبيق الشرط لمراكز التدريب */}
         <div className="mt-10">
           <h2 className="font-cairo text-xl font-bold text-ink sm:text-2xl">
-            {t("teachingType.teachersHeading")}
+            {isTrainingPage
+              ? t("teachingType.trainingCentersHeading") ||
+                "مراكز التدريب المتاحة"
+              : t("teachingType.teachersHeading")}
           </h2>
           <p className="mt-1 font-cairo text-sm text-ink-soft">
-            {t("teachingType.teachersSubheading")}
+            {isTrainingPage
+              ? t("teachingType.trainingCentersSubheading") ||
+                "تصفح أفضل المراكز التدريبية المعتمدة واحجز دوراتك الآن"
+              : t("teachingType.teachersSubheading")}
           </p>
         </div>
 
