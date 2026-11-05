@@ -9,14 +9,17 @@ import {
 } from '@/mocks/dashboard.mock';
 import { RescheduleRequestModal } from './RescheduleRequestModal';
 import { useCreateRescheduleRequest } from '@/hooks/useReschedule';
-import { useJoinSession } from '@/hooks/useSessionJoin';
-import { handleSessionJoin } from '@/lib/joinSession';
+import { SessionJoinButton } from './SessionJoinButton';
+import { useNow } from '@/hooks/useNow';
+import { isSessionRowJoinable } from '@/services';
 import { useT } from '@/hooks/useT';
 
 function SessionRow({ session, showType, onReschedule }) {
   const t = useT();
   const navigate = useNavigate();
-  const joinSession = useJoinSession();
+  const now = useNow();
+  // بلا joinWindow (حجز غير فعّال، بيانات mock) يبقى على canJoin المحسوبة عند الجلب
+  const canJoin = session.joinWindow ? isSessionRowJoinable(session, now) : session.canJoin;
   const status = session.status ?? 'upcoming';
   const statusStyle = SESSION_STATUS_STYLES[status];
 
@@ -41,15 +44,13 @@ function SessionRow({ session, showType, onReschedule }) {
           {t('dashboard.changeAppointment')}
         </button>
       )}
-      {session.canJoin && (
-        <button
-          type="button"
-          disabled={joinSession.isPending}
-          onClick={() => handleSessionJoin(joinSession.mutateAsync, session.id)}
-          className="rounded-xl border-2 border-primary bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+      {canJoin && (
+        <SessionJoinButton
+          session={session}
+          className="inline-flex items-center justify-center rounded-xl border border-primary bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
         >
           {t('dashboard.join')}
-        </button>
+        </SessionJoinButton>
       )}
       {session.recordingUrl && (
         <a

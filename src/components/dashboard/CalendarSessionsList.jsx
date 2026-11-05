@@ -4,8 +4,7 @@ import { EmptyState } from '@/components/ui';
 import { SESSION_TYPE_STYLES, SESSION_STATUS_STYLES } from '@/mocks/dashboard.mock';
 import { RescheduleRequestModal } from './RescheduleRequestModal';
 import { useCreateRescheduleRequest } from '@/hooks/useReschedule';
-import { useJoinSession } from '@/hooks/useSessionJoin';
-import { handleSessionJoin } from '@/lib/joinSession';
+import { SessionJoinButton } from './SessionJoinButton';
 import { useNow } from '@/hooks/useNow';
 import { isSessionRowJoinable } from '@/services';
 import { useT } from '@/hooks/useT';
@@ -30,7 +29,6 @@ function formatShortDate(iso) {
 
 function DaySessionRow({ session, onReschedule }) {
   const t = useT();
-  const joinSession = useJoinSession();
   const canJoin = isSessionRowJoinable(session, useNow());
   const typeStyle = SESSION_TYPE_STYLES[session.type];
   const status = session.status ?? 'upcoming';
@@ -77,14 +75,12 @@ function DaySessionRow({ session, onReschedule }) {
           </button>
         )}
         {canJoin && (
-          <button
-            type="button"
-            disabled={joinSession.isPending}
-            onClick={() => handleSessionJoin(joinSession.mutateAsync, session.id)}
-            className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+          <SessionJoinButton
+            session={session}
+            className="inline-flex items-center justify-center rounded-xl border border-primary bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
           >
             {t('dashboard.join')}
-          </button>
+          </SessionJoinButton>
         )}
       </div>
     </div>

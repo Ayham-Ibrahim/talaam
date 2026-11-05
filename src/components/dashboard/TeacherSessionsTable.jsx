@@ -4,8 +4,9 @@ import { formatDateTime } from '@/lib/formatters';
 import { canJoinSession, canRequestTeacherReschedule, teacherSessionDisplayStatus } from '@/services';
 import { useNow } from '@/hooks/useNow';
 import { useT } from '@/hooks/useT';
+import { SessionJoinButton } from './SessionJoinButton';
 
-export function TeacherSessionsTable({ sessions, onJoin, onPostpone, joinPending = false }) {
+export function TeacherSessionsTable({ sessions, onPostpone }) {
   const t = useT();
   const navigate = useNavigate();
   const now = useNow();
@@ -52,14 +53,12 @@ export function TeacherSessionsTable({ sessions, onJoin, onPostpone, joinPending
                       {t('dashboard.teacherSessions.details')}
                     </button>
                     {canJoin && (
-                      <button
-                        type="button"
-                        disabled={joinPending}
-                        onClick={() => onJoin?.(session)}
-                        className="rounded-xl border-2 border-primary bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+                      <SessionJoinButton
+                        session={session}
+                        className="inline-flex items-center justify-center rounded-xl border border-primary bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary-hover disabled:opacity-50"
                       >
                         {t('dashboard.teacherSessions.join')}
-                      </button>
+                      </SessionJoinButton>
                     )}
                     {onPostpone && canRequestTeacherReschedule(session) && (
                       <button

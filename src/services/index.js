@@ -880,6 +880,10 @@ function mapSessionListRow(session) {
     durationMinutes: session.duration_min,
     countdown: isUpcoming ? computeCountdown(session.scheduled_at) : null,
     joinUrl: session.join_url_student ?? null,
+    joinRedirectUrl: session.join_redirect_url ?? null,
+    // canJoin لقطة لحظة الجلب فقط — الزر يُحسم وقت الرسم من joinWindow بالساعة الحيّة
+    // (isSessionRowJoinable) كي يظهر عند فتح نافذة الانضمام ويختفي بنهايتها بلا تحديث للصفحة.
+    joinWindow: bookingInactive ? null : joinWindow(session),
     canJoin,
     canReschedule: !bookingInactive && isUpcoming && isBeforeSessionStart(session) && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
     // جلسات الدورة مشتركة بين كل المسجّلين — لا إلغاء فردي لها
@@ -906,6 +910,7 @@ function mapUpcomingSessionRow(session) {
     durationMinutes: session.duration_min,
     countdown: computeCountdown(session.scheduled_at),
     joinUrl: session.join_url_student ?? null,
+    joinRedirectUrl: session.join_redirect_url ?? null,
     joinWindow: joinWindow(session),
   };
 }
@@ -924,6 +929,7 @@ function mapTeacherUpcomingSessionRow(session) {
     durationMinutes: session.duration_min,
     countdown: computeCountdown(session.scheduled_at),
     joinUrl: session.join_url_teacher ?? null,
+    joinRedirectUrl: session.join_redirect_url ?? null,
     joinWindow: joinWindow(session),
   };
 }
@@ -953,6 +959,7 @@ function mapCalendarSessionRow(session) {
     countdown: status === 'upcoming' ? computeCountdown(session.scheduled_at) : null,
     canReschedule: status === 'upcoming' && isBeforeSessionStart(session) && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
     joinUrl: session.join_url_student ?? null,
+    joinRedirectUrl: session.join_redirect_url ?? null,
     joinWindow: joinWindow(session),
     hasPendingRescheduleRequest: hasPendingReschedule,
     pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),
@@ -978,6 +985,7 @@ function mapTeacherCalendarSessionRow(session) {
     countdown: status === 'upcoming' ? computeCountdown(session.scheduled_at) : null,
     canReschedule: status === 'upcoming' && isBeforeSessionStart(session) && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
     joinUrl: session.join_url_teacher ?? null,
+    joinRedirectUrl: session.join_redirect_url ?? null,
     joinWindow: joinWindow(session),
     hasPendingRescheduleRequest: hasPendingReschedule,
     pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),

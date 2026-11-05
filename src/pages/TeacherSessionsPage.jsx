@@ -10,8 +10,6 @@ import { PolicyNotice } from '@/components/common/PolicyNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeacherSessions } from '@/hooks/useDashboard';
 import { useCreateRescheduleRequest } from '@/hooks/useReschedule';
-import { useJoinSession } from '@/hooks/useSessionJoin';
-import { handleSessionJoin } from '@/lib/joinSession';
 import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { teacherSessionDisplayStatus } from '@/services';
 import { useT } from '@/hooks/useT';
@@ -30,7 +28,6 @@ export function TeacherSessionsPage() {
   const { data: sessions, isLoading, isError, refetch } = useTeacherSessions();
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [page, setPage] = useState(1);
-  const joinSession = useJoinSession();
   const createRescheduleRequest = useCreateRescheduleRequest();
   const [postponingSession, setPostponingSession] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
@@ -107,8 +104,6 @@ export function TeacherSessionsPage() {
           <>
             <TeacherSessionsTable
               sessions={pageSessions}
-              joinPending={joinSession.isPending}
-              onJoin={(session) => handleSessionJoin(joinSession.mutateAsync, session.id)}
               onPostpone={(session) => {
                 createRescheduleRequest.reset();
                 setPostponingSession(session);

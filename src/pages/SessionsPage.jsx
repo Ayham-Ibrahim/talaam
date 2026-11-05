@@ -13,7 +13,8 @@ import { useSessions } from '@/hooks/useDashboard';
 import { SESSION_STATUS_LABEL_KEYS } from '@/mocks/dashboard.mock';
 import { useT } from '@/hooks/useT';
 
-const DEFAULT_FILTERS = { status: '', subject: '', search: '' };
+// الافتراضي "قادمة" — والترتيب من السيرفر الأقرب موعداً أولاً، فجلسة الطالب التالية أول صف عند الدخول
+const DEFAULT_FILTERS = { status: 'upcoming', subject: '', search: '' };
 const PER_PAGE = 10;
 
 export function SessionsPage() {
