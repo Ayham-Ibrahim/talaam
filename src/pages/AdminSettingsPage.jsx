@@ -1,13 +1,13 @@
-import { useMemo, useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
-import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
-import { SettingsCategorySection } from '@/components/dashboard/admin/SettingsCategorySection';
-import { AuditLogTable } from '@/components/dashboard/admin/AuditLogTable';
-import { AdminReviewsTable } from '@/components/dashboard/admin/AdminReviewsTable';
-import { ReasonModal } from '@/components/dashboard/admin/ReasonModal';
-import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
-import { useAuth } from '@/hooks/useAuth';
+import { useMemo, useState } from "react";
+import { Navigate } from "react-router-dom";
+import { AdminDashboardLayout } from "@/components/dashboard/admin/AdminDashboardLayout";
+import { SmoothSelect } from "@/components/dashboard/SmoothSelect";
+import { SettingsCategorySection } from "@/components/dashboard/admin/SettingsCategorySection";
+import { AuditLogTable } from "@/components/dashboard/admin/AuditLogTable";
+import { AdminReviewsTable } from "@/components/dashboard/admin/AdminReviewsTable";
+import { ReasonModal } from "@/components/dashboard/admin/ReasonModal";
+import { EmptyState, ErrorState, Skeleton } from "@/components/ui";
+import { useAuth } from "@/hooks/useAuth";
 import {
   useAdminSettings,
   useUpdateSetting,
@@ -15,23 +15,23 @@ import {
   useAdminReviews,
   useHideReview,
   useUnhideReview,
-} from '@/hooks/useAdminSettings';
-import { SETTINGS_CATEGORY_LABELS } from '@/mocks/adminSettings.mock';
-import { AUDIT_ACTION_LABELS } from '@/mocks/adminAuditLog.mock';
-import { useT } from '@/hooks/useT';
+} from "@/hooks/useAdminSettings";
+import { SETTINGS_CATEGORY_LABELS } from "@/mocks/adminSettings.mock";
+import { AUDIT_ACTION_LABELS } from "@/mocks/adminAuditLog.mock";
+import { useT } from "@/hooks/useT";
 
 const TABS = [
-  { key: 'settings', labelKey: 'tabSettings' },
-  { key: 'auditLog', labelKey: 'tabAuditLog' },
-  { key: 'reviews', labelKey: 'tabReviews' },
+  { key: "settings", labelKey: "tabSettings" },
+  { key: "auditLog", labelKey: "tabAuditLog" },
+  { key: "reviews", labelKey: "tabReviews" },
 ];
 
 export function AdminSettingsPage() {
   const t = useT();
   const { user } = useAuth();
-  const [tab, setTab] = useState('settings');
-  const [auditAction, setAuditAction] = useState('');
-  const [reviewsVisibility, setReviewsVisibility] = useState('');
+  const [tab, setTab] = useState("settings");
+  const [auditAction, setAuditAction] = useState("");
+  const [reviewsVisibility, setReviewsVisibility] = useState("");
   const [hideTarget, setHideTarget] = useState(null);
 
   const settingsQuery = useAdminSettings();
@@ -56,8 +56,12 @@ export function AdminSettingsPage() {
     <AdminDashboardLayout>
       <div className="flex flex-col gap-6">
         <div className="text-right">
-          <h1 className="text-xl font-bold text-ink">{t('dashboard.adminSettings.title')}</h1>
-          <p className="mt-1 text-sm text-ink-soft">{t('dashboard.adminSettings.subtitle')}</p>
+          <h1 className="text-xl font-bold text-ink">
+            {t("dashboard.adminSettings.title")}
+          </h1>
+          <p className="mt-1 text-sm text-ink-soft">
+            {t("dashboard.adminSettings.subtitle")}
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -67,7 +71,9 @@ export function AdminSettingsPage() {
               type="button"
               onClick={() => setTab(tabItem.key)}
               className={`rounded-2xl px-6 py-3 text-sm font-bold transition-colors ${
-                tab === tabItem.key ? 'bg-primary text-white' : 'border border-line bg-white text-ink hover:bg-line/30'
+                tab === tabItem.key
+                  ? "bg-primary text-white"
+                  : "border border-line bg-white text-ink hover:bg-line/30"
               }`}
             >
               {t(`dashboard.adminSettings.${tabItem.labelKey}`)}
@@ -75,7 +81,7 @@ export function AdminSettingsPage() {
           ))}
         </div>
 
-        {tab === 'settings' &&
+        {tab === "settings" &&
           (settingsQuery.isError ? (
             <ErrorState onRetry={settingsQuery.refetch} />
           ) : settingsQuery.isLoading ? (
@@ -92,7 +98,9 @@ export function AdminSettingsPage() {
                   title={SETTINGS_CATEGORY_LABELS[category] ?? category}
                   settings={settings}
                   isPending={updateSetting.isPending}
-                  errorKey={updateSetting.isError ? updateSetting.variables?.key : null}
+                  errorKey={
+                    updateSetting.isError ? updateSetting.variables?.key : null
+                  }
                   error={updateSetting.error}
                   onSave={(key, value) => updateSetting.mutate({ key, value })}
                 />
@@ -100,14 +108,16 @@ export function AdminSettingsPage() {
             </div>
           ))}
 
-        {tab === 'auditLog' && (
+        {tab === "auditLog" && (
           <div className="flex flex-col gap-4">
             <SmoothSelect
               className="min-w-[220px] max-w-xs"
               value={auditAction}
               onChange={setAuditAction}
-              placeholder={t('dashboard.adminAuditLog.allActions')}
-              options={Object.entries(AUDIT_ACTION_LABELS).map(([value, label]) => ({ value, label }))}
+              placeholder={t("dashboard.adminAuditLog.allActions")}
+              options={Object.entries(AUDIT_ACTION_LABELS).map(
+                ([value, label]) => ({ value, label }),
+              )}
             />
 
             {auditLogQuery.isError ? (
@@ -119,23 +129,29 @@ export function AdminSettingsPage() {
                 ))}
               </div>
             ) : (auditLogQuery.data?.data ?? []).length === 0 ? (
-              <EmptyState title={t('dashboard.adminAuditLog.empty')} />
+              <EmptyState title={t("dashboard.adminAuditLog.empty")} />
             ) : (
               <AuditLogTable entries={auditLogQuery.data.data} />
             )}
           </div>
         )}
 
-        {tab === 'reviews' && (
+        {tab === "reviews" && (
           <div className="flex flex-col gap-4">
             <SmoothSelect
               className="min-w-[220px] max-w-xs"
               value={reviewsVisibility}
               onChange={setReviewsVisibility}
-              placeholder={t('dashboard.adminReviews.allReviews')}
+              placeholder={t("dashboard.adminReviews.allReviews")}
               options={[
-                { value: 'visible', label: t('dashboard.adminReviews.visibleOnly') },
-                { value: 'hidden', label: t('dashboard.adminReviews.hiddenOnly') },
+                {
+                  value: "visible",
+                  label: t("dashboard.adminReviews.visibleOnly"),
+                },
+                {
+                  value: "hidden",
+                  label: t("dashboard.adminReviews.hiddenOnly"),
+                },
               ]}
             />
 
@@ -148,7 +164,7 @@ export function AdminSettingsPage() {
                 ))}
               </div>
             ) : (reviewsQuery.data?.data ?? []).length === 0 ? (
-              <EmptyState title={t('dashboard.adminReviews.empty')} />
+              <EmptyState title={t("dashboard.adminReviews.empty")} />
             ) : (
               <AdminReviewsTable
                 reviews={reviewsQuery.data.data}
@@ -167,7 +183,12 @@ export function AdminSettingsPage() {
           isPending={hideReview.isPending}
           error={hideReview.isError ? hideReview.error : null}
           onClose={() => setHideTarget(null)}
-          onConfirm={(reason) => hideReview.mutate({ id: hideTarget.id, reason }, { onSuccess: () => setHideTarget(null) })}
+          onConfirm={(reason) =>
+            hideReview.mutate(
+              { id: hideTarget.id, reason },
+              { onSuccess: () => setHideTarget(null) },
+            )
+          }
         />
       )}
     </AdminDashboardLayout>

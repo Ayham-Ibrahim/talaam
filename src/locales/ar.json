@@ -481,11 +481,7 @@
   "search": {
     "heroTitle": "اعثر على المعلم المناسب لك",
     "heroSubtitle": "تعلم من افضل المعلمين المعتمدين وحقق اهدافك التعليمية",
-    "categories": [
-      "تعليم مدرسي",
-      "تعليم جامعي",
-      "دورات تدريبية"
-    ],
+    "categories": ["تعليم مدرسي", "تعليم جامعي", "دورات تدريبية"],
     "filterTitle": "تصفية النتائج",
     "level": "المستوى",
     "grade": "الصف",
@@ -530,10 +526,14 @@
     "backToHome": "العودة للرئيسية",
     "exploreCta": "استعرض المعلمين",
     "teachersHeading": "المعلمون المعتمدون",
+    "trainingCentersHeading": "المراكز التدريبية المعتمدة",
+    "trainingCentersSubheading": "تصفح أفضل المراكز التدريبية المعتمدة واحجز دوراتك الآن",
+
     "teachersSubheading": "اختر معلمك وابدأ رحلتك التعليمية",
     "teacherWord": "معلم",
     "resultsCount": "معلم معتمد",
     "filterTitle": "تصفية المعلمين",
+    "trainingFilterTitle": "تصفية المراكز التدريبية",
     "subject": "المادة",
     "specialization": "التخصص / المنهج",
     "rating": "التقييم الأدنى",
@@ -567,6 +567,8 @@
     }
   },
   "teacher": {
+    "rateTeacher": "قيّم المدرّس",
+    "shareProfile": "مشاركة الملف الشخصي",
     "verified": "معلم معتمد",
     "perSession": "للجلسة",
     "reviews": "تقييم",
@@ -694,15 +696,7 @@
     "evening": "مساءً",
     "prevMonth": "الشهر السابق",
     "nextMonth": "الشهر التالي",
-    "weekdays": [
-      "أحد",
-      "إثنين",
-      "ثلاثاء",
-      "أربعاء",
-      "خميس",
-      "جمعة",
-      "سبت"
-    ],
+    "weekdays": ["أحد", "إثنين", "ثلاثاء", "أربعاء", "خميس", "جمعة", "سبت"],
     "chooseSlot": "اختر الموعد الأسبوعي",
     "noSlotsAvailable": "لا توجد مواعيد توفر لهذا المعلم حالياً",
     "groupScheduleTitle": "مواعيد المجموعة",
@@ -1447,7 +1441,11 @@
       "allTeachers": "كل مقدّمي الخدمة",
       "allSubjects": "كل المواد والمجالات",
       "allFormats": "كل الأنواع",
-      "format": { "individual": "باقة فردية", "group": "باقة جماعية", "course": "دورة تدريبية" },
+      "format": {
+        "individual": "باقة فردية",
+        "group": "باقة جماعية",
+        "course": "دورة تدريبية"
+      },
       "onlySelected": "المختارة فقط",
       "selectAllShown": "تحديد كل الظاهر",
       "clearSelection": "إلغاء التحديد",

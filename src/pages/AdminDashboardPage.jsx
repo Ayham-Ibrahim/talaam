@@ -1,10 +1,10 @@
-import { Navigate } from 'react-router-dom';
-import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
-import { AdminStatsGrid } from '@/components/dashboard/admin/AdminStatsGrid';
-import { PendingVerificationsCard } from '@/components/dashboard/admin/PendingVerificationsCard';
-import { ErrorState, Skeleton } from '@/components/ui';
-import { useAuth } from '@/hooks/useAuth';
-import { useAdminOverview } from '@/hooks/useAdmin';
+import { Navigate } from "react-router-dom";
+import { AdminDashboardLayout } from "@/components/dashboard/admin/AdminDashboardLayout";
+import { AdminStatsGrid } from "@/components/dashboard/admin/AdminStatsGrid";
+import { PendingVerificationsCard } from "@/components/dashboard/admin/PendingVerificationsCard";
+import { ErrorState, Skeleton } from "@/components/ui";
+import { useAuth } from "@/hooks/useAuth";
+import { useAdminOverview } from "@/hooks/useAdmin";
 
 export function AdminDashboardPage() {
   const { user } = useAuth();

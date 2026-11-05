@@ -524,10 +524,15 @@
     "backToHome": "Back to home",
     "exploreCta": "Browse teachers",
     "teachersHeading": "Certified teachers",
+    "trainingCentersHeading": "Certified Training Centers",
+
     "teachersSubheading": "Pick your teacher and start learning",
+    "trainingCentersSubheading": "Pick your training center and start learning",
     "teacherWord": "teacher",
     "resultsCount": "certified teachers",
     "filterTitle": "Filter teachers",
+    "trainingFilterTitle": "Filter Training Centers",
+
     "subject": "Subject",
     "specialization": "Specialization / Curriculum",
     "rating": "Minimum rating",
@@ -561,6 +566,8 @@
     }
   },
   "teacher": {
+    "rateTeacher": "Rate Teacher",
+    "shareProfile": "Share Profile",
     "verified": "Certified Teacher",
     "perSession": "per session",
     "reviews": "reviews",

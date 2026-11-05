@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import { Navigate, useParams, useSearchParams, Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
-import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
-import { TeacherProfileSummaryCard } from '@/components/dashboard/admin/TeacherProfileSummaryCard';
-import { AdminTeacherProfileEditor } from '@/components/dashboard/admin/AdminTeacherProfileEditor';
-import { VerificationDocumentsList } from '@/components/dashboard/admin/VerificationDocumentsList';
-import { TeacherBadgesPanel } from '@/components/dashboard/admin/TeacherBadgesPanel';
-import { TeacherReviewsPanel } from '@/components/dashboard/admin/TeacherReviewsPanel';
-import { ReasonModal } from '@/components/dashboard/admin/ReasonModal';
-import { AdminSessionsPanel } from '@/components/dashboard/admin/AdminSessionsPanel';
-import { ErrorState, Skeleton } from '@/components/ui';
-import { useAuth } from '@/hooks/useAuth';
+import { useState } from "react";
+import { Navigate, useParams, useSearchParams, Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
+import { AdminDashboardLayout } from "@/components/dashboard/admin/AdminDashboardLayout";
+import { TeacherProfileSummaryCard } from "@/components/dashboard/admin/TeacherProfileSummaryCard";
+import { AdminTeacherProfileEditor } from "@/components/dashboard/admin/AdminTeacherProfileEditor";
+import { VerificationDocumentsList } from "@/components/dashboard/admin/VerificationDocumentsList";
+import { TeacherBadgesPanel } from "@/components/dashboard/admin/TeacherBadgesPanel";
+import { TeacherReviewsPanel } from "@/components/dashboard/admin/TeacherReviewsPanel";
+import { ReasonModal } from "@/components/dashboard/admin/ReasonModal";
+import { AdminSessionsPanel } from "@/components/dashboard/admin/AdminSessionsPanel";
+import { ErrorState, Skeleton } from "@/components/ui";
+import { useAuth } from "@/hooks/useAuth";
 import {
   useAdminTeacherDetail,
   useApproveTeacher,
@@ -22,8 +22,8 @@ import {
   useDocumentDownloadUrl,
   useGrantBadge,
   useRevokeBadge,
-} from '@/hooks/useAdmin';
-import { useT } from '@/hooks/useT';
+} from "@/hooks/useAdmin";
+import { useT } from "@/hooks/useT";
 
 export function AdminTeacherDetailPage() {
   const t = useT();
@@ -34,7 +34,9 @@ export function AdminTeacherDetailPage() {
   // ?tab=sessions — قادم من زر "الجلسات" بجدول المعلمين
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(() =>
-    ['overview', 'profile', 'sessions'].includes(searchParams.get('tab')) ? searchParams.get('tab') : 'overview',
+    ["overview", "profile", "sessions"].includes(searchParams.get("tab"))
+      ? searchParams.get("tab")
+      : "overview",
   ); // 'overview' | 'profile' | 'sessions'
 
   const approveTeacher = useApproveTeacher(id);
@@ -54,7 +56,7 @@ export function AdminTeacherDetailPage() {
    * مرجعاً لإعادة التوجيه لاحقاً؛ الوجهة رابط موقَّع من الباك نفسه لا محتوى خارجي.
    */
   const handleViewFile = (documentId) => {
-    const newTab = window.open('', '_blank');
+    const newTab = window.open("", "_blank");
     documentDownloadUrl.mutate(documentId, {
       onSuccess: (url) => {
         if (newTab) newTab.location.href = url;
@@ -76,34 +78,51 @@ export function AdminTeacherDetailPage() {
   if (!user) return <Navigate to="/login" replace />;
 
   const handleModalConfirm = (reason) => {
-    if (modal?.type === 'rejectTeacher') {
-      rejectTeacher.mutate({ teacherId: id, reason }, { onSuccess: () => setModal(null) });
-    } else if (modal?.type === 'suspendTeacher') {
-      suspendTeacher.mutate({ teacherId: id, reason }, { onSuccess: () => setModal(null) });
-    } else if (modal?.type === 'rejectDocument') {
+    if (modal?.type === "rejectTeacher") {
+      rejectTeacher.mutate(
+        { teacherId: id, reason },
+        { onSuccess: () => setModal(null) },
+      );
+    } else if (modal?.type === "suspendTeacher") {
+      suspendTeacher.mutate(
+        { teacherId: id, reason },
+        { onSuccess: () => setModal(null) },
+      );
+    } else if (modal?.type === "rejectDocument") {
       rejectDocument.mutate(
         { documentId: modal.documentId, reason },
-        { onSuccess: () => setModal(null) }
+        { onSuccess: () => setModal(null) },
       );
     }
   };
 
   const modalTitleKey =
-    modal?.type === 'rejectTeacher'
-      ? 'rejectTeacherTitle'
-      : modal?.type === 'suspendTeacher'
-        ? 'suspendTeacherTitle'
-        : 'rejectDocumentTitle';
+    modal?.type === "rejectTeacher"
+      ? "rejectTeacherTitle"
+      : modal?.type === "suspendTeacher"
+        ? "suspendTeacherTitle"
+        : "rejectDocumentTitle";
 
   const activeModalMutation =
-    modal?.type === 'rejectTeacher' ? rejectTeacher : modal?.type === 'suspendTeacher' ? suspendTeacher : rejectDocument;
-  const teacherActionError = approveTeacher.isError ? approveTeacher.error : reactivateTeacher.isError ? reactivateTeacher.error : null;
+    modal?.type === "rejectTeacher"
+      ? rejectTeacher
+      : modal?.type === "suspendTeacher"
+        ? suspendTeacher
+        : rejectDocument;
+  const teacherActionError = approveTeacher.isError
+    ? approveTeacher.error
+    : reactivateTeacher.isError
+      ? reactivateTeacher.error
+      : null;
 
   return (
     <AdminDashboardLayout>
       <div className="mb-4 flex justify-end">
-        <Link to="/dashboard/admin/teachers" className="flex items-center gap-1.5 text-sm font-medium text-ink-soft hover:text-primary">
-          {t('dashboard.adminTeacherDetail.back')}
+        <Link
+          to="/dashboard/admin/teachers"
+          className="flex items-center gap-1.5 text-sm font-medium text-ink-soft hover:text-primary"
+        >
+          {t("dashboard.adminTeacherDetail.back")}
           <ArrowRight size={15} />
         </Link>
       </div>
@@ -116,17 +135,19 @@ export function AdminTeacherDetailPage() {
           <Skeleton className="h-40 rounded-2xl" />
         </div>
       ) : !data?.teacher ? (
-        <ErrorState message={t('dashboard.adminTeacherDetail.notFound')} />
+        <ErrorState message={t("dashboard.adminTeacherDetail.notFound")} />
       ) : (
         <>
           <div className="mb-6 flex justify-end gap-2 border-b border-line/60">
-            {['overview', 'profile', 'sessions'].map((tab) => (
+            {["overview", "profile", "sessions"].map((tab) => (
               <button
                 key={tab}
                 type="button"
                 onClick={() => setActiveTab(tab)}
                 className={`border-b-2 px-4 py-2.5 text-sm font-bold transition-colors ${
-                  activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-ink-soft hover:text-ink'
+                  activeTab === tab
+                    ? "border-primary text-primary"
+                    : "border-transparent text-ink-soft hover:text-ink"
                 }`}
               >
                 {t(`dashboard.adminTeacherDetail.tabs.${tab}`)}
@@ -134,7 +155,7 @@ export function AdminTeacherDetailPage() {
             ))}
           </div>
 
-          {activeTab === 'overview' ? (
+          {activeTab === "overview" ? (
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_3fr]">
               <div className="flex flex-col gap-6">
                 <TeacherProfileSummaryCard
@@ -143,8 +164,8 @@ export function AdminTeacherDetailPage() {
                   actionError={teacherActionError}
                   actions={{
                     onApprove: () => approveTeacher.mutate(id),
-                    onReject: () => setModal({ type: 'rejectTeacher' }),
-                    onSuspend: () => setModal({ type: 'suspendTeacher' }),
+                    onReject: () => setModal({ type: "rejectTeacher" }),
+                    onSuspend: () => setModal({ type: "suspendTeacher" }),
                     onReactivate: () => reactivateTeacher.mutate(id),
                   }}
                 />
@@ -155,23 +176,35 @@ export function AdminTeacherDetailPage() {
                   onGrant={(badgeId) => grantBadge.mutate(badgeId)}
                   onRevoke={(awardId) => revokeBadge.mutate(awardId)}
                 />
-                <TeacherReviewsPanel teacherId={id} ratingAvg={data.teacher.ratingAvg} reviewsCount={data.teacher.reviewsCount} />
+                <TeacherReviewsPanel
+                  teacherId={id}
+                  ratingAvg={data.teacher.ratingAvg}
+                  reviewsCount={data.teacher.reviewsCount}
+                />
               </div>
 
               <div>
-                <h3 className="mb-3 text-right text-base font-bold text-ink">{t('dashboard.adminTeacherDetail.documentsTitle')}</h3>
+                <h3 className="mb-3 text-right text-base font-bold text-ink">
+                  {t("dashboard.adminTeacherDetail.documentsTitle")}
+                </h3>
                 <VerificationDocumentsList
                   documents={data.documents}
                   isActing={isActing}
                   isLoadingFile={documentDownloadUrl.isPending}
                   onApprove={(documentId) => approveDocument.mutate(documentId)}
-                  onReject={(documentId) => setModal({ type: 'rejectDocument', documentId })}
+                  onReject={(documentId) =>
+                    setModal({ type: "rejectDocument", documentId })
+                  }
                   onViewFile={handleViewFile}
                 />
               </div>
             </div>
-          ) : activeTab === 'profile' ? (
-            <AdminTeacherProfileEditor teacherId={id} teacher={data.teacher} documents={data.documents} />
+          ) : activeTab === "profile" ? (
+            <AdminTeacherProfileEditor
+              teacherId={id}
+              teacher={data.teacher}
+              documents={data.documents}
+            />
           ) : (
             <AdminSessionsPanel teacherId={id} />
           )}

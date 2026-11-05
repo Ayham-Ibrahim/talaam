@@ -11,14 +11,17 @@ import {
   TEACHING_TYPE_SLUGS,
   SLUG_TO_TEACHER_TYPE,
 } from "@/components/teaching/teachingTypeConfig";
-import { TeacherCard, TeacherCardSkeleton } from "@/components/teacher/TeacherCard";
+import {
+  TeacherCard,
+  TeacherCardSkeleton,
+} from "@/components/teacher/TeacherCard";
 import { EmptyState, ErrorState } from "@/components/ui";
 import { useInfiniteTeachers } from "@/hooks/useTeachers";
 import { useInfiniteScrollTrigger } from "@/hooks/useInfiniteScrollTrigger";
 import { useFilters } from "@/hooks/useMeta";
 import { useT } from "@/hooks/useT";
+import { TrainingCenterFilters } from "../components/teacher/TrainingCenterFilters";
 
-/** تسميات عربية لكل شريحة — تُستخدَم فقط لعنوان/وصف الصفحة (SEO)، لا منطق عرض */
 const TYPE_SEO_LABEL = {
   school: "مدرسي",
   university: "جامعي",
@@ -30,6 +33,7 @@ const DEFAULT_FILTERS = {
   subject: null,
   stage: null,
   curriculum: null,
+  courseField: null, // Added courseField for training centers
   language: null,
   minPrice: null,
   maxPrice: null,
@@ -40,10 +44,8 @@ export function TeachingTypePage() {
   const t = useT();
   const { type } = useParams();
   const isValidSlug = TEACHING_TYPE_SLUGS.includes(type);
-  // شريحة آمنة تُبقي ترتيب الـ hooks ثابتاً؛ إعادة التوجيه تحدث بعدها مباشرة.
   const slug = isValidSlug ? type : "school";
 
-  // تُطبَّق فورياً — لا مرحلة "مسودة"، النتائج تتغير مع كل قيمة فلتر.
   const [selected, setSelected] = useState(DEFAULT_FILTERS);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -56,13 +58,14 @@ export function TeachingTypePage() {
       subject: selected.subject ?? undefined,
       stage: selected.stage ?? undefined,
       curriculum: selected.curriculum ?? undefined,
+      courseField: selected.courseField ?? undefined, // Pass courseField to query
       language: selected.language ?? undefined,
       minPrice: selected.minPrice ?? undefined,
       maxPrice: selected.maxPrice ?? undefined,
       minRating: selected.minRating ?? undefined,
       sort: "rating",
     }),
-    [slug, selected]
+    [slug, selected],
   );
 
   const {
@@ -74,9 +77,10 @@ export function TeachingTypePage() {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteTeachers(filters);
-  const teachers = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
-  // Grand total across every page (not just what's loaded so far) — stable
-  // once the first page lands, since it only changes if the filters do.
+  const teachers = useMemo(
+    () => data?.pages.flatMap((page) => page.data) ?? [],
+    [data],
+  );
   const total = data?.pages?.[0]?.total ?? 0;
 
   const sentinelRef = useInfiniteScrollTrigger({
@@ -90,10 +94,26 @@ export function TeachingTypePage() {
     setSelected(DEFAULT_FILTERS);
     setFiltersOpen(false);
   };
-
+  const isTrainingPage = slug === "training";
   if (!isValidSlug) return <Navigate to="/" replace />;
 
   const typeLabel = TYPE_SEO_LABEL[slug];
+
+  // Choose the correct filter component based on whether it's a training center page
+  const renderFilters = (isMobile = false) => {
+    const commonProps = {
+      meta,
+      value: selected,
+      onChange: handleChange,
+      onReset: handleReset,
+      ...(isMobile ? { hideHeading: true } : {}),
+    };
+
+    if (slug === "training") {
+      return <TrainingCenterFilters {...commonProps} />;
+    }
+    return <TeachingTypeFilters {...commonProps} />;
+  };
 
   return (
     <PageContainer>
@@ -106,25 +126,25 @@ export function TeachingTypePage() {
       <div className="container-app py-8">
         <TeachingTypeBanner slug={slug} teachersCount={total} />
 
+        {/* العنوان الرئيسي والعنوان الفرعي مع تطبيق الشرط لمراكز التدريب */}
         <div className="mt-10">
           <h2 className="font-cairo text-xl font-bold text-ink sm:text-2xl">
-            {t("teachingType.teachersHeading")}
+            {isTrainingPage
+              ? t("teachingType.trainingCentersHeading") ||
+                "مراكز التدريب المتاحة"
+              : t("teachingType.teachersHeading")}
           </h2>
           <p className="mt-1 font-cairo text-sm text-ink-soft">
-            {t("teachingType.teachersSubheading")}
+            {isTrainingPage
+              ? t("teachingType.trainingCentersSubheading") ||
+                "تصفح أفضل المراكز التدريبية المعتمدة واحجز دوراتك الآن"
+              : t("teachingType.teachersSubheading")}
           </p>
         </div>
 
         <div className="mt-6 flex flex-col gap-8 lg:flex-row">
           {/* الشريط الجانبي — سطح المكتب */}
-          <div className="hidden lg:block">
-            <TeachingTypeFilters
-              meta={meta}
-              value={selected}
-              onChange={handleChange}
-              onReset={handleReset}
-            />
-          </div>
+          <div className="hidden lg:block">{renderFilters(false)}</div>
 
           <div className="flex-1">
             {/* زر إظهار الفلاتر — الجوال فقط */}
@@ -157,23 +177,13 @@ export function TeachingTypePage() {
                     className="overflow-hidden"
                   >
                     <div className="mt-3 rounded-2xl border border-line bg-surface p-5">
-                      <TeachingTypeFilters
-                        meta={meta}
-                        value={selected}
-                        onChange={handleChange}
-                        onReset={handleReset}
-                        hideHeading
-                      />
+                      {renderFilters(true)}
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
 
-            {/* Infinite scroll: the sentinel div past the last card triggers
-                fetchNextPage() once it nears the viewport (see
-                useInfiniteScrollTrigger), appending the next backend page
-                instead of a "load more" click or fetching everything up front. */}
             <div className="mt-6 lg:mt-0">
               {isError ? (
                 <ErrorState onRetry={refetch} />

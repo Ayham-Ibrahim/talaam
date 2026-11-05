@@ -4,7 +4,8 @@ import { useT } from "@/hooks/useT";
 import { useProfileT } from "@/hooks/useProfileT";
 
 /** Same neon navy used across the header/philosophy sections — kept for one consistent "identity" family */
-const NEON_GRADIENT = "linear-gradient(135deg, #0E1A4D 0%, #17237E 60%, #1B2E9C 100%)";
+const NEON_GRADIENT =
+  "linear-gradient(135deg, #0E1A4D 0%, #17237E 60%, #1B2E9C 100%)";
 
 export const NEUTRAL_DOT = "#C7D0DF";
 
@@ -26,7 +27,12 @@ function languageSlug(label) {
 }
 
 /** /public/<slug>.png — ask whoever supplies new language logos to drop them here, named by slug (e.g. tr.png, fr.png) */
-const LANGUAGE_FLAGS = { ar: "/ar.png", en: "/en.png", tr: "/tr.png", fr: "/fr.png" };
+const LANGUAGE_FLAGS = {
+  ar: "/ar.png",
+  en: "/en.png",
+  tr: "/tr.png",
+  fr: "/fr.png",
+};
 
 const DEFAULT_LANGUAGE_GRADIENT = "bg-lang-blue";
 /**
@@ -42,14 +48,24 @@ const LANGUAGE_STYLES = {
   tr: { gradient: "bg-lang-teal", landmark: "/hagia-sophia.png" },
 };
 
-export function Chip({ label, dot, dotSize = 14, flag, textColor = "#1E1E1E" }) {
+export function Chip({
+  label,
+  dot,
+  dotSize = 14,
+  flag,
+  textColor = "#1E1E1E",
+}) {
   return (
     <span
       className="inline-flex items-center gap-[3px] rounded-2xl bg-[#FAFAFA] px-2 py-2 text-sm font-medium"
       style={{ color: textColor }}
     >
       {flag ? (
-        <img src={flag} alt="" className="h-4 w-4 shrink-0 rounded-full object-cover" />
+        <img
+          src={flag}
+          alt=""
+          className="h-4 w-4 shrink-0 rounded-full object-cover"
+        />
       ) : (
         dot && (
           <span
@@ -74,8 +90,12 @@ function QualificationBadgeCard({ label }) {
       style={{ background: NEON_GRADIENT }}
     >
       <div className="relative z-10 max-w-[75%]">
-        <span className="text-xs font-medium text-white/55">{t("teacher.qualificationBadge")}</span>
-        <h4 className="mt-0.5 truncate text-base font-bold text-white">{label}</h4>
+        <span className="text-xs font-medium text-white/55">
+          {t("teacher.qualificationBadge")}
+        </span>
+        <h4 className="mt-0.5 truncate text-base font-bold text-white">
+          {label}
+        </h4>
       </div>
 
       {/* Badge icon — opposite corner from the text; falls back to a plain award glyph until the SVG asset exists */}
@@ -94,12 +114,17 @@ function QualificationBadgeCard({ label }) {
       </span>
 
       {/* Decorative ruler ticks — pure texture, no data claim */}
-      <div className="relative z-10 mt-4 flex h-4 items-end gap-[3px]" aria-hidden="true">
+      <div
+        className="relative z-10 mt-4 flex h-4 items-end gap-[3px]"
+        aria-hidden="true"
+      >
         {Array.from({ length: 24 }).map((_, i) => (
           <span
             key={i}
             className="w-[2px] rounded-full bg-[#5FE4FF]/50"
-            style={{ height: i % 4 === 0 ? "100%" : i % 2 === 0 ? "65%" : "40%" }}
+            style={{
+              height: i % 4 === 0 ? "100%" : i % 2 === 0 ? "65%" : "40%",
+            }}
           />
         ))}
       </div>
@@ -179,7 +204,9 @@ export function ScopeCard({ title, children }) {
   return (
     <div className="flex flex-1 flex-col items-start justify-start gap-2 rounded-[24px] bg-white px-6 py-4 text-start shadow-[0px_1px_5px_rgba(0,0,0,0.1)] sm:px-[31px]">
       <h3 className="w-full text-lg font-bold text-[#2D2D2D]">{title}</h3>
-      <div className="flex flex-wrap items-center justify-start gap-4">{children}</div>
+      <div className="flex flex-wrap items-center justify-start gap-4">
+        {children}
+      </div>
     </div>
   );
 }
@@ -195,10 +222,18 @@ export function TeacherTeachingScopeSection({ teacher }) {
 
   const row1 = [
     teacher.qualifications?.length > 0 && (
-      <QualificationsCard key="qualifications" title={t("teacher.qualifications")} qualifications={teacher.qualifications} />
+      <QualificationsCard
+        key="qualifications"
+        title={t("teacher.qualifications")}
+        qualifications={teacher.qualifications}
+      />
     ),
     teacher.languages?.length > 0 && (
-      <LanguagesCard key="languages" title={t("teacher.languages")} languages={teacher.languages} />
+      <LanguagesCard
+        key="languages"
+        title={t("teacher.languages")}
+        languages={teacher.languages}
+      />
     ),
   ].filter(Boolean);
 
@@ -230,7 +265,9 @@ export function TeacherTeachingScopeSection({ teacher }) {
 
   return (
     <div className="mt-4 flex flex-col gap-4">
-      {row1.length > 0 && <div className="flex flex-col gap-4 lg:flex-row">{row1}</div>}
+      {row1.length > 0 && (
+        <div className="flex flex-col gap-4 lg:flex-row">{row1}</div>
+      )}
       {/* Each row-2 card spans the full width so its chips flow side by side and wrap like items on shelves */}
       {row2.length > 0 && <div className="flex flex-col gap-4">{row2}</div>}
     </div>

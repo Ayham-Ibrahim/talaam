@@ -1,10 +1,10 @@
-import { Navigate, Link } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
-import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
-import { useAuth } from '@/hooks/useAuth';
-import { useLegalPage } from '@/hooks/useMeta';
-import { useT } from '@/hooks/useT';
-import { LEGAL_PAGES, LEGAL_PAGE_SLUGS } from '@/lib/legalPages';
+import { Navigate, Link } from "react-router-dom";
+import { ChevronLeft } from "lucide-react";
+import { AdminDashboardLayout } from "@/components/dashboard/admin/AdminDashboardLayout";
+import { useAuth } from "@/hooks/useAuth";
+import { useLegalPage } from "@/hooks/useMeta";
+import { useT } from "@/hooks/useT";
+import { LEGAL_PAGES, LEGAL_PAGE_SLUGS } from "@/lib/legalPages";
 
 const DOCS = LEGAL_PAGE_SLUGS.map((slug) => ({ slug, ...LEGAL_PAGES[slug] }));
 
@@ -25,15 +25,28 @@ function DocCard({ doc }) {
         <div className="text-right">
           <div className="font-bold text-ink">{t(doc.titleKey)}</div>
           {isError ? (
-            <button type="button" onClick={(e) => { e.preventDefault(); refetch(); }} className="text-xs text-accent-pink">
-              {t('dashboard.adminLegalPages.loadError')}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                refetch();
+              }}
+              className="text-xs text-accent-pink"
+            >
+              {t("dashboard.adminLegalPages.loadError")}
             </button>
           ) : isLoading ? (
-            <span className="text-xs text-ink-soft">{t('dashboard.adminLegalPages.loading')}</span>
+            <span className="text-xs text-ink-soft">
+              {t("dashboard.adminLegalPages.loading")}
+            </span>
           ) : (
             <span className="text-xs text-ink-soft">
-              {t('dashboard.adminLegalPages.sectionsCount').replace('{n}', data?.sections?.length ?? 0)}
-              {data?.updatedAt && ` · ${t('legal.lastUpdated')} ${new Date(data.updatedAt).toLocaleDateString('ar-EG')}`}
+              {t("dashboard.adminLegalPages.sectionsCount").replace(
+                "{n}",
+                data?.sections?.length ?? 0,
+              )}
+              {data?.updatedAt &&
+                ` · ${t("legal.lastUpdated")} ${new Date(data.updatedAt).toLocaleDateString("ar-EG")}`}
             </span>
           )}
         </div>
@@ -53,8 +66,12 @@ export function AdminLegalPagesPage() {
     <AdminDashboardLayout>
       <div className="flex flex-col gap-6">
         <div className="text-right">
-          <h1 className="text-xl font-bold text-ink">{t('dashboard.adminLegalPages.title')}</h1>
-          <p className="mt-1 text-sm text-ink-soft">{t('dashboard.adminLegalPages.subtitle')}</p>
+          <h1 className="text-xl font-bold text-ink">
+            {t("dashboard.adminLegalPages.title")}
+          </h1>
+          <p className="mt-1 text-sm text-ink-soft">
+            {t("dashboard.adminLegalPages.subtitle")}
+          </p>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

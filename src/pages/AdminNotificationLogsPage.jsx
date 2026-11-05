@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
-import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
-import { NotificationLogsTable } from '@/components/dashboard/admin/NotificationLogsTable';
-import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
-import { useAuth } from '@/hooks/useAuth';
-import { useAdminNotificationLogs } from '@/hooks/useAdminNotificationLogs';
-import { NOTIFICATION_LOG_STATUS_STYLES } from '@/mocks/adminNotificationLogs.mock';
-import { useT } from '@/hooks/useT';
+import { useState } from "react";
+import { Navigate } from "react-router-dom";
+import { AdminDashboardLayout } from "@/components/dashboard/admin/AdminDashboardLayout";
+import { SmoothSelect } from "@/components/dashboard/SmoothSelect";
+import { NotificationLogsTable } from "@/components/dashboard/admin/NotificationLogsTable";
+import { EmptyState, ErrorState, Skeleton } from "@/components/ui";
+import { useAuth } from "@/hooks/useAuth";
+import { useAdminNotificationLogs } from "@/hooks/useAdminNotificationLogs";
+import { NOTIFICATION_LOG_STATUS_STYLES } from "@/mocks/adminNotificationLogs.mock";
+import { useT } from "@/hooks/useT";
 
 /**
  * قبل هذه الصفحة: لا طريقة للأدمن ليعرف أن بريد ترحيب طالب/معلم مستورَد فشل
@@ -17,10 +17,13 @@ import { useT } from '@/hooks/useT';
 export function AdminNotificationLogsPage() {
   const t = useT();
   const { user } = useAuth();
-  const [status, setStatus] = useState('');
-  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState("");
+  const [search, setSearch] = useState("");
 
-  const { data, isLoading, isError, refetch } = useAdminNotificationLogs({ status, search: search || undefined });
+  const { data, isLoading, isError, refetch } = useAdminNotificationLogs({
+    status,
+    search: search || undefined,
+  });
 
   if (!user) return <Navigate to="/login" replace />;
 
@@ -30,8 +33,12 @@ export function AdminNotificationLogsPage() {
     <AdminDashboardLayout>
       <div className="flex flex-col gap-6">
         <div className="text-right">
-          <h1 className="text-xl font-bold text-ink">{t('dashboard.adminNotificationLogs.title')}</h1>
-          <p className="mt-1 text-sm text-ink-soft">{t('dashboard.adminNotificationLogs.subtitle')}</p>
+          <h1 className="text-xl font-bold text-ink">
+            {t("dashboard.adminNotificationLogs.title")}
+          </h1>
+          <p className="mt-1 text-sm text-ink-soft">
+            {t("dashboard.adminNotificationLogs.subtitle")}
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -39,17 +46,22 @@ export function AdminNotificationLogsPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder={t('dashboard.adminNotificationLogs.searchPlaceholder')}
+            placeholder={t("dashboard.adminNotificationLogs.searchPlaceholder")}
             className="w-full max-w-xs rounded-btn border border-line bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
           <SmoothSelect
             className="max-w-xs"
             value={status}
             onChange={setStatus}
-            placeholder={t('dashboard.adminNotificationLogs.allStatuses')}
+            placeholder={t("dashboard.adminNotificationLogs.allStatuses")}
             options={[
-              { value: '', label: t('dashboard.adminNotificationLogs.allStatuses') },
-              ...Object.entries(NOTIFICATION_LOG_STATUS_STYLES).map(([value, style]) => ({ value, label: style.label })),
+              {
+                value: "",
+                label: t("dashboard.adminNotificationLogs.allStatuses"),
+              },
+              ...Object.entries(NOTIFICATION_LOG_STATUS_STYLES).map(
+                ([value, style]) => ({ value, label: style.label }),
+              ),
             ]}
           />
         </div>
@@ -63,7 +75,7 @@ export function AdminNotificationLogsPage() {
             ))}
           </div>
         ) : logs.length === 0 ? (
-          <EmptyState title={t('dashboard.adminNotificationLogs.empty')} />
+          <EmptyState title={t("dashboard.adminNotificationLogs.empty")} />
         ) : (
           <NotificationLogsTable logs={logs} />
         )}
