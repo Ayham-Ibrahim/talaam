@@ -691,16 +691,31 @@ function isBeforeSessionStart(session) {
 /** يطابق SessionService::EARLY_JOIN_MINUTES بالباك اند تماماً — يُسمح بالانضمام قبل الموعد بخمس دقائق */
 const EARLY_JOIN_MINUTES = 5;
 
-export function canJoinSession(session, joinUrl) {
+/** nowMs: مرّر قيمة useNow() من المكوّن ليُعاد الحساب تلقائياً مع مرور الوقت بلا تحديث الصفحة */
+export function canJoinSession(session, joinUrl, nowMs = Date.now()) {
   if (!joinUrl) return false;
   if (['completed', 'cancelled', 'no_show_student', 'no_show_teacher'].includes(session.status)) {
     return false;
   }
 
-  const { startsAtMs, endsAtMs, nowMs } = getSessionTiming(session.scheduled_at, session.duration_min);
+  const { startsAtMs, endsAtMs } = getSessionTiming(session.scheduled_at, session.duration_min);
   if (!Number.isFinite(startsAtMs) || !Number.isFinite(endsAtMs)) return false;
 
   return nowMs >= startsAtMs - EARLY_JOIN_MINUTES * 60 * 1000 && nowMs <= endsAtMs;
+}
+
+/**
+ * الصفوف المحوَّلة (الجلسات القادمة/الرزنامة) تُبنى مرة واحدة عند الجلب، فلا يصح حسم
+ * ظهور زر الانضمام فيها وقتها — تحمل الرابط الخام مع joinWindow ويُحسم القرار وقت الرسم.
+ * صف بلا joinWindow (بيانات الـ mock) يبقى على السلوك القديم: الرابط موجود ← الزر ظاهر.
+ */
+function joinWindow(session) {
+  return { status: session.status, scheduled_at: session.scheduled_at, duration_min: session.duration_min };
+}
+
+export function isSessionRowJoinable(row, nowMs = Date.now()) {
+  if (!row.joinWindow) return Boolean(row.joinUrl);
+  return canJoinSession(row.joinWindow, row.joinUrl, nowMs);
 }
 
 /**
@@ -865,6 +880,10 @@ function mapSessionListRow(session) {
     durationMinutes: session.duration_min,
     countdown: isUpcoming ? computeCountdown(session.scheduled_at) : null,
     joinUrl: session.join_url_student ?? null,
+    joinRedirectUrl: session.join_redirect_url ?? null,
+    // canJoin لقطة لحظة الجلب فقط — الزر يُحسم وقت الرسم من joinWindow بالساعة الحيّة
+    // (isSessionRowJoinable) كي يظهر عند فتح نافذة الانضمام ويختفي بنهايتها بلا تحديث للصفحة.
+    joinWindow: bookingInactive ? null : joinWindow(session),
     canJoin,
     canReschedule: !bookingInactive && isUpcoming && isBeforeSessionStart(session) && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
     // جلسات الدورة مشتركة بين كل المسجّلين — لا إلغاء فردي لها
@@ -890,7 +909,9 @@ function mapUpcomingSessionRow(session) {
     period,
     durationMinutes: session.duration_min,
     countdown: computeCountdown(session.scheduled_at),
-    joinUrl: canJoinSession(session, session.join_url_student ?? null) ? session.join_url_student : null,
+    joinUrl: session.join_url_student ?? null,
+    joinRedirectUrl: session.join_redirect_url ?? null,
+    joinWindow: joinWindow(session),
   };
 }
 
@@ -907,7 +928,9 @@ function mapTeacherUpcomingSessionRow(session) {
     period,
     durationMinutes: session.duration_min,
     countdown: computeCountdown(session.scheduled_at),
-    joinUrl: canJoinSession(session, session.join_url_teacher ?? null) ? session.join_url_teacher : null,
+    joinUrl: session.join_url_teacher ?? null,
+    joinRedirectUrl: session.join_redirect_url ?? null,
+    joinWindow: joinWindow(session),
   };
 }
 
@@ -935,7 +958,9 @@ function mapCalendarSessionRow(session) {
     durationMinutes: session.duration_min,
     countdown: status === 'upcoming' ? computeCountdown(session.scheduled_at) : null,
     canReschedule: status === 'upcoming' && isBeforeSessionStart(session) && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
-    joinUrl: canJoinSession(session, session.join_url_student ?? null) ? session.join_url_student : null,
+    joinUrl: session.join_url_student ?? null,
+    joinRedirectUrl: session.join_redirect_url ?? null,
+    joinWindow: joinWindow(session),
     hasPendingRescheduleRequest: hasPendingReschedule,
     pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),
   };
@@ -959,7 +984,9 @@ function mapTeacherCalendarSessionRow(session) {
     durationMinutes: session.duration_min,
     countdown: status === 'upcoming' ? computeCountdown(session.scheduled_at) : null,
     canReschedule: status === 'upcoming' && isBeforeSessionStart(session) && !hasPendingReschedule && isSessionPaid(session) && isIndividualPackageSession(session),
-    joinUrl: canJoinSession(session, session.join_url_teacher ?? null) ? session.join_url_teacher : null,
+    joinUrl: session.join_url_teacher ?? null,
+    joinRedirectUrl: session.join_redirect_url ?? null,
+    joinWindow: joinWindow(session),
     hasPendingRescheduleRequest: hasPendingReschedule,
     pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),
   };
@@ -1325,7 +1352,9 @@ export const dashboardService = {
       await mockDelay(300);
       return mockTeacherSessions;
     }
-    const { data } = await client.get(endpoints.classSessions.list);
+    // الصفحة تفلتر وتقسّم محلياً، فتحتاج كل الجلسات (نفس حد الرزنامة) — بالـ 20 الافتراضية
+    // (الأبعد تاريخاً أولاً) لم تكن الجلسات الأقرب تصل للمعلم أصلاً.
+    const { data } = await client.get(endpoints.classSessions.list, { params: { per_page: 300 } });
     return data.data;
   },
 

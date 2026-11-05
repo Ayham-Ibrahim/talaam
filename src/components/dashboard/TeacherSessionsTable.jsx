@@ -2,11 +2,14 @@ import { useNavigate } from 'react-router-dom';
 import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { formatDateTime } from '@/lib/formatters';
 import { canJoinSession, canRequestTeacherReschedule, teacherSessionDisplayStatus } from '@/services';
+import { useNow } from '@/hooks/useNow';
 import { useT } from '@/hooks/useT';
+import { SessionJoinButton } from './SessionJoinButton';
 
-export function TeacherSessionsTable({ sessions, onJoin, onPostpone, joinPending = false }) {
+export function TeacherSessionsTable({ sessions, onPostpone }) {
   const t = useT();
   const navigate = useNavigate();
+  const now = useNow();
 
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
@@ -25,7 +28,7 @@ export function TeacherSessionsTable({ sessions, onJoin, onPostpone, joinPending
             const title = session.booking?.package?.title ?? session.course?.title ?? '—';
             // نفس نافذة الانضمام في الباك اند (قبل الموعد بخمس دقائق حتى نهايته) — كان الزر
             // يظهر دائماً لأي جلسة scheduled ثم يرفضه الباك اند 422 قبل موعدها.
-            const canJoin = canJoinSession(session, session.join_url_teacher);
+            const canJoin = canJoinSession(session, session.join_url_teacher, now);
             return (
               <tr key={session.id} className={i % 2 === 1 ? 'bg-[#F7F8FD]' : ''}>
                 <td className="px-4 py-4 text-right font-semibold text-ink">{title}</td>
@@ -50,14 +53,12 @@ export function TeacherSessionsTable({ sessions, onJoin, onPostpone, joinPending
                       {t('dashboard.teacherSessions.details')}
                     </button>
                     {canJoin && (
-                      <button
-                        type="button"
-                        disabled={joinPending}
-                        onClick={() => onJoin?.(session)}
-                        className="rounded-xl border-2 border-primary bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+                      <SessionJoinButton
+                        session={session}
+                        className="inline-flex items-center justify-center rounded-xl border border-primary bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary-hover disabled:opacity-50"
                       >
                         {t('dashboard.teacherSessions.join')}
-                      </button>
+                      </SessionJoinButton>
                     )}
                     {onPostpone && canRequestTeacherReschedule(session) && (
                       <button

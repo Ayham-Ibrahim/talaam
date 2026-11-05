@@ -1,14 +1,15 @@
 import { CalendarDays } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button, EmptyState } from "@/components/ui";
+import { EmptyState } from "@/components/ui";
 import { getSessionTypeColor } from "@/mocks/dashboard.mock";
-import { useJoinSession } from "@/hooks/useSessionJoin";
-import { handleSessionJoin } from "@/lib/joinSession";
+import { SessionJoinButton } from "./SessionJoinButton";
+import { useNow } from "@/hooks/useNow";
+import { isSessionRowJoinable } from "@/services";
 import { useT } from "@/hooks/useT";
 
 function SessionRow({ session }) {
   const t = useT();
-  const joinSession = useJoinSession();
+  const canJoin = isSessionRowJoinable(session, useNow());
 
   return (
     <div className="flex flex-wrap items-center w-full justify-between gap-4 py-4">
@@ -65,16 +66,13 @@ function SessionRow({ session }) {
             </div>
           </>
         )}
-        {session.joinUrl && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="!rounded-xl !border-2"
-            disabled={joinSession.isPending}
-            onClick={() => handleSessionJoin(joinSession.mutateAsync, session.id)}
+        {canJoin && (
+          <SessionJoinButton
+            session={session}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-primary px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/5 disabled:opacity-50"
           >
             {t("dashboard.join")}
-          </Button>
+          </SessionJoinButton>
         )}
       </div>
     </div>

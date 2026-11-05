@@ -4,8 +4,9 @@ import { Avatar, EmptyState } from '@/components/ui';
 import { getSessionTypeColor, SESSION_STATUS_STYLES, SESSION_STATUS_LABEL_KEYS } from '@/mocks/dashboard.mock';
 import { RescheduleRequestModal } from './RescheduleRequestModal';
 import { useCreateRescheduleRequest } from '@/hooks/useReschedule';
-import { useJoinSession } from '@/hooks/useSessionJoin';
-import { handleSessionJoin } from '@/lib/joinSession';
+import { SessionJoinButton } from './SessionJoinButton';
+import { useNow } from '@/hooks/useNow';
+import { isSessionRowJoinable } from '@/services';
 import { useT } from '@/hooks/useT';
 
 /**
@@ -16,14 +17,16 @@ import { useT } from '@/hooks/useT';
 function SessionRow({ session, isEven, onReschedule }) {
   const t = useT();
   const navigate = useNavigate();
-  const joinSession = useJoinSession();
+  const now = useNow();
+  // بلا joinWindow (حجز غير فعّال، بيانات mock) يبقى على canJoin المحسوبة عند الجلب
+  const canJoin = session.joinWindow ? isSessionRowJoinable(session, now) : session.canJoin;
   const status = session.status ?? 'upcoming';
   const statusStyle = SESSION_STATUS_STYLES[status];
 
   return (
     <tr className={isEven ? 'bg-[#F7F8FD]' : ''}>
       <td className="px-4 py-4 text-right">
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-start gap-2">
           <Avatar name={session.teacherName} src={session.teacherAvatar} size="sm" />
           <div className="text-right">
             <div className="font-semibold text-ink">{session.teacherName}</div>
@@ -59,15 +62,13 @@ function SessionRow({ session, isEven, onReschedule }) {
       </td>
       <td className="px-4 py-4 text-center">
         <div className="flex flex-wrap items-center justify-center gap-2">
-          {session.canJoin && (
-            <button
-              type="button"
-              disabled={joinSession.isPending}
-              onClick={() => handleSessionJoin(joinSession.mutateAsync, session.id)}
-              className="rounded-xl border-2 border-primary bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+          {canJoin && (
+            <SessionJoinButton
+              session={session}
+              className="inline-flex items-center justify-center rounded-xl border border-primary bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary-hover disabled:opacity-50"
             >
               {t('dashboard.join')}
-            </button>
+            </SessionJoinButton>
           )}
           {session.canReschedule && (
             <button

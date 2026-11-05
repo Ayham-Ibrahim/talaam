@@ -129,6 +129,7 @@ export const endpoints = {
     join: (id) => `/class-sessions/${id}/join`,
     reschedule: (id) => `/class-sessions/${id}/schedule`,
     makeup: (id) => `/class-sessions/${id}/makeup`,
+    attendance: (id) => `/class-sessions/${id}/attendance`,
   },
   accountants: {
     create: '/accountants',

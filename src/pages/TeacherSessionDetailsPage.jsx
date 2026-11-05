@@ -4,12 +4,12 @@ import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeacherSessionDetails } from '@/hooks/useDashboard';
-import { useJoinSession } from '@/hooks/useSessionJoin';
-import { handleSessionJoin } from '@/lib/joinSession';
+import { SessionJoinButton } from '@/components/dashboard/SessionJoinButton';
 import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { formatDateTime } from '@/lib/formatters';
 import { ATTENDANCE_STYLES, NO_ATTENDANCE_STATUSES, attendanceState } from '@/lib/sessionAttendance';
 import { canJoinSession } from '@/services';
+import { useNow } from '@/hooks/useNow';
 import { useT } from '@/hooks/useT';
 
 export function TeacherSessionDetailsPage() {
@@ -17,13 +17,13 @@ export function TeacherSessionDetailsPage() {
   const { user } = useAuth();
   const { id } = useParams();
   const { data: session, isLoading, isError, refetch } = useTeacherSessionDetails(id);
-  const joinSession = useJoinSession();
+  const now = useNow();
 
   if (!user) return <Navigate to="/login" replace />;
 
   const statusStyle = session ? TEACHER_SESSION_STATUS_STYLES[session.status] : null;
   const title = session ? (session.booking?.package?.title ?? session.course?.title ?? '—') : '';
-  const canJoin = session && canJoinSession(session, session.join_url_teacher);
+  const canJoin = session && canJoinSession(session, session.join_url_teacher, now);
   const showReason = session && ['cancelled', 'no_show_teacher', 'no_show_student'].includes(session.status) && session.cancellation_reason;
 
   // الحضور من سجل الانضمام (زر "انضمام") — لا من attendance الذي لا يتغيّر إلا يدوياً.
@@ -123,15 +123,13 @@ export function TeacherSessionDetailsPage() {
           )}
 
           {canJoin && (
-            <button
-              type="button"
-              disabled={joinSession.isPending}
-              onClick={() => handleSessionJoin(joinSession.mutateAsync, session.id)}
-              className="mx-auto flex items-center gap-2 rounded-xl border-2 border-primary bg-primary px-8 py-3 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+            <SessionJoinButton
+              session={session}
+              className="mx-auto flex w-fit items-center gap-2 rounded-xl border-2 border-primary bg-primary px-8 py-3 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
             >
               <Video size={18} />
               {t('dashboard.teacherSessions.join')}
-            </button>
+            </SessionJoinButton>
           )}
         </div>
       )}

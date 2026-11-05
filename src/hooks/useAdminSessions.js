@@ -35,3 +35,14 @@ export function useAdminCreateMakeupSession() {
     },
   });
 }
+
+export function useAdminMarkAttendance() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ sessionId, role, studentId }) => adminSessionsService.markAttendance(sessionId, { role, studentId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'sessions'] });
+    },
+  });
+}
