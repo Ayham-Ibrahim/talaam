@@ -22,7 +22,9 @@ function buildHalfHourSlots(startHour, endHour) {
   return slots;
 }
 
-const SLOT_TIMES = buildHalfHourSlots(9, 21);
+// endHour=24 يعني "حتى منتصف الليل" — لكن 24:00 نفسها قيمة H:i غير صالحة
+// (الباك اند date_format:H:i يقبل 00-23 فقط)، فنستبعدها؛ آخر خانة فعلية تبقى 23:30
+const SLOT_TIMES = buildHalfHourSlots(9, 24).filter((slot) => slot.hour < 24);
 
 /** "10:30 صباحاً" */
 function slotLabel({ hour, minute }) {
