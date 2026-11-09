@@ -94,6 +94,11 @@ const ADMIN_NAV_GROUPS = [
         icon: BarChart3,
         path: "/dashboard/admin/teacher-sessions-report",
       },
+      {
+        key: "academicSupportFinance",
+        icon: HandCoins,
+        path: "/dashboard/admin/academic-support-finance",
+      },
       // قائمة فرعية منسدلة داخل المالية — children تُعرض تحت العنصر عند فتحه
       {
         key: "hr",
@@ -107,11 +112,6 @@ const ADMIN_NAV_GROUPS = [
             path: "/dashboard/admin/payroll-report",
           },
         ],
-      },
-      {
-        key: "academicSupportFinance",
-        icon: HandCoins,
-        path: "/dashboard/admin/academic-support-finance",
       },
     ],
   },
@@ -186,6 +186,11 @@ const ACCOUNTANT_NAV_GROUPS = [
         path: "/dashboard/accountant/teacher-sessions-report",
       },
       {
+        key: "academicSupportFinance",
+        icon: HandCoins,
+        path: "/dashboard/accountant/academic-support-finance",
+      },
+      {
         key: "hr",
         icon: Briefcase,
         children: [
@@ -205,11 +210,6 @@ const ACCOUNTANT_NAV_GROUPS = [
             path: "/dashboard/accountant/payroll-report",
           },
         ],
-        },
-        {
-        key: "academicSupportFinance",
-        icon: HandCoins,
-        path: "/dashboard/accountant/academic-support-finance",
       },
     ],
   },
