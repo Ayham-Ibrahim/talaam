@@ -179,9 +179,9 @@ export function AdminPayoutsPage({ variant = 'admin' }) {
             setMarkPaidPayoutId(null);
             markPayoutPaid.reset();
           }}
-          onConfirm={(transferReference) =>
+          onConfirm={() =>
             markPayoutPaid.mutate(
-              { id: markPaidPayoutId, transferReference },
+              { id: markPaidPayoutId },
               { onSuccess: () => setMarkPaidPayoutId(null) },
             )
           }

@@ -80,9 +80,7 @@ export function PayoutDetailsModal({ payoutId, onClose }) {
                 <SummaryField label={t('dashboard.adminPayouts.details.sessionsTotal')} value={formatPrice(sum(sessionItems))} />
                 <SummaryField label={t('dashboard.adminPayouts.details.settlementsTotal')} value={formatPrice(sum(settlementItems))} />
                 <SummaryField label={t('dashboard.adminPayouts.details.deductions')} value={formatPrice(payout.deductions)} />
-                <SummaryField label={t('dashboard.adminPayouts.details.paidAt')} value={formatDate(payout.paidAt)} />
-                <SummaryField label={t('dashboard.adminPayouts.details.transferReference')} value={payout.transferReference} />
-              </div>
+                <SummaryField label={t('dashboard.adminPayouts.details.paidAt')} value={formatDate(payout.paidAt)} />              </div>
 
               <div className="flex items-center justify-between rounded-xl border border-line px-4 py-3">
                 <span className="text-sm font-bold text-ink">{t('dashboard.adminPayouts.details.netAmount')}</span>

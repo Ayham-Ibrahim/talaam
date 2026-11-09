@@ -1,19 +1,8 @@
-import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useT } from '@/hooks/useT';
 
 export function MarkPayoutPaidModal({ isPending, error, onConfirm, onClose }) {
   const t = useT();
-  const [transferReference, setTransferReference] = useState('');
-  const [touched, setTouched] = useState(false);
-
-  const isValid = transferReference.trim() !== '';
-
-  const handleConfirm = () => {
-    setTouched(true);
-    if (!isValid) return;
-    onConfirm(transferReference.trim());
-  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
@@ -37,18 +26,7 @@ export function MarkPayoutPaidModal({ isPending, error, onConfirm, onClose }) {
           </div>
         )}
 
-        <label className="flex flex-col gap-1.5 text-right">
-          <span className="text-sm font-semibold text-ink">{t('dashboard.adminPayouts.transferReferenceLabel')}</span>
-          <input
-            type="text"
-            value={transferReference}
-            onChange={(e) => setTransferReference(e.target.value)}
-            className={`w-full rounded-btn border bg-surface p-3 text-sm text-ink focus:outline-none focus:ring-2 ${
-              touched && !isValid ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
-            }`}
-          />
-          {touched && !isValid && <span className="text-xs text-accent-pink">{t('dashboard.adminPayouts.transferReferenceRequired')}</span>}
-        </label>
+        <p className="text-center text-sm text-ink-soft">{t('dashboard.adminPayouts.markPaidConfirmText')}</p>
 
         <div className="mt-6 flex gap-3">
           <button
@@ -61,7 +39,7 @@ export function MarkPayoutPaidModal({ isPending, error, onConfirm, onClose }) {
           <button
             type="button"
             disabled={isPending}
-            onClick={handleConfirm}
+            onClick={onConfirm}
             className="flex-1 rounded-xl bg-primary py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {t('dashboard.adminPayouts.confirm')}
