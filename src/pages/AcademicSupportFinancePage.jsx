@@ -33,8 +33,7 @@ function StatCard({ icon: Icon, label, value, bg, color }) {
   );
 }
 
-/** totals: خلايا صف الإجمالي بنفس ترتيب columns (null = خلية فارغة) — يُعرض بأسفل الجدول */
-function ReportTable({ title, hint, columns, minWidth, onExport, exporting, totals, children }) {
+function ReportTable({ title, hint, columns, minWidth, onExport, exporting, children }) {
   const t = useT();
   return (
     <section className="flex flex-col gap-3">
@@ -56,26 +55,15 @@ function ReportTable({ title, hint, columns, minWidth, onExport, exporting, tota
       <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
         <table className="w-full text-sm" style={{ minWidth }}>
           <thead>
-            <tr className="bg-primary text-right">
+            <tr className="border-b border-line text-right">
               {columns.map((col) => (
-                <th key={col} className="whitespace-nowrap px-4 py-3 font-bold text-white">
+                <th key={col} className="whitespace-nowrap px-4 py-3 font-bold text-ink">
                   {t(`dashboard.academicSupportFinance.cols.${col}`)}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-line">{children}</tbody>
-          {totals && (
-            <tfoot>
-              <tr className="border-t-2 border-primary/30 bg-primary-light text-right font-bold text-ink">
-                {totals.map((value, i) => (
-                  <td key={columns[i]} className="whitespace-nowrap px-4 py-3">
-                    {value}
-                  </td>
-                ))}
-              </tr>
-            </tfoot>
-          )}
         </table>
       </div>
     </section>
@@ -87,9 +75,6 @@ const cell = 'px-4 py-3 text-ink-soft';
 const amountClass = (n) => (n < 0 ? 'text-red-600' : 'text-success');
 
 const TABS = ['supporters', 'packages', 'purchases'];
-
-/** مجموع عمود لصف الإجمالي — القيم الفارغة (مثل خصم غير موجود) تُحسب صفراً */
-const sumOf = (rows, key) => Math.round(rows.reduce((total, row) => total + (Number(row[key]) || 0), 0) * 100) / 100;
 
 export function AcademicSupportFinancePage({ variant = 'admin' }) {
   const t = useT();
@@ -150,11 +135,6 @@ export function AcademicSupportFinancePage({ variant = 'admin' }) {
   };
 
   const tabCounts = { supporters: supporters.length, packages: packages.length, purchases: purchases.length };
-  const totalLabel = t('dashboard.academicSupportFinance.total');
-  const platformTotal = (rows) => (
-    <span className={amountClass(sumOf(rows, 'platformAmount'))}>{formatPrice(sumOf(rows, 'platformAmount'))}</span>
-  );
-  const supporterTotal = (rows) => <span className="text-[#B7791F]">{formatPrice(sumOf(rows, 'supporterAmount'))}</span>;
 
   return (
     <AdminDashboardLayout variant={variant}>
@@ -259,16 +239,6 @@ export function AcademicSupportFinancePage({ variant = 'admin' }) {
               title={t('dashboard.academicSupportFinance.supportersTitle')}
               onExport={() => handleExport('supporters')}
               exporting={exportingSheet === 'supporters'}
-              totals={[
-                totalLabel,
-                formatNumber(sumOf(supporters, 'packagesCount')),
-                null,
-                formatNumber(sumOf(supporters, 'purchasesCount')),
-                formatPrice(sumOf(supporters, 'studentsPaid')),
-                formatPrice(sumOf(supporters, 'discountAmount')),
-                supporterTotal(supporters),
-                platformTotal(supporters),
-              ]}
               hint={appliedFilters.supporterId ? null : t('dashboard.academicSupportFinance.supportersHint')}
               columns={['supporter', 'packagesCount', 'subjects', 'purchasesCount', 'studentsPaid', 'discount', 'supporterAmount', 'platformAmount']}
               minWidth={1000}
@@ -302,18 +272,6 @@ export function AcademicSupportFinancePage({ variant = 'admin' }) {
               title={t('dashboard.academicSupportFinance.packagesTitle')}
               onExport={() => handleExport('packages')}
               exporting={exportingSheet === 'packages'}
-              totals={[
-                totalLabel,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                formatNumber(sumOf(packages, 'purchasesCount')),
-                supporterTotal(packages),
-                platformTotal(packages),
-              ]}
               columns={['package', 'tier', 'supporter', 'subjects', 'listPrice', 'supporterPercent', 'platformPercent', 'purchasesCount', 'supporterAmount', 'platformAmount']}
               minWidth={1150}
             >
@@ -339,19 +297,6 @@ export function AcademicSupportFinancePage({ variant = 'admin' }) {
               title={t('dashboard.academicSupportFinance.purchasesTitle')}
               onExport={() => handleExport('purchases')}
               exporting={exportingSheet === 'purchases'}
-              totals={[
-                totalLabel,
-                null,
-                null,
-                null,
-                null,
-                null,
-                formatPrice(sumOf(purchases, 'listPrice')),
-                formatPrice(sumOf(purchases, 'discountAmount')),
-                formatPrice(sumOf(purchases, 'amountPaid')),
-                supporterTotal(purchases),
-                platformTotal(purchases),
-              ]}
               columns={['purchaseId', 'date', 'student', 'supporter', 'package', 'subjects', 'listPrice', 'discount', 'amountPaid', 'supporterAmount', 'platformAmount']}
               minWidth={1250}
             >
