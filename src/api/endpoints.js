@@ -148,6 +148,8 @@ export const endpoints = {
   reports: {
     teacherSessions: '/reports/teacher-sessions',
     exportTeacherSessions: '/reports/teacher-sessions/export',
+    academicSupportFinance: '/reports/academic-support',
+    exportAcademicSupportFinance: '/reports/academic-support/export',
   },
   // الموظفون الإداريون ورواتبهم — الأدمن والمحاسب (EmployeePolicy بالباك)
   employees: {

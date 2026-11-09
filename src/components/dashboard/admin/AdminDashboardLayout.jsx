@@ -10,6 +10,7 @@ import {
   ChevronDown,
   FileSpreadsheet,
   GraduationCap,
+  HandCoins,
   HandHeart,
   History,
   Home,
@@ -107,6 +108,11 @@ const ADMIN_NAV_GROUPS = [
           },
         ],
       },
+      {
+        key: "academicSupportFinance",
+        icon: HandCoins,
+        path: "/dashboard/admin/academic-support-finance",
+      },
     ],
   },
   {
@@ -199,6 +205,11 @@ const ACCOUNTANT_NAV_GROUPS = [
             path: "/dashboard/accountant/payroll-report",
           },
         ],
+        },
+        {
+        key: "academicSupportFinance",
+        icon: HandCoins,
+        path: "/dashboard/accountant/academic-support-finance",
       },
     ],
   },

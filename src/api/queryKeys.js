@@ -90,6 +90,7 @@ export const queryKeys = {
     employeeDetail: (id) => ['admin', 'payroll', 'employee', id],
     payroll: (filters) => ['admin', 'payroll', 'salaries', filters],
     payrollReport: (filters) => ['admin', 'payroll', 'report', filters],
+    academicSupportFinanceReport: (filters) => ['admin', 'academic-support-finance-report', filters],
     sessions: (filters) => ['admin', 'sessions', filters],
     seededReviews: (teacherId) => ['admin', 'seeded-reviews', teacherId],
     academicSupporters: (filters) => ['admin', 'academic-supporters', filters],

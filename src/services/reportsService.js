@@ -29,4 +29,37 @@ export const reportsService = {
     });
     return data;
   },
+
+  /** المحاسبة المالية للدعم الأكاديمي: أرباح المنصة والتزاماتها تجاه كل داعم، لكل داعم وباقة واشتراك مدفوع */
+  async getAcademicSupportFinanceReport({ from, to, supporterId } = {}) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return {
+        totals: { purchasesCount: 0, supportersCount: 0, studentsPaid: 0, discountAmount: 0, supporterAmount: 0, platformAmount: 0 },
+        supporters: [],
+        packages: [],
+        purchases: [],
+        supporterOptions: [],
+      };
+    }
+    const { data } = await client.get(endpoints.reports.academicSupportFinance, {
+      params: { from: from || undefined, to: to || undefined, supporter_id: supporterId || undefined },
+    });
+    return data.data;
+  },
+
+  /** sheet (supporters|packages|purchases) يصدّر جدولاً واحداً؛ بدونه التقرير الشامل */
+  async exportAcademicSupportFinanceReport({ from, to, supporterId, sheet } = {}) {
+    if (config.useMocks) {
+      await mockDelay(500);
+      return new Blob(['Demo mode — no real export available.'], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+    }
+    const { data } = await client.get(endpoints.reports.exportAcademicSupportFinance, {
+      params: { from: from || undefined, to: to || undefined, supporter_id: supporterId || undefined, sheet: sheet || undefined },
+      responseType: 'blob',
+    });
+    return data;
+  },
 };
