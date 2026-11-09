@@ -2513,6 +2513,7 @@
       "exportExcel": "تصدير تقرير Excel شامل",
       "exporting": "جارِ التصدير...",
       "exportTable": "تصدير هذا الجدول Excel",
+      "total": "الإجمالي",
       "exportFailed": "تعذّر تصدير الملف، حاول مرة أخرى",
       "tabs": {
         "supporters": "الداعمون",
