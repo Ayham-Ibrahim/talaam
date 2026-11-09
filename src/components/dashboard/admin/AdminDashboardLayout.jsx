@@ -7,6 +7,7 @@ import {
   ChevronDown,
   FileSpreadsheet,
   GraduationCap,
+  HandCoins,
   HandHeart,
   History,
   Home,
@@ -90,6 +91,11 @@ const ADMIN_NAV_GROUPS = [
         icon: BarChart3,
         path: "/dashboard/admin/teacher-sessions-report",
       },
+      {
+        key: "academicSupportFinance",
+        icon: HandCoins,
+        path: "/dashboard/admin/academic-support-finance",
+      },
     ],
   },
   {
@@ -161,6 +167,11 @@ const ACCOUNTANT_NAV_GROUPS = [
         key: "teacherSessionsReport",
         icon: BarChart3,
         path: "/dashboard/accountant/teacher-sessions-report",
+      },
+      {
+        key: "academicSupportFinance",
+        icon: HandCoins,
+        path: "/dashboard/accountant/academic-support-finance",
       },
     ],
   },

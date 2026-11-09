@@ -34,6 +34,7 @@ import { AdminPayoutsPage } from "@/pages/AdminPayoutsPage";
 import { FinanceBookingsPage } from "@/pages/FinanceBookingsPage";
 import { AdminAccountantsPage } from "@/pages/AdminAccountantsPage";
 import { TeacherSessionsReportPage } from "@/pages/TeacherSessionsReportPage";
+import { AcademicSupportFinancePage } from "@/pages/AcademicSupportFinancePage";
 import { AdminSessionsPage } from "@/pages/AdminSessionsPage";
 import { AdminNotificationLogsPage } from "@/pages/AdminNotificationLogsPage";
 import { AdminLegalPagesPage } from "@/pages/AdminLegalPagesPage";
@@ -245,6 +246,14 @@ export function AppRouter() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/dashboard/admin/academic-support-finance"
+          element={
+            <ProtectedRoute role="admin">
+              <AcademicSupportFinancePage variant="admin" />
+            </ProtectedRoute>
+          }
+        />
         {/* لوحة المحاسب: مالية فقط — نفس صفحات الأدمن المالية بوضع variant="accountant" */}
         <Route
           path="/dashboard/accountant"
@@ -271,6 +280,14 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="accountant">
               <TeacherSessionsReportPage variant="accountant" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/accountant/academic-support-finance"
+          element={
+            <ProtectedRoute role="accountant">
+              <AcademicSupportFinancePage variant="accountant" />
             </ProtectedRoute>
           }
         />

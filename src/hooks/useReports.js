@@ -15,3 +15,17 @@ export function useExportTeacherSessionsReport() {
     mutationFn: (filters) => reportsService.exportTeacherSessionsReport(filters),
   });
 }
+
+export function useAcademicSupportFinanceReport(filters = {}) {
+  return useQuery({
+    queryKey: queryKeys.admin.academicSupportFinanceReport(filters),
+    queryFn: () => reportsService.getAcademicSupportFinanceReport(filters),
+    keepPreviousData: true,
+  });
+}
+
+export function useExportAcademicSupportFinanceReport() {
+  return useMutation({
+    mutationFn: (filters) => reportsService.exportAcademicSupportFinanceReport(filters),
+  });
+}

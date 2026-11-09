@@ -148,6 +148,8 @@ export const endpoints = {
   reports: {
     teacherSessions: '/reports/teacher-sessions',
     exportTeacherSessions: '/reports/teacher-sessions/export',
+    academicSupportFinance: '/reports/academic-support',
+    exportAcademicSupportFinance: '/reports/academic-support/export',
   },
   coupons: {
     list: (packageId) => `/packages/${packageId}/coupons`,

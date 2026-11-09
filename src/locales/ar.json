@@ -1797,7 +1797,8 @@
       "bookings": "الحجوزات والمدفوعات",
       "accountants": "حسابات المحاسبين",
       "sessions": "الجلسات",
-      "teacherSessionsReport": "تقرير حصص المعلمين"
+      "teacherSessionsReport": "تقرير حصص المعلمين",
+      "academicSupportFinance": "مالية الدعم الأكاديمي"
     },
     "adminNavGroups": {
       "users": "المستخدمون",
@@ -2498,6 +2499,53 @@
         "notInPayoutsAmount": "لم يُدرَج بعد",
         "settlementsAmount": "تسويات تسجيل متأخر",
         "platformRevenue": "عائد المنصة"
+      }
+    },
+    "academicSupportFinance": {
+      "title": "مالية الدعم الأكاديمي",
+      "subtitle": "أرباح المنصة والتزاماتها تجاه الداعمين الأكاديميين من اشتراكات باقات الدعم المدفوعة — حصة الداعم ثابتة من سعر الباقة، وخصم الكوبونات تتحمّله المنصة",
+      "fromLabel": "من تاريخ",
+      "toLabel": "إلى تاريخ",
+      "supporterLabel": "الداعم",
+      "allSupporters": "جميع الداعمين",
+      "apply": "تطبيق",
+      "reset": "إعادة تعيين",
+      "exportExcel": "تصدير تقرير Excel شامل",
+      "exporting": "جارِ التصدير...",
+      "exportFailed": "تعذّر تصدير الملف، حاول مرة أخرى",
+      "empty": "لا توجد اشتراكات مدفوعة مطابقة لهذه الفترة",
+      "totalStudentsPaid": "إجمالي ما دفعه الطلاب",
+      "totalPlatform": "صافي أرباح المنصة",
+      "totalSupporters": "التزامات المنصة تجاه الداعمين",
+      "totalDiscounts": "إجمالي الخصومات",
+      "totalPurchases": "الاشتراكات المدفوعة",
+      "supportersTitle": "التزامات المنصة تجاه كل داعم",
+      "supportersHint": "اضغط على اسم الداعم لعرض حساباته وحده",
+      "packagesTitle": "الباقات والداعم المسؤول عنها ونسب الأرباح",
+      "purchasesTitle": "تفاصيل الاشتراكات المدفوعة",
+      "viewSupporter": "عرض حساباته",
+      "tiers": {
+        "basic": "أساسية",
+        "premium": "شاملة"
+      },
+      "cols": {
+        "supporter": "الداعم",
+        "package": "الباقة",
+        "tier": "الفئة",
+        "subjects": "المواد",
+        "packagesCount": "عدد الباقات",
+        "purchasesCount": "عدد الاشتراكات",
+        "listPrice": "سعر الباقة",
+        "supporterPercent": "نسبة الداعم",
+        "platformPercent": "نسبة المنصة",
+        "studentsPaid": "ما دفعه الطلاب",
+        "discount": "الخصم",
+        "amountPaid": "المبلغ المدفوع",
+        "supporterAmount": "مستحق الداعم",
+        "platformAmount": "أرباح المنصة",
+        "purchaseId": "رقم الاشتراك",
+        "date": "تاريخ الدفع",
+        "student": "الطالب"
       }
     },
     "adminNotificationLogs": {

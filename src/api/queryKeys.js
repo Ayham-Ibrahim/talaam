@@ -85,6 +85,7 @@ export const queryKeys = {
     notificationLogs: (filters) => ['admin', 'notification-logs', filters],
     reviews: (filters) => ['admin', 'reviews', filters],
     teacherSessionsReport: (filters) => ['admin', 'teacher-sessions-report', filters],
+    academicSupportFinanceReport: (filters) => ['admin', 'academic-support-finance-report', filters],
     sessions: (filters) => ['admin', 'sessions', filters],
     seededReviews: (teacherId) => ['admin', 'seeded-reviews', teacherId],
     academicSupporters: (filters) => ['admin', 'academic-supporters', filters],
