@@ -149,6 +149,21 @@ export const endpoints = {
     teacherSessions: '/reports/teacher-sessions',
     exportTeacherSessions: '/reports/teacher-sessions/export',
   },
+  // الموظفون الإداريون ورواتبهم — الأدمن والمحاسب (EmployeePolicy بالباك)
+  employees: {
+    list: '/employees',
+    detail: (id) => `/employees/${id}`,
+    adjustments: (id) => `/employees/${id}/adjustments`,
+    deleteAdjustment: (id) => `/employee-adjustments/${id}`,
+  },
+  payroll: {
+    list: '/payroll',
+    generate: '/payroll/generate',
+    markPaid: (id) => `/payroll/${id}/mark-paid`,
+    report: '/payroll/report',
+    exportReport: '/payroll/report/export',
+    export: '/payroll/export',
+  },
   coupons: {
     list: (packageId) => `/packages/${packageId}/coupons`,
     create: (packageId) => `/packages/${packageId}/coupons`,

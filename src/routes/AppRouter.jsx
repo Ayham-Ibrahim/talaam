@@ -34,6 +34,9 @@ import { AdminPayoutsPage } from "@/pages/AdminPayoutsPage";
 import { FinanceBookingsPage } from "@/pages/FinanceBookingsPage";
 import { AdminAccountantsPage } from "@/pages/AdminAccountantsPage";
 import { TeacherSessionsReportPage } from "@/pages/TeacherSessionsReportPage";
+import { EmployeesPage } from "@/pages/EmployeesPage";
+import { PayrollPage } from "@/pages/PayrollPage";
+import { PayrollReportPage } from "@/pages/PayrollReportPage";
 import { AdminSessionsPage } from "@/pages/AdminSessionsPage";
 import { AdminNotificationLogsPage } from "@/pages/AdminNotificationLogsPage";
 import { AdminLegalPagesPage } from "@/pages/AdminLegalPagesPage";
@@ -245,6 +248,30 @@ export function AppRouter() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/dashboard/admin/employees"
+          element={
+            <ProtectedRoute role="admin">
+              <EmployeesPage variant="admin" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/payroll"
+          element={
+            <ProtectedRoute role="admin">
+              <PayrollPage variant="admin" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/payroll-report"
+          element={
+            <ProtectedRoute role="admin">
+              <PayrollReportPage variant="admin" />
+            </ProtectedRoute>
+          }
+        />
         {/* لوحة المحاسب: مالية فقط — نفس صفحات الأدمن المالية بوضع variant="accountant" */}
         <Route
           path="/dashboard/accountant"
@@ -271,6 +298,30 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="accountant">
               <TeacherSessionsReportPage variant="accountant" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/accountant/employees"
+          element={
+            <ProtectedRoute role="accountant">
+              <EmployeesPage variant="accountant" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/accountant/payroll"
+          element={
+            <ProtectedRoute role="accountant">
+              <PayrollPage variant="accountant" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/accountant/payroll-report"
+          element={
+            <ProtectedRoute role="accountant">
+              <PayrollReportPage variant="accountant" />
             </ProtectedRoute>
           }
         />

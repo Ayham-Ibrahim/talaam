@@ -85,6 +85,11 @@ export const queryKeys = {
     notificationLogs: (filters) => ['admin', 'notification-logs', filters],
     reviews: (filters) => ['admin', 'reviews', filters],
     teacherSessionsReport: (filters) => ['admin', 'teacher-sessions-report', filters],
+    // كلها تحت ['admin', 'payroll'] عمداً — أي تعديل (بونص/دفع/راتب) يُحدّث الصفحات الثلاث معاً
+    employees: (filters) => ['admin', 'payroll', 'employees', filters],
+    employeeDetail: (id) => ['admin', 'payroll', 'employee', id],
+    payroll: (filters) => ['admin', 'payroll', 'salaries', filters],
+    payrollReport: (filters) => ['admin', 'payroll', 'report', filters],
     sessions: (filters) => ['admin', 'sessions', filters],
     seededReviews: (teacherId) => ['admin', 'seeded-reviews', teacherId],
     academicSupporters: (filters) => ['admin', 'academic-supporters', filters],

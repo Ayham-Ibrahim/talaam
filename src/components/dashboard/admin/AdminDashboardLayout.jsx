@@ -1,7 +1,10 @@
 import { useState, useEffect, createContext, useContext } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
+  Banknote,
   BarChart3,
+  Briefcase,
+  PieChart,
   CalendarDays,
   ChevronRight,
   ChevronDown,
@@ -90,6 +93,20 @@ const ADMIN_NAV_GROUPS = [
         icon: BarChart3,
         path: "/dashboard/admin/teacher-sessions-report",
       },
+      // قائمة فرعية منسدلة داخل المالية — children تُعرض تحت العنصر عند فتحه
+      {
+        key: "hr",
+        icon: Briefcase,
+        children: [
+          { key: "employees", icon: Briefcase, path: "/dashboard/admin/employees" },
+          { key: "payroll", icon: Banknote, path: "/dashboard/admin/payroll" },
+          {
+            key: "payrollReport",
+            icon: PieChart,
+            path: "/dashboard/admin/payroll-report",
+          },
+        ],
+      },
     ],
   },
   {
@@ -162,6 +179,27 @@ const ACCOUNTANT_NAV_GROUPS = [
         icon: BarChart3,
         path: "/dashboard/accountant/teacher-sessions-report",
       },
+      {
+        key: "hr",
+        icon: Briefcase,
+        children: [
+          {
+            key: "employees",
+            icon: Briefcase,
+            path: "/dashboard/accountant/employees",
+          },
+          {
+            key: "payroll",
+            icon: Banknote,
+            path: "/dashboard/accountant/payroll",
+          },
+          {
+            key: "payrollReport",
+            icon: PieChart,
+            path: "/dashboard/accountant/payroll-report",
+          },
+        ],
+      },
     ],
   },
 ];
@@ -190,6 +228,7 @@ export function AdminDashboardLayout({ children, variant = "admin" }) {
       users: true,
       teaching: true,
       finance: true,
+      hr: true,
       support: true,
       import: true,
       system: true,
@@ -217,7 +256,14 @@ export function AdminDashboardLayout({ children, variant = "admin" }) {
   const isAccountant = variant === "accountant";
   const { data: overview } = useAdminOverview({ enabled: !isAccountant });
   const NAV_GROUPS = isAccountant ? ACCOUNTANT_NAV_GROUPS : ADMIN_NAV_GROUPS;
-  const NAV_ITEMS = NAV_GROUPS.flatMap((g) => g.items);
+  // العناصر القابلة للتنقل فقط (قائمة فرعية ← أبناؤها) — لتحديد عنوان الصفحة النشطة
+  const NAV_ITEMS = NAV_GROUPS.flatMap((g) => g.items).flatMap((item) => item.children ?? [item]);
+  const isItemActive = (item) =>
+    item.children
+      ? item.children.some(isItemActive)
+      : item.end
+        ? location.pathname === item.path
+        : location.pathname.startsWith(item.path);
 
   // 2. ONLY close the mobile sidebar on route change.
   // We completely removed any automatic code that changes `collapsedGroups`.
@@ -276,13 +322,7 @@ export function AdminDashboardLayout({ children, variant = "admin" }) {
               {NAV_GROUPS.map(({ group, items }) => {
                 const isCollapsed = group ? !!collapsedGroups[group] : false;
 
-                const isGroupActive = group
-                  ? items.some((item) =>
-                      item.end
-                        ? location.pathname === item.path
-                        : location.pathname.startsWith(item.path),
-                    )
-                  : false;
+                const isGroupActive = group ? items.some(isItemActive) : false;
 
                 const GroupIcon = group ? GROUP_ICONS[group] : null;
 
@@ -351,6 +391,81 @@ export function AdminDashboardLayout({ children, variant = "admin" }) {
                         >
                           {items.map((item) => {
                             const Icon = item.icon;
+
+                            // قائمة فرعية منسدلة: نفس آلية طيّ المجموعات (collapsedGroups بمفتاح العنصر)
+                            if (item.children) {
+                              const isSubOpen = !collapsedGroups[item.key];
+                              const isSubActive = isItemActive(item);
+
+                              return (
+                                <div key={item.key} className="flex flex-col">
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleGroup(item.key)}
+                                    aria-expanded={isSubOpen}
+                                    className={`flex w-full items-center justify-between rounded-xl py-3 pl-5 pr-5 text-base font-medium transition-all duration-200 ${
+                                      isSubActive ? "text-primary" : "text-[#2D2D2D]"
+                                    } hover:bg-line/40`}
+                                  >
+                                    <ChevronLeft
+                                      size={16}
+                                      className={`shrink-0 transition-transform duration-300 ${
+                                        isSubOpen ? "rotate-90" : "rotate-0"
+                                      } ${isSubActive ? "text-primary" : "text-[#777777]"}`}
+                                    />
+                                    <span className="flex items-center gap-2">
+                                      {t(`dashboard.adminNav.${item.key}`)}
+                                      <Icon
+                                        size={20}
+                                        className={isSubActive ? "text-primary" : "text-[#444444]"}
+                                      />
+                                    </span>
+                                  </button>
+
+                                  <div
+                                    className={`grid transition-all duration-300 ease-in-out ${
+                                      isSubOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                                    }`}
+                                  >
+                                    <div className="min-h-0 overflow-hidden">
+                                      <div className="mr-6 border-r border-[#E5E5E5] pr-3">
+                                        {item.children.map((child) => {
+                                          const ChildIcon = child.icon;
+                                          return (
+                                            <NavLink
+                                              key={child.key}
+                                              to={child.path}
+                                              end={child.end}
+                                              className={({ isActive }) =>
+                                                `relative flex items-center justify-end gap-2 rounded-xl py-2.5 pl-5 pr-4 text-sm transition-all duration-200 ${
+                                                  isActive
+                                                    ? "bg-[#F3F4F6] text-[#2D2D2D]"
+                                                    : "font-medium text-[#2D2D2D] hover:bg-line/40"
+                                                }`
+                                              }
+                                            >
+                                              {({ isActive }) => (
+                                                <>
+                                                  {isActive && (
+                                                    <span className="absolute right-[-14px] top-1/2 h-7 w-[3px] -translate-y-1/2 rounded-full bg-primary" />
+                                                  )}
+                                                  {t(`dashboard.adminNav.${child.key}`)}
+                                                  <ChildIcon
+                                                    size={18}
+                                                    className={isActive ? "text-primary" : "text-[#444444]"}
+                                                  />
+                                                </>
+                                              )}
+                                            </NavLink>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            }
+
                             const pendingCount = item.statKey
                               ? overview?.stats?.[item.statKey]
                               : 0;
