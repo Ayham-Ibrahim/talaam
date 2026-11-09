@@ -48,7 +48,8 @@ export const reportsService = {
     return data.data;
   },
 
-  async exportAcademicSupportFinanceReport({ from, to, supporterId } = {}) {
+  /** sheet (supporters|packages|purchases) يصدّر جدولاً واحداً؛ بدونه التقرير الشامل */
+  async exportAcademicSupportFinanceReport({ from, to, supporterId, sheet } = {}) {
     if (config.useMocks) {
       await mockDelay(500);
       return new Blob(['Demo mode — no real export available.'], {
@@ -56,7 +57,7 @@ export const reportsService = {
       });
     }
     const { data } = await client.get(endpoints.reports.exportAcademicSupportFinance, {
-      params: { from: from || undefined, to: to || undefined, supporter_id: supporterId || undefined },
+      params: { from: from || undefined, to: to || undefined, supporter_id: supporterId || undefined, sheet: sheet || undefined },
       responseType: 'blob',
     });
     return data;

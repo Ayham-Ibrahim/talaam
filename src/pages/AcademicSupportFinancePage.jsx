@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Calendar, Download, HandCoins, Receipt, TicketPercent, Users, Wallet } from 'lucide-react';
+import { Calendar, Download, FileSpreadsheet, HandCoins, Receipt, TicketPercent, Users, Wallet } from 'lucide-react';
 import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
@@ -33,13 +33,24 @@ function StatCard({ icon: Icon, label, value, bg, color }) {
   );
 }
 
-function ReportTable({ title, hint, columns, minWidth, children }) {
+function ReportTable({ title, hint, columns, minWidth, onExport, exporting, children }) {
   const t = useT();
   return (
     <section className="flex flex-col gap-3">
-      <div className="text-right">
-        <h2 className="text-base font-bold text-ink">{title}</h2>
-        {hint && <p className="mt-0.5 text-xs text-ink-soft">{hint}</p>}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="text-right">
+          <h2 className="text-base font-bold text-ink">{title}</h2>
+          {hint && <p className="mt-0.5 text-xs text-ink-soft">{hint}</p>}
+        </div>
+        <button
+          type="button"
+          disabled={exporting}
+          onClick={onExport}
+          className="flex items-center gap-1.5 rounded-xl border border-line bg-white px-3 py-2 text-sm font-medium text-ink hover:bg-line/30 disabled:opacity-50"
+        >
+          <FileSpreadsheet size={16} className="text-success" />
+          {exporting ? t('dashboard.academicSupportFinance.exporting') : t('dashboard.academicSupportFinance.exportTable')}
+        </button>
       </div>
       <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
         <table className="w-full text-sm" style={{ minWidth }}>
@@ -63,6 +74,8 @@ const rowClass = (i) => (i % 2 === 1 ? 'bg-[#FAFBFD]' : '');
 const cell = 'px-4 py-3 text-ink-soft';
 const amountClass = (n) => (n < 0 ? 'text-red-600' : 'text-success');
 
+const TABS = ['supporters', 'packages', 'purchases'];
+
 export function AcademicSupportFinancePage({ variant = 'admin' }) {
   const t = useT();
   const { user } = useAuth();
@@ -70,6 +83,9 @@ export function AcademicSupportFinancePage({ variant = 'admin' }) {
   const [to, setTo] = useState('');
   const [supporterId, setSupporterId] = useState('');
   const [appliedFilters, setAppliedFilters] = useState({});
+  const [activeTab, setActiveTab] = useState('supporters');
+  // أي تصدير قيد التنفيذ: 'all' للتقرير الشامل أو اسم الجدول — حتى لا يظهر "جارِ التصدير" على كل الأزرار
+  const [exportingSheet, setExportingSheet] = useState(null);
 
   const { data, isLoading, isError, refetch } = useAcademicSupportFinanceReport(appliedFilters);
   const exportReport = useExportAcademicSupportFinanceReport();
@@ -106,14 +122,19 @@ export function AcademicSupportFinancePage({ variant = 'admin' }) {
     setAppliedFilters({});
   };
 
-  const handleExport = async () => {
+  const handleExport = async (sheet) => {
+    setExportingSheet(sheet ?? 'all');
     try {
-      const blob = await exportReport.mutateAsync(appliedFilters);
-      saveBlob(blob, 'academic-support-finance-report.xlsx');
+      const blob = await exportReport.mutateAsync({ ...appliedFilters, sheet });
+      saveBlob(blob, sheet ? `academic-support-${sheet}.xlsx` : 'academic-support-finance-report.xlsx');
     } catch (err) {
       window.alert(err?.message || t('dashboard.academicSupportFinance.exportFailed'));
+    } finally {
+      setExportingSheet(null);
     }
   };
+
+  const tabCounts = { supporters: supporters.length, packages: packages.length, purchases: purchases.length };
 
   return (
     <AdminDashboardLayout variant={variant}>
@@ -126,11 +147,11 @@ export function AcademicSupportFinancePage({ variant = 'admin' }) {
           <button
             type="button"
             disabled={exportReport.isPending}
-            onClick={handleExport}
+            onClick={() => handleExport()}
             className="flex items-center gap-1.5 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-medium text-ink hover:bg-line/30 disabled:opacity-50"
           >
             <Download size={16} />
-            {exportReport.isPending ? t('dashboard.academicSupportFinance.exporting') : t('dashboard.academicSupportFinance.exportExcel')}
+            {exportingSheet === 'all' ? t('dashboard.academicSupportFinance.exporting') : t('dashboard.academicSupportFinance.exportExcel')}
           </button>
         </div>
 
@@ -179,6 +200,28 @@ export function AcademicSupportFinancePage({ variant = 'admin' }) {
           <StatCard icon={Users} label={t('dashboard.academicSupportFinance.totalPurchases')} value={formatNumber(totals.purchasesCount)} bg="#EDF0F5" color="#4B6898" />
         </div>
 
+        <div className="flex gap-1 overflow-x-auto border-b border-line" role="tablist">
+          {TABS.map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === tab}
+              onClick={() => setActiveTab(tab)}
+              className={`-mb-px flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-semibold transition-colors ${
+                activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-ink-soft hover:text-ink'
+              }`}
+            >
+              {t(`dashboard.academicSupportFinance.tabs.${tab}`)}
+              {!isLoading && (
+                <span className={`rounded-full px-2 py-0.5 text-xs ${activeTab === tab ? 'bg-primary/10 text-primary' : 'bg-line/50 text-ink-soft'}`}>
+                  {formatNumber(tabCounts[tab])}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
         {isError ? (
           <ErrorState onRetry={refetch} />
         ) : isLoading ? (
@@ -191,8 +234,11 @@ export function AcademicSupportFinancePage({ variant = 'admin' }) {
           <EmptyState title={t('dashboard.academicSupportFinance.empty')} />
         ) : (
           <>
+            {activeTab === 'supporters' && (
             <ReportTable
               title={t('dashboard.academicSupportFinance.supportersTitle')}
+              onExport={() => handleExport('supporters')}
+              exporting={exportingSheet === 'supporters'}
               hint={appliedFilters.supporterId ? null : t('dashboard.academicSupportFinance.supportersHint')}
               columns={['supporter', 'packagesCount', 'subjects', 'purchasesCount', 'studentsPaid', 'discount', 'supporterAmount', 'platformAmount']}
               minWidth={1000}
@@ -219,9 +265,13 @@ export function AcademicSupportFinancePage({ variant = 'admin' }) {
                 </tr>
               ))}
             </ReportTable>
+            )}
 
+            {activeTab === 'packages' && (
             <ReportTable
               title={t('dashboard.academicSupportFinance.packagesTitle')}
+              onExport={() => handleExport('packages')}
+              exporting={exportingSheet === 'packages'}
               columns={['package', 'tier', 'supporter', 'subjects', 'listPrice', 'supporterPercent', 'platformPercent', 'purchasesCount', 'supporterAmount', 'platformAmount']}
               minWidth={1150}
             >
@@ -240,9 +290,13 @@ export function AcademicSupportFinancePage({ variant = 'admin' }) {
                 </tr>
               ))}
             </ReportTable>
+            )}
 
+            {activeTab === 'purchases' && (
             <ReportTable
               title={t('dashboard.academicSupportFinance.purchasesTitle')}
+              onExport={() => handleExport('purchases')}
+              exporting={exportingSheet === 'purchases'}
               columns={['purchaseId', 'date', 'student', 'supporter', 'package', 'subjects', 'listPrice', 'discount', 'amountPaid', 'supporterAmount', 'platformAmount']}
               minWidth={1250}
             >
@@ -262,6 +316,7 @@ export function AcademicSupportFinancePage({ variant = 'admin' }) {
                 </tr>
               ))}
             </ReportTable>
+            )}
           </>
         )}
       </div>

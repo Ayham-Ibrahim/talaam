@@ -2512,7 +2512,13 @@
       "reset": "إعادة تعيين",
       "exportExcel": "تصدير تقرير Excel شامل",
       "exporting": "جارِ التصدير...",
+      "exportTable": "تصدير هذا الجدول Excel",
       "exportFailed": "تعذّر تصدير الملف، حاول مرة أخرى",
+      "tabs": {
+        "supporters": "الداعمون",
+        "packages": "الباقات",
+        "purchases": "تفاصيل الاشتراكات"
+      },
       "empty": "لا توجد اشتراكات مدفوعة مطابقة لهذه الفترة",
       "totalStudentsPaid": "إجمالي ما دفعه الطلاب",
       "totalPlatform": "صافي أرباح المنصة",
