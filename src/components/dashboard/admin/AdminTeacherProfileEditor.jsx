@@ -626,8 +626,12 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
 
       {showMediaSection && (
         <div className="mt-8 border-t border-line/60 pt-6">
-          <h4 className="text-right text-sm font-bold text-ink">{t('teacherExperiences.listLabel')}</h4>
-          <p className="mt-1 text-right text-xs text-ink-soft">{t('teacherExperiences.sectionHint')}</p>
+          <h4 className="text-right text-sm font-bold text-ink">
+            {t(isTrainingCenter ? 'centerExperiences.listLabel' : 'teacherExperiences.listLabel')}
+          </h4>
+          <p className="mt-1 text-right text-xs text-ink-soft">
+            {t(isTrainingCenter ? 'centerExperiences.sectionHint' : 'teacherExperiences.sectionHint')}
+          </p>
           <div className="mt-3">
             <TeacherExperienceEditor
               isTrainingCenter={isTrainingCenter}

@@ -526,14 +526,14 @@
     "backToHome": "العودة للرئيسية",
     "exploreCta": "استعرض المعلمين",
     "teachersHeading": "المعلمون المعتمدون",
-    "trainingCentersHeading": "المراكز التدريبية المعتمدة",
-    "trainingCentersSubheading": "تصفح أفضل المراكز التدريبية المعتمدة واحجز دوراتك الآن",
+    "trainingCentersHeading": "شركاء التدريب المعتمدون",
+    "trainingCentersSubheading": "تصفح أفضل شركاء التدريب المعتمدين واحجز دوراتك الآن",
 
     "teachersSubheading": "اختر معلمك وابدأ رحلتك التعليمية",
     "teacherWord": "معلم",
     "resultsCount": "معلم معتمد",
     "filterTitle": "تصفية المعلمين",
-    "trainingFilterTitle": "تصفية المراكز التدريبية",
+    "trainingFilterTitle": "تصفية شركاء التدريب",
     "subject": "المادة",
     "specialization": "التخصص / المنهج",
     "rating": "التقييم الأدنى",
@@ -818,15 +818,15 @@
     }
   },
   "centerExperiences": {
-    "listLabel": "البرامج والمشاريع السابقة",
-    "empty": "لا توجد برامج أو مشاريع مضافة بعد",
-    "titleLabel": "اسم البرنامج أو المشروع",
-    "titlePlaceholder": "مثال: برنامج تأهيل المعلمين الجدد",
-    "companyLabel": "الجهة المستفيدة أو الشريك",
-    "companyPlaceholder": "مثال: وزارة التربية والتعليم",
-    "descriptionPlaceholder": "وصف مختصر عن البرنامج، عدد المتدربين، ونتائجه",
-    "add": "إضافة برنامج",
-    "maxReached": "وصلت للحد الأقصى لعدد البرامج — احذف برنامجاً قديماً لإضافة آخر",
+    "listLabel": "الدورات المتاحة",
+    "sectionHint": "أضف الدورات التي يقدّمها المركز عادةً مع وصف وشرح لكل منها — تظهر في بروفايل المركز العام",
+    "empty": "لا توجد دورات مضافة بعد",
+    "titleLabel": "اسم الدورة",
+    "titlePlaceholder": "مثال: دورة إدارة المشاريع الاحترافية PMP",
+    "descriptionLabel": "وصف الدورة وشرحها",
+    "descriptionPlaceholder": "ماذا تتضمن الدورة، لمن هي موجّهة، مدتها التقريبية، وما الذي سيتعلمه المتدرب",
+    "add": "إضافة دورة",
+    "maxReached": "وصلت للحد الأقصى لعدد الدورات — احذف دورة قديمة لإضافة أخرى",
     "current": "جارٍ",
     "completed": "منتهٍ"
   },
@@ -1314,6 +1314,10 @@
       "details": "تفاصيل"
     },
     "teacherPackages": {
+      "tabs": {
+        "packages": "الباقات",
+        "courses": "الدورات التدريبية"
+      },
       "sessionsCount": "عدد الجلسات",
       "sessionsCountHint": "جلسة",
       "pendingReview": "قيد المراجعة",

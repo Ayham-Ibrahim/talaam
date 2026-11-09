@@ -298,7 +298,8 @@ function FooterStat({ value, label }) {
   );
 }
 
-export function TeacherCard({ teacher }) {
+/** courseMode: البطاقة ضمن نتائج المراكز التدريبية (قد يكون صاحبها مدرساً جامعياً يقدّم دورات) */
+export function TeacherCard({ teacher, courseMode = false }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
@@ -329,7 +330,7 @@ export function TeacherCard({ teacher }) {
       : (teacher.name?.length ?? 0) + 10;
 
   const isTrainingCenter =
-    teacher.type === "training_center" || teacher.typeLabel === "مركز تدريبي";
+    courseMode || teacher.type === "training_center" || teacher.typeLabel === "مركز تدريبي";
 
   const footerStats = [
     teacher.city && {

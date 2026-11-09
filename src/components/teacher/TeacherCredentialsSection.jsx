@@ -98,12 +98,12 @@ export function TeacherCredentialsSection({ teacher }) {
                     <h4 className="truncate text-sm font-bold text-[#1E1E1E]">
                       {exp.title}
                     </h4>
-                    {exp.company && (
+                    {!isTrainingCenter && exp.company && (
                       <p className="mt-0.5 truncate text-xs font-semibold text-ink-soft">
                         {exp.company}
                       </p>
                     )}
-                    {(exp.location || exp.period) && (
+                    {!isTrainingCenter && (exp.location || exp.period) && (
                       <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-ink-soft">
                         {exp.location && (
                           <span className="truncate">{exp.location}</span>
@@ -119,7 +119,7 @@ export function TeacherCredentialsSection({ teacher }) {
                       </p>
                     )}
                   </div>
-                  {exp.period && (
+                  {!isTrainingCenter && exp.period && (
                     <span
                       className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${statusBadge}`}
                     >

@@ -131,13 +131,13 @@ export function TeachingTypePage() {
           <h2 className="font-cairo text-xl font-bold text-ink sm:text-2xl">
             {isTrainingPage
               ? t("teachingType.trainingCentersHeading") ||
-                "مراكز التدريب المتاحة"
+                "شركاء التدريب المتاحون"
               : t("teachingType.teachersHeading")}
           </h2>
           <p className="mt-1 font-cairo text-sm text-ink-soft">
             {isTrainingPage
               ? t("teachingType.trainingCentersSubheading") ||
-                "تصفح أفضل المراكز التدريبية المعتمدة واحجز دوراتك الآن"
+                "تصفح أفضل شركاء التدريب المعتمدين واحجز دوراتك الآن"
               : t("teachingType.teachersSubheading")}
           </p>
         </div>
@@ -194,7 +194,7 @@ export function TeachingTypePage() {
                         <TeacherCardSkeleton key={i} />
                       ))
                     : teachers.map((teacher) => (
-                        <TeacherCard key={teacher.id} teacher={teacher} />
+                        <TeacherCard key={teacher.id} teacher={teacher} courseMode={isTrainingPage} />
                       ))}
                   {isFetchingNextPage &&
                     Array.from({ length: 3 }).map((_, i) => (

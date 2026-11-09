@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { TeacherPackageStatsGrid } from '@/components/dashboard/TeacherPackageStatsGrid';
 import { TeacherPackagesFilterBar } from '@/components/dashboard/TeacherPackagesFilterBar';
@@ -22,7 +22,33 @@ import { useT } from '@/hooks/useT';
 const PAGE_SIZE = 10;
 const DEFAULT_FILTERS = { status: '', type: '', search: '' };
 
-function PackageListView({ user }) {
+/**
+ * تبديل الباقات/الدورات — للمدرس الجامعي فقط (يملك الاثنين). الاختيار بالرابط
+ * (?view=courses) حتى يبقى بعد إغلاق نموذج الإضافة أو الرجوع من تفاصيل دورة.
+ */
+function OfferingTabs({ view, onChange }) {
+  const t = useT();
+  return (
+    <div className="flex gap-1 overflow-x-auto border-b border-line" role="tablist">
+      {['packages', 'courses'].map((key) => (
+        <button
+          key={key}
+          type="button"
+          role="tab"
+          aria-selected={view === key}
+          onClick={() => onChange(key)}
+          className={`-mb-px whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-semibold transition-colors ${
+            view === key ? 'border-primary text-primary' : 'border-transparent text-ink-soft hover:text-ink'
+          }`}
+        >
+          {t(`dashboard.teacherPackages.tabs.${key}`)}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function PackageListView({ user, tabs }) {
   const t = useT();
   const { data, isLoading, isError, refetch } = useTeacherPackagesList();
   const submitPackage = useSubmitTeacherPackage();
@@ -81,6 +107,7 @@ function PackageListView({ user }) {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-6">
+        {tabs}
         {isError ? (
           <ErrorState onRetry={refetch} />
         ) : isLoading ? (
@@ -125,7 +152,7 @@ function PackageListView({ user }) {
   );
 }
 
-function CourseListView({ user }) {
+function CourseListView({ user, tabs }) {
   const t = useT();
   const { data: courses, isLoading, isError, refetch } = useTeacherCoursesList();
   const submitCourse = useSubmitTeacherCourse();
@@ -151,6 +178,7 @@ function CourseListView({ user }) {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-6">
+        {tabs}
         <div className="flex justify-end">
           <button
             type="button"
@@ -190,11 +218,22 @@ function CourseListView({ user }) {
 }
 
 /**
- * teacher_type = training_center → courses only؛ غير ذلك → الباقات العادية.
+ * teacher_type = training_center → الدورات فقط؛ university → الباقات والدورات
+ * التدريبية معاً (تابان)؛ school → الباقات فقط.
  */
 export function TeacherPackagesPage() {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const isCenter = user?.teacherType === 'training_center';
+  const isUniversity = user?.teacherType === 'university';
 
-  return isCenter ? <CourseListView user={user} /> : <PackageListView user={user} />;
+  if (isCenter) return <CourseListView user={user} />;
+  if (!isUniversity) return <PackageListView user={user} />;
+
+  const view = searchParams.get('view') === 'courses' ? 'courses' : 'packages';
+  const tabs = (
+    <OfferingTabs view={view} onChange={(next) => setSearchParams(next === 'courses' ? { view: 'courses' } : {}, { replace: true })} />
+  );
+
+  return view === 'courses' ? <CourseListView user={user} tabs={tabs} /> : <PackageListView user={user} tabs={tabs} />;
 }

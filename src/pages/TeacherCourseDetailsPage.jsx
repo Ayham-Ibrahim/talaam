@@ -61,23 +61,25 @@ export function TeacherCourseDetailsPage() {
   const { data: enrollments = [], isLoading: enrollmentsLoading } = useTeacherCourseEnrollments(id);
 
   if (!user) return <Navigate to="/login" replace />;
-  // الدورات حصراً للمركز التدريبي
-  if (user.teacherType !== 'training_center') return <Navigate to="/dashboard/teacher/packages" replace />;
+  // الدورات للمركز التدريبي والمدرس الجامعي فقط
+  if (!['training_center', 'university'].includes(user.teacherType)) return <Navigate to="/dashboard/teacher/packages" replace />;
 
   const statusStyle = course ? TEACHER_COURSE_STATUS_STYLES[course.status] ?? TEACHER_COURSE_STATUS_STYLES.draft : null;
   const isHourly = course?.pricing_mode === 'hourly';
+  // المدرس الجامعي يرجع لتاب الدورات (صفحته تعرض الباقات افتراضياً)
+  const coursesListPath = user.teacherType === 'university' ? '/dashboard/teacher/packages?view=courses' : '/dashboard/teacher/packages';
 
   return (
     <DashboardLayout>
       <div className="mb-4 flex items-center gap-3 text-sm">
         <Link
-          to="/dashboard/teacher/packages"
+          to={coursesListPath}
           aria-label="رجوع"
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-white hover:bg-primary-hover"
         >
           <ArrowRight size={16} />
         </Link>
-        <Link to="/dashboard/teacher/packages" className="font-bold text-primary hover:underline">
+        <Link to={coursesListPath} className="font-bold text-primary hover:underline">
           {t('dashboard.nav.packages')}
         </Link>
         <span className="h-1.5 w-1.5 rounded-full bg-line" />

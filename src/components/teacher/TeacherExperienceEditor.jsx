@@ -5,11 +5,25 @@ import { useT } from '@/hooks/useT';
 
 const EMPTY_DRAFT = { title: '', company: '', period: '', location: '', description: '' };
 
-// المركز التدريبي: نفس البيانات بعناوين تناسبه (برامج ومشاريع لا خبرات وظيفية)
+// المركز التدريبي: القسم = "الدورات المتاحة" — اسم الدورة ووصفها فقط (بلا جهة/موقع/فترة)
 const CENTER_OVERRIDES = new Set([
-  'listLabel', 'empty', 'titleLabel', 'titlePlaceholder', 'companyLabel', 'companyPlaceholder',
-  'descriptionPlaceholder', 'add', 'maxReached',
+  'listLabel', 'empty', 'titleLabel', 'titlePlaceholder', 'descriptionLabel', 'descriptionPlaceholder', 'add', 'maxReached',
 ]);
+
+/** المدرس: المسمى والفترة إلزاميان؛ المركز: اسم الدورة ووصفها إلزاميان */
+const isDraftValid = (d, isTrainingCenter) =>
+  Boolean(d.title.trim() && (isTrainingCenter ? d.description.trim() : d.period.trim()));
+
+const toPayload = (d, isTrainingCenter) =>
+  isTrainingCenter
+    ? { title: d.title.trim(), description: d.description.trim() }
+    : {
+        title: d.title.trim(),
+        company: d.company.trim() || null,
+        period: d.period.trim(),
+        location: d.location.trim() || null,
+        description: d.description.trim() || null,
+      };
 
 function useExperienceLabels(isTrainingCenter) {
   const t = useT();
@@ -17,7 +31,7 @@ function useExperienceLabels(isTrainingCenter) {
 }
 
 /** Shared title/company/location+period/description inputs — used identically for the "add new" form and an in-place edit form */
-function ExperienceFields({ draft, onChange, t }) {
+function ExperienceFields({ draft, onChange, t, isTrainingCenter = false }) {
   const set = (field) => (e) => onChange((prev) => ({ ...prev, [field]: e.target.value }));
   return (
     <>
@@ -32,6 +46,8 @@ function ExperienceFields({ draft, onChange, t }) {
           className="w-full rounded-btn border border-line bg-white p-2.5 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
       </label>
+      {!isTrainingCenter && (
+      <>
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-semibold text-ink">{t('companyLabel')}</span>
         <input
@@ -67,10 +83,12 @@ function ExperienceFields({ draft, onChange, t }) {
           />
         </label>
       </div>
+      </>
+      )}
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-semibold text-ink">{t('descriptionLabel')}</span>
         <textarea
-          rows={3}
+          rows={isTrainingCenter ? 4 : 3}
           maxLength={2000}
           value={draft.description}
           onChange={set('description')}
@@ -110,18 +128,12 @@ export function TeacherExperienceEditor({
 
   const canAddMore = experiences.length < maxExperiences;
 
+  const canSaveDraft = isDraftValid(draft, isTrainingCenter);
+  const canSaveEdit = isDraftValid(editDraft, isTrainingCenter);
+
   const handleAdd = () => {
-    if (!draft.title.trim() || !draft.period.trim() || !onAdd) return;
-    onAdd(
-      {
-        title: draft.title.trim(),
-        company: draft.company.trim() || null,
-        period: draft.period.trim(),
-        location: draft.location.trim() || null,
-        description: draft.description.trim() || null,
-      },
-      { onSuccess: () => setDraft(EMPTY_DRAFT) },
-    );
+    if (!canSaveDraft || !onAdd) return;
+    onAdd(toPayload(draft, isTrainingCenter), { onSuccess: () => setDraft(EMPTY_DRAFT) });
   };
 
   const startEdit = (exp) => {
@@ -136,18 +148,8 @@ export function TeacherExperienceEditor({
   };
   const cancelEdit = () => setEditingId(null);
   const handleSaveEdit = () => {
-    if (!editDraft.title.trim() || !editDraft.period.trim() || !onUpdate) return;
-    onUpdate(
-      {
-        experienceId: editingId,
-        title: editDraft.title.trim(),
-        company: editDraft.company.trim() || null,
-        period: editDraft.period.trim(),
-        location: editDraft.location.trim() || null,
-        description: editDraft.description.trim() || null,
-      },
-      { onSuccess: () => setEditingId(null) },
-    );
+    if (!canSaveEdit || !onUpdate) return;
+    onUpdate({ experienceId: editingId, ...toPayload(editDraft, isTrainingCenter) }, { onSuccess: () => setEditingId(null) });
   };
 
   return (
@@ -160,12 +162,12 @@ export function TeacherExperienceEditor({
           {experiences.map((exp) =>
             editingId === exp.id ? (
               <li key={exp.id} className="flex flex-col gap-2 rounded-xl border border-primary/40 bg-white p-3">
-                <ExperienceFields draft={editDraft} onChange={setEditDraft} t={t} />
+                <ExperienceFields draft={editDraft} onChange={setEditDraft} t={t} isTrainingCenter={isTrainingCenter} />
                 {updateError && <ApiErrorList error={updateError} labelFor={() => null} className="text-xs" />}
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    disabled={!editDraft.title.trim() || !editDraft.period.trim() || isUpdating}
+                    disabled={!canSaveEdit || isUpdating}
                     onClick={handleSaveEdit}
                     className="flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
                   >
@@ -208,11 +210,13 @@ export function TeacherExperienceEditor({
                 </div>
                 <div className="flex-1 text-right">
                   <div className="text-sm font-bold text-ink">{exp.title}</div>
-                  {exp.company && <div className="mt-0.5 text-xs font-semibold text-ink-soft">{exp.company}</div>}
-                  <div className="mt-1 flex flex-wrap items-center justify-end gap-x-3 gap-y-0.5 text-xs text-ink-soft">
-                    {exp.location && <span>{exp.location}</span>}
-                    <span>{exp.period}</span>
-                  </div>
+                  {!isTrainingCenter && exp.company && <div className="mt-0.5 text-xs font-semibold text-ink-soft">{exp.company}</div>}
+                  {!isTrainingCenter && (exp.location || exp.period) && (
+                    <div className="mt-1 flex flex-wrap items-center justify-end gap-x-3 gap-y-0.5 text-xs text-ink-soft">
+                      {exp.location && <span>{exp.location}</span>}
+                      {exp.period && <span>{exp.period}</span>}
+                    </div>
+                  )}
                   {exp.description && <p className="mt-1.5 whitespace-pre-line text-xs text-ink-soft">{exp.description}</p>}
                 </div>
               </li>
@@ -224,10 +228,10 @@ export function TeacherExperienceEditor({
 
       {canAddMore && onAdd && (
         <div className="flex flex-col gap-2 rounded-xl border border-dashed border-line bg-white p-3">
-          <ExperienceFields draft={draft} onChange={setDraft} t={t} />
+          <ExperienceFields draft={draft} onChange={setDraft} t={t} isTrainingCenter={isTrainingCenter} />
           <button
             type="button"
-            disabled={!draft.title.trim() || !draft.period.trim() || isAdding}
+            disabled={!canSaveDraft || isAdding}
             onClick={handleAdd}
             className="flex items-center justify-center gap-1.5 self-start rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >

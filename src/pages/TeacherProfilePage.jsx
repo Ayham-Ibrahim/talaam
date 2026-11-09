@@ -75,6 +75,8 @@ export function TeacherProfilePage() {
 
   const { data: teacher, isLoading: teacherLoading, isError: teacherError, refetch: refetchTeacher } = useTeacher(id);
   const isCenter = teacher?.type === 'training_center';
+  // المدرس الجامعي قد يقدّم دورات تدريبية إضافة لباقاته
+  const offersCourses = isCenter || teacher?.type === 'university';
   const pt = useProfileT(teacher);
   const {
     data: packages,
@@ -87,7 +89,7 @@ export function TeacherProfilePage() {
     isLoading: coursesLoading,
     isError: coursesError,
     refetch: refetchCourses,
-  } = useCourses(isCenter ? id : undefined);
+  } = useCourses(offersCourses ? id : undefined);
   const { data: reviews, isLoading: reviewsLoading, isError: reviewsError, refetch: refetchReviews } = useReviews(id);
   const { data: ratingSummary, isLoading: summaryLoading } = useRatingSummary(id);
 
@@ -193,16 +195,7 @@ export function TeacherProfilePage() {
 
         <VideosSection title={t('teacher.videos')} videos={teacher.videos} />
 
-        {isCenter ? (
-          <CoursesSection
-            courses={courses ?? []}
-            isLoading={coursesLoading}
-            isError={coursesError}
-            refetch={refetchCourses}
-            selectedCourseId={selectedCourseId}
-            onSelect={(course) => setSelectedCourseId(course.id)}
-          />
-        ) : (
+        {!isCenter && (
           <PackagesSection
             packages={packages ?? []}
             isLoading={packagesLoading}
@@ -210,6 +203,18 @@ export function TeacherProfilePage() {
             refetch={refetchPackages}
             selectedPackageId={selectedPackageId}
             onSelect={(pkg) => setSelectedPackageId(pkg.id)}
+          />
+        )}
+
+        {/* المركز: قسم الدورات دائماً؛ المدرس الجامعي: فقط إن كانت له دورات منشورة */}
+        {(isCenter || (offersCourses && courses?.length > 0)) && (
+          <CoursesSection
+            courses={courses ?? []}
+            isLoading={coursesLoading}
+            isError={coursesError}
+            refetch={refetchCourses}
+            selectedCourseId={selectedCourseId}
+            onSelect={(course) => setSelectedCourseId(course.id)}
           />
         )}
 
@@ -248,11 +253,12 @@ export function TeacherProfilePage() {
       </div>
 
       {/* Booking / enrollment drawer — opens when a package or course is picked above. */}
-      {isCenter ? (
+      {offersCourses && (
         <Drawer open={Boolean(selectedCourse)} onClose={() => setSelectedCourseId(null)} title={t('teacher.course.enrollTitle')}>
           <CourseEnrollWidget selectedCourse={selectedCourse} bare />
         </Drawer>
-      ) : (
+      )}
+      {!isCenter && (
         <Drawer open={Boolean(selectedPackage)} onClose={() => setSelectedPackageId(null)} title={t('booking.title')}>
           <BookingWidget selectedPackage={selectedPackage} bare />
         </Drawer>
