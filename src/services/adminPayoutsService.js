@@ -35,12 +35,12 @@ export const adminPayoutsService = {
     return data.data;
   },
 
-  async markPayoutPaid(id, transferReference) {
+  async markPayoutPaid(id) {
     if (config.useMocks) {
       await mockDelay(350);
       return updateMockPayout(id, { status: 'paid', paidAt: new Date().toISOString().slice(0, 10) });
     }
-    const { data } = await client.post(endpoints.admin.markPayoutPaid(id), { transfer_reference: transferReference });
+    const { data } = await client.post(endpoints.admin.markPayoutPaid(id));
     return data.data;
   },
 
