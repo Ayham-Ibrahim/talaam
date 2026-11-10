@@ -2317,7 +2317,7 @@
       "rescheduleTitle": "تعديل موعد الجلسة",
       "currentTime": "الموعد الحالي",
       "newTimeLabel": "الموعد الجديد",
-      "localTimeHint": "بتوقيتك المحلي",
+      "localTimeHint": "بتوقيت الطالب",
       "newTimeRequired": "يرجى تحديد الموعد الجديد",
       "newTimeUnchanged": "الموعد الجديد مطابق للموعد الحالي",
       "notesLabel": "ملاحظة للمعلم والطلاب",
