@@ -109,6 +109,7 @@ export const endpoints = {
     list: '/support-package-purchases',
     detail: (id) => `/support-package-purchases/${id}`,
     checkout: (id) => `/support-package-purchases/${id}/checkout`,
+    invoice: (id) => `/support-package-purchases/${id}/invoice`,
   },
   academicSupporters: {
     search: '/academic-supporters/search',

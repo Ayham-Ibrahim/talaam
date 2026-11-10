@@ -232,4 +232,13 @@ export const academicSupporterService = {
     const { data } = await client.post(endpoints.supportPackagePurchases.checkout(id));
     return data.data;
   },
+
+  async downloadPurchaseInvoice(id) {
+    if (config.useMocks) {
+      await mockDelay(400);
+      return new Blob(['Demo mode — no real invoice available.'], { type: 'application/pdf' });
+    }
+    const { data } = await client.get(endpoints.supportPackagePurchases.invoice(id), { responseType: 'blob' });
+    return data;
+  },
 };

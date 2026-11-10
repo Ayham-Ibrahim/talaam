@@ -62,6 +62,7 @@ export const PACKAGE_TYPE_STYLES = {
   individual: { label: 'فردية', bg: '#FDEFF2', color: '#B00852' },
   group: { label: 'مجموعة', bg: '#F0FAFD', color: '#6BCEEE' },
   course: { label: 'دورة', bg: '#FEEDEA', color: '#F74E28' },
+  support: { label: 'دعم أكاديمي', bg: '#EEF2FF', color: '#3B5998' },
 };
 
 /** "باقاتي" page — the full package list, each with its own usage + expiry */

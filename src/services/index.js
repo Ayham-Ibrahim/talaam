@@ -1105,6 +1105,27 @@ function mapEnrollmentToInvoice(enrollment) {
   };
 }
 
+/** باقة الدعم لا reference لها بالباك — نفس صيغة InvoicePdfService::supportPackagePurchaseReference */
+function mapSupportPurchaseToInvoice(purchase) {
+  const pkg = purchase.support_package;
+  return {
+    id: `SP-${String(purchase.id).padStart(6, '0')}`,
+    recordId: purchase.id,
+    kind: 'support',
+    issueDate: formatDate(purchase.created_at),
+    teacherName: purchase.academic_supporter?.user?.name ?? null,
+    teacherAvatar: null,
+    subject: pkg?.subjects?.map((s) => s.name_ar).join('، ') || null,
+    paymentMethod: 'Stripe',
+    amount: Number(purchase.amount ?? 0),
+    price: Number(purchase.amount ?? 0),
+    packageTitle: pkg?.title ?? null,
+    packageType: 'support',
+    sessionsCount: null,
+    paymentStatus: mapPaymentStatus(purchase.status),
+  };
+}
+
 /** Dashboard "current package" widget row — record is a raw booking or enrollment */
 function mapCurrentPackage(record, sessions) {
   const isCourse = 'course_id' in record;
@@ -1560,16 +1581,19 @@ export const dashboardService = {
       await mockDelay(300);
       return mockInvoices;
     }
-    const [bookingsRes, enrollmentsRes] = await Promise.all([
+    const [bookingsRes, enrollmentsRes, supportRes] = await Promise.all([
       client.get(endpoints.bookings.list, { params: { per_page: 100 } }),
       client.get(endpoints.enrollments.list, { params: { per_page: 100 } }),
+      client.get(endpoints.supportPackagePurchases.list, { params: { per_page: 100 } }),
     ]);
+    const mappers = { booking: mapBookingToInvoice, enrollment: mapEnrollmentToInvoice, support: mapSupportPurchaseToInvoice };
     const records = [
       ...bookingsRes.data.data.map((r) => ({ kind: 'booking', record: r })),
       ...enrollmentsRes.data.data.map((r) => ({ kind: 'enrollment', record: r })),
+      ...supportRes.data.data.map((r) => ({ kind: 'support', record: r })),
     ].sort((a, b) => new Date(b.record.created_at) - new Date(a.record.created_at));
 
-    return records.map(({ kind, record }) => (kind === 'booking' ? mapBookingToInvoice(record) : mapEnrollmentToInvoice(record)));
+    return records.map(({ kind, record }) => mappers[kind](record));
   },
 
   /**
