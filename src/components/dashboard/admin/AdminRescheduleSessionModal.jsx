@@ -4,31 +4,24 @@ import { ApiErrorList } from '@/components/ui';
 import { formatDateTime } from '@/lib/formatters';
 import { useAdminRescheduleSession } from '@/hooks/useAdminSessions';
 import { useT } from '@/hooks/useT';
-
-/** ISO → قيمة input[type=datetime-local] بتوقيت متصفح الأدمن (YYYY-MM-DDTHH:mm) */
-function toLocalInputValue(iso) {
-  if (!iso) return '';
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return '';
-  const pad = (n) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
+import { toZonedInputValue } from '@/lib/zonedDateTime';
 
 export function AdminRescheduleSessionModal({ session, onClose }) {
   const t = useT();
   const reschedule = useAdminRescheduleSession();
-  const [value, setValue] = useState(() => toLocalInputValue(session.scheduledAt));
+  const [value, setValue] = useState(() => toZonedInputValue(session.scheduledAt, session.studentTimezone));
   const [notes, setNotes] = useState('');
   const [touched, setTouched] = useState(false);
 
-  const isUnchanged = value === toLocalInputValue(session.scheduledAt);
+  const isUnchanged = value === toZonedInputValue(session.scheduledAt, session.studentTimezone);
   const isValid = value !== '' && !isUnchanged;
 
   const handleConfirm = () => {
     setTouched(true);
     if (!isValid) return;
     reschedule.mutate(
-      { sessionId: session.id, scheduledAt: new Date(value).toISOString(), notes: notes.trim() || undefined },
+      // نص وقت محلي خام بلا إزاحة (YYYY-MM-DDTHH:mm:ss) — الخادم يفسّره بمنطقة الطالب الزمنية لا متصفح الأدمن
+      { sessionId: session.id, scheduledAt: `${value}:00`, notes: notes.trim() || undefined },
       { onSuccess: onClose },
     );
   };
@@ -57,7 +50,7 @@ export function AdminRescheduleSessionModal({ session, onClose }) {
         <div className="mb-4 rounded-xl bg-surface p-3 text-right text-sm">
           <div className="font-semibold text-ink">{session.title ?? '—'}</div>
           <div className="mt-1 text-ink-soft">
-            {t('dashboard.adminSessions.currentTime')}: <span dir="ltr">{formatDateTime(session.scheduledAt)}</span>
+            {t('dashboard.adminSessions.currentTime')}: <span dir="ltr">{formatDateTime(session.scheduledAt, session.studentTimezone)}</span>
           </div>
         </div>
 

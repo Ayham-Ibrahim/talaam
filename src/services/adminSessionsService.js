@@ -43,6 +43,8 @@ function mapSessionRow(row) {
     })),
     scheduledAt: row.scheduled_at,
     originalScheduledAt: row.original_scheduled_at,
+    // منطقة الطالب — مواعيد الجلسة تُعرض وتُدخَل بها لا بتوقيت متصفح الأدمن (الباك اند يفسّر بها)
+    studentTimezone: row.student_timezone ?? 'Asia/Dubai',
     durationMin: row.duration_min,
     status: row.status,
     isMakeup: Boolean(row.is_makeup),
