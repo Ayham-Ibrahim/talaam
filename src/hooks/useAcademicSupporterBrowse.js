@@ -45,3 +45,9 @@ export function useSupportPackagePurchaseDetail(id) {
     refetchInterval: (query) => (query.state.data?.status === 'pending_payment' ? 2000 : false),
   });
 }
+
+export function useDownloadSupportPurchaseInvoice() {
+  return useMutation({
+    mutationFn: (purchaseId) => academicSupporterService.downloadPurchaseInvoice(purchaseId),
+  });
+}

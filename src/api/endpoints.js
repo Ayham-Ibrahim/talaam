@@ -109,6 +109,7 @@ export const endpoints = {
     list: '/support-package-purchases',
     detail: (id) => `/support-package-purchases/${id}`,
     checkout: (id) => `/support-package-purchases/${id}/checkout`,
+    invoice: (id) => `/support-package-purchases/${id}/invoice`,
   },
   academicSupporters: {
     search: '/academic-supporters/search',
@@ -163,6 +164,8 @@ export const endpoints = {
   payroll: {
     list: '/payroll',
     generate: '/payroll/generate',
+    // أسعار صرف الشهر مقابل الدرهم — GET ?month= / PUT { month, rates }
+    rates: '/payroll/rates',
     markPaid: (id) => `/payroll/${id}/mark-paid`,
     report: '/payroll/report',
     exportReport: '/payroll/report/export',

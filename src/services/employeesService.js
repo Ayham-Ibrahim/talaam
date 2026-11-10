@@ -27,6 +27,7 @@ function toEmployeePayload(form) {
     phone: form.phone || null,
     email: form.email || null,
     base_salary: form.baseSalary,
+    currency: form.currency,
     hired_at: form.hiredAt || null,
     is_active: form.isActive,
     notes: form.notes || null,
@@ -96,9 +97,28 @@ export const employeesService = {
     return { data: data.data, summary: data.additional_data, meta: data.meta };
   },
 
-  /** كشوف الشهر لكل الموظفين النشطين — يُرجع { month, created } */
-  async generatePayroll(month) {
-    const { data } = await client.post(endpoints.payroll.generate, { month });
+  /**
+   * كشوف الشهر لكل الموظفين النشطين — يُرجع { month, created }. rates ({ USD, EGP } = قيمة الوحدة
+   * بالدرهم) تُحفظ للشهر، والعملة الناقصة تأخذ آخر سعر محفوظ بالباك
+   */
+  async generatePayroll(month, rates) {
+    const { data } = await client.post(endpoints.payroll.generate, { month, rates });
+    return data.data;
+  },
+
+  /** أسعار الشهر: { USD: { rate, saved }, EGP: {...} } — saved=false تعني اقتراحاً من آخر شهر */
+  async getPayrollRates(month) {
+    if (config.useMocks) {
+      await mockDelay(200);
+      return { month, rates: {} };
+    }
+    const { data } = await client.get(endpoints.payroll.rates, { params: { month } });
+    return data.data;
+  },
+
+  /** حفظ أسعار شهر — يعيد الباك حساب كشوفه غير المدفوعة، والمدفوعة تبقى على سعر دفعها */
+  async updatePayrollRates(month, rates) {
+    const { data } = await client.put(endpoints.payroll.rates, { month, rates });
     return data.data;
   },
 
