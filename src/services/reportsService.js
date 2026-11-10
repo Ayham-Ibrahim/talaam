@@ -62,4 +62,37 @@ export const reportsService = {
     });
     return data;
   },
+
+  /** تقارير الطلاب (أدمن فقط): من انتهت باقاتهم ولم يجددوا، توزيع المناهج، والنشطون أسبوعياً حسب المرحلة */
+  async getStudentsReport({ weekStart } = {}) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return {
+        totals: { studentsCount: 0 },
+        expiredWithoutRenewal: [],
+        curricula: [],
+        educationTypes: [],
+        weeklyActive: { weekStart: null, weekEnd: null, totalActive: 0, previousWeekTotalActive: 0, rows: [] },
+      };
+    }
+    const { data } = await client.get(endpoints.reports.students, {
+      params: { week_start: weekStart || undefined },
+    });
+    return data.data;
+  },
+
+  /** sheet (expired|curricula|weekly) يصدّر جدولاً واحداً؛ بدونه التقرير الشامل */
+  async exportStudentsReport({ weekStart, sheet } = {}) {
+    if (config.useMocks) {
+      await mockDelay(500);
+      return new Blob(['Demo mode — no real export available.'], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+    }
+    const { data } = await client.get(endpoints.reports.exportStudents, {
+      params: { week_start: weekStart || undefined, sheet: sheet || undefined },
+      responseType: 'blob',
+    });
+    return data;
+  },
 };
