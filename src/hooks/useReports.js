@@ -29,3 +29,17 @@ export function useExportAcademicSupportFinanceReport() {
     mutationFn: (filters) => reportsService.exportAcademicSupportFinanceReport(filters),
   });
 }
+
+export function useStudentsReport(filters = {}) {
+  return useQuery({
+    queryKey: queryKeys.admin.studentsReport(filters),
+    queryFn: () => reportsService.getStudentsReport(filters),
+    keepPreviousData: true,
+  });
+}
+
+export function useExportStudentsReport() {
+  return useMutation({
+    mutationFn: (filters) => reportsService.exportStudentsReport(filters),
+  });
+}

@@ -9,6 +9,7 @@ import { PolicyAcceptanceCheckbox } from '@/components/auth/PolicyAcceptanceChec
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { NAME_VALIDATION_PATTERN, EMAIL_PATTERN, PHONE_PATTERN } from '@/lib/accountFormValidation';
 import { useAuth, useRegisterTeacher } from '@/hooks/useAuth';
+import { getBrowserTimezone } from '@/lib/timezone';
 import { useT } from '@/hooks/useT';
 
 /** يوازي حد كلمة المرور في الباك اند (Password::min(8)->mixedCase()->numbers()) — نفس PASSWORD_PATTERN في RegisterPage.jsx */
@@ -72,6 +73,8 @@ export function RegisterTeacherPage() {
         password: values.password,
         password_confirmation: values.password_confirmation,
         accept_policy: values.accept_policy,
+        // منطقة المعلم الفعلية تُلتقَط مرة واحدة هنا فقط، عند إنشاء الحساب
+        timezone: getBrowserTimezone(),
       },
       { onSuccess: () => navigate('/dashboard/teacher', { replace: true }) },
     );
