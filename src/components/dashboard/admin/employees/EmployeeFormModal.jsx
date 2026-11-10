@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ApiErrorList } from '@/components/ui';
 import { useSaveEmployee } from '@/hooks/useEmployees';
 import { useT } from '@/hooks/useT';
-import { Field, INPUT_CLASS, ModalActions, ModalShell } from './PayrollUi';
+import { Field, INPUT_CLASS, ModalActions, ModalShell, PAYROLL_CURRENCIES } from './PayrollUi';
 
 const FIELD_LABELS = {
   name: 'nameLabel',
@@ -10,6 +10,7 @@ const FIELD_LABELS = {
   phone: 'phoneLabel',
   email: 'emailLabel',
   base_salary: 'baseSalaryLabel',
+  currency: 'currencyLabel',
   hired_at: 'hiredAtLabel',
   notes: 'notesLabel',
 };
@@ -24,6 +25,7 @@ export function EmployeeFormModal({ employee, onClose }) {
     phone: employee?.phone ?? '',
     email: employee?.email ?? '',
     baseSalary: employee?.baseSalary ?? '',
+    currency: employee?.currency ?? 'AED',
     hiredAt: employee?.hiredAt ?? '',
     isActive: employee?.isActive ?? true,
     notes: employee?.notes ?? '',
@@ -61,6 +63,15 @@ export function EmployeeFormModal({ employee, onClose }) {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label={t('dashboard.employees.baseSalaryLabel')}>
             <input type="number" min="0" step="0.01" dir="ltr" value={form.baseSalary} onChange={set('baseSalary')} className={INPUT_CLASS} />
+          </Field>
+          <Field label={t('dashboard.employees.currencyLabel')}>
+            <select value={form.currency} onChange={set('currency')} className={INPUT_CLASS}>
+              {PAYROLL_CURRENCIES.map((code) => (
+                <option key={code} value={code}>
+                  {t(`dashboard.employees.currencies.${code}`)}
+                </option>
+              ))}
+            </select>
           </Field>
           <Field label={t('dashboard.employees.hiredAtLabel')}>
             <input type="date" value={form.hiredAt} onChange={set('hiredAt')} className={INPUT_CLASS} />

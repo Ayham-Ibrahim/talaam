@@ -1,6 +1,6 @@
 import { config } from '@/config/env';
 
-const CURRENCY_SYMBOLS = { USD: '$', AED: 'د.إ' };
+const CURRENCY_SYMBOLS = { USD: '$', AED: 'د.إ', EGP: 'ج.م' };
 
 /** Formats a price with currency for Arabic display */
 export function formatPrice(amount, currency = config.defaultCurrency) {

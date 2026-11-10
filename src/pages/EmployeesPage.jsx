@@ -60,7 +60,7 @@ export function EmployeesPage({ variant = 'admin' }) {
           <StatCard
             icon={Wallet}
             label={t('dashboard.employees.monthlyBasePayroll')}
-            value={formatPrice(summary.monthlyBasePayroll)}
+            value={formatPrice(summary.monthlyBasePayroll, 'AED')}
             bg="#E3F5EC"
             color="#2E9E6B"
           />

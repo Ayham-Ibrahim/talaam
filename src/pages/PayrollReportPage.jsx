@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Calendar, CheckCircle2, Download, Gift, MinusCircle, Users, Wallet } from 'lucide-react';
 import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
-import { StatCard } from '@/components/dashboard/admin/employees/PayrollUi';
+import { BASE_CURRENCY, formatRate, StatCard } from '@/components/dashboard/admin/employees/PayrollUi';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useExportPayrollReport, usePayrollReport } from '@/hooks/useEmployees';
@@ -15,7 +15,8 @@ const MONTH_INPUT_CLASS =
 
 /**
  * التقرير الشامل لرواتب الموظفين لفترة أشهر — من EmployeePayrollService::report بالباك:
- * مجاميع عامة + صف لكل موظف + تفصيل شهري. مبني على الكشوف المولَّدة فقط.
+ * مجاميع عامة + صف لكل موظف + تفصيل شهري. مبني على الكشوف المولَّدة فقط. كل المبالغ بالدرهم
+ * (كل كشف بسعر صرف شهره)، والموظف بعملة أجنبية يظهر صافيه بعملته تحت مقابله بالدرهم.
  */
 export function PayrollReportPage({ variant = 'admin' }) {
   const t = useT();
@@ -34,6 +35,7 @@ export function PayrollReportPage({ variant = 'admin' }) {
   const summary = data?.summary ?? {};
   const rows = data?.rows ?? [];
   const months = data?.months ?? [];
+  const aed = (amount) => formatPrice(amount, BASE_CURRENCY);
 
   const handleExport = async () => {
     try {
@@ -97,27 +99,27 @@ export function PayrollReportPage({ variant = 'admin' }) {
               <StatCard
                 icon={Wallet}
                 label={t('dashboard.payrollReport.currentMonthlyBasePayroll')}
-                value={formatPrice(summary.currentMonthlyBasePayroll)}
+                value={aed(summary.currentMonthlyBasePayroll)}
               />
-              <StatCard icon={Wallet} label={t('dashboard.payrollReport.netTotal')} value={formatPrice(summary.netTotal)} />
+              <StatCard icon={Wallet} label={t('dashboard.payrollReport.netTotal')} value={aed(summary.netTotal)} />
               <StatCard
                 icon={Gift}
                 label={t('dashboard.payrollReport.bonusesTotal')}
-                value={formatPrice(summary.bonusesTotal)}
+                value={aed(summary.bonusesTotal)}
                 bg="#F0FAFD"
                 color="#2F80ED"
               />
               <StatCard
                 icon={MinusCircle}
                 label={t('dashboard.payrollReport.deductionsTotal')}
-                value={formatPrice(summary.deductionsTotal)}
+                value={aed(summary.deductionsTotal)}
                 bg="#FCE8F0"
                 color="#C2185B"
               />
               <StatCard
                 icon={CheckCircle2}
                 label={t('dashboard.payrollReport.paidVsOutstanding')}
-                value={`${formatPrice(summary.paidAmount)} / ${formatPrice(summary.outstandingAmount)}`}
+                value={`${aed(summary.paidAmount)} / ${aed(summary.outstandingAmount)}`}
                 bg="#E3F5EC"
                 color="#2E9E6B"
               />
@@ -161,27 +163,40 @@ export function PayrollReportPage({ variant = 'admin' }) {
                         </div>
                       </>,
                       formatNumber(r.monthsCount),
-                      formatPrice(r.baseTotal),
-                      <span className="text-success">{formatPrice(r.bonusesTotal)}</span>,
-                      <span className="text-accent-pink">{formatPrice(r.deductionsTotal)}</span>,
-                      <span className="font-semibold text-ink">{formatPrice(r.netTotal)}</span>,
-                      formatPrice(r.paidAmount),
-                      <span className="font-semibold text-[#B7791F]">{formatPrice(r.outstandingAmount)}</span>,
+                      aed(r.baseTotal),
+                      <span className="text-success">{aed(r.bonusesTotal)}</span>,
+                      <span className="text-accent-pink">{aed(r.deductionsTotal)}</span>,
+                      <>
+                        <div className="font-semibold text-ink">{aed(r.netTotal)}</div>
+                        {r.currency && r.currency !== BASE_CURRENCY && (
+                          <div className="text-xs">{formatPrice(r.original.netTotal, r.currency)}</div>
+                        )}
+                      </>,
+                      aed(r.paidAmount),
+                      <span className="font-semibold text-[#B7791F]">{aed(r.outstandingAmount)}</span>,
                     ]}
                   />
                 ) : (
                   <ReportTable
-                    columns={['month', 'employeesCount', 'base', 'bonuses', 'deductions', 'net', 'paid']}
+                    columns={['month', 'employeesCount', 'base', 'bonuses', 'deductions', 'net', 'paid', 'rates']}
                     rows={months}
                     rowKey={(m) => m.month}
                     renderCells={(m) => [
                       <span className="font-semibold text-ink">{m.month}</span>,
                       formatNumber(m.employeesCount),
-                      formatPrice(m.baseTotal),
-                      <span className="text-success">{formatPrice(m.bonusesTotal)}</span>,
-                      <span className="text-accent-pink">{formatPrice(m.deductionsTotal)}</span>,
-                      <span className="font-semibold text-ink">{formatPrice(m.netTotal)}</span>,
-                      formatPrice(m.paidAmount),
+                      aed(m.baseTotal),
+                      <span className="text-success">{aed(m.bonusesTotal)}</span>,
+                      <span className="text-accent-pink">{aed(m.deductionsTotal)}</span>,
+                      <span className="font-semibold text-ink">{aed(m.netTotal)}</span>,
+                      aed(m.paidAmount),
+                      // كل سطر LTR كي يُقرأ "1 USD = 7 AED" صحيحاً، لكن بمحاذاة يمين كباقي أعمدة الجدول
+                      <div className="text-xs">
+                        {Object.entries(m.rates ?? {}).map(([currency, rate]) => (
+                          <div key={currency} dir="ltr" className="text-right">
+                            {formatRate(currency, rate)}
+                          </div>
+                        ))}
+                      </div>,
                     ]}
                   />
                 )}
