@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useInvoices } from '@/hooks/useDashboard';
 import { useDownloadBookingInvoice } from '@/hooks/useBooking';
 import { useDownloadEnrollmentInvoice } from '@/hooks/useEnrollment';
+import { useDownloadSupportPurchaseInvoice } from '@/hooks/useAcademicSupporterBrowse';
 import { saveBlob } from '@/lib/download';
 import { INVOICE_STATUS_STYLES } from '@/mocks/dashboard.mock';
 import { useT } from '@/hooks/useT';
@@ -28,6 +29,8 @@ export function InvoicesPage() {
   const [downloadingId, setDownloadingId] = useState(null);
   const downloadBookingInvoice = useDownloadBookingInvoice();
   const downloadEnrollmentInvoice = useDownloadEnrollmentInvoice();
+  const downloadSupportInvoice = useDownloadSupportPurchaseInvoice();
+  const downloaders = { booking: downloadBookingInvoice, enrollment: downloadEnrollmentInvoice, support: downloadSupportInvoice };
 
   const handleDownload = async (invoice) => {
     if (invoice.paymentStatus !== 'paid') {
@@ -36,8 +39,7 @@ export function InvoicesPage() {
     }
     setDownloadingId(invoice.id);
     try {
-      const mutate = invoice.kind === 'enrollment' ? downloadEnrollmentInvoice : downloadBookingInvoice;
-      const blob = await mutate.mutateAsync(invoice.recordId);
+      const blob = await (downloaders[invoice.kind] ?? downloadBookingInvoice).mutateAsync(invoice.recordId);
       saveBlob(blob, `invoice-${invoice.id}.pdf`);
     } catch (err) {
       // بعد إصلاح client.js، الأخطاء الحقيقية (422 "لم يُدفع بعد"، إلخ) تصل

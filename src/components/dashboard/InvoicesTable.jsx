@@ -34,7 +34,7 @@ export function InvoicesTable({ invoices, onView, onDownload, downloadingId }) {
                   {typeStyle.label}
                 </td>
                 <td className="px-4 py-4 text-right">
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-start gap-2">
                     <Avatar name={invoice.teacherName} src={invoice.teacherAvatar} size="sm" className="!h-9 !w-9" />
                     <span className="text-ink-soft">{invoice.teacherName}</span>
                   </div>
@@ -49,7 +49,7 @@ export function InvoicesTable({ invoices, onView, onDownload, downloadingId }) {
                   </span>
                 </td>
                 <td className="px-4 py-4 text-right">
-                  <div className="flex items-center justify-end gap-3">
+                  <div className="flex items-center justify-start gap-3">
                     <button
                       type="button"
                       onClick={() => onView(invoice)}

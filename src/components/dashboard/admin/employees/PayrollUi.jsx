@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import { PAYOUT_STATUS_STYLES } from '@/mocks/adminPayouts.mock';
+import { formatPrice } from '@/lib/formatters';
 
 /** أجزاء مشتركة بين صفحات الموظفين والرواتب والتقرير */
 
@@ -10,6 +11,50 @@ export const INPUT_CLASS =
 export function currentMonth() {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+/** عملات رواتب الموظفين (Employee::CURRENCIES بالباك) — التقارير كلها بالدرهم */
+export const BASE_CURRENCY = 'AED';
+export const PAYROLL_CURRENCIES = ['AED', 'USD', 'EGP'];
+
+/**
+ * طريقة إدخال سعر كل عملة أجنبية: الباك يخزّن دائماً "1 وحدة = X درهم"، لكن الجنيه أسهل إدخالاً
+ * معكوساً ("1 درهم = 13.6 جنيه") لأن صيغته المباشرة رقم صغير (0.0735) يسهل الخطأ فيه.
+ */
+export const RATE_INPUTS = [
+  { currency: 'USD', inverse: false },
+  { currency: 'EGP', inverse: true },
+];
+
+/** القيمة المعروضة في خانة الإدخال ← rate_to_aed المخزّن، والعكس */
+export function rateToInput(rate, inverse) {
+  if (!rate) return '';
+  return String(inverse ? +(1 / rate).toFixed(4) : +rate.toFixed(6));
+}
+
+export function inputToRate(value, inverse) {
+  const n = Number(value);
+  if (!value || !(n > 0)) return null;
+  return inverse ? 1 / n : n;
+}
+
+/** نص سعر الصرف بنفس اتجاه إدخاله: "1 USD = 3.67 AED" و"1 AED = 13.6 EGP" */
+export function formatRate(currency, rate) {
+  const inverse = RATE_INPUTS.find((r) => r.currency === currency)?.inverse ?? false;
+  const value = rateToInput(rate, inverse);
+  return inverse ? `1 ${BASE_CURRENCY} = ${value} ${currency}` : `1 ${currency} = ${value} ${BASE_CURRENCY}`;
+}
+
+/** مبلغ بعملته الأصلية، ومقابله بالدرهم تحته إن كانت العملة أجنبية */
+export function MoneyWithAed({ amount, currency, aed, className = '' }) {
+  return (
+    <div className={className}>
+      <div>{formatPrice(amount, currency)}</div>
+      {currency && currency !== BASE_CURRENCY && aed != null && (
+        <div className="text-xs font-normal text-ink-soft">≈ {formatPrice(aed, BASE_CURRENCY)}</div>
+      )}
+    </div>
+  );
 }
 
 /** نفس ألوان حالة كشوف المستحقات (مدفوع/غير مدفوع) */

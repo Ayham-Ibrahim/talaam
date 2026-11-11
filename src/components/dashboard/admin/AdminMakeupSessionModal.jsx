@@ -4,6 +4,7 @@ import { ApiErrorList } from '@/components/ui';
 import { formatDateTime } from '@/lib/formatters';
 import { useAdminCreateMakeupSession } from '@/hooks/useAdminSessions';
 import { useT } from '@/hooks/useT';
+import { toZonedInputValue } from '@/lib/zonedDateTime';
 
 /**
  * جلسة تعويضية لجلسة منتهية غاب عنها المعلم أو الطلاب — الأدمن يختار موعدها. الشروط
@@ -16,14 +17,16 @@ export function AdminMakeupSessionModal({ session, onClose }) {
   const [notes, setNotes] = useState('');
   const [touched, setTouched] = useState(false);
 
-  const isPast = value !== '' && new Date(value).getTime() <= Date.now();
+  // القيمة بتوقيت الطالب — تُقارَن بـ"الآن" بنفس التوقيت (نصّا YYYY-MM-DDTHH:mm يُقارَنان حرفياً)
+  const isPast = value !== '' && value <= toZonedInputValue(new Date(), session.studentTimezone);
   const isValid = value !== '' && !isPast;
 
   const handleConfirm = () => {
     setTouched(true);
     if (!isValid) return;
     createMakeup.mutate(
-      { sessionId: session.id, scheduledAt: new Date(value).toISOString(), notes: notes.trim() || undefined },
+      // نص وقت محلي خام بلا إزاحة (YYYY-MM-DDTHH:mm:ss) — الخادم يفسّره بمنطقة الطالب الزمنية لا متصفح الأدمن
+      { sessionId: session.id, scheduledAt: `${value}:00`, notes: notes.trim() || undefined },
       { onSuccess: onClose },
     );
   };
@@ -52,7 +55,7 @@ export function AdminMakeupSessionModal({ session, onClose }) {
         <div className="mb-4 rounded-xl bg-surface p-3 text-right text-sm">
           <div className="font-semibold text-ink">{session.title ?? '—'}</div>
           <div className="mt-1 text-ink-soft">
-            {t('dashboard.adminSessions.missedTime')}: <span dir="ltr">{formatDateTime(session.scheduledAt)}</span>
+            {t('dashboard.adminSessions.missedTime')}: <span dir="ltr">{formatDateTime(session.scheduledAt, session.studentTimezone)}</span>
           </div>
           {session.attendanceOutcome && (
             <div className="mt-1 font-medium text-accent-pink">

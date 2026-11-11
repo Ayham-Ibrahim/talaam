@@ -34,6 +34,14 @@ export function usePayrollReport(filters = {}) {
   });
 }
 
+export function usePayrollRates(month) {
+  return useQuery({
+    queryKey: queryKeys.admin.payrollRates(month),
+    queryFn: () => employeesService.getPayrollRates(month),
+    enabled: !!month,
+  });
+}
+
 /** كل تعديل يمس الرواتب يُحدّث الموظفين والكشف والتقرير معاً (نفس البادئة في queryKeys) */
 function usePayrollMutation(mutationFn) {
   const queryClient = useQueryClient();
@@ -62,7 +70,11 @@ export function useDeleteAdjustment() {
 }
 
 export function useGeneratePayroll() {
-  return usePayrollMutation((month) => employeesService.generatePayroll(month));
+  return usePayrollMutation(({ month, rates }) => employeesService.generatePayroll(month, rates));
+}
+
+export function useUpdatePayrollRates() {
+  return usePayrollMutation(({ month, rates }) => employeesService.updatePayrollRates(month, rates));
 }
 
 export function useMarkSalaryPaid() {

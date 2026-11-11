@@ -35,6 +35,55 @@ export function zonedWallTimeToUtcIso(dateStr, timeStr, timeZone) {
   return new Date(guessUtcMs - offsetMs).toISOString();
 }
 
+/**
+ * عكس zonedWallTimeToUtcIso: لحظة زمنية → قيمة <input type="datetime-local">
+ * (YYYY-MM-DDTHH:mm) بتوقيت حائط `timeZone`، لا بتوقيت جهاز المتصفح.
+ *
+ * @param {string|Date} iso
+ * @param {string} [timeZone] اسم IANA — توقيت المتصفح الحالي افتراضياً إن أُغفل
+ * @returns {string} '' إن كانت القيمة غير صالحة
+ */
+export function toZonedInputValue(iso, timeZone) {
+  if (!iso) return '';
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: timeZone || undefined,
+    hourCycle: 'h23',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+    .formatToParts(date)
+    .reduce((acc, { type, value }) => {
+      if (type !== 'literal') acc[type] = value;
+      return acc;
+    }, {});
+
+  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
+}
+
+/**
+ * اسم المنطقة مع إزاحتها عند لحظة معيّنة (تتغير مع التوقيت الصيفي) — مثال: "Asia/Dubai (GMT+4)"
+ *
+ * @param {string} timeZone اسم IANA
+ * @param {string|Date} [at] اللحظة التي تُحسب عندها الإزاحة — الآن افتراضياً
+ */
+export function formatTimeZoneLabel(timeZone, at = new Date()) {
+  if (!timeZone) return '';
+  try {
+    const offset = new Intl.DateTimeFormat('en-US', { timeZone, timeZoneName: 'shortOffset' })
+      .formatToParts(new Date(at))
+      .find((part) => part.type === 'timeZoneName')?.value;
+    return offset ? `${timeZone} (${offset})` : timeZone;
+  } catch {
+    return timeZone;
+  }
+}
+
 /** الفارق (بالمللي ثانية) بين UTC وتوقيت `timeZone` عند لحظة `date` الفعلية — موجب شرقاً */
 function getTimeZoneOffsetMs(date, timeZone) {
   const parts = new Intl.DateTimeFormat('en-US', {

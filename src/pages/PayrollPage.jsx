@@ -1,21 +1,26 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { CheckCircle2, Download, Gift, Plus, Wallet } from 'lucide-react';
+import { CheckCircle2, Download, Gift, Lock, Pencil, Plus, Wallet } from 'lucide-react';
 import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { AdjustmentModal } from '@/components/dashboard/admin/employees/AdjustmentModal';
+import { ExchangeRatesModal } from '@/components/dashboard/admin/employees/ExchangeRatesModal';
 import {
+  BASE_CURRENCY,
   currentMonth,
+  formatRate,
   Field,
   INPUT_CLASS,
   ModalActions,
   ModalShell,
+  MoneyWithAed,
+  RATE_INPUTS,
   SalaryStatusBadge,
   StatCard,
 } from '@/components/dashboard/admin/employees/PayrollUi';
 import { ApiErrorList, EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
-import { useExportPayroll, useGeneratePayroll, useMarkSalaryPaid, usePayroll } from '@/hooks/useEmployees';
+import { useExportPayroll, useMarkSalaryPaid, usePayroll, usePayrollRates } from '@/hooks/useEmployees';
 import { PAYOUT_STATUS_STYLES } from '@/mocks/adminPayouts.mock';
 import { formatPrice } from '@/lib/formatters';
 import { saveBlob } from '@/lib/download';
@@ -23,7 +28,8 @@ import { useT } from '@/hooks/useT';
 
 /**
  * كشف رواتب شهر: توليد الكشوف لكل الموظفين النشطين (آمن التكرار)، بونص/خصم من الصف، وتسجيل الدفع.
- * كشف غير مدفوع يُعاد حسابه بالباك عند كل بونص/خصم؛ المدفوع مقفل.
+ * كشف غير مدفوع يُعاد حسابه بالباك عند كل بونص/خصم؛ المدفوع مقفل. التوليد يمر بنافذة أسعار صرف
+ * الشهر، وكل كشف بعملة أجنبية يظهر مع مقابله بالدرهم؛ المجاميع كلها بالدرهم.
  */
 export function PayrollPage({ variant = 'admin' }) {
   const t = useT();
@@ -34,9 +40,11 @@ export function PayrollPage({ variant = 'admin' }) {
   const [paySalary, setPaySalary] = useState(null);
   const [payNotes, setPayNotes] = useState('');
   const [notice, setNotice] = useState('');
+  // null | 'generate' | 'edit' — نفس نافذة الأسعار للتوليد ولتعديل أسعار شهر مولَّد
+  const [ratesMode, setRatesMode] = useState(null);
 
   const { data, isLoading, isError, refetch } = usePayroll({ month, status });
-  const generate = useGeneratePayroll();
+  const { data: ratesData } = usePayrollRates(month);
   const markPaid = useMarkSalaryPaid();
   const exportPayroll = useExportPayroll();
 
@@ -47,17 +55,19 @@ export function PayrollPage({ variant = 'admin' }) {
   const salaries = data?.data ?? [];
   const summary = data?.summary ?? {};
 
-  const handleGenerate = () => {
-    setNotice('');
-    generate.mutate(month, {
-      onSuccess: (res) =>
-        setNotice(
-          res.created > 0
-            ? t('dashboard.payroll.generated').replace('{count}', res.created)
-            : t('dashboard.payroll.alreadyGenerated'),
-        ),
-      onError: (err) => window.alert(err?.message),
-    });
+  const savedRates = RATE_INPUTS.filter(({ currency }) => ratesData?.rates?.[currency]?.saved);
+
+  const handleRatesDone = (res) => {
+    setRatesMode(null);
+    if (res && 'created' in res) {
+      setNotice(
+        res.created > 0
+          ? t('dashboard.payroll.generated').replace('{count}', res.created)
+          : t('dashboard.payroll.alreadyGenerated'),
+      );
+    } else {
+      setNotice(t('dashboard.payroll.ratesSaved'));
+    }
   };
 
   const handleExport = async () => {
@@ -95,13 +105,16 @@ export function PayrollPage({ variant = 'admin' }) {
             </button>
             <button
               type="button"
-              disabled={!month || isFutureMonth || generate.isPending}
+              disabled={!month || isFutureMonth}
               title={isFutureMonth ? t('dashboard.payroll.futureMonth') : undefined}
-              onClick={handleGenerate}
+              onClick={() => {
+                setNotice('');
+                setRatesMode('generate');
+              }}
               className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
             >
               <Plus size={16} />
-              {generate.isPending ? t('dashboard.payroll.generating') : t('dashboard.payroll.generate')}
+              {t('dashboard.payroll.generate')}
             </button>
           </div>
         </div>
@@ -128,30 +141,62 @@ export function PayrollPage({ variant = 'admin' }) {
             placeholder={t('dashboard.payroll.allStatuses')}
             options={Object.entries(PAYOUT_STATUS_STYLES).map(([value, style]) => ({ value, label: style.label }))}
           />
+          {month && (
+            <div className="flex flex-wrap items-center gap-2 rounded-btn border border-line bg-white px-3 py-2.5 text-sm">
+              <span className="text-ink-soft">{t('dashboard.payroll.monthRates')}:</span>
+              {savedRates.length === 0 ? (
+                <span className="text-ink-soft">{t('dashboard.payroll.noRates')}</span>
+              ) : (
+                savedRates.map(({ currency }) => (
+                  <span key={currency} dir="ltr" className="font-semibold text-ink">
+                    {formatRate(currency, ratesData.rates[currency].rate)}
+                  </span>
+                ))
+              )}
+              {ratesData?.locked ? (
+                <span className="flex items-center gap-1 text-ink-soft" title={t('dashboard.payroll.ratesLocked')}>
+                  <Lock size={14} />
+                  {t('dashboard.payroll.ratesLockedShort')}
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNotice('');
+                    setRatesMode('edit');
+                  }}
+                  className="flex items-center gap-1 font-medium text-primary hover:opacity-70"
+                >
+                  <Pencil size={14} />
+                  {t('dashboard.payroll.editRates')}
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {notice && <div className="rounded-btn bg-success-light px-4 py-3 text-sm text-success">{notice}</div>}
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard icon={Wallet} label={t('dashboard.payroll.netTotal')} value={formatPrice(summary.netTotal ?? 0)} />
+          <StatCard icon={Wallet} label={t('dashboard.payroll.netTotal')} value={formatPrice(summary.netTotal ?? 0, BASE_CURRENCY)} />
           <StatCard
             icon={Gift}
             label={t('dashboard.payroll.bonusesTotal')}
-            value={formatPrice(summary.bonusesTotal ?? 0)}
+            value={formatPrice(summary.bonusesTotal ?? 0, BASE_CURRENCY)}
             bg="#F0FAFD"
             color="#2F80ED"
           />
           <StatCard
             icon={CheckCircle2}
             label={t('dashboard.payroll.paidTotal')}
-            value={formatPrice(summary.paidTotal ?? 0)}
+            value={formatPrice(summary.paidTotal ?? 0, BASE_CURRENCY)}
             bg="#E3F5EC"
             color="#2E9E6B"
           />
           <StatCard
             icon={Wallet}
             label={t('dashboard.payroll.outstandingTotal')}
-            value={formatPrice(summary.outstandingTotal ?? 0)}
+            value={formatPrice(summary.outstandingTotal ?? 0, BASE_CURRENCY)}
             bg="#FEF3E2"
             color="#B7791F"
           />
@@ -172,7 +217,7 @@ export function PayrollPage({ variant = 'admin' }) {
             <table className="w-full min-w-[900px] text-sm">
               <thead>
                 <tr className="border-b border-line text-right">
-                  {['employee', 'month', 'base', 'bonuses', 'deductions', 'net', 'status', 'actions'].map((col) => (
+                  {['employee', 'month', 'base', 'bonuses', 'deductions', 'net', 'netAed', 'status', 'actions'].map((col) => (
                     <th key={col} className="px-4 py-4 font-bold text-ink">
                       {t(`dashboard.payroll.cols.${col}`)}
                     </th>
@@ -187,10 +232,17 @@ export function PayrollPage({ variant = 'admin' }) {
                       <div className="text-xs text-ink-soft">{s.jobTitle}</div>
                     </td>
                     <td className="px-4 py-4 text-ink-soft">{s.month}</td>
-                    <td className="px-4 py-4 text-ink-soft">{formatPrice(s.baseSalary, s.currency)}</td>
-                    <td className="px-4 py-4 text-success">{formatPrice(s.bonusesTotal, s.currency)}</td>
-                    <td className="px-4 py-4 text-accent-pink">{formatPrice(s.deductionsTotal, s.currency)}</td>
+                    <td className="px-4 py-4 text-ink-soft">
+                      <MoneyWithAed amount={s.baseSalary} currency={s.currency} aed={s.baseSalaryAed} />
+                    </td>
+                    <td className="px-4 py-4 text-success">
+                      <MoneyWithAed amount={s.bonusesTotal} currency={s.currency} aed={s.bonusesTotalAed} />
+                    </td>
+                    <td className="px-4 py-4 text-accent-pink">
+                      <MoneyWithAed amount={s.deductionsTotal} currency={s.currency} aed={s.deductionsTotalAed} />
+                    </td>
                     <td className="px-4 py-4 font-semibold text-price">{formatPrice(s.netAmount, s.currency)}</td>
+                    <td className="px-4 py-4 font-semibold text-ink">{formatPrice(s.netAmountAed, BASE_CURRENCY)}</td>
                     <td className="px-4 py-4">
                       <SalaryStatusBadge status={s.status} />
                     </td>
@@ -232,6 +284,17 @@ export function PayrollPage({ variant = 'admin' }) {
         />
       )}
 
+      {ratesMode && (
+        <ExchangeRatesModal
+          month={month}
+          mode={ratesMode}
+          initialRates={ratesData?.rates}
+          locked={ratesData?.locked}
+          onClose={() => setRatesMode(null)}
+          onDone={handleRatesDone}
+        />
+      )}
+
       {paySalary && (
         <ModalShell title={t('dashboard.payroll.markPaidTitle')} closeLabel={t('dashboard.employees.cancel')} onClose={closePay}>
           <form
@@ -245,7 +308,12 @@ export function PayrollPage({ variant = 'admin' }) {
             <p className="text-center text-sm text-ink-soft">
               {t('dashboard.payroll.markPaidConfirm')
                 .replace('{name}', paySalary.employeeName)
-                .replace('{amount}', formatPrice(paySalary.netAmount, paySalary.currency))
+                .replace(
+                  '{amount}',
+                  paySalary.currency === BASE_CURRENCY
+                    ? formatPrice(paySalary.netAmount, paySalary.currency)
+                    : `${formatPrice(paySalary.netAmount, paySalary.currency)} (≈ ${formatPrice(paySalary.netAmountAed, BASE_CURRENCY)})`,
+                )
                 .replace('{month}', paySalary.month)}
             </p>
             <Field label={t('dashboard.payroll.notesLabel')}>

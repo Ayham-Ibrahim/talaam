@@ -5,6 +5,7 @@ import { ApiErrorList, PasswordInputActions } from '@/components/ui';
 import { TEACHER_TYPE_LABELS } from '@/services/teacherService';
 import { useCreateTeacherAccount } from '@/hooks/useAdmin';
 import { useT } from '@/hooks/useT';
+import { listTimezones } from '@/lib/timezone';
 import {
   isEditingKey,
   isNameInputCharacterValid,
@@ -19,10 +20,12 @@ import {
 
 const TEACHER_TYPE_OPTIONS = Object.entries(TEACHER_TYPE_LABELS).map(([value, label]) => ({ value, label }));
 
-const INITIAL = { name: '', email: '', phone: '', teacher_type: '', password: '' };
+const TIMEZONE_OPTIONS = listTimezones().map((tz) => ({ value: tz, label: tz }));
+
+const INITIAL = { name: '', email: '', phone: '', teacher_type: '', password: '', timezone: 'Asia/Riyadh' };
 const INITIAL_TOUCHED = { name: false, email: false, phone: false, teacher_type: false, password: false };
 
-const ACCOUNT_FIELD_LABELS = { name: 'الاسم', email: 'البريد الإلكتروني', phone: 'الهاتف', teacher_type: 'النوع', password: 'كلمة المرور' };
+const ACCOUNT_FIELD_LABELS = { name: 'الاسم', email: 'البريد الإلكتروني', phone: 'الهاتف', teacher_type: 'النوع', password: 'كلمة المرور', timezone: 'المنطقة الزمنية' };
 const accountErrorLabel = (path) => ACCOUNT_FIELD_LABELS[path] ?? path;
 
 export function AddTeacherAccountModal({ onClose, onSuccess }) {
@@ -287,6 +290,17 @@ export function AddTeacherAccountModal({ onClose, onSuccess }) {
               {passwordErrorKey ? t(passwordErrorKey) : t('dashboard.adminTeachers.passwordHint')}
             </span>
           </label>
+
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-semibold text-ink">{t('studentSettings.timezoneLabel')}</span>
+            <SmoothSelect
+              value={form.timezone}
+              onChange={(v) => setForm((prev) => ({ ...prev, timezone: v }))}
+              options={TIMEZONE_OPTIONS}
+              placeholder="—"
+            />
+            <span className="text-xs text-ink-soft">{t('dashboard.adminTimezoneHint')}</span>
+          </div>
         </div>
 
         <div className="mt-6 flex gap-3">

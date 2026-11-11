@@ -26,6 +26,7 @@ import {
   Menu,
   X,
   Globe,
+  LineChart,
   Receipt,
   UserCog,
   ChevronLeft,
@@ -118,6 +119,16 @@ const ADMIN_NAV_GROUPS = [
             path: "/dashboard/admin/payroll-report",
           },
         ],
+      },
+    ],
+  },
+  {
+    group: "reports",
+    items: [
+      {
+        key: "studentsReport",
+        icon: LineChart,
+        path: "/dashboard/admin/students-report",
       },
     ],
   },
@@ -301,6 +312,7 @@ export function AdminDashboardLayout({ children, variant = "admin" }) {
     users: Users,
     teaching: CalendarDays,
     finance: Wallet,
+    reports: LineChart,
     support: MessageSquareWarning,
     import: FileSpreadsheet,
     system: Settings,

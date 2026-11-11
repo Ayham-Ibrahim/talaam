@@ -24,6 +24,7 @@ import { COMPENSABLE_OUTCOMES } from '@/services/adminSessionsService';
 import { AdminSessionLinksModal } from './AdminSessionLinksModal';
 import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { formatDateTime } from '@/lib/formatters';
+import { formatTimeZoneLabel } from '@/lib/zonedDateTime';
 import { useAdminSessions } from '@/hooks/useAdminSessions';
 import { useT } from '@/hooks/useT';
 
@@ -541,10 +542,13 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
                       <td className="px-4 py-4 text-right text-ink-soft">{counterpart || '—'}</td>
                     )}
                     <td className="px-4 py-4 text-center text-ink">
-                      <div dir="ltr">{formatDateTime(session.scheduledAt)}</div>
+                      <div dir="ltr">{formatDateTime(session.scheduledAt, session.studentTimezone)}</div>
+                      <div dir="ltr" className="mt-0.5 text-xs text-ink-soft">
+                        {formatTimeZoneLabel(session.studentTimezone, session.scheduledAt)}
+                      </div>
                       {session.originalScheduledAt && (
                         <div className="mt-0.5 text-xs text-ink-soft">
-                          {t('dashboard.adminSessions.originalTime')}: <span dir="ltr">{formatDateTime(session.originalScheduledAt)}</span>
+                          {t('dashboard.adminSessions.originalTime')}: <span dir="ltr">{formatDateTime(session.originalScheduledAt, session.studentTimezone)}</span>
                         </div>
                       )}
                     </td>

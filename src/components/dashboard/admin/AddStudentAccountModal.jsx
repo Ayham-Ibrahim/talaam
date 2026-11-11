@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
+import { listTimezones } from '@/lib/timezone';
 import { ApiErrorList, PasswordInputActions } from '@/components/ui';
 import { useCreateStudentAccount } from '@/hooks/useAdmin';
 import { useT } from '@/hooks/useT';
@@ -15,10 +17,12 @@ import {
   validatePhone,
 } from '@/lib/accountFormValidation';
 
-const INITIAL = { name: '', email: '', phone: '', password: '' };
+const TIMEZONE_OPTIONS = listTimezones().map((tz) => ({ value: tz, label: tz }));
+
+const INITIAL = { name: '', email: '', phone: '', password: '', timezone: 'Asia/Riyadh' };
 const INITIAL_TOUCHED = { name: false, email: false, phone: false, password: false };
 
-const ACCOUNT_FIELD_LABELS = { name: 'الاسم', email: 'البريد الإلكتروني', phone: 'الهاتف', password: 'كلمة المرور' };
+const ACCOUNT_FIELD_LABELS = { name: 'الاسم', email: 'البريد الإلكتروني', phone: 'الهاتف', password: 'كلمة المرور', timezone: 'المنطقة الزمنية' };
 const accountErrorLabel = (path) => ACCOUNT_FIELD_LABELS[path] ?? path;
 
 export function AddStudentAccountModal({ onClose }) {
@@ -253,6 +257,17 @@ export function AddStudentAccountModal({ onClose }) {
               {passwordErrorKey ? t(passwordErrorKey) : t('dashboard.adminStudentImport.passwordHint')}
             </span>
           </label>
+
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-semibold text-ink">{t('studentSettings.timezoneLabel')}</span>
+            <SmoothSelect
+              value={form.timezone}
+              onChange={(v) => setForm((prev) => ({ ...prev, timezone: v }))}
+              options={TIMEZONE_OPTIONS}
+              placeholder="—"
+            />
+            <span className="text-xs text-ink-soft">{t('dashboard.adminTimezoneHint')}</span>
+          </div>
         </div>
 
         <div className="mt-6 flex gap-3">
