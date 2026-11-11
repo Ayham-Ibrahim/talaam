@@ -14,6 +14,11 @@ import { useNow } from '@/hooks/useNow';
 import { isSessionRowJoinable } from '@/services';
 import { useT } from '@/hooks/useT';
 
+// شبكة أعمدة ثابتة بالترتيب الطبيعي (RTL) كي تتطابق الأعمدة بين الترويسة وكل الصفوف:
+// المعلم ← الحالة ← التاريخ ← الوقت ← العدّاد ← الإجراءات
+const ROW_GRID_COLS =
+  'md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.3fr)_minmax(0,1.6fr)]';
+
 function SessionRow({ session, showType, onReschedule }) {
   const t = useT();
   const navigate = useNavigate();
@@ -65,10 +70,8 @@ function SessionRow({ session, showType, onReschedule }) {
     </>
   );
 
-  // شبكة أعمدة ثابتة بالترتيب الطبيعي (RTL) كي تتطابق الأعمدة بين كل الصفوف:
-  // المعلم ← الحالة ← التاريخ ← الوقت ← العدّاد ← الإجراءات
   return (
-    <div className="grid grid-cols-2 items-center gap-x-4 gap-y-3 py-4 text-sm md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.3fr)_auto]">
+    <div className={`grid grid-cols-2 items-center gap-x-4 gap-y-3 py-4 text-sm ${ROW_GRID_COLS}`}>
       <div className="col-span-2 flex min-w-0 items-center gap-2 md:col-span-1">
         <Avatar name={session.teacherName} src={session.teacherAvatar} size="md" />
         <div className="min-w-0 text-start">
@@ -124,7 +127,7 @@ function SessionRow({ session, showType, onReschedule }) {
         )}
       </div>
 
-      <div className="col-span-2 flex flex-wrap items-center justify-end gap-2 md:col-span-1">{actions}</div>
+      <div className="col-span-2 flex flex-wrap items-center justify-start gap-2 md:col-span-1">{actions}</div>
     </div>
   );
 }
@@ -166,6 +169,14 @@ export function PackageSessionsList({ sessions, showType = true }) {
         <EmptyState title={t('dashboard.myPackages.noSessions')} />
       ) : (
         <div className="divide-y divide-line">
+          <div className={`hidden gap-x-4 pt-4 pb-3 text-sm font-bold text-ink md:grid ${ROW_GRID_COLS}`}>
+            <div className="text-start">{t('dashboard.myPackages.colTeacher')}</div>
+            <div className="text-start">{t('dashboard.myPackages.colStatus')}</div>
+            <div className="text-start">{t('dashboard.myPackages.colDate')}</div>
+            <div className="text-start">{t('dashboard.myPackages.colTime')}</div>
+            <div className="text-start">{t('dashboard.myPackages.colCountdown')}</div>
+            <div className="text-start">{t('dashboard.myPackages.colActions')}</div>
+          </div>
           {sessions.map((session) => (
             <SessionRow
               key={session.id}
