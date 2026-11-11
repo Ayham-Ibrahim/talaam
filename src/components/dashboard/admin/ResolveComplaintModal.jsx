@@ -50,6 +50,9 @@ export function ResolveComplaintModal({ isPending, error, onConfirm, onClose }) 
             options={Object.entries(RESOLUTION_TYPE_LABELS).map(([value, label]) => ({ value, label }))}
           />
           {touched && !isValid && <span className="text-xs text-accent-pink">{t('dashboard.adminComplaints.resolutionTypeRequired')}</span>}
+          {resolutionType === 'makeup_session' && (
+            <span className="text-xs text-ink-soft">{t('dashboard.adminComplaints.makeupSessionHint')}</span>
+          )}
         </div>
 
         <label className="mt-4 flex flex-col gap-1.5 text-right">

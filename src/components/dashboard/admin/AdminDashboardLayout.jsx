@@ -246,21 +246,24 @@ export function AdminDashboardLayout({ children, variant = "admin" }) {
 
   // 1. Load initial state from sessionStorage so it survives component unmounts/remounts
   const [collapsedGroups, setCollapsedGroups] = useState(() => {
-    try {
-      const saved = sessionStorage.getItem(
-        `admin_sidebar_collapsed_${variant}`,
-      );
-      if (saved) return JSON.parse(saved);
-    } catch (e) {}
-    return {
+    const defaults = {
       users: true,
       teaching: true,
       finance: true,
       hr: true,
+      reports: true,
       support: true,
       import: true,
       system: true,
     };
+    try {
+      const saved = sessionStorage.getItem(
+        `admin_sidebar_collapsed_${variant}`,
+      );
+      // دمج مع الافتراضي — مجموعة جديدة غير محفوظة في الجلسة تبدأ مغلقة
+      if (saved) return { ...defaults, ...JSON.parse(saved) };
+    } catch (e) {}
+    return defaults;
   });
 
   const toggleGroup = (group) => {

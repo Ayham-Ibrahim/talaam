@@ -3,6 +3,9 @@ import { Check } from 'lucide-react';
 import { ApiErrorList } from '@/components/ui';
 import { useT } from '@/hooks/useT';
 
+/** إعدادات قيمتها نسبة مئوية — الباك يرفض ما خارج 0–100 (UpdateSettingRequest) */
+const PERCENT_KEYS = new Set(['student_no_show_teacher_compensation_percent']);
+
 /**
  * كل إعداد له نوع فعلي (string/boolean/integer/decimal) قادم من الباك — الحقل
  * والقيمة المُرسلة عند الحفظ يجب أن يطابقا هذا النوع، وإلا يرسل input
@@ -12,11 +15,17 @@ export function SettingRow({ setting, isPending, error, onSave }) {
   const t = useT();
   const isBoolean = setting.type === 'boolean';
   const isNumeric = setting.type === 'integer' || setting.type === 'decimal';
+  const isPercent = PERCENT_KEYS.has(setting.key);
+  const unit = setting.unit ?? (isPercent ? '%' : null);
 
   const [value, setValue] = useState(isBoolean ? Boolean(setting.value) : String(setting.value ?? ''));
 
   const isDirty = isBoolean ? value !== Boolean(setting.value) : value !== String(setting.value ?? '');
-  const isValid = isBoolean ? true : isNumeric ? value.trim() !== '' && Number.isFinite(Number(value)) : value.trim() !== '';
+  const isValid = isBoolean
+    ? true
+    : isNumeric
+      ? value.trim() !== '' && Number.isFinite(Number(value)) && (!isPercent || (Number(value) >= 0 && Number(value) <= 100))
+      : value.trim() !== '';
 
   const handleSave = () => {
     if (isBoolean) {
@@ -52,12 +61,14 @@ export function SettingRow({ setting, isPending, error, onSave }) {
             <div className="flex items-center gap-1.5 rounded-btn border border-line bg-surface px-3 py-2">
               <input
                 type={isNumeric ? 'number' : 'text'}
+                min={isPercent ? 0 : undefined}
+                max={isPercent ? 100 : undefined}
                 dir="ltr"
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 className="w-16 bg-transparent text-left text-sm font-semibold text-ink outline-none"
               />
-              <span className="text-xs text-ink-soft">{setting.unit}</span>
+              <span className="text-xs text-ink-soft">{unit}</span>
             </div>
           )}
           {isDirty && (

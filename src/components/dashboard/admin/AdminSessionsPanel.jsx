@@ -296,6 +296,28 @@ function PayoutPercentBadge({ percent, t }) {
   );
 }
 
+/**
+ * غياب الطلاب: لا مستحق للجلسة (0%) بل تعويض بنسبة مثبَّتة عند انتهائها — تُعرض بدل 0% ما دام
+ * التعويض قائماً، أي مبلغها موجب (الباك يُسقطه إن أُنشئت لها تعويضية قبل صرفه)
+ */
+function PayoutBadge({ session, t }) {
+  const { attendanceOutcome, compensationPercent, payoutAmount } = session;
+
+  if (attendanceOutcome === 'student_no_show' && compensationPercent > 0 && payoutAmount?.amount > 0) {
+    return (
+      <span
+        className="rounded-pill bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700"
+        title={t('dashboard.adminSessions.compensationHint')}
+      >
+        <span dir="ltr">{Number.isInteger(compensationPercent) ? compensationPercent : compensationPercent.toFixed(2)}%</span>{' '}
+        {t('dashboard.adminSessions.compensation')}
+      </span>
+    );
+  }
+
+  return <PayoutPercentBadge percent={session.payoutPercent} t={t} />;
+}
+
 /** مبلغ المعلم من الجلسة: المصروف فعلاً، أو المتوقع إن لم تدخل دفعة بعد */
 function PayoutAmount({ payout, t }) {
   if (!payout) return null;
@@ -574,7 +596,7 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
                       <AttendanceCell session={session} studentId={studentId} t={t} />
                     </td>
                     <td className="px-4 py-4 text-center">
-                      <PayoutPercentBadge percent={session.payoutPercent} t={t} />
+                      <PayoutBadge session={session} t={t} />
                       <PayoutAmount payout={session.payoutAmount} t={t} />
                     </td>
                     <td className="px-4 py-4 text-center">

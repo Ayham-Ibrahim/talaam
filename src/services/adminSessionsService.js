@@ -52,6 +52,8 @@ function mapSessionRow(row) {
     attendanceOutcome: row.attendance_outcome ?? null,
     hasMakeup: Boolean(row.has_makeup),
     payoutPercent: payoutPercentOf(row),
+    // نسبة تعويض غياب الطلاب المثبَّتة عند انتهائها — لا تتغير بتعديل الإعداد لاحقاً
+    compensationPercent: row.teacher_compensation_percent == null ? null : Number(row.teacher_compensation_percent),
     // {amount, paid, capped}: المصروف فعلاً، أو المتوقع لجلسة مكتملة لم تُصرف — null لغير المكتملة.
     // capped: سقط منها شيء بسقف الجلسات (الدورة أو الحجز) — صفر كلياً، أو حصص بعض الطلاب في المجموعة
     payoutAmount: row.teacher_payout_amount
