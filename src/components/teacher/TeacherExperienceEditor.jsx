@@ -120,20 +120,25 @@ export function TeacherExperienceEditor({
   removingId = null,
   maxExperiences = 10,
   isTrainingCenter = false,
+  // قسم "الدورات المتاحة" المستقل للمدرس الجامعي (kind = offered_course)
+  offeredCourses = false,
 }) {
-  const t = useExperienceLabels(isTrainingCenter);
+  // المركز التدريبي وقسم الدورات المتاحة: نفس الحقول (اسم + وصف) ونفس العناوين
+  const courseMode = isTrainingCenter || offeredCourses;
+  const t = useExperienceLabels(courseMode);
   const [draft, setDraft] = useState(EMPTY_DRAFT);
   const [editingId, setEditingId] = useState(null);
   const [editDraft, setEditDraft] = useState(EMPTY_DRAFT);
 
   const canAddMore = experiences.length < maxExperiences;
 
-  const canSaveDraft = isDraftValid(draft, isTrainingCenter);
-  const canSaveEdit = isDraftValid(editDraft, isTrainingCenter);
+  const canSaveDraft = isDraftValid(draft, courseMode);
+  const canSaveEdit = isDraftValid(editDraft, courseMode);
 
   const handleAdd = () => {
     if (!canSaveDraft || !onAdd) return;
-    onAdd(toPayload(draft, isTrainingCenter), { onSuccess: () => setDraft(EMPTY_DRAFT) });
+    const payload = toPayload(draft, courseMode);
+    onAdd(offeredCourses ? { ...payload, kind: 'offered_course' } : payload, { onSuccess: () => setDraft(EMPTY_DRAFT) });
   };
 
   const startEdit = (exp) => {
@@ -149,7 +154,7 @@ export function TeacherExperienceEditor({
   const cancelEdit = () => setEditingId(null);
   const handleSaveEdit = () => {
     if (!canSaveEdit || !onUpdate) return;
-    onUpdate({ experienceId: editingId, ...toPayload(editDraft, isTrainingCenter) }, { onSuccess: () => setEditingId(null) });
+    onUpdate({ experienceId: editingId, ...toPayload(editDraft, courseMode) }, { onSuccess: () => setEditingId(null) });
   };
 
   return (
@@ -162,7 +167,7 @@ export function TeacherExperienceEditor({
           {experiences.map((exp) =>
             editingId === exp.id ? (
               <li key={exp.id} className="flex flex-col gap-2 rounded-xl border border-primary/40 bg-white p-3">
-                <ExperienceFields draft={editDraft} onChange={setEditDraft} t={t} isTrainingCenter={isTrainingCenter} />
+                <ExperienceFields draft={editDraft} onChange={setEditDraft} t={t} isTrainingCenter={courseMode} />
                 {updateError && <ApiErrorList error={updateError} labelFor={() => null} className="text-xs" />}
                 <div className="flex items-center gap-2">
                   <button
@@ -210,8 +215,8 @@ export function TeacherExperienceEditor({
                 </div>
                 <div className="flex-1 text-right">
                   <div className="text-sm font-bold text-ink">{exp.title}</div>
-                  {!isTrainingCenter && exp.company && <div className="mt-0.5 text-xs font-semibold text-ink-soft">{exp.company}</div>}
-                  {!isTrainingCenter && (exp.location || exp.period) && (
+                  {!courseMode && exp.company && <div className="mt-0.5 text-xs font-semibold text-ink-soft">{exp.company}</div>}
+                  {!courseMode && (exp.location || exp.period) && (
                     <div className="mt-1 flex flex-wrap items-center justify-end gap-x-3 gap-y-0.5 text-xs text-ink-soft">
                       {exp.location && <span>{exp.location}</span>}
                       {exp.period && <span>{exp.period}</span>}
@@ -228,7 +233,7 @@ export function TeacherExperienceEditor({
 
       {canAddMore && onAdd && (
         <div className="flex flex-col gap-2 rounded-xl border border-dashed border-line bg-white p-3">
-          <ExperienceFields draft={draft} onChange={setDraft} t={t} isTrainingCenter={isTrainingCenter} />
+          <ExperienceFields draft={draft} onChange={setDraft} t={t} isTrainingCenter={courseMode} />
           <button
             type="button"
             disabled={!canSaveDraft || isAdding}

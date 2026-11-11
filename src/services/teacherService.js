@@ -83,6 +83,7 @@ function mapPublicProfile(raw) {
     qualifications: raw.qualification && raw.teacher_type !== 'training_center' ? [QUALIFICATION_LABELS[raw.qualification] ?? raw.qualification] : [],
     experiences: (raw.experiences ?? []).map((e) => ({
       id: e.id,
+      kind: e.kind ?? 'experience',
       title: e.title,
       company: e.company,
       period: e.period,

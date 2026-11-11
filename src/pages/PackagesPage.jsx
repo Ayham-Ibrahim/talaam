@@ -19,13 +19,16 @@ export function PackagesPage() {
   const [activeTab, setActiveTab] = useState("all");
 
   const isAcademicSupportTab = activeTab === "academicSupport";
+  // تاب "الكل" للطالب الجامعي يعرض اشتراكات الدعم الأكاديمي أيضاً بعد باقاته العادية
+  const showSupportInAll = isUniversity && activeTab === "all";
   const {
     data: supportPurchasesData,
     isLoading: isSupportPurchasesLoading,
     isError: isSupportPurchasesError,
     refetch: refetchSupportPurchases,
-  } = useMySupportPackagePurchases(isUniversity && isAcademicSupportTab);
+  } = useMySupportPackagePurchases(isUniversity && (isAcademicSupportTab || activeTab === "all"));
   const supportPurchases = supportPurchasesData?.data ?? [];
+  const allSupportPurchases = showSupportInAll ? supportPurchases : [];
 
   const filteredPackages = useMemo(() => {
     if (!packages) return [];
@@ -71,13 +74,13 @@ export function PackagesPage() {
           )
         ) : isError ? (
           <ErrorState onRetry={refetch} />
-        ) : isLoading ? (
+        ) : isLoading || (showSupportInAll && isSupportPurchasesLoading) ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <Skeleton key={i} className="h-[220px] rounded-2xl" />
             ))}
           </div>
-        ) : packages.length === 0 ? (
+        ) : packages.length === 0 && allSupportPurchases.length === 0 ? (
           <EmptyState
             icon={PackageOpen}
             image="/fallback_images/no_packages.webp"
@@ -95,12 +98,15 @@ export function PackagesPage() {
               </Link>
             }
           />
-        ) : filteredPackages.length === 0 ? (
+        ) : filteredPackages.length === 0 && allSupportPurchases.length === 0 ? (
           <EmptyState title={t("dashboard.myPackages.empty")} />
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filteredPackages.map((pkg) => (
               <PackageListCard key={pkg.id} pkg={pkg} />
+            ))}
+            {allSupportPurchases.map((purchase) => (
+              <SupportPackagePurchaseCard key={`support-${purchase.id}`} purchase={purchase} />
             ))}
           </div>
         )}

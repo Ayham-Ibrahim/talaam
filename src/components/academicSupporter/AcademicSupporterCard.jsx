@@ -125,6 +125,11 @@ export function AcademicSupporterCard({ supporter }) {
             <h3 className="line-clamp-2 h-10 w-full text-sm font-bold leading-5 text-ink sm:h-14 sm:text-xl sm:leading-7">
               {supporter.name}
             </h3>
+            {supporter.teacherId && (
+              <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
+                {t('academicSupporter.browse.universityTeacherBadge')}
+              </span>
+            )}
 
             <span
               className="inline-flex w-full items-center justify-center whitespace-normal rounded-xl px-2 py-1.5 text-xs font-medium text-white transition-opacity duration-200 group-hover:opacity-90 sm:whitespace-nowrap sm:px-4 sm:py-2 sm:text-sm"

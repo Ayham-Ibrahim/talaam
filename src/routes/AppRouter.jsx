@@ -57,6 +57,8 @@ import { StudentSettingsPage } from "@/pages/StudentSettingsPage";
 import { TeacherPackagesPage } from "@/pages/TeacherPackagesPage";
 import { TeacherSessionsPage } from "@/pages/TeacherSessionsPage";
 import { TeacherSessionDetailsPage } from "@/pages/TeacherSessionDetailsPage";
+import { SessionQualityRatingPage } from "@/pages/SessionQualityRatingPage";
+import { AdminSessionQualityRatingsPage } from "@/pages/AdminSessionQualityRatingsPage";
 import { TeacherCourseDetailsPage } from "@/pages/TeacherCourseDetailsPage";
 import { TeacherStudentsPage } from "@/pages/TeacherStudentsPage";
 import { TeacherSettingsPage } from "@/pages/TeacherSettingsPage";
@@ -531,6 +533,23 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="teacher">
               <TeacherSessionDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+        {/* تقييم جودة الجلسة — رابط برمز عشوائي يصل للطالب بإشعار انتهاء الجلسة أو من معلمه */}
+        <Route
+          path="/rate-session/:token"
+          element={
+            <ProtectedRoute role="student">
+              <SessionQualityRatingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/session-quality"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminSessionQualityRatingsPage />
             </ProtectedRoute>
           }
         />

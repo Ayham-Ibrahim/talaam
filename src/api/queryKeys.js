@@ -4,6 +4,10 @@
  * invalidation predictable across the app.
  */
 export const queryKeys = {
+  sessionQuality: {
+    byToken: (token) => ['session-quality', 'token', token],
+    adminList: (filters) => ['session-quality', 'admin-list', filters],
+  },
   teachers: {
     all: ['teachers'],
     list: (filters) => ['teachers', 'list', filters],
@@ -12,6 +16,7 @@ export const queryKeys = {
     detail: (id) => ['teachers', 'detail', id],
     packages: (id) => ['teachers', id, 'packages'],
     courses: (id) => ['teachers', id, 'courses'],
+    supportPackages: (id) => ['teachers', id, 'support-packages'],
     reviews: (id) => ['teachers', id, 'reviews'],
     availabilitySlots: (id) => ['teachers', id, 'availability-slots'],
     ratingSummary: (id) => ['teachers', id, 'rating-summary'],

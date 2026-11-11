@@ -336,12 +336,12 @@ export const adminService = {
     return data.data;
   },
 
-  async addTeacherExperience(id, { title, company, period, location, description }) {
+  async addTeacherExperience(id, { kind, title, company, period, location, description }) {
     if (config.useMocks) {
       await mockDelay(300);
       return { id: Date.now(), title, company, period, location, description };
     }
-    const { data } = await client.post(endpoints.teachers.experiences(id), { title, company, period, location, description });
+    const { data } = await client.post(endpoints.teachers.experiences(id), { kind, title, company, period, location, description });
     return data.data;
   },
 

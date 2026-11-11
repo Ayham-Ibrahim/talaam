@@ -1,4 +1,5 @@
 import { AlertTriangle, BookOpen, CalendarClock, Clock, Users, Video } from 'lucide-react';
+import { CopyRatingLinkButton } from '@/components/dashboard/CopyRatingLinkButton';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { ErrorState, Skeleton } from '@/components/ui';
@@ -20,6 +21,10 @@ export function TeacherSessionDetailsPage() {
   const now = useNow();
 
   if (!user) return <Navigate to="/login" replace />;
+
+  // رابط تقييم جودة الجلسة (برمز عشوائي): الباك يرسله بعد انتهاء الجلسة فقط وليست ملغاة —
+  // المعلم يرسله للطالب خارج المنصة
+  const canShareRating = Boolean(session?.quality_rating_path) && session.attendees?.length > 0;
 
   const statusStyle = session ? TEACHER_SESSION_STATUS_STYLES[session.status] : null;
   const title = session ? (session.booking?.package?.title ?? session.course?.title ?? '—') : '';
@@ -119,6 +124,16 @@ export function TeacherSessionDetailsPage() {
                   );
                 })}
               </ul>
+            </div>
+          )}
+
+          {canShareRating && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card">
+              <div className="text-right">
+                <h3 className="text-sm font-bold text-ink">{t('dashboard.teacherSessions.ratingLinkTitle')}</h3>
+                <p className="mt-0.5 text-xs text-ink-soft">{t('dashboard.teacherSessions.ratingLinkHint')}</p>
+              </div>
+              <CopyRatingLinkButton path={session.quality_rating_path} />
             </div>
           )}
 

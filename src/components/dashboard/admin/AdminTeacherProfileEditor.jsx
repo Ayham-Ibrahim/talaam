@@ -206,8 +206,13 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
       {
         name: form.name.trim() || null,
         bio: form.bio || null,
-        teaching_philosophy_quote: form.teaching_philosophy_quote || null,
-        teaching_philosophy_text: form.teaching_philosophy_text || null,
+        // المدرس الجامعي بلا قسم "فلسفتي في التدريس" — لا يُرسَل (تبقى أي قيمة قديمة كما هي)
+        ...(isUniversity
+          ? {}
+          : {
+              teaching_philosophy_quote: form.teaching_philosophy_quote || null,
+              teaching_philosophy_text: form.teaching_philosophy_text || null,
+            }),
         thank_you_message: form.thank_you_message || null,
         qualification: form.qualification || null,
         experience_years: form.experience_years || null,
@@ -335,6 +340,8 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
               <div className="text-left text-xs text-ink-soft/70">{form.bio.length}/500</div>
             </label>
 
+            {!isUniversity && (
+            <>
             <label className="flex flex-col gap-1.5">
               <span className="text-sm font-semibold text-ink">{t('dashboard.adminTeacherDetail.profileEditor.philosophyQuoteLabel')}</span>
               <input
@@ -359,6 +366,8 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
               />
               <div className="text-left text-xs text-ink-soft/70">{form.teaching_philosophy_text.length}/600</div>
             </label>
+            </>
+            )}
 
             <label className="flex flex-col gap-1.5">
               <span className="text-sm font-semibold text-ink">{t('dashboard.adminTeacherDetail.profileEditor.thankYouMessageLabel')}</span>
@@ -635,10 +644,10 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
           <div className="mt-3">
             <TeacherExperienceEditor
               isTrainingCenter={isTrainingCenter}
-              experiences={teacher.experiences ?? []}
+              experiences={(teacher.experiences ?? []).filter((e) => e.kind !== 'offered_course')}
               onAdd={(payload, opts) => addExperience.mutate(payload, opts)}
-              isAdding={addExperience.isPending}
-              addError={addExperience.isError ? addExperience.error : null}
+              isAdding={addExperience.isPending && addExperience.variables?.kind !== 'offered_course'}
+              addError={addExperience.isError && addExperience.variables?.kind !== 'offered_course' ? addExperience.error : null}
               onUpdate={(payload, opts) => updateExperience.mutate(payload, opts)}
               isUpdating={updateExperience.isPending}
               updateError={updateExperience.isError ? updateExperience.error : null}
@@ -647,6 +656,28 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
               removingId={removeExperience.isPending ? removeExperience.variables : null}
             />
           </div>
+
+          {isUniversity && (
+            <div className="mt-6 border-t border-line/60 pt-6">
+              <h4 className="text-right text-sm font-bold text-ink">{t('universityOfferedCourses.listLabel')}</h4>
+              <p className="mt-1 text-right text-xs text-ink-soft">{t('universityOfferedCourses.sectionHint')}</p>
+              <div className="mt-3">
+                <TeacherExperienceEditor
+                  offeredCourses
+                  experiences={(teacher.experiences ?? []).filter((e) => e.kind === 'offered_course')}
+                  onAdd={(payload, opts) => addExperience.mutate(payload, opts)}
+                  isAdding={addExperience.isPending && addExperience.variables?.kind === 'offered_course'}
+                  addError={addExperience.isError && addExperience.variables?.kind === 'offered_course' ? addExperience.error : null}
+                  onUpdate={(payload, opts) => updateExperience.mutate(payload, opts)}
+                  isUpdating={updateExperience.isPending}
+                  updateError={updateExperience.isError ? updateExperience.error : null}
+                  updatingId={updateExperience.isPending ? updateExperience.variables?.experienceId : null}
+                  onRemove={(id) => removeExperience.mutate(id)}
+                  removingId={removeExperience.isPending ? removeExperience.variables : null}
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
 

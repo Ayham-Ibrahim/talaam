@@ -36,6 +36,19 @@ export const academicSupporterService = {
     };
   },
 
+  /** باقات الدعم الأكاديمي النشطة لمدرس جامعي — عامة، لبروفايله العام */
+  async getTeacherSupportPackages(teacherId) {
+    if (config.useMocks) return [];
+    const { data } = await client.get(endpoints.teachers.supportPackages(teacherId));
+    return data.data;
+  },
+
+  /** مدرس جامعي: يفعّل (أو يعيد) ملف الداعم المرتبط به لتُضاف له باقات دعم أكاديمي */
+  async enableForTeacher(teacherId) {
+    const { data } = await client.post(endpoints.admin.enableTeacherAcademicSupport(teacherId));
+    return data.data;
+  },
+
   async getAdminDetail(id) {
     if (config.useMocks) {
       await mockDelay(300);

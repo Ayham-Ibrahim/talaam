@@ -29,6 +29,7 @@ import {
   Receipt,
   UserCog,
   ChevronLeft,
+  Star,
 } from "lucide-react";
 import { Logo } from "@/components/layout/Logo";
 import { Avatar } from "@/components/ui";
@@ -80,6 +81,11 @@ const ADMIN_NAV_GROUPS = [
         icon: Package,
         path: "/dashboard/admin/listings",
         statKey: "pendingApprovalsCount",
+      },
+      {
+        key: "sessionQuality",
+        icon: Star,
+        path: "/dashboard/admin/session-quality",
       },
       { key: "taxonomy", icon: ListTree, path: "/dashboard/admin/taxonomy" },
     ],

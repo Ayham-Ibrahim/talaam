@@ -10,6 +10,9 @@ import { TeacherTeachingScopeSection } from '@/components/teacher/TeacherTeachin
 import { VideosSection } from '@/components/teacher/TeacherInfoSections';
 import { PackagesSection } from '@/components/teacher/PackagesSection';
 import { CoursesSection } from '@/components/teacher/CoursesSection';
+import { SupportPackagesSection } from '@/components/academicSupporter/SupportPackagesSection';
+import { SupportPackageDetailsDrawer } from '@/components/academicSupporter/SupportPackageDetailsDrawer';
+import { SupportPackageFullDetailsDrawer } from '@/components/academicSupporter/SupportPackageFullDetailsDrawer';
 import { Star } from 'lucide-react';
 import { RatingReviews } from '@/components/teacher/RatingReviews';
 import { TeacherFAQSection } from '@/components/teacher/TeacherFAQSection';
@@ -22,7 +25,7 @@ import { Drawer } from '@/components/ui/Drawer';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites, useToggleFavoriteTeacher } from '@/hooks/useFavorites';
 import { useTeacher } from '@/hooks/useTeachers';
-import { usePackages, useCourses, useRatingSummary, useReviews } from '@/hooks/useMeta';
+import { usePackages, useCourses, useRatingSummary, useReviews, useTeacherSupportPackages } from '@/hooks/useMeta';
 import { useMyReviews, useCreateTeacherReview } from '@/hooks/useMyReviews';
 import { useT } from '@/hooks/useT';
 import { useProfileT } from '@/hooks/useProfileT';
@@ -90,6 +93,8 @@ export function TeacherProfilePage() {
     isError: coursesError,
     refetch: refetchCourses,
   } = useCourses(offersCourses ? id : undefined);
+  // باقات الدعم الأكاديمي (يضيفها الأدمن للمدرس الجامعي) — تُعرض للجميع كبقية باقاته
+  const { data: supportPackages } = useTeacherSupportPackages(teacher?.type === 'university' ? id : undefined);
   const { data: reviews, isLoading: reviewsLoading, isError: reviewsError, refetch: refetchReviews } = useReviews(id);
   const { data: ratingSummary, isLoading: summaryLoading } = useRatingSummary(id);
 
@@ -106,6 +111,24 @@ export function TeacherProfilePage() {
   const myFreeReview = (myReviews ?? []).find((r) => r.teacherId === Number(id) && r.classSessionId === null) ?? null;
 
   const [selectedPackageId, setSelectedPackageId] = useState(null);
+  const [supportPackageToBuy, setSupportPackageToBuy] = useState(null);
+  const [supportPackageDetails, setSupportPackageDetails] = useState(null);
+
+  /**
+   * عرض باقة الدعم للجميع، لكن شراؤها للطالب الجامعي فقط (الباك يتحقق أيضاً):
+   * الزائر → تسجيل الدخول، غير الطالب الجامعي → رسالة توضيحية.
+   */
+  const handleBuySupportPackage = (pkg) => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
+    if (user?.student?.education_type !== 'university') {
+      window.alert(t('teacher.supportPackages.universityOnly'));
+      return;
+    }
+    setSupportPackageToBuy(pkg);
+  };
   const [selectedCourseId, setSelectedCourseId] = useState(null);
 
   const selectedPackage = packages?.find((p) => p.id === selectedPackageId) ?? null;
@@ -206,6 +229,12 @@ export function TeacherProfilePage() {
           />
         )}
 
+        <SupportPackagesSection
+          supportPackages={supportPackages ?? []}
+          onBookNow={handleBuySupportPackage}
+          onViewDetails={setSupportPackageDetails}
+        />
+
         {/* المركز: قسم الدورات دائماً؛ المدرس الجامعي: فقط إن كانت له دورات منشورة */}
         {(isCenter || (offersCourses && courses?.length > 0)) && (
           <CoursesSection
@@ -263,6 +292,16 @@ export function TeacherProfilePage() {
           <BookingWidget selectedPackage={selectedPackage} bare />
         </Drawer>
       )}
+
+      <SupportPackageDetailsDrawer supportPackage={supportPackageToBuy} onClose={() => setSupportPackageToBuy(null)} />
+      <SupportPackageFullDetailsDrawer
+        supportPackage={supportPackageDetails}
+        onClose={() => setSupportPackageDetails(null)}
+        onBookNow={(pkg) => {
+          setSupportPackageDetails(null);
+          handleBuySupportPackage(pkg);
+        }}
+      />
 
       {isRatingOpen && (
         <ReviewFormModal

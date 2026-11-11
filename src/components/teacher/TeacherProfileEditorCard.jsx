@@ -123,8 +123,13 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
       {
         name: form.name.trim() || null,
         bio: form.bio || null,
-        teaching_philosophy_quote: form.teaching_philosophy_quote || null,
-        teaching_philosophy_text: form.teaching_philosophy_text || null,
+        // المدرس الجامعي بلا قسم "فلسفتي في التدريس" — لا يُرسَل (تبقى أي قيمة قديمة كما هي)
+        ...(isUniversity
+          ? {}
+          : {
+              teaching_philosophy_quote: form.teaching_philosophy_quote || null,
+              teaching_philosophy_text: form.teaching_philosophy_text || null,
+            }),
         thank_you_message: form.thank_you_message || null,
         qualification: form.qualification || null,
         experience_years: form.experience_years || null,
@@ -181,7 +186,8 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
           <span className="text-left text-xs text-ink-soft/70">{form.bio.length}/500</span>
         </label>
 
-        {/* حقلان لبطاقة واحدة في البروفايل: العبارة تظهر بخط بارز ثم الشرح تحتها */}
+        {/* حقلان لبطاقة واحدة في البروفايل: العبارة تظهر بخط بارز ثم الشرح تحتها — ليس للمدرس الجامعي */}
+        {!isUniversity && (
         <fieldset className="flex flex-col gap-3 rounded-xl border border-line p-4">
           <legend className="px-1 text-sm font-semibold text-primary">
             {t(isTrainingCenter ? 'teacherSettings.philosophyGroupTitleCenter' : 'teacherSettings.philosophyGroupTitle')}
@@ -213,6 +219,7 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
           <span className="text-left text-xs text-ink-soft/70">{form.teaching_philosophy_text.length}/600</span>
         </label>
         </fieldset>
+        )}
 
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-semibold text-primary">{FIELD_LABELS.thank_you_message}</span>
@@ -311,10 +318,10 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
 
         <TeacherExperienceEditor
           isTrainingCenter={isTrainingCenter}
-          experiences={teacher.experiences ?? []}
+          experiences={(teacher.experiences ?? []).filter((e) => e.kind !== 'offered_course')}
           onAdd={(payload, opts) => addExperience.mutate(payload, opts)}
-          isAdding={addExperience.isPending}
-          addError={addExperience.isError ? addExperience.error : null}
+          isAdding={addExperience.isPending && addExperience.variables?.kind !== 'offered_course'}
+          addError={addExperience.isError && addExperience.variables?.kind !== 'offered_course' ? addExperience.error : null}
           onUpdate={(payload, opts) => updateExperience.mutate(payload, opts)}
           isUpdating={updateExperience.isPending}
           updateError={updateExperience.isError ? updateExperience.error : null}
@@ -322,6 +329,22 @@ export function TeacherProfileEditorCard({ teacherId, teacher, isTrainingCenter 
           onRemove={(id) => removeExperience.mutate(id)}
           removingId={removeExperience.isPending ? removeExperience.variables : null}
         />
+
+        {isUniversity && (
+          <TeacherExperienceEditor
+            offeredCourses
+            experiences={(teacher.experiences ?? []).filter((e) => e.kind === 'offered_course')}
+            onAdd={(payload, opts) => addExperience.mutate(payload, opts)}
+            isAdding={addExperience.isPending && addExperience.variables?.kind === 'offered_course'}
+            addError={addExperience.isError && addExperience.variables?.kind === 'offered_course' ? addExperience.error : null}
+            onUpdate={(payload, opts) => updateExperience.mutate(payload, opts)}
+            isUpdating={updateExperience.isPending}
+            updateError={updateExperience.isError ? updateExperience.error : null}
+            updatingId={updateExperience.isPending ? updateExperience.variables?.experienceId : null}
+            onRemove={(id) => removeExperience.mutate(id)}
+            removingId={removeExperience.isPending ? removeExperience.variables : null}
+          />
+        )}
 
         <div className="flex items-center gap-3">
           <button

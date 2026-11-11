@@ -98,7 +98,10 @@ function ThankYouCard({ teacher, message }) {
 export function TeacherClosingSections({ teacher }) {
   return (
     <div className="mt-6 flex flex-col gap-8">
-      <PhilosophyCard teacher={teacher} quote={teacher.teachingPhilosophyQuote} text={teacher.teachingPhilosophyText} />
+      {/* المدرس الجامعي بلا قسم "فلسفتي في التدريس" */}
+      {teacher.type !== "university" && (
+        <PhilosophyCard teacher={teacher} quote={teacher.teachingPhilosophyQuote} text={teacher.teachingPhilosophyText} />
+      )}
       <ThankYouCard teacher={teacher} message={teacher.thankYouMessage} />
     </div>
   );

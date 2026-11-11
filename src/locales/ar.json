@@ -481,7 +481,11 @@
   "search": {
     "heroTitle": "اعثر على المعلم المناسب لك",
     "heroSubtitle": "تعلم من افضل المعلمين المعتمدين وحقق اهدافك التعليمية",
-    "categories": ["تعليم مدرسي", "تعليم جامعي", "دورات تدريبية"],
+    "categories": [
+      "تعليم مدرسي",
+      "تعليم جامعي",
+      "دورات تدريبية"
+    ],
     "filterTitle": "تصفية النتائج",
     "level": "المستوى",
     "grade": "الصف",
@@ -528,7 +532,6 @@
     "teachersHeading": "المعلمون المعتمدون",
     "trainingCentersHeading": "شركاء التدريب المعتمدون",
     "trainingCentersSubheading": "تصفح أفضل شركاء التدريب المعتمدين واحجز دوراتك الآن",
-
     "teachersSubheading": "اختر معلمك وابدأ رحلتك التعليمية",
     "teacherWord": "معلم",
     "resultsCount": "معلم معتمد",
@@ -567,6 +570,9 @@
     }
   },
   "teacher": {
+    "supportPackages": {
+      "universityOnly": "باقات الدعم الأكاديمي متاحة للطلاب الجامعيين فقط — سجّل دخولك بحساب طالب جامعي للاشتراك"
+    },
     "rateTeacher": "قيّم المدرّس",
     "shareProfile": "مشاركة الملف الشخصي",
     "verified": "معلم معتمد",
@@ -613,7 +619,10 @@
     "gradePrefix": "الصف",
     "languages": "اللغات",
     "teachingMethods": "طريقة التدريس",
-    "sessionFormatShort": { "individual": "فردية", "group": "جماعية" },
+    "sessionFormatShort": {
+      "individual": "فردية",
+      "group": "جماعية"
+    },
     "videos": "فيديوهات",
     "sessionTypes": "نوع الجلسة",
     "packages": "الباقات",
@@ -621,7 +630,10 @@
     "bookSeat": "احجز مقعدك",
     "viewDetails": "عرض التفاصيل",
     "seatsReservedSuffix": "مقاعد محجوزة",
-    "packageBadge": { "individual": "فردية", "group": "مجموعة" },
+    "packageBadge": {
+      "individual": "فردية",
+      "group": "مجموعة"
+    },
     "packageEnded": "انتهت الباقة",
     "freePackage": "مجانية",
     "trialBadge": "جلسة تعريفية",
@@ -696,7 +708,15 @@
     "evening": "مساءً",
     "prevMonth": "الشهر السابق",
     "nextMonth": "الشهر التالي",
-    "weekdays": ["أحد", "إثنين", "ثلاثاء", "أربعاء", "خميس", "جمعة", "سبت"],
+    "weekdays": [
+      "أحد",
+      "إثنين",
+      "ثلاثاء",
+      "أربعاء",
+      "خميس",
+      "جمعة",
+      "سبت"
+    ],
     "chooseSlot": "اختر الموعد الأسبوعي",
     "noSlotsAvailable": "لا توجد مواعيد توفر لهذا المعلم حالياً",
     "groupScheduleTitle": "مواعيد المجموعة",
@@ -745,7 +765,15 @@
     "rescheduleRejected": "تم رفض طلب تغيير موعد الجلسة من قِبل الإدارة",
     "rescheduleSubmitted": "تم استلام طلب تغيير موعد الجلسة، بانتظار مراجعة الإدارة",
     "rescheduleSubmittedForReview": "طلب تغيير موعد جلسة جديد بانتظار مراجعتك",
-    "documentRejected": "تم رفض إحدى وثائقك الثبوتية"
+    "documentRejected": "تم رفض إحدى وثائقك الثبوتية",
+    "sessionQualityRequested": "من فضلك قيّم جلستك",
+    "sessionQualityRequestedHint": "اضغط هنا لتقييم جودة جلستك",
+    "sessionQualityLinkSent": "شكراً لك، تم إرسال رابط تقييم الجودة إلى الطالب",
+    "sessionQualityLinkSentHint": "اضغط لنسخ رابط تقييم الجلسة وإرساله للطالب",
+    "openLink": "فتح الرابط",
+    "copyLink": "نسخ الرابط",
+    "linkCopied": "تم نسخ الرابط",
+    "copyLinkFallback": "انسخ رابط تقييم الجلسة:"
   },
   "teacherVideos": {
     "sectionTitle": "الفيديو التعريفي والفيديوهات",
@@ -817,6 +845,10 @@
       "teachingType": "نوع التدريب"
     }
   },
+  "universityOfferedCourses": {
+    "listLabel": "الدورات المتاحة",
+    "sectionHint": "أضف الدورات التي يقدّمها المدرس عادةً مع وصف وشرح لكل منها — تظهر في بروفايله العام بعد الخبرات السابقة"
+  },
   "centerExperiences": {
     "listLabel": "الدورات المتاحة",
     "sectionHint": "أضف الدورات التي يقدّمها المركز عادةً مع وصف وشرح لكل منها — تظهر في بروفايل المركز العام",
@@ -885,6 +917,7 @@
     "browse": {
       "title": "الدعم الأكاديمي",
       "subtitle": "تصفّح الداعمين الأكاديميين واشترك في باقة تناسبك",
+      "universityTeacherBadge": "مدرس جامعي",
       "empty": "لا يوجد داعمون أكاديميون متاحون حالياً",
       "viewProfile": "عرض الملف الشخصي ←"
     },
@@ -1249,7 +1282,12 @@
         "joined": "انضمّ",
         "notJoined": "لم ينضم",
         "notJoinedYet": "لم ينضم بعد"
-      }
+      },
+      "ratingLinkTitle": "رابط تقييم جودة الجلسة",
+      "ratingLinkHint": "أُرسل هذا الرابط للطالب تلقائياً عند دخولكما الجلسة — يمكنك نسخه وإرساله له بنفسك أيضاً",
+      "copyRatingLink": "نسخ رابط التقييم",
+      "ratingLinkCopied": "تم النسخ",
+      "copyRatingLinkFallback": "انسخ رابط التقييم:"
     },
     "teacherStudents": {
       "training": "طلاب الباقات التدريبية",
@@ -1806,7 +1844,8 @@
       "payroll": "كشف الرواتب",
       "payrollReport": "تقرير الرواتب",
       "hr": "الموظفون والرواتب",
-      "academicSupportFinance": "مالية الدعم الأكاديمي"
+      "academicSupportFinance": "مالية الدعم الأكاديمي",
+      "sessionQuality": "تقييمات جودة الجلسات"
     },
     "adminNavGroups": {
       "users": "المستخدمون",
@@ -1977,7 +2016,14 @@
       "tabs": {
         "overview": "نظرة عامة",
         "profile": "الملف الشخصي",
-        "sessions": "الجلسات"
+        "sessions": "الجلسات",
+        "academicSupport": "الدعم الأكاديمي"
+      },
+      "academicSupport": {
+        "title": "باقات الدعم الأكاديمي",
+        "hint": "باقات دعم يقدّمها هذا المدرس الجامعي — تظهر بطاقته للطلاب الجامعيين في تاب الدعم الأكاديمي متى كان موثّقاً ولديه باقة نشطة",
+        "enable": "تفعيل باقات الدعم الأكاديمي لهذا المدرس",
+        "enabling": "جارِ التفعيل..."
       },
       "profileTitle": "بيانات المعلم",
       "email": "البريد الإلكتروني",
@@ -2885,5 +2931,68 @@
     "cancelTitle": "تم إلغاء الدفع",
     "cancelHint": "لم تكتمل عملية الدفع، ولم يُخصم أي مبلغ. يمكنك المحاولة مرة أخرى في أي وقت.",
     "backSearch": "العودة للبحث"
+  },
+  "sessionQuality": {
+    "title": "تقييم جودة الجلسة",
+    "subtitle": "ساعدنا بتقييم جلستك — إجاباتك تصل لإدارة المنصة فقط وتساعدنا على ضمان جودة الجلسات",
+    "alreadyRated": "سبق أن قيّمت هذه الجلسة — يمكنك تعديل تقييمك وإعادة إرساله",
+    "criteria": {
+      "audioVideoQuality": "جودة الصوت والصورة",
+      "connectionStability": "استقرار اتصال الإنترنت",
+      "teachingQuality": "جودة طريقة الإعطاء",
+      "overallRating": "التقييم العام للجلسة",
+      "benefitLevel": "مدى الاستفادة"
+    },
+    "criteriaShort": {
+      "audioVideoQuality": "الصوت والصورة",
+      "connectionStability": "الاتصال",
+      "teachingQuality": "طريقة الإعطاء",
+      "overallRating": "التقييم العام",
+      "benefitLevel": "الاستفادة"
+    },
+    "commentLabel": "تعليق (اختياري)",
+    "commentPlaceholder": "اكتب أي ملاحظة عن الجلسة",
+    "allRequired": "يرجى تقييم جميع المعايير قبل الإرسال",
+    "submit": "إرسال التقييم",
+    "submitting": "جارِ الإرسال...",
+    "thanksTitle": "شكراً لك، تم إرسال تقييمك",
+    "thanksHint": "تقييمك يساعدنا على تحسين جودة الجلسات",
+    "packageTypes": {
+      "individual": "فردية",
+      "group": "جماعية",
+      "course": "دورة تدريبية"
+    },
+    "info": {
+      "package": "الباقة",
+      "packageType": "نوع الباقة",
+      "sessionNumber": "رقم الجلسة",
+      "teacher": "المدرس",
+      "student": "الطالب",
+      "subject": "المادة",
+      "sessionDate": "تاريخ الجلسة",
+      "ratedAt": "تاريخ التقييم",
+      "average": "متوسط الجودة",
+      "comment": "التعليق"
+    },
+    "adminTitle": "تقييمات جودة الجلسات",
+    "adminSubtitle": "تقييمات الطلاب لجودة كل جلسة — يصلهم رابطها عند دخولهم الجلسة، وتظهر لإدارة المنصة فقط ولا تؤثر على تقييم المدرس العام",
+    "adminEmpty": "لا توجد تقييمات جودة بعد",
+    "adminNoMatches": "لا توجد تقييمات مطابقة لهذه الفلاتر",
+    "filters": {
+      "sort": "الترتيب",
+      "sortOptions": {
+        "latest": "الأحدث",
+        "highest": "الأعلى جودة",
+        "lowest": "الأدنى جودة"
+      },
+      "teacherName": "اسم المعلم",
+      "teacherPlaceholder": "ابحث باسم المعلم",
+      "studentName": "اسم الطالب",
+      "studentPlaceholder": "ابحث باسم الطالب",
+      "subject": "المادة",
+      "allSubjects": "جميع المواد",
+      "apply": "تصفية",
+      "reset": "إعادة تعيين"
+    }
   }
 }

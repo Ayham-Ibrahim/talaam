@@ -9,6 +9,7 @@ import { TeacherBadgesPanel } from "@/components/dashboard/admin/TeacherBadgesPa
 import { TeacherReviewsPanel } from "@/components/dashboard/admin/TeacherReviewsPanel";
 import { ReasonModal } from "@/components/dashboard/admin/ReasonModal";
 import { AdminSessionsPanel } from "@/components/dashboard/admin/AdminSessionsPanel";
+import { TeacherAcademicSupportPanel } from "@/components/dashboard/admin/TeacherAcademicSupportPanel";
 import { ErrorState, Skeleton } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -34,10 +35,15 @@ export function AdminTeacherDetailPage() {
   // ?tab=sessions — قادم من زر "الجلسات" بجدول المعلمين
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(() =>
-    ["overview", "profile", "sessions"].includes(searchParams.get("tab"))
+    ["overview", "profile", "sessions", "academicSupport"].includes(searchParams.get("tab"))
       ? searchParams.get("tab")
       : "overview",
-  ); // 'overview' | 'profile' | 'sessions'
+  ); // 'overview' | 'profile' | 'sessions' | 'academicSupport'
+  // باقات الدعم الأكاديمي للمدرس الجامعي حصراً
+  const isUniversityTeacher = data?.teacher?.type === "university";
+  const tabs = isUniversityTeacher
+    ? ["overview", "profile", "sessions", "academicSupport"]
+    : ["overview", "profile", "sessions"];
 
   const approveTeacher = useApproveTeacher(id);
   const rejectTeacher = useRejectTeacher(id);
@@ -139,7 +145,7 @@ export function AdminTeacherDetailPage() {
       ) : (
         <>
           <div className="mb-6 flex justify-end gap-2 border-b border-line/60">
-            {["overview", "profile", "sessions"].map((tab) => (
+            {tabs.map((tab) => (
               <button
                 key={tab}
                 type="button"
@@ -204,6 +210,11 @@ export function AdminTeacherDetailPage() {
               teacherId={id}
               teacher={data.teacher}
               documents={data.documents}
+            />
+          ) : activeTab === "academicSupport" && isUniversityTeacher ? (
+            <TeacherAcademicSupportPanel
+              teacherId={id}
+              supporterId={data.teacher.academicSupporterId}
             />
           ) : (
             <AdminSessionsPanel teacherId={id} />

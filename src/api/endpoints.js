@@ -47,6 +47,7 @@ export const endpoints = {
     update: (id) => `/teachers/${id}`,
     packages: (id) => `/teachers/${id}/packages`,
     courses: (id) => `/teachers/${id}/courses`,
+    supportPackages: (id) => `/teachers/${id}/support-packages`,
     reviews: (id) => `/teachers/${id}/reviews`,
     ratingSummary: (id) => `/teachers/${id}/rating-summary`,
     importReviews: (id) => `/teachers/${id}/reviews/import`,
@@ -121,6 +122,11 @@ export const endpoints = {
     submit: (id) => `/courses/${id}/submit`,
     disable: (id) => `/courses/${id}/disable`,
     detail: (id) => `/courses/${id}`,
+  },
+  sessionQuality: {
+    // برمز عشوائي (لا رقم الجلسة) — نفس الرمز في رابط الصفحة /rate-session/{token}
+    byToken: (token) => `/session-quality/${token}`,
+    adminList: '/session-quality-ratings',
   },
   classSessions: {
     list: '/class-sessions',
@@ -228,6 +234,7 @@ export const endpoints = {
     academicSupporters: '/academic-supporters',
     createAcademicSupporterAccount: '/academic-supporters/create-account',
     academicSupporterDetail: (id) => `/academic-supporters/${id}/admin-detail`,
+    enableTeacherAcademicSupport: (teacherId) => `/teachers/${teacherId}/academic-supporter`,
     updateAcademicSupporter: (id) => `/academic-supporters/${id}`,
     resetAcademicSupporterPassword: (id) => `/academic-supporters/${id}/password`,
     suspendAcademicSupporter: (id) => `/academic-supporters/${id}/suspend`,

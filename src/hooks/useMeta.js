@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { packageService, courseService, reviewService, metaService } from '@/services';
 import { legalPageService } from '@/services/legalPageService';
+import { academicSupporterService } from '@/services/academicSupporterService';
 
 export function usePackages(teacherId) {
   return useQuery({
@@ -15,6 +16,15 @@ export function useCourses(teacherId) {
   return useQuery({
     queryKey: queryKeys.teachers.courses(teacherId),
     queryFn: () => courseService.getByTeacher(teacherId),
+    enabled: !!teacherId,
+  });
+}
+
+/** باقات الدعم الأكاديمي للمدرس الجامعي (تظهر ببروفايله العام كبقية باقاته) */
+export function useTeacherSupportPackages(teacherId) {
+  return useQuery({
+    queryKey: queryKeys.teachers.supportPackages(teacherId),
+    queryFn: () => academicSupporterService.getTeacherSupportPackages(teacherId),
     enabled: !!teacherId,
   });
 }

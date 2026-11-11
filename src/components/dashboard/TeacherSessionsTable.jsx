@@ -5,6 +5,7 @@ import { canJoinSession, canRequestTeacherReschedule, teacherSessionDisplayStatu
 import { useNow } from '@/hooks/useNow';
 import { useT } from '@/hooks/useT';
 import { SessionJoinButton } from './SessionJoinButton';
+import { CopyRatingLinkButton } from './CopyRatingLinkButton';
 
 export function TeacherSessionsTable({ sessions, onPostpone }) {
   const t = useT();
@@ -13,7 +14,7 @@ export function TeacherSessionsTable({ sessions, onPostpone }) {
 
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
-      <table className="w-full min-w-[820px] text-sm">
+      <table className="w-full min-w-[920px] text-sm">
         <thead>
           <tr className="border-b border-line">
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.teacherSessions.package')}</th>
@@ -60,6 +61,8 @@ export function TeacherSessionsTable({ sessions, onPostpone }) {
                         {t('dashboard.teacherSessions.join')}
                       </SessionJoinButton>
                     )}
+                    {/* بعد بدء الجلسة ودخول المعلم والطالب — الباك يرسل المسار حينها فقط */}
+                    <CopyRatingLinkButton path={session.quality_rating_path} compact />
                     {onPostpone && canRequestTeacherReschedule(session) && (
                       <button
                         type="button"

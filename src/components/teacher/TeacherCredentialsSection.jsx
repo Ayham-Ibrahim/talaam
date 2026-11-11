@@ -47,7 +47,10 @@ function SubjectsCard({ title, subjects }) {
 export function TeacherCredentialsSection({ teacher }) {
   const t = useProfileT(teacher);
 
-  const experiences = teacher.experiences ?? [];
+  // المدرس الجامعي: "الدورات المتاحة" (kind = offered_course) قسم مستقل بعد الخبرات السابقة
+  const allEntries = teacher.experiences ?? [];
+  const experiences = allEntries.filter((e) => e.kind !== "offered_course");
+  const offeredCourses = allEntries.filter((e) => e.kind === "offered_course");
 
   // التحقق الشامل من أن الحساب مركز تدريبي بناءً على القيم المحتملة في الـ Backend
   const isTrainingCenter =
@@ -60,12 +63,13 @@ export function TeacherCredentialsSection({ teacher }) {
   const curricula = teacher.curricula ?? [];
 
   const hasExperiences = experiences.length > 0;
+  const hasOfferedCourses = offeredCourses.length > 0;
 
   // إذا كان مركزاً تدريبياً، فسيتم إجبار هذه القيم على أن تكون فارغة تماماً لضمان عدم ظهورها
   const hasSubjects = !isTrainingCenter && subjects.length > 0;
   const hasCurricula = !isTrainingCenter && curricula.length > 0;
 
-  if (!hasExperiences && !hasSubjects && !hasCurricula) return null;
+  if (!hasExperiences && !hasOfferedCourses && !hasSubjects && !hasCurricula) return null;
 
   return (
     <div className="mt-6 flex flex-col gap-6">
@@ -134,6 +138,37 @@ export function TeacherCredentialsSection({ teacher }) {
                           : t("teacher.experienceCompleted")}
                     </span>
                   )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {hasOfferedCourses && (
+        <section className="rounded-[28px] bg-white p-5 text-start shadow-[0_10px_30px_rgba(17,24,39,0.06)] sm:p-6">
+          <h3 className="text-lg font-bold text-[#1E1E1E]">
+            {t("universityOfferedCourses.listLabel")}
+          </h3>
+          <div className="mt-5 grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
+            {offeredCourses.map((course, i) => {
+              const { card } = EXP_PALETTE[i % EXP_PALETTE.length];
+              return (
+                <div
+                  key={course.id}
+                  className={`flex min-w-0 items-start gap-3 overflow-hidden rounded-2xl p-3 ${card}`}
+                >
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-primary shadow-card">
+                    <BookOpen size={20} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-sm font-bold text-[#1E1E1E]">{course.title}</h4>
+                    {course.description && (
+                      <p className="mt-1.5 whitespace-pre-line text-xs leading-relaxed text-ink-soft">
+                        {course.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
               );
             })}
