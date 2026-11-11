@@ -119,7 +119,12 @@ export function PayoutDetailsModal({ payoutId, onClose }) {
                             {item.attendanceOutcome
                               ? t(`dashboard.adminPayouts.details.outcome.${item.attendanceOutcome}`)
                               : '—'}
-                            {item.payoutPercent != null && item.payoutPercent !== 100 ? ` (${item.payoutPercent}%)` : ''}
+                            {/* غياب الطلاب: البند هو التعويض بنسبته المثبَّتة، لا مستحق الجلسة (0%) */}
+                            {item.type === 'session' && item.attendanceOutcome === 'student_no_show' && item.compensationPercent > 0
+                              ? ` (${item.compensationPercent}% ${t('dashboard.adminPayouts.details.compensation')})`
+                              : item.payoutPercent != null && item.payoutPercent !== 100
+                                ? ` (${item.payoutPercent}%)`
+                                : ''}
                           </td>
                           <td className="px-4 py-3 text-right font-semibold text-price">{formatPrice(item.amount)}</td>
                         </tr>
