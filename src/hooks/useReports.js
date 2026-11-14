@@ -43,3 +43,26 @@ export function useExportStudentsReport() {
     mutationFn: (filters) => reportsService.exportStudentsReport(filters),
   });
 }
+
+export function useStudentsLocationReport(filters = {}) {
+  return useQuery({
+    queryKey: queryKeys.admin.studentsLocationReport(filters),
+    queryFn: () => reportsService.getStudentsLocationReport(filters),
+    keepPreviousData: true,
+  });
+}
+
+export function useStudentsLocationStudents(filters = {}, page = 1, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.admin.studentsLocationStudents(filters, page),
+    queryFn: () => reportsService.getStudentsLocationStudents(filters, page),
+    keepPreviousData: true,
+    enabled,
+  });
+}
+
+export function useExportStudentsLocationReport() {
+  return useMutation({
+    mutationFn: (filters) => reportsService.exportStudentsLocationReport(filters),
+  });
+}

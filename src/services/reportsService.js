@@ -3,6 +3,18 @@ import { client, mockDelay } from '@/api/client';
 import { endpoints } from '@/api/endpoints';
 
 /** تقارير مالية مشتركة بين الأدمن والمحاسب (Gate: view-finance-reports). */
+/** فلاتر الواجهة (camelCase) → باراميترات تقرير الموقع؛ الفارغ لا يُرسَل */
+function locationReportParams({ countryId, regionId, curriculumId, educationType, from, to } = {}) {
+  return {
+    country_id: countryId || undefined,
+    region_id: regionId || undefined,
+    curriculum_id: curriculumId || undefined,
+    education_type: educationType || undefined,
+    from: from || undefined,
+    to: to || undefined,
+  };
+}
+
 export const reportsService = {
   /** كل مدرس: الحصص التي استحق عنها، ومستحقه مطابقاً لكشوف المستحقات (مُدرَج/لم يُدرَج بعد)، وعائدها للمنصة */
   async getTeacherSessionsReport({ from, to, teacherId } = {}) {
@@ -79,6 +91,46 @@ export const reportsService = {
       params: { week_start: weekStart || undefined },
     });
     return data.data;
+  },
+
+  /** تقرير التسويق: الموقع × المنهج بنفس الفلاتر (الدولة، الولاية، المنهج، نوع التعليم، فترة التسجيل) */
+  async getStudentsLocationReport(filters = {}) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return {
+        totals: { students: 0, paying: 0, running: 0, revenue: 0, conversionRate: 0, withoutLocation: 0 },
+        byLocation: [],
+        byCurriculum: [],
+        matrix: { columns: [], rows: [] },
+      };
+    }
+    const { data } = await client.get(endpoints.reports.studentsLocation, { params: locationReportParams(filters) });
+    return data.data;
+  },
+
+  async getStudentsLocationStudents(filters = {}, page = 1) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return { data: [], meta: { current_page: 1, last_page: 1, total: 0 } };
+    }
+    const { data } = await client.get(endpoints.reports.studentsLocationStudents, {
+      params: { ...locationReportParams(filters), page, per_page: 25 },
+    });
+    return { data: data.data, meta: data.meta };
+  },
+
+  async exportStudentsLocationReport(filters = {}) {
+    if (config.useMocks) {
+      await mockDelay(500);
+      return new Blob(['Demo mode — no real export available.'], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+    }
+    const { data } = await client.get(endpoints.reports.exportStudentsLocation, {
+      params: locationReportParams(filters),
+      responseType: 'blob',
+    });
+    return data;
   },
 
   /** sheet (expired|curricula|weekly) يصدّر جدولاً واحداً؛ بدونه التقرير الشامل */

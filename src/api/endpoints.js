@@ -177,6 +177,10 @@ export const endpoints = {
     exportAcademicSupportFinance: '/reports/academic-support/export',
     students: '/reports/students',
     exportStudents: '/reports/students/export',
+    // تقرير التسويق: الطلاب حسب الموقع × المنهج
+    studentsLocation: '/reports/students-location',
+    studentsLocationStudents: '/reports/students-location/students',
+    exportStudentsLocation: '/reports/students-location/export',
   },
   // الموظفون الإداريون ورواتبهم — الأدمن والمحاسب (EmployeePolicy بالباك)
   employees: {

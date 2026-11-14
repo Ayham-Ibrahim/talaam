@@ -6,12 +6,6 @@ import { motion } from 'framer-motion';
 import { Logo } from '@/components/layout/Logo';
 import { ApiErrorList, Button } from '@/components/ui';
 import { PolicyAcceptanceCheckbox } from '@/components/auth/PolicyAcceptanceCheckbox';
-import {
-  StudentAcademicProfileFields,
-  STUDENT_ACADEMIC_INITIAL,
-  buildStudentAcademicPayload,
-  isStudentAcademicFormValid,
-} from '@/components/dashboard/StudentAcademicProfileFields';
 import { NAME_VALIDATION_PATTERN, EMAIL_PATTERN, PHONE_PATTERN } from '@/lib/accountFormValidation';
 import { getBrowserTimezone } from '@/lib/timezone';
 import { useAuth, useRegisterStudent } from '@/hooks/useAuth';
@@ -25,16 +19,6 @@ const REGISTER_FIELD_LABELS = {
   email: 'البريد الإلكتروني',
   phone: 'رقم الهاتف',
   password: 'كلمة المرور',
-  education_type: 'نوع التعليم',
-  curriculum_id: 'المنهج',
-  country_id: 'الدولة',
-  region_id: 'الولاية',
-  stage_id: 'المرحلة',
-  university_id: 'الجامعة',
-  major_id: 'التخصص',
-  course_field_id: 'مجال الدورة',
-  guardian_name: 'اسم ولي الأمر',
-  guardian_phone: 'هاتف ولي الأمر',
   accept_policy: 'الموافقة على السياسة',
 };
 const registerErrorLabel = (path) => REGISTER_FIELD_LABELS[path] ?? path;
@@ -43,10 +27,9 @@ const registerErrorLabel = (path) => REGISTER_FIELD_LABELS[path] ?? path;
  * تسجيل ذاتي للطالب فقط (RULE-01: لا تسجيل ذاتي للمعلمين — TeacherService
  * تعليق invite()) — الباك اند (AuthController::registerStudent) موجود
  * وواضح، لكن لم تكن له شاشة فرونت إند إطلاقاً؛ هذه الصفحة أول ربط فعلي بها.
- * حقول الهوية (react-hook-form، بنفس نمط LoginPage/ResetPasswordPage) +
- * حقول الملف الأكاديمي (StudentAcademicProfileFields، بنفس نمط
- * CompleteStudentProfilePage — state يدوي منفصل لأن المكوّن غير مبني على
- * react-hook-form) تُدمَجان في حمولة واحدة عند الإرسال.
+ * حقول الحساب فقط (react-hook-form، بنفس نمط LoginPage/ResetPasswordPage) —
+ * الملف الدراسي والموقع خطوة ثانية: الحساب ينشأ بلا education_type فيحوّله
+ * ProtectedRoute تلقائياً إلى /complete-profile قبل دخول اللوحة.
  */
 export function RegisterPage() {
   const t = useT();
@@ -55,8 +38,6 @@ export function RegisterPage() {
   const registerStudent = useRegisterStudent();
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
-  const [academicForm, setAcademicForm] = useState(STUDENT_ACADEMIC_INITIAL);
-  const [academicTouched, setAcademicTouched] = useState(false);
 
   const {
     register,
@@ -70,8 +51,6 @@ export function RegisterPage() {
   if (isAuthenticated) return <Navigate to="/dashboard/student" replace />;
 
   const onSubmit = (values) => {
-    setAcademicTouched(true);
-    if (!isStudentAcademicFormValid(academicForm, false)) return;
 
     registerStudent.mutate(
       {
@@ -83,7 +62,6 @@ export function RegisterPage() {
         accept_policy: values.accept_policy,
         // منطقة الطالب الفعلية تُلتقَط مرة واحدة هنا فقط، عند إنشاء الحساب — لا تُعاد مزامنتها تلقائياً بعد ذلك
         timezone: getBrowserTimezone(),
-        ...buildStudentAcademicPayload(academicForm),
       },
       { onSuccess: () => navigate('/dashboard/student', { replace: true }) },
     );
@@ -263,15 +241,6 @@ export function RegisterPage() {
                   <span className="text-xs text-accent-pink">{errors.password_confirmation.message}</span>
                 )}
               </label>
-
-              <div className="border-t border-line/60 pt-5">
-                <StudentAcademicProfileFields
-                  form={academicForm}
-                  setForm={setAcademicForm}
-                  touched={academicTouched}
-                  requireGuardian={false}
-                />
-              </div>
 
               <PolicyAcceptanceCheckbox
                 policySlug="student-policy"

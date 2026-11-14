@@ -1974,6 +1974,7 @@
       "academicSupportFinance": "مالية الدعم الأكاديمي",
       "sessionQuality": "تقييمات جودة الجلسات",
       "studentsReport": "تقارير وإحصاءات الطلاب",
+      "studentsLocationReport": "تقرير التسويق: الموقع × المنهج",
       "campaigns": "الحملات الإعلانية"
     },
     "adminNavGroups": {
@@ -2836,6 +2837,69 @@
         "settlementsAmount": "تسويات تسجيل متأخر",
         "campaignSessionsCount": "حصص الحملة (براتب ثابت)",
         "platformRevenue": "عائد المنصة"
+      }
+    },
+    "locationReport": {
+      "title": "تقرير التسويق: الموقع × المنهج",
+      "subtitle": "من أين يأتي طلابنا وماذا يدرسون، ومن منهم يدفع — لتوجيه الحملات حيث العائد أعلى",
+      "export": "تصدير Excel",
+      "exporting": "جارٍ التصدير...",
+      "empty": "لا يوجد طلاب ضمن هذه الفلاتر",
+      "emptyStudents": "لا يوجد طلاب ضمن هذه الفلاتر",
+      "unknownLocation": "موقع غير محدد",
+      "noCurriculum": "بدون منهج",
+      "viewStudents": "عرض الطلاب",
+      "matrixHint": "كلما غمق اللون زاد عدد الطلاب — اضغط على أي خلية لعرض طلاب تلك الشريحة",
+      "studentsCount": "عدد الطلاب:",
+      "studentsHint": "التصدير يشمل كل الطلاب ضمن الفلاتر الحالية",
+      "yes": "نعم",
+      "no": "لا",
+      "filters": {
+        "country": "الدولة",
+        "region": "الولاية",
+        "curriculum": "المنهج",
+        "educationType": "نوع التعليم",
+        "from": "مسجّل من تاريخ",
+        "to": "إلى تاريخ",
+        "all": "الكل",
+        "pickCountryFirst": "اختر الدولة أولاً",
+        "reset": "مسح الفلاتر"
+      },
+      "stats": {
+        "students": "عدد الطلاب",
+        "paying": "عدد من دفع",
+        "conversion": "نسبة من دفع:",
+        "running": "يدرسون حالياً",
+        "revenue": "إجمالي ما دفعوه",
+        "withoutLocation": "بلا موقع",
+        "withoutLocationHint": "لم يحددوا دولتهم بعد"
+      },
+      "tabs": {
+        "location": "حسب الموقع",
+        "curriculum": "حسب المنهج",
+        "matrix": "الموقع × المنهج",
+        "students": "قائمة الطلاب"
+      },
+      "cols": {
+        "location": "الموقع (الدولة · الولاية)",
+        "curriculum": "المنهج",
+        "students": "عدد الطلاب",
+        "share": "نسبتهم من كل الطلاب",
+        "paying": "عدد من دفع",
+        "conversion": "نسبة من دفع منهم",
+        "running": "يدرسون حالياً",
+        "revenue": "إجمالي ما دفعوه",
+        "total": "الإجمالي"
+      },
+      "studentCols": {
+        "student": "الطالب",
+        "phone": "الهاتف",
+        "location": "الموقع (الدولة · الولاية)",
+        "curriculum": "المنهج",
+        "stage": "المرحلة",
+        "registered": "تاريخ التسجيل",
+        "paying": "هل دفع؟",
+        "revenue": "إجمالي ما دفعه"
       }
     },
     "studentsReport": {
