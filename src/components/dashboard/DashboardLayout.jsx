@@ -13,6 +13,7 @@ import {
   LogOut,
   Settings,
   ShieldCheck,
+  Sparkles,
   Star,
   UserRound,
   Users,
@@ -34,6 +35,7 @@ const STUDENT_NAV_ITEMS = [
   { key: "calendar", icon: Calendar, path: "/dashboard/student/calendar" },
   { key: "sessions", icon: FileText, path: "/dashboard/student/sessions" },
   { key: "packages", icon: CreditCard, path: "/dashboard/student/packages" },
+  { key: "campaignOffers", icon: Sparkles, path: "/campaign-offers", campaignOnly: true },
   { key: "academicSupport", icon: HandHeart, path: "/dashboard/student/academic-support", universityOnly: true },
   { key: "invoices", icon: FileText, path: "/dashboard/student/invoices" },
   { key: "reviews", icon: Star, path: "/dashboard/student/reviews" },
@@ -97,7 +99,12 @@ function DashboardLayoutInner({ children }) {
       : user?.role === "academic_support"
         ? SUPPORTER_NAV_ITEMS
         // تاب الدعم الأكاديمي حصراً للطالب الجامعي — لا يظهر لطالب مدرسي/دورات تدريبية
-        : STUDENT_NAV_ITEMS.filter((item) => !item.universityOnly || user?.student?.education_type === "university");
+        // تاب عروض الحملة حصراً لمن جاء من حملة (يبقى بعد تحويل حسابه)
+        : STUDENT_NAV_ITEMS.filter(
+            (item) =>
+              (!item.universityOnly || user?.student?.education_type === "university") &&
+              (!item.campaignOnly || user?.is_from_campaign),
+          );
 
   const activeNavItem =
     NAV_ITEMS.find((item) =>

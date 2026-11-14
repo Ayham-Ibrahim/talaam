@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { AlertTriangle, CalendarDays, CheckCircle2, Clock, Pencil, Trash2 } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { AlertTriangle, CalendarDays, CheckCircle2, Clock, Mail, Pencil, Trash2 } from 'lucide-react';
 import { Button, ApiErrorList } from '@/components/ui';
 import { AvailabilityCalendar } from '@/components/teacher/AvailabilityCalendar';
 import { PolicyNotice } from '@/components/common/PolicyNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { useRequestIndividualBooking, useCreateGroupBooking, usePackageBusySlots, usePackageBusySlotsForDates } from '@/hooks/useBooking';
 import { useCalendarSessions } from '@/hooks/useDashboard';
+import { useBookGuestTrial, useSendGuestCode } from '@/hooks/useCampaign';
+import { EMAIL_PATTERN } from '@/lib/accountFormValidation';
 import { useT } from '@/hooks/useT';
 import { useCurrencyStore } from '@/store';
 import { formatPrice } from '@/lib/currency';
@@ -82,6 +84,22 @@ export function BookingWidget({ selectedPackage, bare = false }) {
   const requestIndividual = useRequestIndividualBooking(selectedPackage?.id);
   const createGroup = useCreateGroupBooking(selectedPackage?.id);
 
+  // الزائر يحجز الجلسة المجانية بلا حساب: اسمه وبريده، ثم رمز تحقق يصله على البريد
+  const isGuestTrial = !isAuthenticated && !!selectedPackage?.isTrial && !isGroup;
+  const [guest, setGuest] = useState({ name: '', email: '', code: '' });
+  const sendGuestCode = useSendGuestCode(selectedPackage?.id);
+  const bookGuestTrial = useBookGuestTrial(selectedPackage?.id);
+  const guestCodeSent = sendGuestCode.isSuccess;
+  const guestIdentityValid = guest.name.trim().length > 1 && EMAIL_PATTERN.test(guest.email.trim());
+
+  // حساب حملة لم يُحوَّل: يرى الباقات العادية المدفوعة ولا يحجزها (الباك يرفض أيضاً)
+  const blockedForCampaign =
+    isAuthenticated &&
+    user?.account_type === 'campaign' &&
+    !!selectedPackage &&
+    !selectedPackage.isTrial &&
+    !selectedPackage.isCampaign;
+
   // باقة جديدة (أو عدد جلسات مختلف) → إعادة تصفير كامل التقدّم السابق، بما فيه
   // حالة الطلب (خطأ/نجاح) — وإلا تبقى رسالة خطأ باقةٍ ظاهرةً داخل باقة أخرى لا
   // علاقة لها بها. mutation في React Query يحتفظ بآخر نتيجة حتى reset() صريح.
@@ -91,8 +109,11 @@ export function BookingWidget({ selectedPackage, bare = false }) {
     setSelectedDate(null);
     setSelectedTime('');
     setCouponCode('');
+    setGuest({ name: '', email: '', code: '' });
     requestIndividual.reset();
     createGroup.reset();
+    sendGuestCode.reset();
+    bookGuestTrial.reset();
     // reset مرجعياً ثابتة في React Query — لا داعي لإدراجها في التبعيّات
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPackage?.id, sessionsCount]);
@@ -189,8 +210,10 @@ export function BookingWidget({ selectedPackage, bare = false }) {
   // `selectedPackage` shouldn't be submittable either.
   const canSubmitGroup =
     Boolean(selectedPackage) && schedules.length > 0 && !isPastDate(lastScheduleDate(schedules)) && teacherConflictId === null;
-  const isPending = requestIndividual.isPending || createGroup.isPending;
-  const isSuccess = requestIndividual.isSuccess || createGroup.isSuccess;
+  const isPending = requestIndividual.isPending || createGroup.isPending || sendGuestCode.isPending || bookGuestTrial.isPending;
+  const isSuccess = requestIndividual.isSuccess || createGroup.isSuccess || bookGuestTrial.isSuccess;
+  const canSubmitGuest = allSlotsFilled && guestIdentityValid && (!guestCodeSent || /^\d{6}$/.test(guest.code));
+  const submitError = requestIndividual.error ?? createGroup.error ?? bookGuestTrial.error ?? sendGuestCode.error;
 
   const handlePrevMonth = () => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1));
   const handleNextMonth = () => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1));
@@ -235,6 +258,21 @@ export function BookingWidget({ selectedPackage, bare = false }) {
   };
 
   const handleSubmit = () => {
+    if (isGuestTrial) {
+      if (!canSubmitGuest) return;
+      if (!guestCodeSent) {
+        sendGuestCode.mutate(guest.email.trim());
+        return;
+      }
+      bookGuestTrial.mutate({
+        email: guest.email.trim(),
+        code: guest.code,
+        name: guest.name.trim(),
+        slots: slots.map((s) => ({ date: toISODate(s.date), start_time: s.time })),
+      });
+      return;
+    }
+    if (blockedForCampaign) return;
     if (!isAuthenticated) {
       navigate('/login', { state: { from: location } });
       return;
@@ -448,7 +486,7 @@ export function BookingWidget({ selectedPackage, bare = false }) {
       )}
 
       {/* كود خصم اختياري — يُبلَّغ به الطالب خارج المنصة (اتصال/رسالة). لا معنى له على باقة مجانية */}
-      {selectedPackage && !selectedPackage.isTrial && (
+      {selectedPackage && !selectedPackage.isTrial && !selectedPackage.isCampaign && !blockedForCampaign && (
         <label className="flex flex-col gap-1.5 text-start">
           <span className="text-sm font-bold text-ink">{t('booking.couponLabel')}</span>
           <input
@@ -462,9 +500,82 @@ export function BookingWidget({ selectedPackage, bare = false }) {
         </label>
       )}
 
-      {(requestIndividual.isError || createGroup.isError) && (
-        <ApiErrorList error={requestIndividual.error ?? createGroup.error} labelFor={() => null} />
+      {isGuestTrial && allSlotsFilled && !isSuccess && (
+        <div className="flex flex-col gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-3 text-start">
+          <div>
+            <h3 className="text-sm font-bold text-ink">{t('guestTrial.title')}</h3>
+            <p className="mt-0.5 text-xs text-ink-soft">{t('guestTrial.subtitle')}</p>
+          </div>
+          <input
+            type="text"
+            maxLength={150}
+            value={guest.name}
+            disabled={guestCodeSent}
+            onChange={(e) => setGuest((g) => ({ ...g, name: e.target.value }))}
+            placeholder={t('guestTrial.namePlaceholder')}
+            className="w-full rounded-xl border border-line bg-surface p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-60"
+          />
+          <input
+            type="email"
+            dir="ltr"
+            maxLength={150}
+            value={guest.email}
+            disabled={guestCodeSent}
+            onChange={(e) => setGuest((g) => ({ ...g, email: e.target.value }))}
+            placeholder={t('guestTrial.emailPlaceholder')}
+            className="w-full rounded-xl border border-line bg-surface p-3 text-left text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-60"
+          />
+          {guestCodeSent && (
+            <>
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-primary">
+                <Mail size={13} />
+                {t('guestTrial.codeSent')}
+              </p>
+              <input
+                type="text"
+                inputMode="numeric"
+                dir="ltr"
+                maxLength={6}
+                value={guest.code}
+                onChange={(e) => setGuest((g) => ({ ...g, code: e.target.value.replace(/\D/g, '') }))}
+                placeholder={t('guestTrial.codePlaceholder')}
+                className="w-full rounded-xl border border-line bg-surface p-3 text-center text-lg tracking-[0.5em] text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  sendGuestCode.reset();
+                  bookGuestTrial.reset();
+                  setGuest((g) => ({ ...g, code: '' }));
+                }}
+                className="self-start text-xs font-medium text-primary hover:opacity-70"
+              >
+                {t('guestTrial.changeEmail')}
+              </button>
+            </>
+          )}
+          <p className="text-xs text-ink-soft">
+            {t('guestTrial.haveAccount')}{' '}
+            <Link to="/login" state={{ from: location }} className="font-medium text-primary hover:opacity-70">
+              {t('guestTrial.login')}
+            </Link>
+          </p>
+        </div>
       )}
+
+      {blockedForCampaign && (
+        <div className="flex flex-col gap-2 rounded-2xl border border-amber-300 bg-amber-50 p-3 text-start text-xs font-semibold text-amber-800">
+          <span className="flex items-start gap-2">
+            <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+            {t('campaign.convertToBook')}
+          </span>
+          <Link to="/campaign-offers" className="self-start font-bold text-primary hover:opacity-70">
+            {t('campaign.convertCta')}
+          </Link>
+        </div>
+      )}
+
+      {submitError && <ApiErrorList error={submitError} labelFor={() => null} />}
 
       <PolicyNotice policySlug="student-policy">{t('policyNotice.payment')}</PolicyNotice>
 
@@ -478,16 +589,27 @@ export function BookingWidget({ selectedPackage, bare = false }) {
 
       {isSuccess ? (
         <div className="flex items-center justify-center gap-2 rounded-btn bg-success-light py-3 text-sm font-bold text-success">
-          <CheckCircle2 size={16} /> {isGroup ? t('booking.success') : t('booking.requestSuccess')}
+          <CheckCircle2 size={16} />{' '}
+          {isGroup ? t('booking.success') : isGuestTrial ? t('guestTrial.success') : t('booking.requestSuccess')}
         </div>
       ) : (
         <Button
           className="w-full justify-center"
-          disabled={(isGroup ? !canSubmitGroup : !canSubmitIndividual) || isPending}
+          disabled={
+            (isGuestTrial ? !canSubmitGuest : isGroup ? !canSubmitGroup : !canSubmitIndividual) ||
+            blockedForCampaign ||
+            isPending
+          }
           onClick={handleSubmit}
         >
           {isPending
             ? t('booking.submitting')
+            : isGuestTrial
+              ? !allSlotsFilled
+                ? t('guestTrial.pickTimeFirst')
+                : guestCodeSent
+                  ? t('guestTrial.confirm')
+                  : t('guestTrial.sendCode')
             : !isAuthenticated
               ? t('booking.loginToBook')
               : isGroup

@@ -10,6 +10,8 @@ import { useAuth } from '@/hooks/useAuth';
 function hasIncompleteProfile(user) {
   if (!user) return false;
   if (user.role === 'teacher') return user.teacher && user.teacher.status !== 'verified';
+  // حساب الحملة قبل تحويله يدخل لوحته (حجوزاته والدفع) بلا بيانات أكاديمية — يكملها عند التحويل لحساب طبيعي
+  if (user.role === 'student' && user.account_type === 'campaign') return false;
   if (user.role === 'student') return user.student && user.student.education_type == null;
   return false;
 }

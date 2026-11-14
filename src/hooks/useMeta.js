@@ -3,10 +3,13 @@ import { queryKeys } from '@/api/queryKeys';
 import { packageService, courseService, reviewService, metaService } from '@/services';
 import { legalPageService } from '@/services/legalPageService';
 import { academicSupporterService } from '@/services/academicSupporterService';
+import { useAuthStore } from '@/store';
 
 export function usePackages(teacherId) {
+  // باقات الحملة تظهر لحسابات الحملة فقط — المشاهد جزء من المفتاح كي لا يُعاد كاش زائر بعد الدخول
+  const viewerId = useAuthStore((s) => s.user?.id ?? 'guest');
   return useQuery({
-    queryKey: queryKeys.teachers.packages(teacherId),
+    queryKey: [...queryKeys.teachers.packages(teacherId), viewerId],
     queryFn: () => packageService.getByTeacher(teacherId),
     enabled: !!teacherId,
   });
