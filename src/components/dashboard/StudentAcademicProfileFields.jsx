@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
+import { CountryRegionFields, useLocationOptions } from '@/components/dashboard/CountryRegionFields';
 import { sanitizeName, sanitizePhone, validateName, validatePhone } from '@/lib/accountFormValidation';
 import { useTaxonomyList } from '@/hooks/useTaxonomy';
 import { useT } from '@/hooks/useT';
@@ -10,6 +12,10 @@ import { useT } from '@/hooks/useT';
  * field set, validation, and payload shape must stay identical between them.
  */
 export const STUDENT_ACADEMIC_INITIAL = {
+  country_id: '',
+  region_id: '',
+  // مشتق لا يُرسَل: للدولة المختارة ولايات مُعرَّفة فالولاية مطلوبة — يضبطه المكوّن نفسه
+  region_required: false,
   education_type: '',
   curriculum_id: '',
   stage_id: '',
@@ -86,8 +92,13 @@ export function isGuardianNameValid(name, requireGuardian = true) {
  * الحقول الإلزامية لنوع التعليم المختار، بالإضافة لاسم وهاتف ولي الأمر —
  * إلزاميان افتراضياً (UpdateStudentProfileRequest)، اختياريان صراحةً عبر
  * requireGuardian=false (RegisterStudentRequest، التسجيل الذاتي الجديد).
+ *
+ * الموقع (دولة ← ولاية): اختياري في الباك اند لكنه إلزامي هنا حين يملأ الطالب بياناته
+ * بنفسه — عليه تُبنى تقارير التسويق (موقع × منهاج). الولاية مطلوبة فقط إن كان للدولة
+ * المختارة ولايات (region_required). requireLocation=false لمحرر الأدمن (قد لا يعرفه)
+ * ولنموذج الأخ (يرث موقع الأساسي).
  */
-export function studentAcademicRequiredFieldsFilled(form, requireGuardian = true) {
+export function studentAcademicRequiredFieldsFilled(form, requireGuardian = true, requireLocation = true) {
   const typeSpecificFilled =
     form.education_type === 'school'
       ? form.curriculum_id !== '' && form.stage_id !== ''
@@ -101,7 +112,10 @@ export function studentAcademicRequiredFieldsFilled(form, requireGuardian = true
   const guardianFilled =
     form.education_type !== 'school' || !requireGuardian || (form.guardian_name.trim() !== '' && form.guardian_phone !== '');
 
-  return typeSpecificFilled && guardianFilled;
+  const locationFilled =
+    !requireLocation || (form.country_id !== '' && (!form.region_required || form.region_id !== ''));
+
+  return typeSpecificFilled && guardianFilled && locationFilled;
 }
 
 /** خطأ في أي حقل حر (تاريخ ميلاد/صف/اسم وهاتف ولي الأمر) — لتعطيل زر الحفظ، مستقل عن اكتمال الحقول الإلزامية. */
@@ -115,12 +129,17 @@ export function hasStudentAcademicFieldError(form, requireGuardian = true) {
   );
 }
 
-export function isStudentAcademicFormValid(form, requireGuardian = true) {
-  return studentAcademicRequiredFieldsFilled(form, requireGuardian) && !hasStudentAcademicFieldError(form, requireGuardian);
+export function isStudentAcademicFormValid(form, requireGuardian = true, requireLocation = true) {
+  return (
+    studentAcademicRequiredFieldsFilled(form, requireGuardian, requireLocation) &&
+    !hasStudentAcademicFieldError(form, requireGuardian)
+  );
 }
 
 export function buildStudentAcademicPayload(form) {
   const payload = { education_type: form.education_type };
+  if (form.country_id) payload.country_id = Number(form.country_id);
+  if (form.region_id) payload.region_id = Number(form.region_id);
   if (form.education_type === 'school') {
     payload.curriculum_id = Number(form.curriculum_id);
     payload.stage_id = Number(form.stage_id);
@@ -141,11 +160,21 @@ export function buildStudentAcademicPayload(form) {
   return payload;
 }
 
-export function StudentAcademicProfileFields({ form, setForm, touched, requireGuardian = true }) {
+export function StudentAcademicProfileFields({ form, setForm, touched, requireGuardian = true, requireLocation = true }) {
   const t = useT();
   // تلميح "أكمل الحقول المطلوبة" يخص الحقول الإلزامية فقط — أخطاء الصف/تاريخ
   // الميلاد/هاتف ولي الأمر لها رسائلها الخاصة تحت كل حقل مباشرةً.
-  const requiredFieldsValid = studentAcademicRequiredFieldsFilled(form, requireGuardian);
+  const requiredFieldsValid = studentAcademicRequiredFieldsFilled(form, requireGuardian, requireLocation);
+  const location = useLocationOptions(form.country_id, form.region_id);
+  const countryError = touched && requireLocation && form.country_id === '';
+  const regionError = touched && requireLocation && form.region_required && form.region_id === '';
+
+  // region_required يتبع الدولة المختارة وقوائمها (بعد التحميل أو تعبئة النموذج من الملف)
+  useEffect(() => {
+    if (location.hasRegions !== form.region_required) {
+      setForm((prev) => ({ ...prev, region_required: location.hasRegions }));
+    }
+  }, [location.hasRegions, form.region_required, setForm]);
   const gradeError = !isGradeValid(form.grade);
   // قبل أول محاولة حفظ (touched=false)، حقل ولي الأمر الفارغ لا يُعرَض كخطأ —
   // إلزاميته الجديدة لا يجب أن تُخيف المستخدم برسالة حمراء قبل أن يحاول الكتابة أصلاً.
@@ -164,6 +193,17 @@ export function StudentAcademicProfileFields({ form, setForm, touched, requireGu
 
   return (
     <div className="flex flex-col gap-4 text-right">
+      <CountryRegionFields
+        {...location}
+        countryId={form.country_id}
+        regionId={form.region_id}
+        onCountryChange={(v) => setForm((prev) => ({ ...prev, country_id: v, region_id: '' }))}
+        onRegionChange={(v) => setForm((prev) => ({ ...prev, region_id: v }))}
+        countryError={countryError}
+        regionError={regionError}
+        optional={!requireLocation}
+      />
+
       <div>
         <span className="text-sm font-semibold text-ink">{t('completeProfile.educationTypeLabel')}</span>
         <div className="mt-2 grid grid-cols-3 gap-2">
@@ -171,7 +211,13 @@ export function StudentAcademicProfileFields({ form, setForm, touched, requireGu
             <button
               key={opt.value}
               type="button"
-              onClick={() => setForm((prev) => ({ ...STUDENT_ACADEMIC_INITIAL, education_type: opt.value }))}
+              onClick={() => setForm((prev) => ({
+                  ...STUDENT_ACADEMIC_INITIAL,
+                  country_id: prev.country_id,
+                  region_id: prev.region_id,
+                  region_required: prev.region_required,
+                  education_type: opt.value,
+                }))}
               className={`rounded-xl border py-2.5 text-sm font-medium transition-colors ${
                 form.education_type === opt.value
                   ? 'border-primary bg-primary text-white'

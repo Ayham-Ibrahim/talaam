@@ -13,6 +13,16 @@ export const studentAccountService = {
     return data.data;
   },
 
+  /** الدولة والولاية وحدهما — لنافذة RegionPromptModal، بلا بقية الحقول الأكاديمية التي يتطلبها completeProfile */
+  async updateLocation(location) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return location;
+    }
+    const { data } = await client.put(endpoints.profile.updateLocation, location);
+    return data.data;
+  },
+
   /** يملأ نموذج الإعدادات — StudentProfileResource يعيد الأسماء والمعرّفات معاً (الأخيرة لازمة لتعبئة القوائم المنسدلة) */
   async getMyProfile(id) {
     if (config.useMocks) {

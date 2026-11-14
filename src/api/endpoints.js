@@ -33,6 +33,8 @@ export const endpoints = {
     deleteAvatar: '/me/avatar',
     update: '/me/profile',
     updatePassword: '/me/password',
+    // الطالب يحدد دولته وولايته وحدهما (StudentController::updateMyLocation)
+    updateLocation: '/me/location',
   },
   // حسابات الإخوة — الطالب الأساسي يضيف إخوته ويبدّل بين حسابات العائلة
   siblings: {

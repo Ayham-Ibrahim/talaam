@@ -7,6 +7,8 @@ const STUDENT_HEADERS = [
   'name',
   'email',
   'phone',
+  // الولاية: رمزها (DXB) أو اسمها (دبي) — بديلاً عنها يُقبل عمود city ويُطابَق تلقائياً
+  'region',
   'education_type',
   'curriculum_code',
   'stage_code',
@@ -25,6 +27,7 @@ const STUDENT_EXAMPLE_ROW = [
   'أحمد علي',
   'ahmad.ali@example.com',
   '0500000001',
+  'DXB',
   'school',
   'national',
   'primary',

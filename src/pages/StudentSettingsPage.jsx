@@ -44,6 +44,8 @@ const passwordErrorLabel = (path) => PASSWORD_FIELD_LABELS[path] ?? path;
 const ACADEMIC_FIELD_LABELS = {
   education_type: 'نوع التعليم',
   curriculum_id: 'المنهج',
+  country_id: 'الدولة',
+  region_id: 'الولاية',
   stage_id: 'المرحلة',
   grade: 'الصف',
   university_id: 'الجامعة',
@@ -112,6 +114,9 @@ export function StudentSettingsPage() {
   useEffect(() => {
     if (profile && !academicHydrated) {
       setAcademicForm({
+        country_id: profile.country_id ?? '',
+        region_id: profile.region_id ?? '',
+        region_required: false,
         education_type: profile.education_type ?? '',
         curriculum_id: profile.curriculum_id ?? '',
         stage_id: profile.stage_id ?? '',

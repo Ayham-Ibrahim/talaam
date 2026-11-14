@@ -17,6 +17,8 @@ const FIELD_LABELS = {
   gender: 'الجنس',
   education_type: 'نوع التعليم',
   curriculum_id: 'المنهج',
+  country_id: 'الدولة',
+  region_id: 'الولاية',
   stage_id: 'المرحلة',
   grade: 'الصف',
   university_id: 'الجامعة',
@@ -55,7 +57,8 @@ export function SiblingsSection() {
 
   const handleSubmit = () => {
     setTouched(true);
-    if (nameMissing || !isStudentAcademicFormValid(form)) return;
+    // الموقع اختياري للأخ — بلا اختيار يرث الباك اند موقع الحساب الأساسي
+    if (nameMissing || !isStudentAcademicFormValid(form, true, false)) return;
     addSibling.mutate(
       {
         name: form.name.trim(),
@@ -181,6 +184,7 @@ export function SiblingsSection() {
                 })
               }
               touched={touched}
+              requireLocation={false}
             />
 
             <button

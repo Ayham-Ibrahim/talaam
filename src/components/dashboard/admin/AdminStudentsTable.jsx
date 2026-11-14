@@ -33,12 +33,13 @@ export function AdminStudentsTable({ students }) {
 
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
-      <table className="w-full min-w-[820px] text-sm">
+      <table className="w-full min-w-[920px] text-sm">
         <thead>
           <tr className="border-b border-line">
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminStudents.colStudent')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminStudents.colPhone')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminStudents.colEducationType')}</th>
+            <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminStudents.colLocation')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminStudents.colStatus')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminStudents.colJoined')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminStudents.colActions')}</th>
@@ -63,6 +64,9 @@ export function AdminStudentsTable({ students }) {
               </td>
               <td className="px-4 py-4 text-right">
                 <EducationTypeBadge type={student.educationType} />
+              </td>
+              <td className="px-4 py-4 text-right text-ink-soft">
+                {[student.country, student.region].filter(Boolean).join(' · ') || '—'}
               </td>
               <td className="px-4 py-4 text-right">
                 <ActiveBadge isActive={student.isActive} />

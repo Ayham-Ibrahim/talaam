@@ -12,7 +12,7 @@ import { useAdminStudentsList } from "@/hooks/useAdminStudents";
 import { useT } from "@/hooks/useT";
 
 const PAGE_SIZE = 10;
-const DEFAULT_FILTERS = { educationType: "", search: "" };
+const DEFAULT_FILTERS = { educationType: "", countryId: "", regionId: "", search: "" };
 
 export function AdminStudentsPage() {
   const t = useT();
@@ -23,7 +23,8 @@ export function AdminStudentsPage() {
   const { data, isLoading, isError, refetch } = useAdminStudentsList(filters);
 
   const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+    // تغيير الدولة يفرّغ فلتر الولاية — ولاية دولة أخرى لن تطابق أحداً
+    setFilters((prev) => ({ ...prev, [key]: value, ...(key === "countryId" ? { regionId: "" } : {}) }));
     setPage(1);
   };
 

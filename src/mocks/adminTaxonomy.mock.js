@@ -1,7 +1,7 @@
 /**
  * Taxonomy mocks — mirrors GET/POST/PUT/DELETE /taxonomy/{type} on the
- * backend, which is a single generic controller over 7 lookup tables.
- * We mirror that here with one config array instead of 7 near-identical files.
+ * backend, which is a single generic controller over 9 lookup tables.
+ * We mirror that here with one config array instead of 9 near-identical files.
  */
 
 export const TAXONOMY_TYPES = [
@@ -12,6 +12,9 @@ export const TAXONOMY_TYPES = [
   { key: 'majors', label: 'التخصصات', hasCode: false, hasEducationType: false },
   { key: 'course_fields', label: 'مجالات الدورات', hasCode: true, hasEducationType: false },
   { key: 'languages', label: 'اللغات', hasCode: true, hasEducationType: false },
+  // موقع الطالب مستويان: دولة ← ولاية — يغذي تقارير التسويق (توزيع الطلاب حسب الموقع × المنهاج)
+  { key: 'countries', label: 'الدول', hasCode: true, hasEducationType: false },
+  { key: 'regions', label: 'الولايات', hasCode: true, hasEducationType: false, hasCountry: true },
 ];
 
 export const EDUCATION_TYPE_LABELS = {
@@ -61,6 +64,15 @@ let mockTaxonomyData = {
     { id: 1, code: 'ar', name_ar: 'العربية' },
     { id: 2, code: 'en', name_ar: 'الانكليزية' },
     { id: 3, code: 'fr', name_ar: 'الفرنسية' },
+  ],
+  countries: [
+    { id: 1, code: 'AE', name_ar: 'الإمارات', is_active: true },
+    { id: 2, code: 'SA', name_ar: 'السعودية', is_active: true },
+  ],
+  regions: [
+    { id: 1, country_id: 1, code: 'AUH', name_ar: 'أبوظبي', is_active: true },
+    { id: 2, country_id: 1, code: 'DXB', name_ar: 'دبي', is_active: true },
+    { id: 3, country_id: 1, code: 'SHJ', name_ar: 'الشارقة', is_active: true },
   ],
 };
 

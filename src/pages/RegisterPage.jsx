@@ -27,6 +27,8 @@ const REGISTER_FIELD_LABELS = {
   password: 'كلمة المرور',
   education_type: 'نوع التعليم',
   curriculum_id: 'المنهج',
+  country_id: 'الدولة',
+  region_id: 'الولاية',
   stage_id: 'المرحلة',
   university_id: 'الجامعة',
   major_id: 'التخصص',

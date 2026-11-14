@@ -17,6 +17,8 @@ import { useT } from '@/hooks/useT';
 const STUDENT_PROFILE_FIELD_LABELS = {
   education_type: 'نوع التعليم',
   curriculum_id: 'المنهج',
+  country_id: 'الدولة',
+  region_id: 'الولاية',
   stage_id: 'المرحلة',
   grade: 'الصف',
   university_id: 'الجامعة',

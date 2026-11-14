@@ -18,6 +18,8 @@ import { useT } from '@/hooks/useT';
 const ACADEMIC_FIELD_LABELS = {
   education_type: 'نوع التعليم',
   curriculum_id: 'المنهج',
+  country_id: 'الدولة',
+  region_id: 'الولاية',
   stage_id: 'المرحلة',
   grade: 'الصف',
   university_id: 'الجامعة',
@@ -50,6 +52,9 @@ export function AdminStudentProfileEditor({ studentId, student }) {
   useEffect(() => {
     if (student && !hydrated) {
       setForm({
+        country_id: student.country_id ?? '',
+        region_id: student.region_id ?? '',
+        region_required: false,
         education_type: student.education_type ?? '',
         curriculum_id: student.curriculum_id ?? '',
         stage_id: student.stage_id ?? '',
@@ -74,7 +79,7 @@ export function AdminStudentProfileEditor({ studentId, student }) {
 
   const handleSave = () => {
     setTouched(true);
-    if (!isStudentAcademicFormValid(form)) return;
+    if (!isStudentAcademicFormValid(form, true, false)) return;
     updateProfile.mutate(buildStudentAcademicPayload(form), {
       onSuccess: () => {
         setSuccessMessage(t('dashboard.adminStudentDetail.profileEditor.saveSuccess'));
@@ -121,7 +126,7 @@ export function AdminStudentProfileEditor({ studentId, student }) {
 
       {updateProfile.isError && <ApiErrorList error={updateProfile.error} labelFor={academicErrorLabel} className="mb-4" />}
 
-      <StudentAcademicProfileFields form={form} setForm={setForm} touched={touched} />
+      <StudentAcademicProfileFields form={form} setForm={setForm} touched={touched} requireLocation={false} />
 
       <button
         type="button"

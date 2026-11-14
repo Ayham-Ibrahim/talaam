@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { CampaignAccountBanner } from "@/components/common/CampaignAccountBanner";
+import { RegionPromptModal } from "@/components/dashboard/RegionPromptModal";
 import {
   Calendar,
   CalendarClock,
@@ -307,6 +308,7 @@ function DashboardLayoutInner({ children }) {
 
         <main dir="rtl" className="flex-1 overflow-auto px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
           <CampaignAccountBanner />
+          <RegionPromptModal />
           {children}
         </main>
       </div>

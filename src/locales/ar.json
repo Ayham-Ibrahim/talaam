@@ -1003,6 +1003,11 @@
       }
     }
   },
+  "regionPrompt": {
+    "title": "أين تسكن؟",
+    "body": "حدّد دولتك وولايتك لنقدّم لك عروضاً ومعلمين أنسب لمنطقتك.",
+    "later": "لاحقاً"
+  },
   "completeProfile": {
     "majorsLabel": "التخصصات",
     "optional": "اختياري",
@@ -1022,6 +1027,10 @@
     "documentMissing": "لم تُرفع بعد",
     "documentRejectedReason": "سبب الرفض",
     "documentReuploadPrompt": "إعادة رفع هذه الوثيقة",
+    "countryLabel": "الدولة",
+    "countryRequired": "اختر الدولة التي تسكن فيها",
+    "regionLabel": "الولاية / المنطقة",
+    "regionRequired": "اختر الولاية التي تسكن فيها",
     "educationTypeLabel": "نوع التعليم",
     "educationTypes": {
       "school": "مدرسي",
@@ -2033,6 +2042,9 @@
       "addStudent": "إضافة طالب",
       "searchPlaceholder": "ابحث بالاسم أو البريد الإلكتروني",
       "allEducationTypes": "كل التصنيفات الأكاديمية",
+      "allCountries": "كل الدول",
+      "allRegions": "كل الولايات",
+      "colLocation": "الموقع",
       "educationType": {
         "school": "مدرسي",
         "university": "جامعي",

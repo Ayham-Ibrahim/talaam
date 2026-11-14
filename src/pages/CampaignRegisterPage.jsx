@@ -9,6 +9,7 @@ import { PolicyAcceptanceCheckbox } from '@/components/auth/PolicyAcceptanceChec
 import { NAME_VALIDATION_PATTERN, EMAIL_PATTERN, PHONE_PATTERN } from '@/lib/accountFormValidation';
 import { useAuth } from '@/hooks/useAuth';
 import { useCampaign, useRegisterCampaign } from '@/hooks/useCampaign';
+import { CountryRegionFields, useLocationOptions } from '@/components/dashboard/CountryRegionFields';
 import { useT } from '@/hooks/useT';
 
 /** يوازي حد كلمة المرور في الباك اند — نفس RegisterPage */
@@ -18,6 +19,8 @@ const FIELD_LABELS = {
   name: 'الاسم',
   email: 'البريد الإلكتروني',
   phone: 'رقم الهاتف',
+  country_id: 'الدولة',
+  region_id: 'الولاية',
   password: 'كلمة المرور',
   accept_policy: 'الموافقة على السياسة',
   campaign: 'الحملة',
@@ -42,6 +45,12 @@ export function CampaignRegisterPage() {
   const { data: campaign, isLoading, isError } = useCampaign(slug);
   const registerCampaign = useRegisterCampaign(slug);
   const [showPassword, setShowPassword] = useState(false);
+  // الموقع خارج react-hook-form: حقلان مترابطان (تغيير الدولة يفرّغ الولاية) بقوائم من الخادم
+  const [location, setLocation] = useState({ country_id: '', region_id: '' });
+  const [locationTouched, setLocationTouched] = useState(false);
+  const locationOptions = useLocationOptions(location.country_id, location.region_id);
+  const countryMissing = location.country_id === '';
+  const regionMissing = locationOptions.hasRegions && location.region_id === '';
 
   const {
     register,
@@ -54,11 +63,15 @@ export function CampaignRegisterPage() {
   if (isAuthenticated && !registerCampaign.isSuccess) return <Navigate to="/campaign-offers" replace />;
 
   const onSubmit = (values) => {
+    if (countryMissing || regionMissing) return;
     registerCampaign.mutate(
       {
         name: values.name.trim(),
         email: values.email.trim(),
         phone: values.phone.trim(),
+        // موقع القادم من الحملة — يقيس به التسويق وصول كل حملة جغرافياً
+        country_id: Number(location.country_id),
+        region_id: location.region_id ? Number(location.region_id) : undefined,
         password: values.password,
         password_confirmation: values.password_confirmation,
         accept_policy: values.accept_policy,
@@ -114,7 +127,14 @@ export function CampaignRegisterPage() {
               <h2 className="text-2xl font-bold text-ink">{t('campaign.registerTitle')}</h2>
               <p className="mt-2 text-sm text-ink-soft">{t('campaign.registerSubtitle')}</p>
 
-              <form className="mt-6 flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)} noValidate>
+              <form
+                className="mt-6 flex flex-col gap-5"
+                onSubmit={(e) => {
+                  setLocationTouched(true);
+                  return handleSubmit(onSubmit)(e);
+                }}
+                noValidate
+              >
                 <label className="flex flex-col gap-1.5 text-start">
                   <span className="text-sm font-semibold text-ink">{t('auth.nameLabel')}</span>
                   <div className="relative">
@@ -170,6 +190,16 @@ export function CampaignRegisterPage() {
                   </div>
                   {errors.phone && <span className="text-xs text-accent-pink">{errors.phone.message}</span>}
                 </label>
+
+                <CountryRegionFields
+                  {...locationOptions}
+                  countryId={location.country_id}
+                  regionId={location.region_id}
+                  onCountryChange={(v) => setLocation({ country_id: v, region_id: '' })}
+                  onRegionChange={(v) => setLocation((prev) => ({ ...prev, region_id: v }))}
+                  countryError={locationTouched && countryMissing}
+                  regionError={locationTouched && regionMissing}
+                />
 
                 <label className="flex flex-col gap-1.5 text-start">
                   <span className="text-sm font-semibold text-ink">{t('auth.passwordLabel')}</span>
