@@ -86,10 +86,4 @@ export const campaignService = {
     const { data } = await client.post(url);
     return data.data;
   },
-
-  /** أيام توفّر المعلم — أيام باقة الحملة يجب أن تكون ضمنها */
-  async adminTeacherAvailableDays(teacherId) {
-    const { data } = await client.get(endpoints.teachers.availabilitySlots(teacherId));
-    return (data.data ?? []).map((slot) => slot.day_of_week);
-  },
 };

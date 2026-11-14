@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import { CampaignAccountBanner } from "@/components/common/CampaignAccountBanner";
 import {
   Calendar,
   CalendarClock,
@@ -164,9 +165,14 @@ function DashboardLayoutInner({ children }) {
                   end={item.end}
                   className={({ isActive }) =>
                     `flex items-center justify-end gap-3.5 rounded-l-2xl px-8 py-4 text-base font-medium transition-colors ${
-                      isActive
-                        ? "bg-primary text-white"
-                        : "text-[#2D2D2D] hover:bg-line/40"
+                      // عروض الحملة مميَّزة دائماً بلون بطاقات العروض البرتقالي — لا تضيع بين البنود
+                      item.campaignOnly
+                        ? isActive
+                          ? "bg-gradient-to-l from-[#F59E0B] to-[#B45309] font-bold text-white"
+                          : "bg-amber-50 font-bold text-[#B45309] hover:bg-amber-100"
+                        : isActive
+                          ? "bg-primary text-white"
+                          : "text-[#2D2D2D] hover:bg-line/40"
                     }`
                   }
                 >
@@ -300,6 +306,7 @@ function DashboardLayoutInner({ children }) {
         </header>
 
         <main dir="rtl" className="flex-1 overflow-auto px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
+          <CampaignAccountBanner />
           {children}
         </main>
       </div>

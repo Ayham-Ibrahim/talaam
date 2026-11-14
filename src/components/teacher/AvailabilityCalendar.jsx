@@ -26,6 +26,9 @@ function buildHalfHourSlots(startHour, endHour) {
 // (الباك اند date_format:H:i يقبل 00-23 فقط)، فنستبعدها؛ آخر خانة فعلية تبقى 23:30
 const SLOT_TIMES = buildHalfHourSlots(9, 24).filter((slot) => slot.hour < 24);
 
+/** اليوم كله — لباقة الحملة: نوافذ الأدمن قد تبدأ قبل 9:00، وما خرج عنها يُخفى ('hidden') */
+export const FULL_DAY_SLOT_TIMES = buildHalfHourSlots(0, 24).filter((slot) => slot.hour < 24);
+
 /** "10:30 صباحاً" */
 function slotLabel({ hour, minute }) {
   const period = hour < 12 || hour === 24 ? 'صباحاً' : 'مساءً';
@@ -60,10 +63,13 @@ function buildMonthGrid(viewDate) {
  * day is picked, the hourly slots appear stacked right below it (not side by
  * side) — matches the drawer's narrow single-column flow. Purely
  * presentational — BookingWidget owns the selection state and passes
- * `slotStatus(time)` → 'available' | 'busy' | 'past' | 'own'.
+ * `slotStatus(time)` → 'available' | 'busy' | 'past' | 'own' | 'hidden' (خارج نوافذ الباقة، لا يُعرض).
+ * isDateAllowed (اختياري) يحل محل allowedDays حين لا يكفي يوم الأسبوع وحده (باقة الحملة).
  */
 export function AvailabilityCalendar({
   allowedDays = [],
+  isDateAllowed,
+  slotTimes = SLOT_TIMES,
   viewDate,
   onPrevMonth,
   onNextMonth,
@@ -82,6 +88,14 @@ export function AvailabilityCalendar({
   const cells = useMemo(() => buildMonthGrid(viewDate), [viewDate]);
   const selectedISO = selectedDate ? toISODate(selectedDate) : null;
   const todayISO = toISODate(today);
+  const visibleSlots = selectedDate
+    ? slotTimes
+        .map((slot) => {
+          const value = `${pad(slot.hour)}:${pad(slot.minute)}`;
+          return { slot, value, status: slotStatus(value) };
+        })
+        .filter((s) => s.status !== 'hidden')
+    : [];
 
   return (
     <div className="flex flex-col gap-5">
@@ -120,7 +134,7 @@ export function AvailabilityCalendar({
             const iso = toISODate(date);
             const isToday = iso === todayISO;
             const isPast = date < today && !isToday;
-            const allowed = allowedDays.includes(date.getDay());
+            const allowed = isDateAllowed ? isDateAllowed(date) : allowedDays.includes(date.getDay());
             const disabled = isPast || !allowed;
             const isSelected = iso === selectedISO;
             return (
@@ -153,10 +167,9 @@ export function AvailabilityCalendar({
       {selectedDate && (
         <div className="rounded-3xl bg-white p-4 shadow-card">
           <h4 className="mb-3 text-start text-sm font-bold text-ink">{t('booking.chooseTime')}</h4>
+          {!visibleSlots.length && <p className="py-2 text-center text-sm text-ink-soft">{t('booking.noTimesThisDay')}</p>}
           <div className="grid grid-cols-3 gap-2">
-            {SLOT_TIMES.map((slot) => {
-              const value = `${pad(slot.hour)}:${pad(slot.minute)}`;
-              const status = slotStatus(value);
+            {visibleSlots.map(({ slot, value, status }) => {
               const unavailable = status !== 'available';
               const isSelected = selectedTime === value;
               return (

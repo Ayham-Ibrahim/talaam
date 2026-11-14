@@ -23,8 +23,9 @@ const FIELD_LABELS = {
   campaign: 'الحملة',
 };
 
-function inputClass(hasError) {
-  return `w-full rounded-btn border bg-surface py-3 pr-10 pl-3.5 text-sm text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 ${
+/** padLeft: pl-10 لحقل كلمة المرور (مساحة زر العين) — إلحاق pl-10 بعد pl-3.5 لا يغلبه، فالترتيب في CSS Tailwind هو الحاسم */
+function inputClass(hasError, padLeft = 'pl-3.5') {
+  return `w-full rounded-btn border bg-surface py-3 pr-10 ${padLeft} text-sm text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 ${
     hasError ? 'border-accent-pink focus:ring-accent-pink/30' : 'border-line focus:border-primary focus:ring-primary/20'
   }`;
 }
@@ -179,7 +180,7 @@ export function CampaignRegisterPage() {
                       dir="ltr"
                       maxLength={255}
                       placeholder={t('auth.passwordPlaceholder')}
-                      className={`${inputClass(errors.password)} pl-10 text-left`}
+                      className={`${inputClass(errors.password, 'pl-10')} text-left`}
                       {...register('password', {
                         required: t('auth.passwordRequired'),
                         pattern: { value: PASSWORD_PATTERN, message: t('auth.passwordComplexity') },

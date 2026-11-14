@@ -2,10 +2,16 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AlertTriangle, CalendarDays, CheckCircle2, Clock, Mail, Pencil, Trash2 } from 'lucide-react';
 import { Button, ApiErrorList } from '@/components/ui';
-import { AvailabilityCalendar } from '@/components/teacher/AvailabilityCalendar';
+import { AvailabilityCalendar, FULL_DAY_SLOT_TIMES } from '@/components/teacher/AvailabilityCalendar';
 import { PolicyNotice } from '@/components/common/PolicyNotice';
 import { useAuth } from '@/hooks/useAuth';
-import { useRequestIndividualBooking, useCreateGroupBooking, usePackageBusySlots, usePackageBusySlotsForDates } from '@/hooks/useBooking';
+import {
+  useRequestIndividualBooking,
+  useCreateGroupBooking,
+  useCheckoutBooking,
+  usePackageBusySlots,
+  usePackageBusySlotsForDates,
+} from '@/hooks/useBooking';
 import { useCalendarSessions } from '@/hooks/useDashboard';
 import { useBookGuestTrial, useSendGuestCode } from '@/hooks/useCampaign';
 import { EMAIL_PATTERN } from '@/lib/accountFormValidation';
@@ -14,6 +20,7 @@ import { useCurrencyStore } from '@/store';
 import { formatPrice } from '@/lib/currency';
 import { formatDate, isPastDate, lastScheduleDate } from '@/lib/formatters';
 import { rangesOverlap, findOwnConflict } from '@/lib/scheduleConflict';
+import { fitsCampaignWindows } from '@/lib/campaignWindows';
 import { trackInitiateCheckout } from '@/lib/metaPixel';
 
 /** Backend TIME columns serialize as "H:i:s" — trim to "H:i" for display */
@@ -57,6 +64,8 @@ function toISODate(date) {
  *   مستقلَّين لكل جلسة من جلسات الباقة على حدة (وليس موعداً واحداً يتكرر أسبوعياً
  *   تلقائياً على الجميع)، ويقدّم طلب حجز واحد يحمل كل هذه المواعيد معاً. لا دفع
  *   الآن — بانتظار موافقة المعلم، وبعدها يظهر زر "أكمل الدفع" في لوحة الطالب.
+ * باقة الحملة: نوافذ (يوم + ساعات) حددها الأدمن — لا تُعرض إلا الأوقات داخلها، ولا موافقة
+ *   للمعلم: الحجز يُثبَّت فوراً ويُحوَّل الطالب للدفع مباشرة.
  */
 export function BookingWidget({ selectedPackage, bare = false }) {
   const t = useT();
@@ -83,6 +92,9 @@ export function BookingWidget({ selectedPackage, bare = false }) {
 
   const requestIndividual = useRequestIndividualBooking(selectedPackage?.id);
   const createGroup = useCreateGroupBooking(selectedPackage?.id);
+  const checkout = useCheckoutBooking();
+  const isCampaign = !!selectedPackage?.isCampaign && !isGroup;
+  const scheduleTimezone = selectedPackage?.scheduleTimezone ?? 'UTC';
 
   // الزائر يحجز الجلسة المجانية بلا حساب: اسمه وبريده، ثم رمز تحقق يصله على البريد
   const isGuestTrial = !isAuthenticated && !!selectedPackage?.isTrial && !isGroup;
@@ -112,6 +124,7 @@ export function BookingWidget({ selectedPackage, bare = false }) {
     setGuest({ name: '', email: '', code: '' });
     requestIndividual.reset();
     createGroup.reset();
+    checkout.reset();
     sendGuestCode.reset();
     bookGuestTrial.reset();
     // reset مرجعياً ثابتة في React Query — لا داعي لإدراجها في التبعيّات
@@ -153,19 +166,46 @@ export function BookingWidget({ selectedPackage, bare = false }) {
 
   // Per-slot status for the availability grid — mirrors the two conflict memos
   // above but evaluated for an arbitrary "HH:mm" against the selected date.
+  const fitsWindows = useCallback(
+    (start) => fitsCampaignWindows(start, durationMinutes, schedules, scheduleTimezone),
+    [durationMinutes, schedules, scheduleTimezone],
+  );
+
+  // باقة الحملة: النافذة بمنطقة الباقة قد تقع في يوم أسبوع آخر بتوقيت المتصفح — اليوم
+  // متاح إن وُجد فيه وقت واحد على الأقل داخل نافذة. مخزَّن لكل تاريخ (يُستدعى لكل خلية).
+  const isCampaignDateAllowed = useMemo(() => {
+    if (!isCampaign) return undefined;
+    const cache = new Map();
+    return (date) => {
+      const key = toISODate(date);
+      if (!cache.has(key)) {
+        cache.set(
+          key,
+          FULL_DAY_SLOT_TIMES.some(({ hour, minute }) => {
+            const start = new Date(date);
+            start.setHours(hour, minute, 0, 0);
+            return fitsWindows(start);
+          }),
+        );
+      }
+      return cache.get(key);
+    };
+  }, [isCampaign, fitsWindows]);
+
   const slotStatus = useCallback(
     (time) => {
       if (!selectedDate) return 'available';
       const [h, m] = time.split(':').map(Number);
       const start = new Date(selectedDate);
       start.setHours(h, m, 0, 0);
+      if (isCampaign && !fitsWindows(start)) return 'hidden';
       if (start.getTime() <= Date.now()) return 'past';
       const end = new Date(start.getTime() + durationMinutes * 60000);
       if (busySlots?.some((slot) => rangesOverlap(start, end, slot.start, slot.end))) return 'busy';
       if (findOwnConflict(myUpcomingSessions, start, end)) return 'own';
       return 'available';
     },
-    [selectedDate, durationMinutes, busySlots, myUpcomingSessions],
+    [selectedDate, durationMinutes, busySlots, myUpcomingSessions, isCampaign, fitsWindows],
   );
 
   // Group packages have no per-date picker (the teacher's fixed dates are
@@ -210,16 +250,27 @@ export function BookingWidget({ selectedPackage, bare = false }) {
   // `selectedPackage` shouldn't be submittable either.
   const canSubmitGroup =
     Boolean(selectedPackage) && schedules.length > 0 && !isPastDate(lastScheduleDate(schedules)) && teacherConflictId === null;
-  const isPending = requestIndividual.isPending || createGroup.isPending || sendGuestCode.isPending || bookGuestTrial.isPending;
+  const isPending =
+    requestIndividual.isPending || createGroup.isPending || checkout.isPending || sendGuestCode.isPending || bookGuestTrial.isPending;
   const isSuccess = requestIndividual.isSuccess || createGroup.isSuccess || bookGuestTrial.isSuccess;
   const canSubmitGuest = allSlotsFilled && guestIdentityValid && (!guestCodeSent || /^\d{6}$/.test(guest.code));
-  const submitError = requestIndividual.error ?? createGroup.error ?? bookGuestTrial.error ?? sendGuestCode.error;
+  const submitError = requestIndividual.error ?? createGroup.error ?? checkout.error ?? bookGuestTrial.error ?? sendGuestCode.error;
+
+  const redirectToCheckout = (data) => {
+    if (!data?.checkout_url) return;
+    trackInitiateCheckout({
+      value: data.booking?.amount_paid,
+      target: data.booking?.id && `booking-${data.booking.id}`,
+      contentCategory: 'booking',
+    });
+    window.location.href = data.checkout_url;
+  };
 
   const handlePrevMonth = () => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1));
   const handleNextMonth = () => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1));
 
   const handleSelectDate = (date) => {
-    if (!allowedDays.includes(date.getDay())) return;
+    if (isCampaignDateAllowed ? !isCampaignDateAllowed(date) : !allowedDays.includes(date.getDay())) return;
     setSelectedDate(date);
   };
 
@@ -279,24 +330,26 @@ export function BookingWidget({ selectedPackage, bare = false }) {
     }
     if (isGroup) {
       if (!canSubmitGroup) return;
-      createGroup.mutate(couponCode.trim() || undefined, {
-        onSuccess: (data) => {
-          if (!data?.checkout_url) return;
-          trackInitiateCheckout({
-            value: data.booking?.amount_paid,
-            target: data.booking?.id && `booking-${data.booking.id}`,
-            contentCategory: 'booking',
-          });
-          window.location.href = data.checkout_url;
-        },
-      });
+      createGroup.mutate(couponCode.trim() || undefined, { onSuccess: redirectToCheckout });
       return;
     }
     if (!canSubmitIndividual) return;
-    requestIndividual.mutate({
-      slots: slots.map((s) => ({ date: toISODate(s.date), start_time: s.time })),
-      couponCode: couponCode.trim() || undefined,
-    });
+    requestIndividual.mutate(
+      {
+        slots: slots.map((s) => ({ date: toISODate(s.date), start_time: s.time })),
+        couponCode: couponCode.trim() || undefined,
+      },
+      {
+        // باقة الحملة بلا موافقة المعلم: الحجز pending_payment فوراً — للدفع مباشرة. إن فشل جلب
+        // رابط الدفع يبقى الحجز قائماً ويكمله الطالب من لوحته خلال مهلة الدفع.
+        onSuccess: (booking) => {
+          if (booking?.status !== 'pending_payment') return;
+          checkout.mutate(booking.id, {
+            onSuccess: (data) => redirectToCheckout({ ...data, booking }),
+          });
+        },
+      },
+    );
   };
 
   return (
@@ -438,6 +491,8 @@ export function BookingWidget({ selectedPackage, bare = false }) {
               ) : (
                 <AvailabilityCalendar
                   allowedDays={allowedDays}
+                  isDateAllowed={isCampaignDateAllowed}
+                  slotTimes={isCampaign ? FULL_DAY_SLOT_TIMES : undefined}
                   viewDate={viewDate}
                   onPrevMonth={handlePrevMonth}
                   onNextMonth={handleNextMonth}
@@ -570,7 +625,7 @@ export function BookingWidget({ selectedPackage, bare = false }) {
             {t('campaign.convertToBook')}
           </span>
           <Link to="/campaign-offers" className="self-start font-bold text-primary hover:opacity-70">
-            {t('campaign.convertCta')}
+            {t('campaign.completeProfileToBook')}
           </Link>
         </div>
       )}
@@ -590,7 +645,15 @@ export function BookingWidget({ selectedPackage, bare = false }) {
       {isSuccess ? (
         <div className="flex items-center justify-center gap-2 rounded-btn bg-success-light py-3 text-sm font-bold text-success">
           <CheckCircle2 size={16} />{' '}
-          {isGroup ? t('booking.success') : isGuestTrial ? t('guestTrial.success') : t('booking.requestSuccess')}
+          {isGroup
+            ? t('booking.success')
+            : isGuestTrial
+              ? t('guestTrial.success')
+              : isCampaign
+                ? checkout.isError
+                  ? t('campaign.bookedPayFromDashboard')
+                  : t('campaign.redirectingToPayment')
+                : t('booking.requestSuccess')}
         </div>
       ) : (
         <Button
@@ -614,7 +677,9 @@ export function BookingWidget({ selectedPackage, bare = false }) {
               ? t('booking.loginToBook')
               : isGroup
                 ? t('booking.joinGroup')
-                : t('booking.sendRequest')}
+                : isCampaign
+                  ? t('campaign.bookAndPay')
+                  : t('booking.sendRequest')}
         </Button>
       )}
     </div>

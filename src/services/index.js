@@ -60,7 +60,8 @@ export function mapStudentPackage(raw) {
     capacity: raw.capacity,
     enrolledCount: raw.enrolled_count,
     sessionsCount: raw.sessions_count,
-    durationPerSession: minutesBetween(schedules[0]?.start_time, schedules[0]?.end_time),
+    // نوافذ باقة الحملة ساعات متاحة لا مدة جلسة — لا تُشتق منها المدة
+    durationPerSession: raw.audience === 'campaign' ? null : minutesBetween(schedules[0]?.start_time, schedules[0]?.end_time),
     price: raw.student_price,
     currency: raw.currency,
     discountPercent: raw.discount_percent,
@@ -69,6 +70,8 @@ export function mapStudentPackage(raw) {
     stages: (raw.stages ?? []).map((s) => s.name_ar),
     grades: raw.grades ?? [],
     schedules,
+    // منطقة ساعات schedules — نوافذ باقة الحملة تُحوَّل منها لتوقيت المتصفح (BookingWidget)
+    scheduleTimezone: raw.schedule_timezone ?? 'UTC',
   };
 }
 
@@ -1025,6 +1028,8 @@ function mapBookingToPackageCard(booking) {
     price: Number(booking.amount_paid ?? 0),
     discountAmount: Number(booking.discount_amount ?? 0),
     hasCoupon: booking.coupon_id != null,
+    // باقة حملة مخفضة: لا كوبونات عليها (الباك يرفضها)، ولا موافقة معلم قبل الدفع
+    isCampaign: pkg?.audience === 'campaign',
     cancellationReason: booking.cancellation_reason ?? null,
   };
 }
