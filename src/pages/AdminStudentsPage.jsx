@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { FileSpreadsheet, Plus } from "lucide-react";
 import { AdminDashboardLayout } from "@/components/dashboard/admin/AdminDashboardLayout";
 import { AdminStudentsFilterBar } from "@/components/dashboard/admin/AdminStudentsFilterBar";
 import { AdminStudentsTable } from "@/components/dashboard/admin/AdminStudentsTable";
@@ -8,7 +8,9 @@ import { AddStudentAccountModal } from "@/components/dashboard/admin/AddStudentA
 import { Pagination } from "@/components/dashboard/Pagination";
 import { EmptyState, ErrorState, Skeleton } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
-import { useAdminStudentsList } from "@/hooks/useAdminStudents";
+import { useAdminStudentsList, useExportAdminStudents, useStudentsExportColumns } from "@/hooks/useAdminStudents";
+import { ExportColumnsModal } from "@/components/dashboard/admin/ExportColumnsModal";
+import { saveBlob } from "@/lib/download";
 import { useT } from "@/hooks/useT";
 
 const PAGE_SIZE = 10;
@@ -21,6 +23,21 @@ export function AdminStudentsPage() {
   const [page, setPage] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
   const { data, isLoading, isError, refetch } = useAdminStudentsList(filters);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const exportColumns = useStudentsExportColumns(showExportModal);
+  const exportStudents = useExportAdminStudents();
+
+  // الملف بنفس الفلاتر الظاهرة (البحث، التصنيف، الدولة، الولاية) — كل الطلاب لا الصفحة الحالية فقط
+  const handleExport = (columns) =>
+    exportStudents.mutate(
+      { ...filters, columns },
+      {
+        onSuccess: (blob) => {
+          saveBlob(blob, "students.xlsx");
+          setShowExportModal(false);
+        },
+      },
+    );
 
   const handleFilterChange = (key, value) => {
     // تغيير الدولة يفرّغ فلتر الولاية — ولاية دولة أخرى لن تطابق أحداً
@@ -50,14 +67,27 @@ export function AdminStudentsPage() {
               {t("dashboard.adminStudents.subtitle")}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-hover"
-          >
-            <Plus size={16} />
-            {t("dashboard.adminStudents.addStudent")}
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                exportStudents.reset();
+                setShowExportModal(true);
+              }}
+              className="flex items-center gap-1.5 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-medium text-ink hover:bg-line/30"
+            >
+              <FileSpreadsheet size={16} className="text-success" />
+              {t("dashboard.adminStudents.exportExcel")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-hover"
+            >
+              <Plus size={16} />
+              {t("dashboard.adminStudents.addStudent")}
+            </button>
+          </div>
         </div>
 
         <AdminStudentsFilterBar
@@ -89,6 +119,18 @@ export function AdminStudentsPage() {
 
       {showAddModal && (
         <AddStudentAccountModal onClose={() => setShowAddModal(false)} />
+      )}
+      {showExportModal && (
+        <ExportColumnsModal
+          title={t("dashboard.adminStudents.exportTitle")}
+          columns={exportColumns.data}
+          isLoading={exportColumns.isLoading}
+          storageKey="taalam-export-columns:students"
+          isPending={exportStudents.isPending}
+          error={exportStudents.isError ? exportStudents.error : null}
+          onExport={handleExport}
+          onClose={() => setShowExportModal(false)}
+        />
       )}
     </AdminDashboardLayout>
   );

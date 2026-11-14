@@ -51,6 +51,41 @@ export const adminStudentsService = {
     return { data: data.data.map(mapStudentRow), total: data.meta?.total ?? data.data.length };
   },
 
+  /** الأعمدة المتاحة لتصدير الطلاب: [{key, label}] — StudentController::exportColumns */
+  async getExportColumns() {
+    if (config.useMocks) {
+      await mockDelay(200);
+      return [
+        { key: 'name', label: 'الطالب' },
+        { key: 'email', label: 'البريد' },
+        { key: 'phone', label: 'الهاتف' },
+      ];
+    }
+    const { data } = await client.get(endpoints.students.exportColumns);
+    return data.data;
+  },
+
+  /** نفس فلاتر list() كملف Excel كامل — StudentController::export؛ columns بلا قيمة = كل الأعمدة */
+  async exportList({ search, educationType, countryId, regionId, columns } = {}) {
+    if (config.useMocks) {
+      await mockDelay(500);
+      return new Blob(['Demo mode — no real export available.'], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+    }
+    const { data } = await client.get(endpoints.students.export, {
+      params: {
+        search: search || undefined,
+        education_type: educationType || undefined,
+        country_id: countryId || undefined,
+        region_id: regionId || undefined,
+        columns,
+      },
+      responseType: 'blob',
+    });
+    return data;
+  },
+
   /** الأدمن يضع كلمة مرور جديدة مباشرة — بلا حاجة لمعرفة القديمة، تُرسَل للطالب بالبريد (StudentService::resetPasswordByAdmin) */
   async resetPassword(studentId, password) {
     if (config.useMocks) {

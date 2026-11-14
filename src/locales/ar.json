@@ -1003,6 +1003,16 @@
       }
     }
   },
+  "exportColumns": {
+    "hint": "اختر الأعمدة التي تريدها في الملف — يُحفظ اختيارك للمرة القادمة",
+    "selectedCount": "الأعمدة المختارة:",
+    "selectAll": "تحديد الكل",
+    "clearAll": "إلغاء الكل",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "export": "تصدير",
+    "exporting": "جارٍ التصدير..."
+  },
   "regionPrompt": {
     "title": "أين تسكن؟",
     "body": "حدّد دولتك وولايتك لنقدّم لك عروضاً ومعلمين أنسب لمنطقتك.",
@@ -2041,6 +2051,8 @@
       "title": "إدارة الطلاب",
       "subtitle": "قائمة الطلاب المسجَّلين، حالة حساباتهم، وإعادة تعيين كلمات المرور",
       "addStudent": "إضافة طالب",
+      "exportExcel": "تصدير Excel",
+      "exportTitle": "تصدير الطلاب إلى Excel",
       "searchPlaceholder": "ابحث بالاسم أو البريد الإلكتروني",
       "allEducationTypes": "كل التصنيفات الأكاديمية",
       "allCountries": "كل الدول",
@@ -2106,6 +2118,9 @@
       "statusSuspended": "موقوف",
       "documentsOf": "من",
       "addTeacher": "إضافة معلم",
+      "exportExcel": "تصدير Excel",
+      "exportTitle": "تصدير المعلمين إلى Excel",
+      "exporting": "جارٍ التصدير...",
       "addModalTitle": "إضافة حساب معلم",
       "nameLabel": "الاسم",
       "nameHint": "اكتب الاسم باستخدام الأحرف فقط، مع السماح بالمسافات والشرطة",

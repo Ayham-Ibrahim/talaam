@@ -78,6 +78,35 @@ export const adminService = {
     };
   },
 
+  /** الأعمدة المتاحة لتصدير المعلمين: [{key, label}] — TeacherController::exportColumns */
+  async getTeachersExportColumns() {
+    if (config.useMocks) {
+      await mockDelay(200);
+      return [
+        { key: 'name', label: 'المعلم' },
+        { key: 'email', label: 'البريد' },
+        { key: 'phone', label: 'الهاتف' },
+      ];
+    }
+    const { data } = await client.get(endpoints.admin.exportTeachersColumns);
+    return data.data;
+  },
+
+  /** نفس فلاتر getTeachers (status/type/q) كملف Excel كامل — TeacherController::export؛ columns بلا قيمة = كل الأعمدة */
+  async exportTeachers({ status, type, q, columns } = {}) {
+    if (config.useMocks) {
+      await mockDelay(500);
+      return new Blob(['Demo mode — no real export available.'], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+    }
+    const { data } = await client.get(endpoints.admin.exportTeachers, {
+      params: { status: status || undefined, teacher_type: type || undefined, search: q || undefined, columns },
+      responseType: 'blob',
+    });
+    return data;
+  },
+
   /** الأدمن يضع كلمة مرور مباشرة — لا رابط دعوة، الحساب فعّال فوراً (انظر TeacherService::createByAdmin) */
   async createTeacherAccount(payload) {
     if (config.useMocks) {

@@ -161,6 +161,8 @@ export const endpoints = {
   },
   students: {
     search: '/students',
+    export: '/students/export',
+    exportColumns: '/students/export/columns',
     detail: (id) => `/students/${id}`,
     update: (id) => `/students/${id}`,
     resetPassword: (id) => `/students/${id}/password`,
@@ -238,6 +240,8 @@ export const endpoints = {
   },
   admin: {
     teachers: '/teachers',
+    exportTeachers: '/teachers/export',
+    exportTeachersColumns: '/teachers/export/columns',
     createTeacherAccount: '/teachers/create-account',
     createStudentAccount: '/students/create-account',
     teacherDetail: (id) => `/teachers/${id}/admin-detail`,
