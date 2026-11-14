@@ -10,6 +10,7 @@ import { TeacherReviewsPanel } from "@/components/dashboard/admin/TeacherReviews
 import { ReasonModal } from "@/components/dashboard/admin/ReasonModal";
 import { AdminSessionsPanel } from "@/components/dashboard/admin/AdminSessionsPanel";
 import { TeacherAcademicSupportPanel } from "@/components/dashboard/admin/TeacherAcademicSupportPanel";
+import { TeacherCampaignPackagesPanel } from "@/components/dashboard/admin/TeacherCampaignPackagesPanel";
 import { ErrorState, Skeleton } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -26,6 +27,8 @@ import {
 } from "@/hooks/useAdmin";
 import { useT } from "@/hooks/useT";
 
+const TABS = ["overview", "profile", "sessions", "academicSupport", "campaignPackages"];
+
 export function AdminTeacherDetailPage() {
   const t = useT();
   const { user } = useAuth();
@@ -35,15 +38,11 @@ export function AdminTeacherDetailPage() {
   // ?tab=sessions — قادم من زر "الجلسات" بجدول المعلمين
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(() =>
-    ["overview", "profile", "sessions", "academicSupport"].includes(searchParams.get("tab"))
-      ? searchParams.get("tab")
-      : "overview",
-  ); // 'overview' | 'profile' | 'sessions' | 'academicSupport'
+    TABS.includes(searchParams.get("tab")) ? searchParams.get("tab") : "overview",
+  );
   // باقات الدعم الأكاديمي للمدرس الجامعي حصراً
   const isUniversityTeacher = data?.teacher?.type === "university";
-  const tabs = isUniversityTeacher
-    ? ["overview", "profile", "sessions", "academicSupport"]
-    : ["overview", "profile", "sessions"];
+  const tabs = isUniversityTeacher ? TABS : TABS.filter((tab) => tab !== "academicSupport");
 
   const approveTeacher = useApproveTeacher(id);
   const rejectTeacher = useRejectTeacher(id);
@@ -216,6 +215,8 @@ export function AdminTeacherDetailPage() {
               teacherId={id}
               supporterId={data.teacher.academicSupporterId}
             />
+          ) : activeTab === "campaignPackages" ? (
+            <TeacherCampaignPackagesPanel teacherId={id} teacher={data.teacher} />
           ) : (
             <AdminSessionsPanel teacherId={id} />
           )}

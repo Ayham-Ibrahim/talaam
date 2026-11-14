@@ -22,6 +22,9 @@ const CARD_GRADIENTS = [
 /** الجلسة التعريفية المجانية لها هويتها الخاصة — خارج تدوير الألوان كي لا تشبه أي باقة مدفوعة */
 const TRIAL_GRADIENT = 'linear-gradient(135deg, #10B981 0%, #047857 100%)';
 
+/** باقة الحملة المخفضة — تظهر لحسابات الحملة فقط، بهوية "عرض خاص" مميزة */
+const CAMPAIGN_GRADIENT = 'linear-gradient(135deg, #F59E0B 0%, #B45309 100%)';
+
 /** "50 $" — number then symbol, matching the design */
 function priceLabel(amountUSD, code) {
   const value = convertPrice(amountUSD ?? 0, code).toLocaleString('en-US');
@@ -155,7 +158,12 @@ function PackageCard({ pkg, index, selected, onSelect, onDetails }) {
   const capacity = pkg.capacity ?? 0;
   const enrolled = Math.min(pkg.enrolledCount ?? 0, capacity);
   const reservedPct = capacity > 0 ? Math.round((enrolled / capacity) * 100) : 0;
-  const gradient = isTrial ? TRIAL_GRADIENT : CARD_GRADIENTS[index % CARD_GRADIENTS.length];
+  const isCampaign = pkg.isCampaign;
+  const gradient = isTrial
+    ? TRIAL_GRADIENT
+    : isCampaign
+      ? CAMPAIGN_GRADIENT
+      : CARD_GRADIENTS[Math.max(index, 0) % CARD_GRADIENTS.length];
 
   return (
     <div
@@ -180,6 +188,13 @@ function PackageCard({ pkg, index, selected, onSelect, onDetails }) {
         </>
       )}
 
+      {isCampaign && (
+        <span className="absolute left-4 top-4 inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-[#B45309] shadow-md">
+          <Sparkles size={13} />
+          {t('campaign.offerRibbon')}
+        </span>
+      )}
+
       {/* Session-type badge */}
       <div className="flex flex-wrap gap-2">
         <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs font-semibold text-white ring-1 ring-white/30 backdrop-blur-sm">
@@ -199,6 +214,7 @@ function PackageCard({ pkg, index, selected, onSelect, onDetails }) {
         <h4 className="text-lg font-bold leading-snug text-white">{pkg.title}</h4>
         {pkg.subject && <p className="text-sm font-medium text-white/75">{pkg.subject}</p>}
         {isTrial && <p className="mt-1 text-sm font-medium text-white/85">{t('teacher.trialTagline')}</p>}
+        {isCampaign && <p className="mt-1 text-sm font-medium text-white/85">{t('campaign.offerTagline')}</p>}
       </div>
 
       {/* Sessions / duration line — replaces the reference's "N Files" row */}
@@ -282,9 +298,10 @@ export function PackagesSection({ packages, isLoading, isError, refetch, selecte
   const t = useT();
   const [detailsPkg, setDetailsPkg] = useState(null);
 
-  // الجلسة التعريفية المجانية أولاً — أول ما يراه الطالب، وبلا أثر على ترتيب الباقات المدفوعة بينها
-  const sortedPackages = [...(packages ?? [])].sort((a, b) => Number(b.isTrial) - Number(a.isTrial));
-  const trialCount = sortedPackages.filter((p) => p.isTrial).length;
+  // الجلسة التعريفية المجانية أولاً ثم عروض الحملة — بلا أثر على ترتيب الباقات المدفوعة العادية بينها
+  const rank = (p) => (p.isTrial ? 2 : p.isCampaign ? 1 : 0);
+  const sortedPackages = [...(packages ?? [])].sort((a, b) => rank(b) - rank(a));
+  const trialCount = sortedPackages.filter((p) => p.isTrial || p.isCampaign).length;
 
   if (!isLoading && !isError && packages.length === 0) return null;
 

@@ -70,6 +70,9 @@ import { SupporterPackagesPage } from "@/pages/SupporterPackagesPage";
 import { SupporterStudentsPage } from "@/pages/SupporterStudentsPage";
 import { AcademicSupporterBrowsePage } from "@/pages/AcademicSupporterBrowsePage";
 import { AcademicSupporterProfilePage } from "@/pages/AcademicSupporterProfilePage";
+import { CampaignRegisterPage } from "@/pages/CampaignRegisterPage";
+import { CampaignOffersPage } from "@/pages/CampaignOffersPage";
+import { AdminCampaignsPage } from "@/pages/AdminCampaignsPage";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { MetaPixelPageViews } from "@/components/analytics/MetaPixelPageViews";
 
@@ -98,6 +101,24 @@ export function AppRouter() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/register/teacher" element={<RegisterTeacherPage />} />
+        {/* الحملة الإعلانية: صفحة الهبوط والتسجيل عامة، والعروض لحسابات الحملة */}
+        <Route path="/campaign/:slug" element={<CampaignRegisterPage />} />
+        <Route
+          path="/campaign-offers"
+          element={
+            <ProtectedRoute role="student">
+              <CampaignOffersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/campaigns"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminCampaignsPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route

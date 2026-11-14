@@ -17,6 +17,8 @@ import { useT } from '@/hooks/useT';
 const REPORT_COLUMNS = [
   'teacher',
   'sessionsCount',
+  // جلسات باقات الحملة — مغطاة براتب المعلم الثابت، خارج مستحقه، وقيمتها ضمن عائد المنصة
+  'campaignSessionsCount',
   'studentNoShowCount',
   'teacherAbsentCount',
   'teacherRevenue',
@@ -175,6 +177,7 @@ export function TeacherSessionsReportPage({ variant = 'admin' }) {
                   <tr key={row.teacherId} className={i % 2 === 1 ? 'bg-[#FAFBFD]' : ''}>
                     <td className="px-4 py-3 font-semibold text-ink">{row.teacherName ?? '—'}</td>
                     <td className="px-4 py-3 text-ink-soft">{formatNumber(row.sessionsCount)}</td>
+                    <td className="px-4 py-3 text-ink-soft">{formatNumber(row.campaignSessionsCount ?? 0)}</td>
                     <td className="px-4 py-3 text-ink-soft">{formatNumber(row.studentNoShowCount)}</td>
                     <td className="px-4 py-3 text-ink-soft">{formatNumber(row.teacherAbsentCount)}</td>
                     <td className="px-4 py-3 font-semibold text-ink">{formatPrice(row.teacherRevenue)}</td>

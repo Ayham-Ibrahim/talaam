@@ -47,7 +47,7 @@ function minutesBetween(startTime, endTime) {
 }
 
 /** GET /teachers/{id}/packages row → mirrors StudentPackageResource */
-function mapStudentPackage(raw) {
+export function mapStudentPackage(raw) {
   const schedules = raw.schedules ?? [];
   return {
     id: raw.id,
@@ -55,6 +55,8 @@ function mapStudentPackage(raw) {
     description: raw.description,
     sessionFormat: raw.session_format,
     isTrial: !!raw.is_trial,
+    // باقة حملة مخفضة — تصل لحسابات الحملة فقط (الباك يخفيها عن غيرهم)
+    isCampaign: raw.audience === 'campaign',
     capacity: raw.capacity,
     enrolledCount: raw.enrolled_count,
     sessionsCount: raw.sessions_count,

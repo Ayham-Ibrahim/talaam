@@ -12,6 +12,22 @@ export const endpoints = {
     forgotPassword: '/auth/forgot-password',
     resetPassword: '/auth/reset-password',
   },
+  // الحملات الإعلانية — صفحة الهبوط والتسجيل عامّان، وباقات الحملة لحساباتها، والإدارة للأدمن
+  campaigns: {
+    show: (slug) => `/campaigns/${slug}`,
+    register: (slug) => `/campaigns/${slug}/register`,
+    packages: '/campaign-packages',
+    convertAccount: '/me/convert-account',
+    adminList: '/admin/campaigns',
+    adminCreate: '/admin/campaigns',
+    adminUpdate: (id) => `/admin/campaigns/${id}`,
+    adminCreatePackage: '/admin/campaign-packages',
+  },
+  // حجز الجلسة المجانية بلا حساب — رمز تحقق على البريد ثم الحجز به
+  guestTrial: {
+    sendCode: (packageId) => `/packages/${packageId}/guest-trial/code`,
+    book: (packageId) => `/packages/${packageId}/guest-trial/bookings`,
+  },
   profile: {
     uploadAvatar: '/me/avatar',
     deleteAvatar: '/me/avatar',
