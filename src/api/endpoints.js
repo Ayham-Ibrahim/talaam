@@ -33,6 +33,8 @@ export const endpoints = {
     deleteAvatar: '/me/avatar',
     update: '/me/profile',
     updatePassword: '/me/password',
+    // الطالب يحدد دولته وولايته وحدهما (StudentController::updateMyLocation)
+    updateLocation: '/me/location',
   },
   // حسابات الإخوة — الطالب الأساسي يضيف إخوته ويبدّل بين حسابات العائلة
   siblings: {
@@ -159,6 +161,8 @@ export const endpoints = {
   },
   students: {
     search: '/students',
+    export: '/students/export',
+    exportColumns: '/students/export/columns',
     detail: (id) => `/students/${id}`,
     update: (id) => `/students/${id}`,
     resetPassword: (id) => `/students/${id}/password`,
@@ -175,6 +179,10 @@ export const endpoints = {
     exportAcademicSupportFinance: '/reports/academic-support/export',
     students: '/reports/students',
     exportStudents: '/reports/students/export',
+    // تقرير التسويق: الطلاب حسب الموقع × المنهج
+    studentsLocation: '/reports/students-location',
+    studentsLocationStudents: '/reports/students-location/students',
+    exportStudentsLocation: '/reports/students-location/export',
   },
   // الموظفون الإداريون ورواتبهم — الأدمن والمحاسب (EmployeePolicy بالباك)
   employees: {
@@ -232,6 +240,8 @@ export const endpoints = {
   },
   admin: {
     teachers: '/teachers',
+    exportTeachers: '/teachers/export',
+    exportTeachersColumns: '/teachers/export/columns',
     createTeacherAccount: '/teachers/create-account',
     createStudentAccount: '/students/create-account',
     teacherDetail: (id) => `/teachers/${id}/admin-detail`,

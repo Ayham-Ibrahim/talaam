@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { Activity, BookOpen, ChevronLeft, ChevronRight, Download, FileSpreadsheet, Search, UserX, Users } from 'lucide-react';
 import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboardLayout';
+import { ShareBar, StatCard, Table, cell, percentOf, rowClass } from '@/components/dashboard/admin/ReportWidgets';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useExportStudentsReport, useStudentsReport } from '@/hooks/useReports';
@@ -21,30 +22,11 @@ const inputClass =
 
 const TABS = ['expired', 'curricula', 'weekly'];
 
-const rowClass = (i) => (i % 2 === 1 ? 'bg-[#FAFBFD]' : '');
-const cell = 'px-4 py-3 text-ink-soft';
-const percentOf = (part, total) => (total ? Math.round((part / total) * 1000) / 10 : 0);
-
 /** إزاحة تاريخ YYYY-MM-DD بعدد أيام — بتوقيت UTC كي لا ينزاح اليوم بفرق المنطقة الزمنية */
 function shiftDate(iso, days) {
   const date = new Date(`${iso}T00:00:00Z`);
   date.setUTCDate(date.getUTCDate() + days);
   return date.toISOString().slice(0, 10);
-}
-
-function StatCard({ icon: Icon, label, value, hint, bg, color }) {
-  return (
-    <div className="flex items-center gap-3 rounded-2xl border border-[#F2F2F7] bg-white p-4 shadow-card">
-      <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-xl" style={{ background: bg }}>
-        <Icon size={28} style={{ color }} />
-      </div>
-      <div className="text-right">
-        <div className="text-sm font-bold text-[#2D2D2D]">{label}</div>
-        <div className="text-2xl font-bold text-[#2D2D2D]">{value}</div>
-        {hint && <div className="text-xs text-ink-soft">{hint}</div>}
-      </div>
-    </div>
-  );
 }
 
 function SectionHeader({ title, hint, onExport, exporting, children }) {
@@ -67,36 +49,6 @@ function SectionHeader({ title, hint, onExport, exporting, children }) {
           {exporting ? t('dashboard.studentsReport.exporting') : t('dashboard.studentsReport.exportTable')}
         </button>
       </div>
-    </div>
-  );
-}
-
-function Table({ columns, minWidth, children }) {
-  return (
-    <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
-      <table className="w-full text-sm" style={{ minWidth }}>
-        <thead>
-          <tr className="border-b border-line text-right">
-            {columns.map((col) => (
-              <th key={col} className="whitespace-nowrap px-4 py-3 font-bold text-ink">
-                {col}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-line">{children}</tbody>
-      </table>
-    </div>
-  );
-}
-
-function ShareBar({ value, color = '#2F80ED' }) {
-  return (
-    <div className="flex items-center gap-2">
-      <div className="h-2 w-28 overflow-hidden rounded-full bg-line/60">
-        <div className="h-full rounded-full" style={{ width: `${Math.min(value, 100)}%`, background: color }} />
-      </div>
-      <span className="text-xs font-semibold text-ink">{formatNumber(value)}%</span>
     </div>
   );
 }

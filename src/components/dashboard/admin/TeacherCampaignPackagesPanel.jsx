@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, Trash2, X } from "lucide-react";
 import { ApiErrorList, EmptyState, Skeleton } from "@/components/ui";
 import {
   useAdminCampaignPackages,
   useCreateCampaignPackage,
-  useTeacherAvailableDays,
   useToggleCampaignPackage,
 } from "@/hooks/useCampaign";
 import { useTaxonomyList } from "@/hooks/useTaxonomy";
@@ -19,7 +18,8 @@ const PACKAGE_FIELD_LABELS = {
   title: "العنوان",
   sessions_count: "عدد الجلسات",
   price: "السعر",
-  schedules: "الأيام المتاحة",
+  schedules: "الأوقات المتاحة",
+  schedule_timezone: "المنطقة الزمنية",
 };
 
 const EMPTY_PACKAGE = {
@@ -28,8 +28,33 @@ const EMPTY_PACKAGE = {
   subject_id: "",
   sessions_count: "5",
   price: "",
-  days: [],
+  // { [day_of_week]: [{ start, end }] } — يوم بلا فترات = اليوم كله
+  days: {},
 };
+
+const DEFAULT_RANGE = { start: "16:00", end: "20:00" };
+
+// الأدمن يُدخل الساعات بتوقيت متصفحه — تُرسل منطقته معها فيفسّرها الباك بها
+const BROWSER_TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+/** ملخص نوافذ الباقة للجدول: "الإثنين 16:00–20:00، الجمعة (كل اليوم)" */
+function schedulesSummary(schedules, weekdays, allDayLabel) {
+  const byDay = new Map();
+  for (const s of schedules ?? []) {
+    const ranges = byDay.get(s.day_of_week) ?? [];
+    if (s.start_time && s.end_time) {
+      ranges.push(`${s.start_time.slice(0, 5)}–${s.end_time.slice(0, 5)}`);
+    }
+    byDay.set(s.day_of_week, ranges);
+  }
+  return [...byDay.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(
+      ([day, ranges]) =>
+        `${Array.isArray(weekdays) ? weekdays[day] : day} ${ranges.length ? ranges.join("، ") : `(${allDayLabel})`}`,
+    )
+    .join(" · ");
+}
 
 function Field({ label, children }) {
   return (
@@ -44,26 +69,48 @@ function CampaignPackageModal({ teacherId, onClose, onCreated }) {
   const t = useT();
   const weekdays = t("booking.weekdays");
   const [form, setForm] = useState(EMPTY_PACKAGE);
-  const { data: availableDays, isLoading: daysLoading } =
-    useTeacherAvailableDays(teacherId);
   const { data: subjects } = useTaxonomyList("subjects");
   const create = useCreateCampaignPackage();
 
   const set = (field) => (e) =>
     setForm((f) => ({ ...f, [field]: e.target.value }));
+  const selectedDays = Object.keys(form.days)
+    .map(Number)
+    .sort((a, b) => a - b);
+
+  const setDays = (update) =>
+    setForm((f) => ({ ...f, days: update({ ...f.days }) }));
   const toggleDay = (day) =>
-    setForm((f) => ({
-      ...f,
-      days: f.days.includes(day)
-        ? f.days.filter((d) => d !== day)
-        : [...f.days, day],
+    setDays((days) => {
+      if (day in days) delete days[day];
+      else days[day] = [];
+      return days;
+    });
+  const addRange = (day) =>
+    setDays((days) => ({ ...days, [day]: [...days[day], DEFAULT_RANGE] }));
+  const removeRange = (day, index) =>
+    setDays((days) => ({
+      ...days,
+      [day]: days[day].filter((_, i) => i !== index),
     }));
+  const setRange = (day, index, field, value) =>
+    setDays((days) => ({
+      ...days,
+      [day]: days[day].map((r, i) =>
+        i === index ? { ...r, [field]: value } : r,
+      ),
+    }));
+
+  const rangesValid = selectedDays.every((day) =>
+    form.days[day].every((r) => r.start && r.end && r.end > r.start),
+  );
 
   const canSubmit =
     form.title.trim() &&
     Number(form.sessions_count) > 0 &&
     Number(form.price) > 0 &&
-    form.days.length > 0;
+    selectedDays.length > 0 &&
+    rangesValid;
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -76,7 +123,16 @@ function CampaignPackageModal({ teacherId, onClose, onCreated }) {
         subject_id: form.subject_id ? Number(form.subject_id) : null,
         sessions_count: Number(form.sessions_count),
         price: Number(form.price),
-        schedules: [...form.days].sort().map((day) => ({ day_of_week: day })),
+        schedules: selectedDays.flatMap((day) =>
+          form.days[day].length
+            ? form.days[day].map((r) => ({
+                day_of_week: day,
+                start_time: r.start,
+                end_time: r.end,
+              }))
+            : [{ day_of_week: day }],
+        ),
+        schedule_timezone: BROWSER_TIMEZONE,
       },
       {
         onSuccess: () => {
@@ -159,33 +215,98 @@ function CampaignPackageModal({ teacherId, onClose, onCreated }) {
             />
           </Field>
 
-          <div className="flex flex-col gap-1.5 text-right">
-            <span className="text-sm font-semibold text-ink">
-              {t("dashboard.adminCampaigns.days")}
-            </span>
-            {daysLoading ? (
-              <Skeleton className="h-9 rounded-xl" />
-            ) : !availableDays?.length ? (
-              <span className="text-xs text-accent-pink">
-                {t("dashboard.adminCampaigns.noAvailableDays")}
+          <div className="flex flex-col gap-3 text-right sm:col-span-2">
+            <div>
+              <span className="text-sm font-semibold text-ink">
+                {t("dashboard.adminCampaigns.days")}
               </span>
-            ) : (
-              <div className="flex flex-wrap gap-2.5">
-                {availableDays.map((day) => (
-                  <button
-                    key={day}
-                    type="button"
-                    onClick={() => toggleDay(day)}
-                    className={`rounded-full px-5 py-2.5 text-sm font-semibold ${
-                      form.days.includes(day)
-                        ? "border border-primary bg-primary text-white"
-                        : "border border-line bg-white text-ink-soft hover:border-primary hover:text-primary"
-                    }`}
-                  >
+              <p className="mt-0.5 text-xs text-ink-soft">
+                {t("dashboard.adminCampaigns.daysHint")} ({BROWSER_TIMEZONE})
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {[0, 1, 2, 3, 4, 5, 6].map((day) => (
+                <button
+                  key={day}
+                  type="button"
+                  onClick={() => toggleDay(day)}
+                  className={`rounded-full px-4 py-2 text-sm font-semibold ${
+                    day in form.days
+                      ? "border border-primary bg-primary text-white"
+                      : "border border-line bg-white text-ink-soft hover:border-primary hover:text-primary"
+                  }`}
+                >
+                  {Array.isArray(weekdays) ? weekdays[day] : day}
+                </button>
+              ))}
+            </div>
+
+            {selectedDays.map((day) => (
+              <div
+                key={day}
+                className="flex flex-col gap-2 rounded-xl border border-line p-3"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-bold text-ink">
                     {Array.isArray(weekdays) ? weekdays[day] : day}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => addRange(day)}
+                    className="flex items-center gap-1 text-xs font-semibold text-primary hover:opacity-70"
+                  >
+                    <Plus size={14} />
+                    {t("dashboard.adminCampaigns.addTimeRange")}
                   </button>
-                ))}
+                </div>
+                {form.days[day].length === 0 ? (
+                  <span className="text-xs text-ink-soft">
+                    {t("dashboard.adminCampaigns.allDay")}
+                  </span>
+                ) : (
+                  form.days[day].map((range, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="text-xs text-ink-soft">
+                        {t("dashboard.adminCampaigns.from")}
+                      </span>
+                      <input
+                        type="time"
+                        step={1800}
+                        className={`${INPUT} p-2`}
+                        value={range.start}
+                        onChange={(e) =>
+                          setRange(day, i, "start", e.target.value)
+                        }
+                      />
+                      <span className="text-xs text-ink-soft">
+                        {t("dashboard.adminCampaigns.to")}
+                      </span>
+                      <input
+                        type="time"
+                        step={1800}
+                        className={`${INPUT} p-2`}
+                        value={range.end}
+                        onChange={(e) =>
+                          setRange(day, i, "end", e.target.value)
+                        }
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeRange(day, i)}
+                        aria-label={t("dashboard.adminCampaigns.removeTimeRange")}
+                        className="shrink-0 rounded-full p-1.5 text-accent-pink hover:bg-accent-pink/10"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
+            ))}
+            {!rangesValid && (
+              <span className="text-xs text-accent-pink">
+                {t("dashboard.adminCampaigns.invalidTimeRange")}
+              </span>
             )}
           </div>
 
@@ -295,7 +416,7 @@ export function TeacherCampaignPackagesPanel({ teacherId, teacher }) {
           <table className="w-full min-w-[560px] text-sm">
             <thead>
               <tr className="border-b border-line text-right">
-                {["title", "sessions", "price", "status"].map((col) => (
+                {["title", "times", "sessions", "price", "status"].map((col) => (
                   <th key={col} className="px-4 py-3 font-bold text-ink">
                     {t(`dashboard.adminCampaigns.packageCols.${col}`)}
                   </th>
@@ -309,6 +430,18 @@ export function TeacherCampaignPackagesPanel({ teacherId, teacher }) {
                   <tr key={p.id}>
                     <td className="px-4 py-3 font-semibold text-ink">
                       {p.title}
+                    </td>
+                    <td className="px-4 py-3 text-xs text-ink-soft">
+                      {schedulesSummary(
+                        p.schedules,
+                        t("booking.weekdays"),
+                        t("dashboard.adminCampaigns.allDay"),
+                      )}
+                      {p.schedule_timezone && (
+                        <span className="block text-[11px] opacity-70" dir="ltr">
+                          {p.schedule_timezone}
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-ink-soft">
                       {p.sessions_count}

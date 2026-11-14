@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { ApiErrorList } from '@/components/ui';
 import { EDUCATION_TYPE_LABELS } from '@/mocks/adminTaxonomy.mock';
+import { useTaxonomyList } from '@/hooks/useTaxonomy';
 import { useT } from '@/hooks/useT';
 
 const TAXONOMY_FIELD_LABELS = {
@@ -14,6 +15,7 @@ const TAXONOMY_FIELD_LABELS = {
   grade_from: 'الصف الأول',
   grade_to: 'الصف الأخير',
   country: 'الدولة',
+  country_id: 'الدولة',
 };
 const GRADE_OPTIONS = Array.from({ length: 12 }, (_, i) => ({ value: String(i + 1), label: String(i + 1) }));
 const taxonomyErrorLabel = (path) => TAXONOMY_FIELD_LABELS[path] ?? path;
@@ -26,7 +28,9 @@ export function TaxonomyFormModal({ typeConfig, item, isPending, error, onSave, 
   const [educationType, setEducationType] = useState(item?.education_type ?? 'school');
   const [gradeFrom, setGradeFrom] = useState(item?.grade_from ?? '');
   const [gradeTo, setGradeTo] = useState(item?.grade_to ?? '');
+  const [countryId, setCountryId] = useState(item?.country_id ?? '');
   const [touched, setTouched] = useState(false);
+  const { data: countries = [] } = useTaxonomyList(typeConfig.hasCountry ? 'countries' : null);
 
   // نطاق الصفوف للمراحل المدرسية فقط — يحدّد ما يظهر بقائمة "الصف" بفلتر البحث
   const hasGradeRange = typeConfig.key === 'stages' && educationType === 'school';
@@ -35,7 +39,11 @@ export function TaxonomyFormModal({ typeConfig, item, isPending, error, onSave, 
     (gradeFrom === '' && gradeTo === '') ||
     (gradeFrom !== '' && gradeTo !== '' && Number(gradeFrom) <= Number(gradeTo));
 
-  const isValid = nameAr.trim() !== '' && (!typeConfig.hasCode || code.trim() !== '') && gradeRangeValid;
+  const isValid =
+    nameAr.trim() !== '' &&
+    (!typeConfig.hasCode || code.trim() !== '') &&
+    (!typeConfig.hasCountry || countryId !== '') &&
+    gradeRangeValid;
 
   const handleSave = () => {
     setTouched(true);
@@ -43,6 +51,7 @@ export function TaxonomyFormModal({ typeConfig, item, isPending, error, onSave, 
     const payload = { name_ar: nameAr.trim() };
     if (typeConfig.hasCode) payload.code = code.trim();
     if (typeConfig.hasEducationType) payload.education_type = educationType;
+    if (typeConfig.hasCountry) payload.country_id = Number(countryId);
     if (typeConfig.key === 'stages') {
       payload.grade_from = hasGradeRange && gradeFrom !== '' ? Number(gradeFrom) : null;
       payload.grade_to = hasGradeRange && gradeTo !== '' ? Number(gradeTo) : null;
@@ -96,6 +105,20 @@ export function TaxonomyFormModal({ typeConfig, item, isPending, error, onSave, 
                 }`}
               />
             </label>
+          )}
+
+          {typeConfig.hasCountry && (
+            <div className="flex flex-col gap-1.5 text-right">
+              <span className="text-sm font-semibold text-ink">{t('completeProfile.countryLabel')}</span>
+              <SmoothSelect
+                value={countryId}
+                onChange={setCountryId}
+                options={countries.map((c) => ({ value: c.id, label: c.name_ar }))}
+                placeholder="—"
+                error={touched && countryId === ''}
+                errorMessage={t('completeProfile.countryRequired')}
+              />
+            </div>
           )}
 
           {typeConfig.hasEducationType && (

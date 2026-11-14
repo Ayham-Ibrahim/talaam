@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { FileSpreadsheet, Plus } from "lucide-react";
 import { AdminDashboardLayout } from "@/components/dashboard/admin/AdminDashboardLayout";
 import { AdminTeachersFilterBar } from "@/components/dashboard/admin/AdminTeachersFilterBar";
 import { AdminTeachersTable } from "@/components/dashboard/admin/AdminTeachersTable";
@@ -8,7 +8,9 @@ import { AddTeacherAccountModal } from "@/components/dashboard/admin/AddTeacherA
 import { Pagination } from "@/components/dashboard/Pagination";
 import { EmptyState, ErrorState, Skeleton } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
-import { useAdminTeachers } from "@/hooks/useAdmin";
+import { useAdminTeachers, useExportAdminTeachers, useTeachersExportColumns } from "@/hooks/useAdmin";
+import { ExportColumnsModal } from "@/components/dashboard/admin/ExportColumnsModal";
+import { saveBlob } from "@/lib/download";
 import { useT } from "@/hooks/useT";
 
 const PAGE_SIZE = 6;
@@ -26,6 +28,21 @@ export function AdminTeachersPage() {
     page,
     per_page: PAGE_SIZE,
   });
+  const [showExportModal, setShowExportModal] = useState(false);
+  const exportColumns = useTeachersExportColumns(showExportModal);
+  const exportTeachers = useExportAdminTeachers();
+
+  // الملف بنفس الفلاتر الظاهرة (الحالة، النوع، البحث) — كل الصفحات لا الصفحة الحالية فقط
+  const handleExport = (columns) =>
+    exportTeachers.mutate(
+      { ...filters, columns },
+      {
+        onSuccess: (blob) => {
+          saveBlob(blob, "teachers.xlsx");
+          setShowExportModal(false);
+        },
+      },
+    );
 
   const handleAddSuccess = () => {
     setSuccessMessage(t("dashboard.adminTeachers.addSuccess"));
@@ -55,14 +72,27 @@ export function AdminTeachersPage() {
               {t("dashboard.adminTeachers.subtitle")}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-hover"
-          >
-            <Plus size={16} />
-            {t("dashboard.adminTeachers.addTeacher")}
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                exportTeachers.reset();
+                setShowExportModal(true);
+              }}
+              className="flex items-center gap-1.5 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-medium text-ink hover:bg-line/30 disabled:opacity-50"
+            >
+              <FileSpreadsheet size={16} className="text-success" />
+              {t("dashboard.adminTeachers.exportExcel")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-hover"
+            >
+              <Plus size={16} />
+              {t("dashboard.adminTeachers.addTeacher")}
+            </button>
+          </div>
         </div>
 
         {successMessage && (
@@ -102,6 +132,18 @@ export function AdminTeachersPage() {
         <AddTeacherAccountModal
           onClose={() => setShowAddModal(false)}
           onSuccess={handleAddSuccess}
+        />
+      )}
+      {showExportModal && (
+        <ExportColumnsModal
+          title={t("dashboard.adminTeachers.exportTitle")}
+          columns={exportColumns.data}
+          isLoading={exportColumns.isLoading}
+          storageKey="taalam-export-columns:teachers"
+          isPending={exportTeachers.isPending}
+          error={exportTeachers.isError ? exportTeachers.error : null}
+          onExport={handleExport}
+          onClose={() => setShowExportModal(false)}
         />
       )}
     </AdminDashboardLayout>

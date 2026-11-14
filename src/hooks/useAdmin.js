@@ -20,6 +20,21 @@ export function useAdminTeachers(filters = {}) {
   });
 }
 
+export function useTeachersExportColumns(enabled) {
+  return useQuery({
+    queryKey: ['admin', 'teachers-export-columns'],
+    queryFn: () => adminService.getTeachersExportColumns(),
+    enabled,
+    staleTime: Infinity,
+  });
+}
+
+export function useExportAdminTeachers() {
+  return useMutation({
+    mutationFn: (filters) => adminService.exportTeachers(filters),
+  });
+}
+
 export function useAdminTeacherDetail(id) {
   return useQuery({
     queryKey: queryKeys.admin.teacherDetail(id),

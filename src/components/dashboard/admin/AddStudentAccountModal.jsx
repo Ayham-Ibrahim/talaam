@@ -4,6 +4,7 @@ import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { listTimezones } from '@/lib/timezone';
 import { ApiErrorList, PasswordInputActions } from '@/components/ui';
 import { useCreateStudentAccount } from '@/hooks/useAdmin';
+import { CountryRegionFields, useLocationOptions } from '@/components/dashboard/CountryRegionFields';
 import { useT } from '@/hooks/useT';
 import {
   isEditingKey,
@@ -19,10 +20,10 @@ import {
 
 const TIMEZONE_OPTIONS = listTimezones().map((tz) => ({ value: tz, label: tz }));
 
-const INITIAL = { name: '', email: '', phone: '', password: '', timezone: 'Asia/Riyadh' };
+const INITIAL = { name: '', email: '', phone: '', password: '', timezone: 'Asia/Riyadh', country_id: '', region_id: '' };
 const INITIAL_TOUCHED = { name: false, email: false, phone: false, password: false };
 
-const ACCOUNT_FIELD_LABELS = { name: 'الاسم', email: 'البريد الإلكتروني', phone: 'الهاتف', password: 'كلمة المرور', timezone: 'المنطقة الزمنية' };
+const ACCOUNT_FIELD_LABELS = { name: 'الاسم', email: 'البريد الإلكتروني', phone: 'الهاتف', password: 'كلمة المرور', timezone: 'المنطقة الزمنية', country_id: 'الدولة', region_id: 'الولاية' };
 const accountErrorLabel = (path) => ACCOUNT_FIELD_LABELS[path] ?? path;
 
 export function AddStudentAccountModal({ onClose }) {
@@ -34,6 +35,7 @@ export function AddStudentAccountModal({ onClose }) {
   const [phoneHasInvalidChars, setPhoneHasInvalidChars] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const createAccount = useCreateStudentAccount();
+  const location = useLocationOptions(form.country_id, form.region_id);
 
   const patch = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
   const touch = (field) => setTouched((prev) => ({ ...prev, [field]: true }));
@@ -142,7 +144,14 @@ export function AddStudentAccountModal({ onClose }) {
     setTouched({ name: true, email: true, phone: true, password: true });
     if (!isValid) return;
     createAccount.mutate(
-      { ...form, name: form.name.trim(), email: form.email.trim(), phone: form.phone || null },
+      {
+        ...form,
+        name: form.name.trim(),
+        email: form.email.trim(),
+        phone: form.phone || null,
+        country_id: form.country_id ? Number(form.country_id) : null,
+        region_id: form.region_id ? Number(form.region_id) : null,
+      },
       { onSuccess: () => onClose?.() },
     );
   };
@@ -268,6 +277,16 @@ export function AddStudentAccountModal({ onClose }) {
             />
             <span className="text-xs text-ink-soft">{t('dashboard.adminTimezoneHint')}</span>
           </div>
+
+          {/* اختياري للأدمن — إن تُرك يحدده الطالب بنفسه عند إكمال ملفه */}
+          <CountryRegionFields
+            {...location}
+            countryId={form.country_id}
+            regionId={form.region_id}
+            onCountryChange={(v) => setForm((prev) => ({ ...prev, country_id: v, region_id: '' }))}
+            onRegionChange={(v) => setForm((prev) => ({ ...prev, region_id: v }))}
+            optional
+          />
         </div>
 
         <div className="mt-6 flex gap-3">

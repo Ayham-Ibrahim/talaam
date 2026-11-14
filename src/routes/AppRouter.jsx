@@ -39,6 +39,7 @@ import { PayrollPage } from "@/pages/PayrollPage";
 import { PayrollReportPage } from "@/pages/PayrollReportPage";
 import { AcademicSupportFinancePage } from "@/pages/AcademicSupportFinancePage";
 import { StudentsReportPage } from "@/pages/StudentsReportPage";
+import { StudentsLocationReportPage } from "@/pages/StudentsLocationReportPage";
 import { AdminSessionsPage } from "@/pages/AdminSessionsPage";
 import { AdminNotificationLogsPage } from "@/pages/AdminNotificationLogsPage";
 import { AdminLegalPagesPage } from "@/pages/AdminLegalPagesPage";
@@ -310,6 +311,14 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="admin">
               <StudentsReportPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin/students-location-report"
+          element={
+            <ProtectedRoute role="admin">
+              <StudentsLocationReportPage />
             </ProtectedRoute>
           }
         />

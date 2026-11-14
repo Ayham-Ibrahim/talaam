@@ -14,6 +14,8 @@ function mapStudentRow(row) {
     avatar: row.avatar ?? null,
     isActive: row.is_active ?? row.isActive ?? true,
     educationType: row.education_type ?? row.educationType ?? null,
+    country: row.country ?? null,
+    region: row.region ?? null,
     imported: row.imported ?? false,
     createdAt: row.created_at ?? row.createdAt ?? null,
   };
@@ -31,16 +33,57 @@ export const adminStudentsService = {
   },
 
   /** صفحة "إدارة الطلاب" لدى الأدمن — يجلب دفعة واحدة كبيرة ثم تُقسَّم صفحاتها في الواجهة (نفس نمط adminService.getTeachers) */
-  async list({ search, educationType } = {}) {
+  async list({ search, educationType, countryId, regionId } = {}) {
     if (config.useMocks) {
       await mockDelay(300);
       const data = filterMockStudents({ search, educationType }).map(mapStudentRow);
       return { data, total: data.length };
     }
     const { data } = await client.get(endpoints.students.search, {
-      params: { search: search || undefined, education_type: educationType || undefined, per_page: 200 },
+      params: {
+        search: search || undefined,
+        education_type: educationType || undefined,
+        country_id: countryId || undefined,
+        region_id: regionId || undefined,
+        per_page: 200,
+      },
     });
     return { data: data.data.map(mapStudentRow), total: data.meta?.total ?? data.data.length };
+  },
+
+  /** الأعمدة المتاحة لتصدير الطلاب: [{key, label}] — StudentController::exportColumns */
+  async getExportColumns() {
+    if (config.useMocks) {
+      await mockDelay(200);
+      return [
+        { key: 'name', label: 'الطالب' },
+        { key: 'email', label: 'البريد' },
+        { key: 'phone', label: 'الهاتف' },
+      ];
+    }
+    const { data } = await client.get(endpoints.students.exportColumns);
+    return data.data;
+  },
+
+  /** نفس فلاتر list() كملف Excel كامل — StudentController::export؛ columns بلا قيمة = كل الأعمدة */
+  async exportList({ search, educationType, countryId, regionId, columns } = {}) {
+    if (config.useMocks) {
+      await mockDelay(500);
+      return new Blob(['Demo mode — no real export available.'], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+    }
+    const { data } = await client.get(endpoints.students.export, {
+      params: {
+        search: search || undefined,
+        education_type: educationType || undefined,
+        country_id: countryId || undefined,
+        region_id: regionId || undefined,
+        columns,
+      },
+      responseType: 'blob',
+    });
+    return data;
   },
 
   /** الأدمن يضع كلمة مرور جديدة مباشرة — بلا حاجة لمعرفة القديمة، تُرسَل للطالب بالبريد (StudentService::resetPasswordByAdmin) */

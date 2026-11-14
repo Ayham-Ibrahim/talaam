@@ -132,6 +132,7 @@ export function PackageDetailsPage() {
           )}
 
           {isPendingPayment &&
+            !data.package.isCampaign &&
             (data.package.hasCoupon ? (
               <div className="flex items-center gap-2 rounded-2xl bg-success-light p-4 text-sm font-medium text-success">
                 <TicketPercent size={18} />

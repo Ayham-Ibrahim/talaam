@@ -1,9 +1,12 @@
 import { Pencil, Trash2 } from 'lucide-react';
 import { EDUCATION_TYPE_LABELS } from '@/mocks/adminTaxonomy.mock';
+import { useTaxonomyList } from '@/hooks/useTaxonomy';
 import { useT } from '@/hooks/useT';
 
 export function TaxonomyTable({ items, typeConfig, onEdit, onDelete }) {
   const t = useT();
+  const { data: countries = [] } = useTaxonomyList(typeConfig.hasCountry ? 'countries' : null);
+  const countryName = (id) => countries.find((c) => c.id === id)?.name_ar ?? '—';
 
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
@@ -12,6 +15,9 @@ export function TaxonomyTable({ items, typeConfig, onEdit, onDelete }) {
           <tr className="border-b border-line">
             {typeConfig.hasCode && <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminTaxonomy.colCode')}</th>}
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminTaxonomy.colName')}</th>
+            {typeConfig.hasCountry && (
+              <th className="px-4 py-4 text-right font-bold text-ink">{t('completeProfile.countryLabel')}</th>
+            )}
             {typeConfig.hasEducationType && (
               <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminTaxonomy.colEducationType')}</th>
             )}
@@ -23,6 +29,7 @@ export function TaxonomyTable({ items, typeConfig, onEdit, onDelete }) {
             <tr key={item.id} className={i % 2 === 1 ? 'bg-[#FAFBFD]' : ''}>
               {typeConfig.hasCode && <td className="px-4 py-4 text-right text-ink-soft"><span dir="ltr">{item.code}</span></td>}
               <td className="px-4 py-4 text-right font-semibold text-ink">{item.name_ar}</td>
+              {typeConfig.hasCountry && <td className="px-4 py-4 text-right text-ink-soft">{countryName(item.country_id)}</td>}
               {typeConfig.hasEducationType && (
                 <td className="px-4 py-4 text-right text-ink-soft">{EDUCATION_TYPE_LABELS[item.education_type] ?? '—'}</td>
               )}

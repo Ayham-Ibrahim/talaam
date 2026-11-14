@@ -17,6 +17,21 @@ export function useAdminStudentsList(filters = {}) {
   });
 }
 
+export function useStudentsExportColumns(enabled) {
+  return useQuery({
+    queryKey: ['admin', 'students-export-columns'],
+    queryFn: () => adminStudentsService.getExportColumns(),
+    enabled,
+    staleTime: Infinity,
+  });
+}
+
+export function useExportAdminStudents() {
+  return useMutation({
+    mutationFn: (filters) => adminStudentsService.exportList(filters),
+  });
+}
+
 export function useAdminResetStudentPassword() {
   return useMutation({
     mutationFn: ({ studentId, password }) => adminStudentsService.resetPassword(studentId, password),

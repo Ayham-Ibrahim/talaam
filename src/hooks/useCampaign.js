@@ -98,11 +98,3 @@ export function useToggleCampaignPackage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'campaign-packages'] }),
   });
 }
-
-export function useTeacherAvailableDays(teacherId) {
-  return useQuery({
-    queryKey: ['admin', 'teacher-available-days', teacherId],
-    queryFn: () => campaignService.adminTeacherAvailableDays(teacherId),
-    enabled: !!teacherId,
-  });
-}
