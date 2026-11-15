@@ -18,6 +18,11 @@ export const siblingService = {
     return withTeacherType(data.data);
   },
 
+  /** الأساسي يضع كلمة مرور جديدة لأخ — جلسات الأخ القائمة تُبطَل في الباك اند */
+  async updatePassword(userId, password) {
+    await client.put(endpoints.siblings.password(userId), { password, password_confirmation: password });
+  },
+
   /** يرجع { user, token } — التوكن السابق يُبطَل في الباك اند فيجب استبداله فوراً */
   async switchTo(userId) {
     const { data } = await client.post(endpoints.siblings.switch(userId));

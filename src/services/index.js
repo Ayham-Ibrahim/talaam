@@ -1182,6 +1182,7 @@ export const dashboardService = {
         stats: mockDashboardStats,
         upcomingSessions: mockUpcomingSessions,
         currentPackage: mockCurrentPackage,
+        pendingPayments: [],
         activities: mockActivities,
       };
     }
@@ -1221,6 +1222,11 @@ export const dashboardService = {
       },
       upcomingSessions: upcoming.slice(0, 5).map(mapUpcomingSessionRow),
       currentPackage: current ? mapCurrentPackage(current, sessions) : null,
+      // طلبات وافق عليها المعلم (أو تسجيلات دورات) ولم تُدفع بعد — تُعرض بارزة أعلى اللوحة كي لا ينساها الطالب
+      pendingPayments: [
+        ...bookings.filter((b) => b.status === 'pending_payment').map(mapBookingToPackageCard),
+        ...enrollments.filter((e) => e.status === 'pending_payment').map((e) => mapEnrollmentToPackageCard(e)),
+      ],
       activities: [],
     };
   },
