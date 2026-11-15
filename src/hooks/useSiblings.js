@@ -22,6 +22,12 @@ export function useAddSibling() {
   });
 }
 
+export function useUpdateSiblingPassword() {
+  return useMutation({
+    mutationFn: ({ userId, password }) => siblingService.updatePassword(userId, password),
+  });
+}
+
 /**
  * يبدّل الجلسة إلى حساب آخر من العائلة: يستبدل التوكن والمستخدم المخزَّنين (بنفس
  * مكان التخزين local/session الحالي) ويمسح كل كاش الاستعلامات — بيانات الحجوزات

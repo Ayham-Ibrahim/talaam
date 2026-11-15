@@ -41,6 +41,7 @@ export const endpoints = {
     list: '/me/siblings',
     create: '/me/siblings',
     switch: (userId) => `/me/switch-account/${userId}`,
+    password: (userId) => `/me/siblings/${userId}/password`,
   },
   reviews: {
     mine: '/me/reviews',
