@@ -177,6 +177,8 @@ export const endpoints = {
     exportTeacherSessions: '/reports/teacher-sessions/export',
     academicSupportFinance: '/reports/academic-support',
     exportAcademicSupportFinance: '/reports/academic-support/export',
+    platformNetProfit: '/reports/platform-profit',
+    exportPlatformNetProfit: '/reports/platform-profit/export',
     students: '/reports/students',
     exportStudents: '/reports/students/export',
     // تقرير التسويق: الطلاب حسب الموقع × المنهج

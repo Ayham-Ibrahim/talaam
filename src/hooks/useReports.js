@@ -30,6 +30,20 @@ export function useExportAcademicSupportFinanceReport() {
   });
 }
 
+export function usePlatformNetProfitReport(filters = {}) {
+  return useQuery({
+    queryKey: queryKeys.admin.platformNetProfitReport(filters),
+    queryFn: () => reportsService.getPlatformNetProfitReport(filters),
+    keepPreviousData: true,
+  });
+}
+
+export function useExportPlatformNetProfitReport() {
+  return useMutation({
+    mutationFn: (filters) => reportsService.exportPlatformNetProfitReport(filters),
+  });
+}
+
 export function useStudentsReport(filters = {}) {
   return useQuery({
     queryKey: queryKeys.admin.studentsReport(filters),

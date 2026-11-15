@@ -75,6 +75,37 @@ export const reportsService = {
     return data;
   },
 
+  /** صافي أرباح المنصة: أرباح الحصص + أرباح الدعم الأكاديمي − رواتب الموظفين (افتراضياً الشهر الحالي) */
+  async getPlatformNetProfitReport({ from, to } = {}) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return {
+        currency: 'AED',
+        filters: { from: from ?? '', to: to ?? '' },
+        totals: { sessionsProfit: 0, supportProfit: 0, totalProfit: 0, salaries: 0, netProfit: 0, sessionsCount: 0, supportPurchasesCount: 0 },
+        months: [],
+      };
+    }
+    const { data } = await client.get(endpoints.reports.platformNetProfit, {
+      params: { from: from || undefined, to: to || undefined },
+    });
+    return data.data;
+  },
+
+  async exportPlatformNetProfitReport({ from, to } = {}) {
+    if (config.useMocks) {
+      await mockDelay(500);
+      return new Blob(['Demo mode — no real export available.'], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+    }
+    const { data } = await client.get(endpoints.reports.exportPlatformNetProfit, {
+      params: { from: from || undefined, to: to || undefined },
+      responseType: 'blob',
+    });
+    return data;
+  },
+
   /** تقارير الطلاب (أدمن فقط): من انتهت باقاتهم ولم يجددوا، توزيع المناهج، والنشطون أسبوعياً حسب المرحلة */
   async getStudentsReport({ weekStart } = {}) {
     if (config.useMocks) {

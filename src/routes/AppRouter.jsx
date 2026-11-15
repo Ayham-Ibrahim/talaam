@@ -38,6 +38,7 @@ import { EmployeesPage } from "@/pages/EmployeesPage";
 import { PayrollPage } from "@/pages/PayrollPage";
 import { PayrollReportPage } from "@/pages/PayrollReportPage";
 import { AcademicSupportFinancePage } from "@/pages/AcademicSupportFinancePage";
+import { PlatformNetProfitPage } from "@/pages/PlatformNetProfitPage";
 import { StudentsReportPage } from "@/pages/StudentsReportPage";
 import { StudentsLocationReportPage } from "@/pages/StudentsLocationReportPage";
 import { AdminSessionsPage } from "@/pages/AdminSessionsPage";
@@ -307,6 +308,14 @@ export function AppRouter() {
           }
         />
         <Route
+          path="/dashboard/admin/platform-net-profit"
+          element={
+            <ProtectedRoute role="admin">
+              <PlatformNetProfitPage variant="admin" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/dashboard/admin/students-report"
           element={
             <ProtectedRoute role="admin">
@@ -380,6 +389,14 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="accountant">
               <AcademicSupportFinancePage variant="accountant" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/accountant/platform-net-profit"
+          element={
+            <ProtectedRoute role="accountant">
+              <PlatformNetProfitPage variant="accountant" />
             </ProtectedRoute>
           }
         />

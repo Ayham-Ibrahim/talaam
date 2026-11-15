@@ -33,6 +33,7 @@ import {
   UserCog,
   ChevronLeft,
   Star,
+  Landmark,
 } from "lucide-react";
 import { Logo } from "@/components/layout/Logo";
 import { Avatar } from "@/components/ui";
@@ -108,6 +109,11 @@ const ADMIN_NAV_GROUPS = [
         key: "academicSupportFinance",
         icon: HandCoins,
         path: "/dashboard/admin/academic-support-finance",
+      },
+      {
+        key: "platformNetProfit",
+        icon: Landmark,
+        path: "/dashboard/admin/platform-net-profit",
       },
       // قائمة فرعية منسدلة داخل المالية — children تُعرض تحت العنصر عند فتحه
       {
@@ -214,6 +220,11 @@ const ACCOUNTANT_NAV_GROUPS = [
         key: "academicSupportFinance",
         icon: HandCoins,
         path: "/dashboard/accountant/academic-support-finance",
+      },
+      {
+        key: "platformNetProfit",
+        icon: Landmark,
+        path: "/dashboard/accountant/platform-net-profit",
       },
       {
         key: "hr",

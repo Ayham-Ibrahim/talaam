@@ -97,6 +97,7 @@ export const queryKeys = {
     payrollReport: (filters) => ['admin', 'payroll', 'report', filters],
     payrollRates: (month) => ['admin', 'payroll', 'rates', month],
     academicSupportFinanceReport: (filters) => ['admin', 'academic-support-finance-report', filters],
+    platformNetProfitReport: (filters) => ['admin', 'platform-net-profit-report', filters],
     studentsReport: (filters) => ['admin', 'students-report', filters],
     studentsLocationReport: (filters) => ['admin', 'students-location-report', filters],
     studentsLocationStudents: (filters, page) => ['admin', 'students-location-students', filters, page],
