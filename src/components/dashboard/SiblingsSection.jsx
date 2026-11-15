@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { ArrowLeftRight, Plus, Users, X } from 'lucide-react';
+import { ArrowLeftRight, KeyRound, Plus, Users, X } from 'lucide-react';
+import { ChangeSiblingPasswordModal } from '@/components/dashboard/ChangeSiblingPasswordModal';
+import { SiblingPasswordField, validateSiblingPassword } from '@/components/dashboard/SiblingPasswordField';
 import {
   StudentAcademicProfileFields,
   STUDENT_ACADEMIC_INITIAL,
@@ -14,6 +16,7 @@ import { useT } from '@/hooks/useT';
 
 const FIELD_LABELS = {
   name: 'الاسم',
+  password: 'كلمة المرور',
   gender: 'الجنس',
   education_type: 'نوع التعليم',
   curriculum_id: 'المنهج',
@@ -29,11 +32,12 @@ const FIELD_LABELS = {
 };
 const errorLabel = (path) => FIELD_LABELS[path] ?? path;
 
-const EMPTY_FORM = { name: '', gender: '', ...STUDENT_ACADEMIC_INITIAL };
+const EMPTY_FORM = { name: '', gender: '', password: '', ...STUDENT_ACADEMIC_INITIAL };
 
 /**
  * قسم "إخوتي" في إعدادات الطالب الأساسي — قائمة الإخوة المضافين، التبديل إلى
- * حساب أيٍّ منهم، وإضافة أخ جديد (حساب طالب مستقل بلا إيميل يشترك بباقاته بنفسه).
+ * حساب أيٍّ منهم أو تغيير كلمة مروره، وإضافة أخ جديد (حساب طالب مستقل بلا إيميل
+ * يشترك بباقاته بنفسه، ويدخل ببريد الأساسي + كلمة مروره الخاصة).
  * لا يُعرض لحساب أخ (الإضافة مسموحة للحساب الأساسي فقط — SiblingController).
  */
 export function SiblingsSection() {
@@ -45,9 +49,12 @@ export function SiblingsSection() {
   const [formOpen, setFormOpen] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [touched, setTouched] = useState(false);
+  const [passwordTarget, setPasswordTarget] = useState(null);
+  const [passwordChangedFor, setPasswordChangedFor] = useState(null);
 
   const siblings = (family ?? []).filter((member) => member.is_sibling_account);
   const nameMissing = form.name.trim() === '';
+  const passwordInvalid = !!validateSiblingPassword(form.password);
 
   const resetForm = () => {
     setForm(EMPTY_FORM);
@@ -58,10 +65,12 @@ export function SiblingsSection() {
   const handleSubmit = () => {
     setTouched(true);
     // الموقع اختياري للأخ — بلا اختيار يرث الباك اند موقع الحساب الأساسي
-    if (nameMissing || !isStudentAcademicFormValid(form, true, false)) return;
+    if (nameMissing || passwordInvalid || !isStudentAcademicFormValid(form, true, false)) return;
     addSibling.mutate(
       {
         name: form.name.trim(),
+        password: form.password,
+        password_confirmation: form.password,
         gender: form.gender || null,
         ...buildStudentAcademicPayload(form),
       },
@@ -98,6 +107,11 @@ export function SiblingsSection() {
 
       <div className="mt-4 flex flex-col gap-3">
         {switchAccount.isError && <ApiErrorList error={switchAccount.error} labelFor={() => null} />}
+        {passwordChangedFor && (
+          <p className="rounded-xl bg-primary/5 px-4 py-2 text-sm text-primary">
+            {t('siblings.changePasswordSuccess')}: {passwordChangedFor}
+          </p>
+        )}
 
         {isLoading ? (
           <Skeleton className="h-16 rounded-2xl" />
@@ -113,15 +127,28 @@ export function SiblingsSection() {
                 <Avatar name={sibling.name} src={sibling.avatar} size="sm" />
                 <div className="text-sm font-semibold text-ink">{sibling.name}</div>
               </div>
-              <button
-                type="button"
-                disabled={switchAccount.isPending}
-                onClick={() => switchAccount.mutate(sibling.id)}
-                className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
-              >
-                <ArrowLeftRight size={15} />
-                {t('siblings.switchTo')}
-              </button>
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPasswordChangedFor(null);
+                    setPasswordTarget(sibling);
+                  }}
+                  className="flex items-center gap-2 rounded-xl border border-line px-4 py-2 text-sm font-medium text-ink-soft hover:bg-line/30 hover:text-ink"
+                >
+                  <KeyRound size={15} />
+                  {t('siblings.changePassword')}
+                </button>
+                <button
+                  type="button"
+                  disabled={switchAccount.isPending}
+                  onClick={() => switchAccount.mutate(sibling.id)}
+                  className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+                >
+                  <ArrowLeftRight size={15} />
+                  {t('siblings.switchTo')}
+                </button>
+              </div>
             </div>
           ))
         )}
@@ -171,16 +198,23 @@ export function SiblingsSection() {
                 ]}
                 placeholder="—"
               />
+              <div className="sm:col-span-2">
+                <SiblingPasswordField
+                  value={form.password}
+                  onChange={(v) => setForm((prev) => ({ ...prev, password: v }))}
+                  showError={touched}
+                />
+              </div>
             </div>
 
             {/* StudentAcademicProfileFields يعيد ضبط النموذج عند تغيير نوع التعليم —
-                نحفظ الاسم/الجنس من التصفير بتمرير setter يدمجهما دوماً */}
+                نحفظ الاسم/الجنس/كلمة المرور من التصفير بتمرير setter يدمجها دوماً */}
             <StudentAcademicProfileFields
               form={form}
               setForm={(updater) =>
                 setForm((prev) => {
                   const next = typeof updater === 'function' ? updater(prev) : updater;
-                  return { ...next, name: prev.name, gender: prev.gender };
+                  return { ...next, name: prev.name, gender: prev.gender, password: prev.password };
                 })
               }
               touched={touched}
@@ -198,6 +232,14 @@ export function SiblingsSection() {
           </div>
         )}
       </div>
+
+      {passwordTarget && (
+        <ChangeSiblingPasswordModal
+          sibling={passwordTarget}
+          onClose={() => setPasswordTarget(null)}
+          onSaved={() => setPasswordChangedFor(passwordTarget.name)}
+        />
+      )}
     </div>
   );
 }
