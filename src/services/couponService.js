@@ -122,8 +122,10 @@ export const couponService = {
       platformRevenue: raw.platform_revenue != null ? Number(raw.platform_revenue) : null,
     });
     return [
-      // الباقة المجانية لا سعر لها يُخصم منه — لا تُضمّ لأي كوبون
-      ...packagesRes.data.data.filter((raw) => !raw.is_trial).map((raw) => map(raw, 'package')),
+      // الباقة المجانية لا سعر لها يُخصم منه، وباقة الحملة (المخفضة) لا كوبونات عليها — لا تُضمّان لأي كوبون
+      ...packagesRes.data.data
+        .filter((raw) => !raw.is_trial && raw.audience !== 'campaign')
+        .map((raw) => map(raw, 'package')),
       ...coursesRes.data.data.map((raw) => map(raw, 'course')),
     ];
   },
