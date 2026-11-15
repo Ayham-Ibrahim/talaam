@@ -1776,6 +1776,8 @@
     "usageRate": "نسبة الاستخدام",
     "courseProgress": "تقدّم الدورة",
     "activityTitle": "اخر النشاطات",
+    "pendingPaymentsTitle": "باقات بانتظار الدفع",
+    "pendingPaymentsHint": "أكمل الدفع لتأكيد حجزك وتثبيت مواعيد جلساتك",
     "noUpcomingSessions": "لا توجد جلسات قادمة",
     "noActivities": "لا توجد نشاطات بعد",
     "calendarTitle": "التقويم",
