@@ -894,6 +894,9 @@ function mapSessionListRow(session) {
     // جلسات الدورة مشتركة بين كل المسجّلين — لا إلغاء فردي لها
     canCancel: !session.course_id && !bookingInactive && isUpcoming,
     recordingUrl: session.recording_url ?? null,
+    // زر "الملفات" يظهر لكل جلسة صالحة؛ الرفع للاشتراك المدفوع فقط (نفس شرط الباك اند)
+    canViewAttachments: !bookingInactive,
+    canUploadAttachments: !bookingInactive && isSessionPaid(session),
     hasPendingRescheduleRequest: hasPendingReschedule,
     pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),
   };

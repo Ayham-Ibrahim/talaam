@@ -6,6 +6,7 @@ import { ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeacherSessionDetails } from '@/hooks/useDashboard';
 import { SessionJoinButton } from '@/components/dashboard/SessionJoinButton';
+import { SessionAttachmentsPanel } from '@/components/dashboard/SessionAttachmentsPanel';
 import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { formatDateTime } from '@/lib/formatters';
 import { ATTENDANCE_STYLES, NO_ATTENDANCE_STATUSES, attendanceState } from '@/lib/sessionAttendance';
@@ -126,6 +127,8 @@ export function TeacherSessionDetailsPage() {
               </ul>
             </div>
           )}
+
+          <SessionAttachmentsPanel sessionId={session.id} />
 
           {canShareRating && (
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F2F2F7] bg-white p-5 shadow-card">

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { formatDateTime } from '@/lib/formatters';
@@ -6,11 +7,13 @@ import { useNow } from '@/hooks/useNow';
 import { useT } from '@/hooks/useT';
 import { SessionJoinButton } from './SessionJoinButton';
 import { CopyRatingLinkButton } from './CopyRatingLinkButton';
+import { SessionAttachmentsModal } from './SessionAttachmentsModal';
 
 export function TeacherSessionsTable({ sessions, onPostpone }) {
   const t = useT();
   const navigate = useNavigate();
   const now = useNow();
+  const [attachmentsSessionId, setAttachmentsSessionId] = useState(null);
 
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
@@ -53,6 +56,13 @@ export function TeacherSessionsTable({ sessions, onPostpone }) {
                     >
                       {t('dashboard.teacherSessions.details')}
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => setAttachmentsSessionId(session.id)}
+                      className="rounded-xl border border-primary bg-[#EDF0F5] px-4 py-2 text-xs font-medium text-primary hover:bg-primary/10"
+                    >
+                      {t('dashboard.sessionAttachments.button')}
+                    </button>
                     {canJoin && (
                       <SessionJoinButton
                         session={session}
@@ -79,6 +89,10 @@ export function TeacherSessionsTable({ sessions, onPostpone }) {
           })}
         </tbody>
       </table>
+
+      {attachmentsSessionId && (
+        <SessionAttachmentsModal sessionId={attachmentsSessionId} onClose={() => setAttachmentsSessionId(null)} />
+      )}
     </div>
   );
 }

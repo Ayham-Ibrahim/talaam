@@ -5,6 +5,7 @@ import { getSessionTypeColor, SESSION_STATUS_STYLES, SESSION_STATUS_LABEL_KEYS }
 import { RescheduleRequestModal } from './RescheduleRequestModal';
 import { useCreateRescheduleRequest } from '@/hooks/useReschedule';
 import { SessionJoinButton } from './SessionJoinButton';
+import { SessionAttachmentsModal } from './SessionAttachmentsModal';
 import { useNow } from '@/hooks/useNow';
 import { isSessionRowJoinable } from '@/services';
 import { useT } from '@/hooks/useT';
@@ -14,7 +15,7 @@ import { useT } from '@/hooks/useT';
  * في أقصى يسار الصف (اتجاه RTL: أول عنصر بالـ DOM يظهر يميناً)، بنفس تعامل
  * TeacherSessionsTable في لوحة المعلم.
  */
-function SessionRow({ session, isEven, onReschedule }) {
+function SessionRow({ session, isEven, onReschedule, onShowAttachments }) {
   const t = useT();
   const navigate = useNavigate();
   const now = useNow();
@@ -79,6 +80,15 @@ function SessionRow({ session, isEven, onReschedule }) {
               {t('dashboard.changeAppointment')}
             </button>
           )}
+          {session.canViewAttachments && (
+            <button
+              type="button"
+              onClick={() => onShowAttachments(session)}
+              className="rounded-xl border border-primary bg-[#EDF0F5] px-4 py-2 text-xs font-medium text-primary hover:bg-primary/10"
+            >
+              {t('dashboard.sessionAttachments.button')}
+            </button>
+          )}
           {session.recordingUrl && (
             <a
               href={session.recordingUrl}
@@ -109,6 +119,7 @@ export function SessionsList({ sessions }) {
   const t = useT();
   const [reschedulingSessionId, setReschedulingSessionId] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const [attachmentsSession, setAttachmentsSession] = useState(null);
   const createRescheduleRequest = useCreateRescheduleRequest();
   const activeSession = sessions.find((session) => session.id === reschedulingSessionId) ?? null;
 
@@ -158,6 +169,7 @@ export function SessionsList({ sessions }) {
                   createRescheduleRequest.reset();
                   setReschedulingSessionId(id);
                 }}
+                onShowAttachments={setAttachmentsSession}
               />
             ))}
           </tbody>
@@ -171,6 +183,14 @@ export function SessionsList({ sessions }) {
           currentScheduledAt={activeSession?.scheduled_at ?? activeSession?.scheduledAt ?? null}
           onConfirm={handleConfirmReschedule}
           onClose={() => setReschedulingSessionId(null)}
+        />
+      )}
+
+      {attachmentsSession && (
+        <SessionAttachmentsModal
+          sessionId={attachmentsSession.id}
+          canUpload={attachmentsSession.canUploadAttachments}
+          onClose={() => setAttachmentsSession(null)}
         />
       )}
     </div>

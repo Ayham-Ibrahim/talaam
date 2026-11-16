@@ -804,6 +804,11 @@
     "exploreTeachers": "استكشف المعلمين"
   },
   "notifications": {
+    "sessionAttachmentUploaded": {
+      "teacher": "رفع المعلم ملفاً جديداً في الجلسة",
+      "student": "رفع الطالب ملفاً جديداً في الجلسة",
+      "admin": "رفعت الإدارة ملفاً جديداً في الجلسة"
+    },
     "title": "الإشعارات",
     "empty": "لا توجد إشعارات",
     "markAllRead": "تحديد الكل كمقروء",
@@ -1290,6 +1295,29 @@
     }
   },
   "dashboard": {
+    "sessionAttachments": {
+      "title": "ملفات الجلسة",
+      "button": "الملفات",
+      "empty": "لا توجد ملفات بعد",
+      "chooseFile": "اختر ملفاً للرفع",
+      "titlePlaceholder": "عنوان الملف (اختياري) — مثال: واجب الدرس الأول",
+      "hint": "PDF أو صورة (JPG/PNG) أو Word — حتى 10 ميغابايت. يصل إشعار للطرف الآخر فور الرفع.",
+      "upload": "رفع الملف",
+      "uploading": "جارٍ الرفع...",
+      "fileLabel": "الملف",
+      "titleLabel": "العنوان",
+      "delete": "حذف الملف",
+      "deleteConfirm": "هل تريد حذف هذا الملف؟",
+      "deleteFailed": "تعذّر حذف الملف",
+      "loadFailed": "تعذّر تحميل الملفات",
+      "retry": "إعادة المحاولة",
+      "close": "إغلاق",
+      "roles": {
+        "teacher": "المعلم",
+        "student": "الطالب",
+        "admin": "الإدارة"
+      }
+    },
     "adminTimezoneHint": "المنطقة التي يقيم فيها صاحب الحساب — تُعرَض بها مواعيد حصصه وإشعاراته",
     "welcome": "مرحباً",
     "logout": "تسجيل الخروج",

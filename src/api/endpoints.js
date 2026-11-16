@@ -156,6 +156,10 @@ export const endpoints = {
     reschedule: (id) => `/class-sessions/${id}/schedule`,
     makeup: (id) => `/class-sessions/${id}/makeup`,
     attendance: (id) => `/class-sessions/${id}/attendance`,
+    attachments: (id) => `/class-sessions/${id}/attachments`,
+  },
+  sessionAttachments: {
+    delete: (id) => `/session-attachments/${id}`,
   },
   accountants: {
     create: '/accountants',
