@@ -6,6 +6,8 @@ import { RescheduleRequestModal } from './RescheduleRequestModal';
 import { useCreateRescheduleRequest } from '@/hooks/useReschedule';
 import { SessionJoinButton } from './SessionJoinButton';
 import { SessionAttachmentsModal } from './SessionAttachmentsModal';
+import { RescheduleResponseModal } from './RescheduleResponseModal';
+import { MakeupRequestModal } from './MakeupRequestModal';
 import { useNow } from '@/hooks/useNow';
 import { isSessionRowJoinable } from '@/services';
 import { useT } from '@/hooks/useT';
@@ -15,7 +17,7 @@ import { useT } from '@/hooks/useT';
  * في أقصى يسار الصف (اتجاه RTL: أول عنصر بالـ DOM يظهر يميناً)، بنفس تعامل
  * TeacherSessionsTable في لوحة المعلم.
  */
-function SessionRow({ session, isEven, onReschedule, onShowAttachments }) {
+function SessionRow({ session, isEven, onReschedule, onShowAttachments, onRespond, onRequestMakeup }) {
   const t = useT();
   const navigate = useNavigate();
   const now = useNow();
@@ -80,6 +82,24 @@ function SessionRow({ session, isEven, onReschedule, onShowAttachments }) {
               {t('dashboard.changeAppointment')}
             </button>
           )}
+          {session.awaitingMyResponse && (
+            <button
+              type="button"
+              onClick={() => onRespond(session)}
+              className="rounded-xl border border-[#FF8D28] bg-[#FDF8F0] px-4 py-2 text-xs font-bold text-[#FF8D28] hover:bg-[#FF8D28]/10"
+            >
+              {t('dashboard.rescheduleResponse.button')}
+            </button>
+          )}
+          {session.canRequestMakeup && (
+            <button
+              type="button"
+              onClick={() => onRequestMakeup(session)}
+              className="rounded-xl border border-primary bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary-hover"
+            >
+              {t('dashboard.makeupRequest.button')}
+            </button>
+          )}
           {session.canViewAttachments && (
             <button
               type="button"
@@ -120,6 +140,13 @@ export function SessionsList({ sessions }) {
   const [reschedulingSessionId, setReschedulingSessionId] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [attachmentsSession, setAttachmentsSession] = useState(null);
+  const [respondingSession, setRespondingSession] = useState(null);
+  const [makeupSession, setMakeupSession] = useState(null);
+
+  const showSuccess = (message) => {
+    setSuccessMessage(message);
+    setTimeout(() => setSuccessMessage(''), 4000);
+  };
   const createRescheduleRequest = useCreateRescheduleRequest();
   const activeSession = sessions.find((session) => session.id === reschedulingSessionId) ?? null;
 
@@ -127,9 +154,9 @@ export function SessionsList({ sessions }) {
     createRescheduleRequest.mutate(
       { sessionId: reschedulingSessionId, proposedScheduledAt, reason },
       {
-        onSuccess: () => {
+        onSuccess: (result) => {
           setReschedulingSessionId(null);
-          setSuccessMessage(t('dashboard.rescheduleModal.success'));
+          setSuccessMessage(result?.message || t('dashboard.rescheduleModal.success'));
           setTimeout(() => setSuccessMessage(''), 4000);
         },
       }
@@ -170,6 +197,8 @@ export function SessionsList({ sessions }) {
                   setReschedulingSessionId(id);
                 }}
                 onShowAttachments={setAttachmentsSession}
+                onRespond={setRespondingSession}
+                onRequestMakeup={setMakeupSession}
               />
             ))}
           </tbody>
@@ -191,6 +220,29 @@ export function SessionsList({ sessions }) {
           sessionId={attachmentsSession.id}
           canUpload={attachmentsSession.canUploadAttachments}
           onClose={() => setAttachmentsSession(null)}
+        />
+      )}
+
+      {respondingSession && (
+        <RescheduleResponseModal
+          request={respondingSession.pendingRescheduleRequest}
+          onClose={() => setRespondingSession(null)}
+          onDone={(message) => {
+            setRespondingSession(null);
+            showSuccess(message);
+          }}
+        />
+      )}
+
+      {makeupSession && (
+        <MakeupRequestModal
+          sessionId={makeupSession.id}
+          missedScheduledAt={makeupSession.scheduledAt}
+          onClose={() => setMakeupSession(null)}
+          onDone={(message) => {
+            setMakeupSession(null);
+            showSuccess(message);
+          }}
         />
       )}
     </div>

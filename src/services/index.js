@@ -471,21 +471,52 @@ export const classSessionService = {
 
 export const rescheduleService = {
   /**
-   * Student or teacher requests a new time for an existing session — never applied
-   * automatically, an admin must approve/reject (see AdminComplaintsPage's reschedule tab).
+   * Student or teacher requests a new time for an existing session. With a proposed
+   * time it goes to the other party first (accept = applied immediately, decline or no
+   * reply = escalated to the admin); an absence report without a time goes to the admin.
    * `reason` is required by the backend only when the proposed change is less than
    * reschedule_free_window_hours before the session; sending it always is simplest.
+   * Returns { request, message } — the message says which path the request took.
    */
   async createRequest(sessionId, { proposedScheduledAt, reason }) {
     if (config.useMocks) {
       await mockDelay(400);
-      return { id: Math.floor(Math.random() * 100000), status: 'pending' };
+      return { request: { id: Math.floor(Math.random() * 100000), status: 'pending' }, message: null };
     }
     const { data } = await client.post(endpoints.classSessions.rescheduleRequests(sessionId), {
       proposed_scheduled_at: proposedScheduledAt,
       reason: reason || null,
     });
+    return { request: data.data, message: data.message };
+  },
+
+  /**
+   * Proposes a time for the makeup session of a missed session (teacher absent). Same
+   * path as a reschedule: the other party accepts (makeup created) or the admin decides.
+   */
+  async createMakeupRequest(sessionId, { proposedScheduledAt, reason }) {
+    const { data } = await client.post(endpoints.classSessions.makeupRequests(sessionId), {
+      proposed_scheduled_at: proposedScheduledAt,
+      reason: reason || null,
+    });
+    return { request: data.data, message: data.message };
+  },
+
+  /** Everything awaiting the current student/teacher: { count, awaiting_response, makeup_eligible }. */
+  async pendingActions() {
+    if (config.useMocks) {
+      await mockDelay(200);
+      return { count: 0, awaiting_response: [], makeup_eligible: [] };
+    }
+    const { data } = await client.get(endpoints.myPendingActions);
     return data.data;
+  },
+
+  /** The other party of the session answers a proposed time. */
+  async respond(requestId, accept) {
+    const url = accept ? endpoints.rescheduleRequests.accept(requestId) : endpoints.rescheduleRequests.decline(requestId);
+    const { data } = await client.post(url);
+    return { request: data.data, message: data.message };
   },
 };
 
@@ -897,6 +928,11 @@ function mapSessionListRow(session) {
     // زر "الملفات" يظهر لكل جلسة صالحة؛ الرفع للاشتراك المدفوع فقط (نفس شرط الباك اند)
     canViewAttachments: !bookingInactive,
     canUploadAttachments: !bookingInactive && isSessionPaid(session),
+    // المعلم اقترح موعداً جديداً وينتظر رد الطالب (المسار التلقائي) — زر "الرد على الطلب"
+    pendingRescheduleRequest: session.pending_reschedule_request ?? null,
+    awaitingMyResponse: !bookingInactive && Boolean(session.pending_reschedule_request?.awaiting_my_response),
+    // جلسة فائتة غاب عنها المعلم — زر "اقتراح موعد تعويضي" (السياسة: تعويض مجاني لغياب المعلم)
+    canRequestMakeup: !bookingInactive && Boolean(session.can_request_makeup),
     hasPendingRescheduleRequest: hasPendingReschedule,
     pendingRescheduleRequestCreatedAt: pendingRescheduleRequestCreatedAt(session),
   };

@@ -48,18 +48,51 @@ function notificationContent(t, notification, role) {
       return { title: t('notifications.sessionQualityLinkSent'), body: t('notifications.sessionQualityLinkSentHint'), copyLink: data.link };
     case 'RescheduleRequestReviewed': {
       if (data.status === 'rejected') {
-        return { title: t('notifications.rescheduleRejected'), body: data.reason };
+        return {
+          title: data.kind === 'makeup' ? t('notifications.makeupRejected') : t('notifications.rescheduleRejected'),
+          body: data.reason,
+        };
       }
       const dateLine = data.newScheduledAt ? formatDateTime(data.newScheduledAt) : null;
       const body = [dateLine, data.adminNotes].filter(Boolean).join(' — ') || null;
-      return { title: t('notifications.rescheduleApproved'), body };
+      return {
+        title: data.byCounterparty ? t('notifications.rescheduleAcceptedByCounterparty') : t('notifications.rescheduleApproved'),
+        body,
+      };
     }
     case 'RescheduleRequestSubmitted':
       return {
-        title: data.forReviewer
+        title: data.kind === 'makeup'
+          ? (data.forReviewer ? t('notifications.makeupSubmittedForReview') : t('notifications.makeupSent'))
+          : data.forReviewer
           ? t('notifications.rescheduleSubmittedForReview')
-          : t('notifications.rescheduleSubmitted'),
+          : data.awaitingCounterparty
+            ? t('notifications.rescheduleSentToCounterparty')
+            : t('notifications.rescheduleSubmitted'),
         body: data.proposedScheduledAt ? formatDateTime(data.proposedScheduledAt) : data.reason ?? null,
+      };
+    case 'MakeupSessionScheduled':
+      return {
+        title: data.byAgreement ? t('notifications.makeupScheduledByAgreement') : t('notifications.makeupScheduled'),
+        body: data.makeupScheduledAt ? formatDateTime(data.makeupScheduledAt) : null,
+      };
+    case 'RescheduleResponseRequested':
+      return {
+        title: t(
+          data.kind === 'makeup'
+            ? `notifications.makeupResponseRequested.${data.requesterRole}`
+            : `notifications.rescheduleResponseRequested.${data.requesterRole}`,
+        ),
+        body: `${t('dashboard.rescheduleResponse.proposed')}: ${formatDateTime(data.proposedScheduledAt)}`,
+        link: role === 'teacher' ? `/dashboard/teacher/sessions/${data.sessionId}` : '/dashboard/student/sessions',
+      };
+    case 'RescheduleRequestEscalated':
+      return {
+        title: data.kind === 'makeup'
+          ? (data.forReviewer ? t('notifications.makeupEscalatedForReview') : t('notifications.makeupEscalated'))
+          : (data.forReviewer ? t('notifications.rescheduleEscalatedForReview') : t('notifications.rescheduleEscalated')),
+        body: t(`notifications.rescheduleEscalatedCause.${data.cause}`),
+        link: data.forReviewer ? '/dashboard/admin/complaints' : null,
       };
     case 'VerificationDocumentRejected':
       return {

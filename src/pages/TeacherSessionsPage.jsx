@@ -36,9 +36,9 @@ export function TeacherSessionsPage() {
     createRescheduleRequest.mutate(
       { sessionId: postponingSession.id, proposedScheduledAt, reason },
       {
-        onSuccess: () => {
+        onSuccess: (result) => {
           setPostponingSession(null);
-          setSuccessMessage(t('dashboard.rescheduleModal.success'));
+          setSuccessMessage(result?.message || t('dashboard.rescheduleModal.success'));
           setTimeout(() => setSuccessMessage(''), 4000);
         },
       }
@@ -107,6 +107,10 @@ export function TeacherSessionsPage() {
               onPostpone={(session) => {
                 createRescheduleRequest.reset();
                 setPostponingSession(session);
+              }}
+              onRespondDone={(message) => {
+                setSuccessMessage(message);
+                setTimeout(() => setSuccessMessage(''), 4000);
               }}
             />
             <div className="flex flex-wrap items-center justify-between gap-3">

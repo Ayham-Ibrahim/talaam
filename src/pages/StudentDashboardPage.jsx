@@ -6,6 +6,7 @@ import { UpcomingSessionsCard } from "@/components/dashboard/UpcomingSessionsCar
 import { PackageWidget } from "@/components/dashboard/PackageWidget";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { PendingPaymentsCard } from "@/components/dashboard/PendingPaymentsCard";
+import { PendingActionsCard } from "@/components/dashboard/PendingActionsCard";
 import { ErrorState, Skeleton } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import { useStudentDashboard } from "@/hooks/useDashboard";
@@ -36,6 +37,7 @@ export function StudentDashboardPage() {
             name={user.name.split(" ")[0]}
             sessionsThisWeek={data.stats.upcomingSessionsCount}
           />
+          <PendingActionsCard />
           <PendingPaymentsCard packages={data.pendingPayments} />
           <StatsGrid stats={data.stats} />
           <UpcomingSessionsCard sessions={data.upcomingSessions} />

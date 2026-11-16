@@ -8,12 +8,16 @@ import { useT } from '@/hooks/useT';
 import { SessionJoinButton } from './SessionJoinButton';
 import { CopyRatingLinkButton } from './CopyRatingLinkButton';
 import { SessionAttachmentsModal } from './SessionAttachmentsModal';
+import { RescheduleResponseModal } from './RescheduleResponseModal';
+import { MakeupRequestModal } from './MakeupRequestModal';
 
-export function TeacherSessionsTable({ sessions, onPostpone }) {
+export function TeacherSessionsTable({ sessions, onPostpone, onRespondDone }) {
   const t = useT();
   const navigate = useNavigate();
   const now = useNow();
   const [attachmentsSessionId, setAttachmentsSessionId] = useState(null);
+  const [respondingRequest, setRespondingRequest] = useState(null);
+  const [makeupSession, setMakeupSession] = useState(null);
 
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
@@ -56,6 +60,26 @@ export function TeacherSessionsTable({ sessions, onPostpone }) {
                     >
                       {t('dashboard.teacherSessions.details')}
                     </button>
+                    {/* الطالب اقترح موعداً جديداً وينتظر رد المعلم (المسار التلقائي) */}
+                    {session.pending_reschedule_request?.awaiting_my_response && (
+                      <button
+                        type="button"
+                        onClick={() => setRespondingRequest(session.pending_reschedule_request)}
+                        className="rounded-xl border border-[#FF8D28] bg-[#FDF8F0] px-4 py-2 text-xs font-bold text-[#FF8D28] hover:bg-[#FF8D28]/10"
+                      >
+                        {t('dashboard.rescheduleResponse.button')}
+                      </button>
+                    )}
+                    {/* جلسة فائتة غاب عنها المعلم — يقترح موعد التعويضية والطالب يوافق */}
+                    {session.can_request_makeup && (
+                      <button
+                        type="button"
+                        onClick={() => setMakeupSession(session)}
+                        className="rounded-xl border border-primary bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary-hover"
+                      >
+                        {t('dashboard.makeupRequest.button')}
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => setAttachmentsSessionId(session.id)}
@@ -92,6 +116,29 @@ export function TeacherSessionsTable({ sessions, onPostpone }) {
 
       {attachmentsSessionId && (
         <SessionAttachmentsModal sessionId={attachmentsSessionId} onClose={() => setAttachmentsSessionId(null)} />
+      )}
+
+      {respondingRequest && (
+        <RescheduleResponseModal
+          request={respondingRequest}
+          onClose={() => setRespondingRequest(null)}
+          onDone={(message) => {
+            setRespondingRequest(null);
+            onRespondDone?.(message);
+          }}
+        />
+      )}
+
+      {makeupSession && (
+        <MakeupRequestModal
+          sessionId={makeupSession.id}
+          missedScheduledAt={makeupSession.scheduled_at}
+          onClose={() => setMakeupSession(null)}
+          onDone={(message) => {
+            setMakeupSession(null);
+            onRespondDone?.(message);
+          }}
+        />
       )}
     </div>
   );

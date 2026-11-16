@@ -4,6 +4,7 @@ import { WelcomeBanner } from "@/components/dashboard/WelcomeBanner";
 import { TeacherStatsGrid } from "@/components/dashboard/TeacherStatsGrid";
 import { UpcomingSessionsCard } from "@/components/dashboard/UpcomingSessionsCard";
 import { ActivePackagesTable } from "@/components/dashboard/ActivePackagesTable";
+import { PendingActionsCard } from "@/components/dashboard/PendingActionsCard";
 import { ErrorState, Skeleton } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import { useTeacherDashboard } from "@/hooks/useDashboard";
@@ -38,6 +39,7 @@ export function TeacherDashboardPage() {
             imageSrc="/hero-teacher.webp"
             teal
           />
+          <PendingActionsCard />
           <TeacherStatsGrid stats={data.stats} />
           <UpcomingSessionsCard sessions={data.upcomingSessions} />
           <ActivePackagesTable packages={data.activePackages} />

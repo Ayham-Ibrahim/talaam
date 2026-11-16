@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { AlertTriangle, BookOpen, CalendarClock, Clock, Users, Video } from 'lucide-react';
 import { CopyRatingLinkButton } from '@/components/dashboard/CopyRatingLinkButton';
 import { Link, Navigate, useParams } from 'react-router-dom';
@@ -7,6 +8,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTeacherSessionDetails } from '@/hooks/useDashboard';
 import { SessionJoinButton } from '@/components/dashboard/SessionJoinButton';
 import { SessionAttachmentsPanel } from '@/components/dashboard/SessionAttachmentsPanel';
+import { RescheduleResponseModal } from '@/components/dashboard/RescheduleResponseModal';
+import { MakeupRequestModal } from '@/components/dashboard/MakeupRequestModal';
 import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { formatDateTime } from '@/lib/formatters';
 import { ATTENDANCE_STYLES, NO_ATTENDANCE_STATUSES, attendanceState } from '@/lib/sessionAttendance';
@@ -20,6 +23,8 @@ export function TeacherSessionDetailsPage() {
   const { id } = useParams();
   const { data: session, isLoading, isError, refetch } = useTeacherSessionDetails(id);
   const now = useNow();
+  const [responding, setResponding] = useState(false);
+  const [requestingMakeup, setRequestingMakeup] = useState(false);
 
   if (!user) return <Navigate to="/login" replace />;
 
@@ -91,6 +96,62 @@ export function TeacherSessionDetailsPage() {
               );
             })}
           </div>
+
+          {session.pending_reschedule_request?.awaiting_my_response && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#FF8D28]/40 bg-[#FDF8F0] p-5">
+              <div className="text-right">
+                <h3 className="text-sm font-bold text-ink">
+                  {t(session.pending_reschedule_request.type === 'makeup'
+                    ? 'dashboard.rescheduleResponse.makeup.bannerTitle'
+                    : 'dashboard.rescheduleResponse.bannerTitle')}
+                </h3>
+                <p className="mt-0.5 text-xs text-ink-soft">
+                  {t('dashboard.rescheduleResponse.proposed')}:{' '}
+                  <span dir="ltr">{formatDateTime(session.pending_reschedule_request.proposed_scheduled_at, user?.timezone)}</span>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setResponding(true)}
+                className="rounded-xl bg-[#FF8D28] px-5 py-2.5 text-sm font-medium text-white hover:opacity-90"
+              >
+                {t('dashboard.rescheduleResponse.button')}
+              </button>
+            </div>
+          )}
+
+          {session.can_request_makeup && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/30 bg-[#EDF0F5] p-5">
+              <div className="text-right">
+                <h3 className="text-sm font-bold text-ink">{t('dashboard.makeupRequest.bannerTitle')}</h3>
+                <p className="mt-0.5 text-xs text-ink-soft">{t('dashboard.makeupRequest.hint')}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setRequestingMakeup(true)}
+                className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-hover"
+              >
+                {t('dashboard.makeupRequest.button')}
+              </button>
+            </div>
+          )}
+
+          {requestingMakeup && (
+            <MakeupRequestModal
+              sessionId={session.id}
+              missedScheduledAt={session.scheduled_at}
+              onClose={() => setRequestingMakeup(false)}
+              onDone={() => setRequestingMakeup(false)}
+            />
+          )}
+
+          {responding && session.pending_reschedule_request && (
+            <RescheduleResponseModal
+              request={session.pending_reschedule_request}
+              onClose={() => setResponding(false)}
+              onDone={() => setResponding(false)}
+            />
+          )}
 
           {showReason && (
             <div className="flex items-start gap-3 rounded-2xl bg-accent-pink/10 p-5">
