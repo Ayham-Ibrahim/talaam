@@ -36,11 +36,14 @@ export function AdminComplaintsPage() {
   const [tab, setTab] = useState("complaints");
   const [complaintStatus, setComplaintStatus] = useState("");
   const [rescheduleStatus, setRescheduleStatus] = useState("");
+  // needs_admin: ما يحتاج قرار الإدارة فعلاً — awaiting_counterparty: بانتظار رد الطرف الآخر (للمتابعة)
+  const [rescheduleStage, setRescheduleStage] = useState("");
   const [modal, setModal] = useState(null);
 
   const complaintsQuery = useAdminComplaints({ status: complaintStatus });
   const rescheduleQuery = useAdminRescheduleRequests({
     status: rescheduleStatus,
+    ...(rescheduleStage ? { stage: rescheduleStage } : {}),
   });
 
   const resolveComplaint = useResolveComplaint();
@@ -141,6 +144,16 @@ export function AdminComplaintsPage() {
                   ([value, style]) => ({ value, label: style.label }),
                 ),
               ]}
+            />
+            <SmoothSelect
+              className="max-w-xs"
+              value={rescheduleStage}
+              onChange={setRescheduleStage}
+              placeholder={t("dashboard.adminReschedule.stages.all")}
+              options={["", "needs_admin", "awaiting_counterparty"].map((value) => ({
+                value,
+                label: t(`dashboard.adminReschedule.stages.${value || "all"}`),
+              }))}
             />
 
             {rescheduleQuery.isError ? (

@@ -11,6 +11,7 @@ import {
   GraduationCap,
   Link2,
   ListFilter,
+  Paperclip,
   RotateCcw,
 } from 'lucide-react';
 import { Pagination } from '@/components/dashboard/Pagination';
@@ -22,6 +23,7 @@ import { AdminMakeupSessionModal } from './AdminMakeupSessionModal';
 import { AdminRescheduleSessionModal } from './AdminRescheduleSessionModal';
 import { COMPENSABLE_OUTCOMES } from '@/services/adminSessionsService';
 import { AdminSessionLinksModal } from './AdminSessionLinksModal';
+import { SessionAttachmentsModal } from '@/components/dashboard/SessionAttachmentsModal';
 import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { formatDateTime } from '@/lib/formatters';
 import { formatTimeZoneLabel } from '@/lib/zonedDateTime';
@@ -381,16 +383,15 @@ const ACTION_BUTTON_CLASS =
   'inline-flex items-center gap-1.5 rounded-xl border border-primary bg-[#EDF0F5] px-3 py-2 text-xs font-medium text-primary hover:bg-primary/10';
 
 /** روابط BBB تُعرض بكل حالات الجلسة طالما أُنشئت غرفتها */
-function SessionActions({ session, onShowLinks, onReschedule, onCreateMakeup, t }) {
+function SessionActions({ session, onShowLinks, onShowAttachments, onReschedule, onCreateMakeup, t }) {
   const showLinks = Boolean(session.joinUrlTeacher || session.joinUrlStudent);
-  const hasScheduleAction = session.canReschedule || session.canCreateMakeup || session.hasMakeup;
-
-  if (!hasScheduleAction && !showLinks) {
-    return <span className="text-xs text-ink-soft">—</span>;
-  }
 
   return (
     <div className="flex flex-wrap items-center justify-center gap-2">
+      <button type="button" onClick={onShowAttachments} className={ACTION_BUTTON_CLASS}>
+        <Paperclip size={14} />
+        {t('dashboard.sessionAttachments.button')}
+      </button>
       {showLinks && (
         <button type="button" onClick={onShowLinks} className={ACTION_BUTTON_CLASS}>
           <Link2 size={14} />
@@ -433,6 +434,7 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
   const [editingSession, setEditingSession] = useState(null);
   const [makeupSession, setMakeupSession] = useState(null);
   const [linksSessionSnapshot, setLinksSession] = useState(null);
+  const [attachmentsSessionId, setAttachmentsSessionId] = useState(null);
 
   const range = day ? localDayRange(day) : {};
   const isFiltered = day !== defaults.day || status !== defaults.status || sort !== defaults.sort || teacherFilter !== '';
@@ -603,6 +605,7 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
                       <SessionActions
                         session={session}
                         onShowLinks={() => setLinksSession(session)}
+                        onShowAttachments={() => setAttachmentsSessionId(session.id)}
                         onReschedule={() => setEditingSession(session)}
                         onCreateMakeup={() => setMakeupSession(session)}
                         t={t}
@@ -623,6 +626,9 @@ export function AdminSessionsPanel({ teacherId, studentId, all = false }) {
       {editingSession && <AdminRescheduleSessionModal session={editingSession} onClose={() => setEditingSession(null)} />}
       {makeupSession && <AdminMakeupSessionModal session={makeupSession} onClose={() => setMakeupSession(null)} />}
       {linksSession && <AdminSessionLinksModal session={linksSession} onClose={() => setLinksSession(null)} />}
+      {attachmentsSessionId && (
+        <SessionAttachmentsModal sessionId={attachmentsSessionId} onClose={() => setAttachmentsSessionId(null)} />
+      )}
     </div>
   );
 }

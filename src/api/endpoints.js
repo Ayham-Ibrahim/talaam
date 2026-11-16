@@ -156,6 +156,19 @@ export const endpoints = {
     reschedule: (id) => `/class-sessions/${id}/schedule`,
     makeup: (id) => `/class-sessions/${id}/makeup`,
     attendance: (id) => `/class-sessions/${id}/attendance`,
+    attachments: (id) => `/class-sessions/${id}/attachments`,
+    // اقتراح موعد جلسة تعويضية لجلسة غاب عنها المعلم — للطرف الآخر أولاً
+    makeupRequests: (id) => `/class-sessions/${id}/makeup-requests`,
+  },
+  sessionAttachments: {
+    delete: (id) => `/session-attachments/${id}`,
+  },
+  // كل ما ينتظر تصرّف الطالب/المعلم (طلبات بانتظار رده + جلسات قابلة للتعويض)
+  myPendingActions: '/my-pending-actions',
+  rescheduleRequests: {
+    // رد الطرف الآخر على اقتراح الموعد — القبول يطبّقه فوراً، والرفض يحيله للأدمن
+    accept: (id) => `/reschedule-requests/${id}/accept`,
+    decline: (id) => `/reschedule-requests/${id}/decline`,
   },
   accountants: {
     create: '/accountants',

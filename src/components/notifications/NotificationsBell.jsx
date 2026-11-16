@@ -9,11 +9,27 @@ import {
 } from '@/hooks/useNotifications';
 import { formatDateTime } from '@/lib/formatters';
 import { DOCUMENT_TYPE_LABELS } from '@/mocks/admin.mock';
+import { useAuth } from '@/hooks/useAuth';
 import { useT } from '@/hooks/useT';
 
-function notificationContent(t, notification) {
+/** صفحة الجلسة لكل دور — المعلم له صفحة تفاصيل، الطالب والأدمن جدول فيه زر "الملفات" */
+function sessionPathFor(role, sessionId) {
+  if (role === 'teacher') return `/dashboard/teacher/sessions/${sessionId}`;
+  if (role === 'admin') return '/dashboard/admin/sessions';
+  return '/dashboard/student/sessions';
+}
+
+function notificationContent(t, notification, role) {
   const { type, data } = notification;
   switch (type) {
+    case 'SessionAttachmentUploaded':
+      return {
+        title: t(`notifications.sessionAttachmentUploaded.${data.uploaderRole}`),
+        body: [data.title || data.fileName, data.sessionScheduledAt ? formatDateTime(data.sessionScheduledAt) : null]
+          .filter(Boolean)
+          .join(' — '),
+        link: sessionPathFor(role, data.sessionId),
+      };
     case 'TeacherVerificationReviewed':
       return {
         title: data.approved ? t('notifications.teacherApproved') : t('notifications.teacherRejected'),
@@ -32,18 +48,51 @@ function notificationContent(t, notification) {
       return { title: t('notifications.sessionQualityLinkSent'), body: t('notifications.sessionQualityLinkSentHint'), copyLink: data.link };
     case 'RescheduleRequestReviewed': {
       if (data.status === 'rejected') {
-        return { title: t('notifications.rescheduleRejected'), body: data.reason };
+        return {
+          title: data.kind === 'makeup' ? t('notifications.makeupRejected') : t('notifications.rescheduleRejected'),
+          body: data.reason,
+        };
       }
       const dateLine = data.newScheduledAt ? formatDateTime(data.newScheduledAt) : null;
       const body = [dateLine, data.adminNotes].filter(Boolean).join(' — ') || null;
-      return { title: t('notifications.rescheduleApproved'), body };
+      return {
+        title: data.byCounterparty ? t('notifications.rescheduleAcceptedByCounterparty') : t('notifications.rescheduleApproved'),
+        body,
+      };
     }
     case 'RescheduleRequestSubmitted':
       return {
-        title: data.forReviewer
+        title: data.kind === 'makeup'
+          ? (data.forReviewer ? t('notifications.makeupSubmittedForReview') : t('notifications.makeupSent'))
+          : data.forReviewer
           ? t('notifications.rescheduleSubmittedForReview')
-          : t('notifications.rescheduleSubmitted'),
+          : data.awaitingCounterparty
+            ? t('notifications.rescheduleSentToCounterparty')
+            : t('notifications.rescheduleSubmitted'),
         body: data.proposedScheduledAt ? formatDateTime(data.proposedScheduledAt) : data.reason ?? null,
+      };
+    case 'MakeupSessionScheduled':
+      return {
+        title: data.byAgreement ? t('notifications.makeupScheduledByAgreement') : t('notifications.makeupScheduled'),
+        body: data.makeupScheduledAt ? formatDateTime(data.makeupScheduledAt) : null,
+      };
+    case 'RescheduleResponseRequested':
+      return {
+        title: t(
+          data.kind === 'makeup'
+            ? `notifications.makeupResponseRequested.${data.requesterRole}`
+            : `notifications.rescheduleResponseRequested.${data.requesterRole}`,
+        ),
+        body: `${t('dashboard.rescheduleResponse.proposed')}: ${formatDateTime(data.proposedScheduledAt)}`,
+        link: role === 'teacher' ? `/dashboard/teacher/sessions/${data.sessionId}` : '/dashboard/student/sessions',
+      };
+    case 'RescheduleRequestEscalated':
+      return {
+        title: data.kind === 'makeup'
+          ? (data.forReviewer ? t('notifications.makeupEscalatedForReview') : t('notifications.makeupEscalated'))
+          : (data.forReviewer ? t('notifications.rescheduleEscalatedForReview') : t('notifications.rescheduleEscalated')),
+        body: t(`notifications.rescheduleEscalatedCause.${data.cause}`),
+        link: data.forReviewer ? '/dashboard/admin/complaints' : null,
       };
     case 'VerificationDocumentRejected':
       return {
@@ -57,6 +106,7 @@ function notificationContent(t, notification) {
 
 export function NotificationsBell({ buttonClassName, iconClassName = 'text-ink-soft', iconSize = 18 }) {
   const t = useT();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
@@ -120,7 +170,7 @@ export function NotificationsBell({ buttonClassName, iconClassName = 'text-ink-s
               <div className="px-4 py-6 text-center text-sm text-ink-soft">{t('notifications.empty')}</div>
             ) : (
               notifications.map((notification) => {
-                const { title, body, link, copyLink } = notificationContent(t, notification);
+                const { title, body, link, copyLink } = notificationContent(t, notification, user?.role);
                 const isCopied = copiedId === notification.id;
                 return (
                   <button

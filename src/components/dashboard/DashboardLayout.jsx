@@ -27,8 +27,55 @@ import { Avatar } from "@/components/ui";
 import { NotificationsBell } from "@/components/notifications/NotificationsBell";
 import { useAuth, useLogout } from "@/hooks/useAuth";
 import { useFavorites } from "@/hooks/useFavorites";
+import { usePendingActions } from "@/hooks/useReschedule";
+import { useNow } from "@/hooks/useNow";
 import { useT } from "@/hooks/useT";
+import { nearestDeadline, timeLeft } from "@/lib/pendingActions";
 import { LocaleOverrideContext } from "@/context/LocaleOverrideContext";
+
+const HOME_PATHS = { student: "/dashboard/student", teacher: "/dashboard/teacher" };
+
+/**
+ * شريط ثابت أعلى كل صفحات لوحة الطالب/المعلم ما دام شيء ينتظر تصرّفه — يضمن رؤيته حتى لمن
+ * دخل مباشرة لصفحة أخرى. يُخفى في الرئيسية نفسها (بطاقة "بانتظار ردك" تعرض التفاصيل هناك).
+ */
+function PendingActionsBanner({ data, homePath, isHome }) {
+  const t = useT();
+  const now = useNow();
+
+  if (!data?.count || isHome) return null;
+
+  const awaitingCount = data.awaiting_response?.length ?? 0;
+  const deadline = nearestDeadline(data);
+  const remaining = deadline ? timeLeft(t, deadline, now) : null;
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#F5A623]/40 bg-[#FFF8EC] px-4 py-2.5 lg:px-10">
+      <div className="flex items-center gap-2 text-sm text-ink">
+        <span className="relative flex h-2.5 w-2.5">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#F5A623] opacity-60" />
+          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#F5A623]" />
+        </span>
+        <span className="font-bold">
+          {awaitingCount > 0
+            ? t("dashboard.pendingActions.bannerAwaiting").replace("{n}", awaitingCount)
+            : t("dashboard.pendingActions.bannerMakeup").replace("{n}", data.count)}
+        </span>
+        {remaining && (
+          <span className={remaining.urgent ? "font-bold text-accent-pink" : "text-[#B7791F]"}>
+            — {t("dashboard.pendingActions.bannerNearest")} {remaining.text}
+          </span>
+        )}
+      </div>
+      <NavLink
+        to={homePath}
+        className="rounded-xl bg-[#F5A623] px-4 py-1.5 text-sm font-bold text-white hover:opacity-90"
+      >
+        {t("dashboard.pendingActions.bannerAction")}
+      </NavLink>
+    </div>
+  );
+}
 
 const STUDENT_NAV_ITEMS = [
   { key: "home", icon: Home, path: "/dashboard/student", end: true },
@@ -83,6 +130,10 @@ function DashboardLayoutInner({ children }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  // طلبات تنتظر رد الطالب/المعلم + جلسات قابلة للتعويض — للشريط ولرقم "الجلسات"
+  const homePath = HOME_PATHS[user?.role];
+  const { data: pendingActions } = usePendingActions(Boolean(homePath));
+  const pendingCount = pendingActions?.count ?? 0;
 
   // Close sidebar on path change
   useEffect(() => {
@@ -171,6 +222,14 @@ function DashboardLayoutInner({ children }) {
                     }`
                   }
                 >
+                  {item.key === "sessions" && pendingCount > 0 && (
+                    <span
+                      className="flex h-6 min-w-6 items-center justify-center rounded-full bg-accent-pink px-1.5 text-xs font-bold text-white"
+                      aria-label={t("dashboard.pendingActions.title")}
+                    >
+                      {pendingCount}
+                    </span>
+                  )}
                   {t(`dashboard.nav.${item.key}`)}
                   <Icon size={22} />
                 </NavLink>
@@ -267,14 +326,19 @@ function DashboardLayoutInner({ children }) {
               <ActivePageIcon size={16} className="text-primary" />
             </span>
             <button
-              className="lg:hidden flex h-10 w-10 shrink-0 items-center justify-center rounded-pill border border-line bg-white text-[#2D2D2D]"
+              className="relative lg:hidden flex h-10 w-10 shrink-0 items-center justify-center rounded-pill border border-line bg-white text-[#2D2D2D]"
               onClick={() => setSidebarOpen(true)}
               aria-label="القائمة"
             >
               <Menu size={20} />
+              {pendingCount > 0 && <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full bg-accent-pink" />}
             </button>
           </div>
         </header>
+
+        {homePath && (
+          <PendingActionsBanner data={pendingActions} homePath={homePath} isHome={location.pathname === homePath} />
+        )}
 
         <main dir="rtl" className="flex-1 overflow-auto px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
           <CampaignAccountBanner />

@@ -3,6 +3,29 @@ import { RescheduleStatusBadge } from './RescheduleStatusBadge';
 import { formatDateTime } from '@/lib/formatters';
 import { useT } from '@/hooks/useT';
 
+/**
+ * مرحلة رد الطرف الآخر (المسار التلقائي) تحت حالة الطلب: بانتظار رده (للمتابعة فقط —
+ * لا يحتاج قرار الإدارة بعد)، أو أُحيل للإدارة لأنه رفض/لم يرد، أو وافق فتأكد الموعد.
+ * طلب بلا counterpartyResponse جاء للإدارة مباشرة (تبليغ غياب أو المسار التلقائي معطّل).
+ */
+function CounterpartyStage({ request, t }) {
+  const response = request.counterpartyResponse;
+  if (!response) return null;
+
+  const otherParty = t(`dashboard.adminReschedule.otherParty.${request.requesterRole === 'student' ? 'teacher' : 'student'}`);
+  const color = response === 'pending' ? 'text-[#FF8D28]' : response === 'accepted' ? 'text-success' : 'text-accent-pink';
+  const deadline = response === 'pending' && request.counterpartyDeadline
+    ? ` — ${formatDateTime(request.counterpartyDeadline, request.studentTimezone)}`
+    : '';
+
+  return (
+    <div className={`mt-1 text-xs font-medium ${color}`}>
+      {t(`dashboard.adminReschedule.counterparty.${response}`).replace('{party}', otherParty)}
+      {deadline && <span dir="ltr">{deadline}</span>}
+    </div>
+  );
+}
+
 export function RescheduleRequestsTable({ requests, onView, onApprove, onApproveWithAlternative, onReject, isActing }) {
   const t = useT();
   const renderText = (value) => value || '—';
@@ -59,6 +82,13 @@ export function RescheduleRequestsTable({ requests, onView, onApprove, onApprove
               </td>
               <td className="px-4 py-4 text-right">
                 <RescheduleStatusBadge status={r.status} />
+                {/* makeup: "الموعد الأصلي" = الجلسة الفائتة (غاب المعلم)، والموافقة تُنشئ تعويضية */}
+                {r.type === 'makeup' && (
+                  <span className="mr-1 rounded-pill bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
+                    {t('dashboard.adminReschedule.makeupBadge')}
+                  </span>
+                )}
+                <CounterpartyStage request={r} t={t} />
               </td>
               <td className="px-4 py-4 text-right">
                 <div className="flex flex-wrap items-center justify-end gap-3">

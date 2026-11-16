@@ -48,6 +48,7 @@ export const queryKeys = {
   students: {
     myProfile: (id) => ['students', 'my-profile', id],
   },
+  sessionAttachments: (sessionId) => ['session-attachments', String(sessionId)],
   notifications: {
     list: () => ['notifications', 'list'],
     unreadCount: () => ['notifications', 'unread-count'],

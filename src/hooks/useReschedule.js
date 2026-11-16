@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { rescheduleService } from '@/services';
 
@@ -48,6 +48,45 @@ export function useCreateRescheduleRequest() {
       // جلسات لوحة المعلم صفوف خام (snake_case) — إعادة الجلب تكفي لإظهار الحالة الجديدة
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.teacherSessions() });
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.teacherSessionDetails(sessionId) });
+    },
+  });
+}
+
+/**
+ * ما ينتظر تصرّف الطالب/المعلم — بطاقة اللوحة الرئيسية، والشريط أعلى اللوحة، ورقم "الجلسات".
+ * تحت ['dashboard'] عمداً: الرد على طلب أو اقتراح تعويضية يُحدّثه تلقائياً. يُعاد كل دقيقة
+ * كي يظهر طلب وصل للتو ويختفي ما انتهت مهلته دون تحديث الصفحة.
+ */
+export function usePendingActions(enabled = true) {
+  return useQuery({
+    queryKey: ['dashboard', 'pending-actions'],
+    queryFn: () => rescheduleService.pendingActions(),
+    enabled,
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+  });
+}
+
+/** اقتراح موعد جلسة تعويضية (غياب المعلم) — يُرسل للطرف الآخر */
+export function useCreateMakeupRequest() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ sessionId, proposedScheduledAt, reason }) =>
+      rescheduleService.createMakeupRequest(sessionId, { proposedScheduledAt, reason }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+  });
+}
+
+/** رد الطرف الآخر (قبول/رفض) — القبول يغيّر موعد الجلسة، فتُعاد كل قوائم الجلسات */
+export function useRespondRescheduleRequest() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ requestId, accept }) => rescheduleService.respond(requestId, accept),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
   });
 }

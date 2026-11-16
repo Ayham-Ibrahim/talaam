@@ -143,9 +143,9 @@ export function PackageSessionsList({ sessions, showType = true }) {
     createRescheduleRequest.mutate(
       { sessionId: reschedulingSessionId, proposedScheduledAt, reason },
       {
-        onSuccess: () => {
+        onSuccess: (result) => {
           setReschedulingSessionId(null);
-          setSuccessMessage(t('dashboard.rescheduleModal.success'));
+          setSuccessMessage(result?.message || t('dashboard.rescheduleModal.success'));
           setTimeout(() => setSuccessMessage(''), 4000);
         },
       }
