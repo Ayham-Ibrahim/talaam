@@ -34,7 +34,7 @@ export const TEACHER_DISPLAY_STATUS_STYLES = {
   awaiting_payment: { label: 'بانتظار دفع الطالب', bg: '#FFF8EC', color: '#D48806' },
   reschedule_awaiting_you: { label: 'بانتظار ردك على تغيير الموعد', bg: '#FFF1E6', color: '#E8590C' },
   reschedule_pending: { label: 'تغيير الموعد بانتظار الرد', bg: '#FDF8F0', color: '#B7791F' },
-  attended: { label: 'منعقدة', bg: '#F0FDF3', color: '#34C759' },
+  attended: { label: 'مكتملة', bg: '#F0FDF3', color: '#34C759' },
   missed_student: { label: 'لم تُعقد — غاب الطالب', bg: '#FDEFF2', color: '#B00852' },
   missed_teacher: { label: 'لم تُعقد — غبت عنها', bg: '#FDF0F0', color: '#FF383C' },
   missed_unpaid: { label: 'لم تُعقد — اشتراك غير مدفوع', bg: '#F2F2F7', color: '#6B7280' },
