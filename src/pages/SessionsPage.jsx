@@ -10,11 +10,20 @@ import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { PolicyNotice } from '@/components/common/PolicyNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { useSessions } from '@/hooks/useDashboard';
-import { SESSION_STATUS_LABEL_KEYS } from '@/mocks/dashboard.mock';
 import { useT } from '@/hooks/useT';
 
 // الافتراضي "قادمة" — والترتيب من السيرفر الأقرب موعداً أولاً، فجلسة الطالب التالية أول صف عند الدخول
 const DEFAULT_FILTERS = { status: 'upcoming', subject: '', search: '' };
+// فلاتر متنافية تطابق display_status بالباك اند (ClassSession::DISPLAY_STATUSES) — كل جلسة في واحد فقط
+// أسماء الفلتر مستقلة عن شارات الصفوف (SESSION_STATUS_LABEL_KEYS) — تصف مجموعة جلسات لا حالة جلسة واحدة
+const STATUS_FILTER_LABEL_KEYS = {
+  upcoming: 'dashboard.sessionsPage.filterUpcoming',
+  reschedule_pending: 'dashboard.sessionsPage.filterReschedulePending',
+  attended: 'dashboard.sessionsPage.filterAttended',
+  missed: 'dashboard.sessionsPage.filterMissed',
+};
+// القادمة الأقرب أولاً، والسابقة (منعقدة/لم تُعقد) الأحدث أولاً
+const PAST_STATUSES = ['attended', 'missed'];
 const PER_PAGE = 10;
 
 export function SessionsPage() {
@@ -27,6 +36,7 @@ export function SessionsPage() {
     page,
     per_page: PER_PAGE,
     status: filters.status || undefined,
+    sort: PAST_STATUSES.includes(filters.status) ? 'desc' : 'asc',
     // مُصفّاة على السيرفر (وليس على الفرونت إند بعد ترقيم الصفحات) — وإلا فصفحة
     // بعينها قد لا تحوي أي جلسة من الفئة المختارة رغم وجود جلسات منها في صفحات
     // أخرى، فيظهر "لا توجد جلسات" مع عدّاد/ترقيم لإجمالي كل الفئات مجتمعة.
@@ -39,7 +49,7 @@ export function SessionsPage() {
   const subjects = useMemo(() => [...new Set((sessions ?? []).map((s) => s.subject))], [sessions]);
 
   const statusOptions = useMemo(
-    () => Object.keys(SESSION_STATUS_LABEL_KEYS).map((value) => ({ value, label: t(SESSION_STATUS_LABEL_KEYS[value]) })),
+    () => Object.entries(STATUS_FILTER_LABEL_KEYS).map(([value, key]) => ({ value, label: t(key) })),
     [t],
   );
 

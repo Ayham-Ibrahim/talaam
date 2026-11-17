@@ -1319,8 +1319,19 @@
   },
   "dashboard": {
     "pendingActions": {
-      "title": "بانتظار ردك",
-      "hint": "ردّ مباشرة من هنا — الموافقة تُطبَّق فوراً، وما لا تردّ عليه قبل المهلة يُحال للإدارة",
+      "title": "مطلوب منك",
+      "hint": "تصرّف مباشرة من هنا قبل انتهاء المهلة — الطلب الذي لا تردّ عليه يُحال للإدارة، والحجز غير المدفوع يُلغى",
+      "viewAll": "عرض الكل ({n})",
+      "paymentTimeLeft": {
+        "hours": "تنتهي مهلة الدفع خلال {n} ساعة",
+        "minutes": "تنتهي مهلة الدفع خلال {n} دقيقة",
+        "expired": "انتهت مهلة الدفع"
+      },
+      "deadlineIn": {
+        "hours": "خلال {n} ساعة",
+        "minutes": "خلال {n} دقيقة",
+        "expired": "انتهت"
+      },
       "rescheduleTitle": "{name} يطلب تغيير موعد جلسة",
       "makeupTitle": "{name} اقترح موعداً للجلسة التعويضية",
       "makeupEligibleTitle": "غاب المعلم عن هذه الجلسة — اقترح موعداً للجلسة التعويضية",
@@ -1336,10 +1347,35 @@
         "minutes": "ينتهي الرد خلال {n} دقيقة",
         "expired": "انتهت مهلة الرد"
       },
+      "bannerAll": "لديك {n} أمر مطلوب منك",
+      "bannerView": "عرض المطلوب",
       "bannerAwaiting": "لديك {n} طلب بانتظار ردك",
       "bannerMakeup": "لديك {n} جلسة غاب عنها المعلم بانتظار اقتراح موعد تعويضي",
       "bannerNearest": "أقرب مهلة",
       "bannerAction": "رد الآن"
+    },
+    "actionsPage": {
+      "tabs": {
+        "required": "مطلوب منك",
+        "mine": "طلباتي"
+      },
+      "requiredEmpty": "لا شيء مطلوب منك الآن",
+      "mineEmpty": "لم ترسل أي طلب بعد",
+      "requestType": {
+        "reschedule": "طلب تغيير موعد جلسة",
+        "makeup": "اقتراح موعد جلسة تعويضية"
+      },
+      "stage": {
+        "awaitingTeacher": "بانتظار رد المعلم",
+        "awaitingAdmin": "بانتظار قرار الإدارة",
+        "approved": "تمت الموافقة",
+        "approvedAlternative": "تمت الموافقة على موعد بديل",
+        "rejected": "مرفوض",
+        "cancelled": "أُلغي",
+        "expired": "انتهت صلاحيته"
+      },
+      "rejectionReason": "سبب الرفض",
+      "sentAt": "أُرسل في"
     },
     "rescheduleResponse": {
       "button": "الرد على طلب تغيير الموعد",
@@ -1417,6 +1453,7 @@
     "roleAcademicSupporter": "داعم أكاديمي",
     "nav": {
       "home": "الرئيسية",
+      "actions": "مطلوب منك",
       "calendar": "التقويم",
       "sessions": "الجلسات",
       "packages": "باقاتي",
@@ -1910,6 +1947,10 @@
     "statusUpcoming": "قادمة",
     "statusReschedulePending": "طلب تغيير الموعد قيد المراجعة",
     "statusAttended": "انتهت الجلسة",
+    "statusMissed": "لم تُعقد",
+    "statusPendingPayment": "بانتظار الدفع",
+    "payBefore": "ادفع قبل",
+    "completePayment": "أكمل الدفع",
     "noSessionsForDay": "لا توجد جلسات في هذا اليوم",
     "sessionTypeIndividual": "جلسة فردية",
     "sessionTypeGroup": "جلسة جماعية",
@@ -1923,6 +1964,10 @@
     },
     "sessionsPage": {
       "allStatuses": "جميع الحالات",
+      "filterUpcoming": "قادمة",
+      "filterReschedulePending": "بانتظار تغيير الموعد",
+      "filterAttended": "منعقدة",
+      "filterMissed": "لم تُعقد",
       "allSubjects": "جميع المواد",
       "searchPlaceholder": "بحث",
       "empty": "لا توجد جلسات",

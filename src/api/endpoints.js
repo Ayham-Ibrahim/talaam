@@ -166,6 +166,8 @@ export const endpoints = {
   // كل ما ينتظر تصرّف الطالب/المعلم (طلبات بانتظار رده + جلسات قابلة للتعويض)
   myPendingActions: '/my-pending-actions',
   rescheduleRequests: {
+    // لغير الأدمن: طلباته هو فقط ("طلباتي")
+    mine: '/reschedule-requests',
     // رد الطرف الآخر على اقتراح الموعد — القبول يطبّقه فوراً، والرفض يحيله للأدمن
     accept: (id) => `/reschedule-requests/${id}/accept`,
     decline: (id) => `/reschedule-requests/${id}/decline`,

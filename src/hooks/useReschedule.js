@@ -42,6 +42,7 @@ export function useCreateRescheduleRequest() {
       );
 
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'my-reschedule-requests'] });
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.calendarSessions() });
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.teacherCalendarSessions() });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'package-details'] });
@@ -64,6 +65,16 @@ export function usePendingActions(enabled = true) {
     enabled,
     staleTime: 30_000,
     refetchInterval: 60_000,
+  });
+}
+
+/** "طلباتي": طلبات تغيير الموعد/التعويض التي أرسلها المستخدم وحالة كل منها */
+export function useMyRescheduleRequests(enabled = true) {
+  return useQuery({
+    queryKey: ['dashboard', 'my-reschedule-requests'],
+    queryFn: () => rescheduleService.myRequests(),
+    enabled,
+    staleTime: 30_000,
   });
 }
 

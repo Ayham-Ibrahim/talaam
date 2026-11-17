@@ -502,13 +502,26 @@ export const rescheduleService = {
     return { request: data.data, message: data.message };
   },
 
-  /** Everything awaiting the current student/teacher: { count, awaiting_response, makeup_eligible }. */
+  /**
+   * Everything awaiting the current student/teacher: { count, awaiting_response, makeup_eligible, awaiting_payment }.
+   * awaiting_payment (students only) is mapped to the PendingPaymentRow card shape.
+   */
   async pendingActions() {
     if (config.useMocks) {
       await mockDelay(200);
-      return { count: 0, awaiting_response: [], makeup_eligible: [] };
+      return { count: 0, awaiting_response: [], makeup_eligible: [], awaiting_payment: [] };
     }
     const { data } = await client.get(endpoints.myPendingActions);
+    return { ...data.data, awaiting_payment: (data.data.awaiting_payment ?? []).map(mapAwaitingPayment) };
+  },
+
+  /** Requests the current user sent ("طلباتي") — the backend limits non-admins to their own. */
+  async myRequests() {
+    if (config.useMocks) {
+      await mockDelay(200);
+      return [];
+    }
+    const { data } = await client.get(endpoints.rescheduleRequests.mine, { params: { per_page: 50 } });
     return data.data;
   },
 
@@ -793,6 +806,22 @@ function pendingRescheduleRequestCreatedAt(session) {
   return requests.find((request) => request.status === 'pending')?.created_at ?? null;
 }
 
+/** my-pending-actions awaiting_payment item → PendingPaymentRow shape (same as mapBookingToPackageCard) */
+function mapAwaitingPayment(item) {
+  return {
+    id: `${item.kind}-${item.id}`,
+    teacherName: item.teacher_name,
+    teacherAvatar: item.teacher_avatar,
+    subject: item.subject,
+    packageTitle: item.title,
+    price: Number(item.amount ?? 0),
+    discountAmount: Number(item.discount_amount ?? 0),
+    hasCoupon: Boolean(item.has_coupon),
+    isCampaign: Boolean(item.is_campaign),
+    holdExpiresAt: item.hold_expires_at,
+  };
+}
+
 /** Booking/Enrollment.status → the 3-state vocabulary the invoices UI understands */
 function mapPaymentStatus(status) {
   if (['confirmed', 'in_progress', 'completed'].includes(status)) return 'paid';
@@ -887,12 +916,21 @@ function mapSessionListRow(session) {
   const { time, period } = formatSessionTime(session.scheduled_at);
   const hasPendingReschedule = hasPendingRescheduleRequest(session);
   const bookingInactive = isSessionBookingInactive(session);
-  const status = bookingInactive
+  // display_status: حالة العرض من الباك اند (upcoming/reschedule_pending/attended/missed) — نفس اشتقاق
+  // فلتر "جلساتي" فتطابق الشارة الفلتر دائماً؛ البقية احتياط لمسار لا يمر بـ ClassSessionResource
+  const displayStatus = bookingInactive
     ? 'cancelled'
-    : hasPendingReschedule
-      ? 'reschedule_pending'
-      : mapSessionStatus(session.status, session.scheduled_at, session.duration_min);
-  const isUpcoming = status === 'upcoming';
+    : session.display_status
+      ?? (hasPendingReschedule
+        ? 'reschedule_pending'
+        : mapSessionStatus(session.status, session.scheduled_at, session.duration_min));
+  const isUpcoming = displayStatus === 'upcoming';
+  // جلسة قادمة لحجز لم يُدفع بعد — تُنشأ فور موافقة المعلم وتُحذف من القائمة إن انقضت مهلة الدفع،
+  // فتظهر "بانتظار الدفع" مع موعد انتهاء المهلة بدل "قادمة" كأنها مؤكدة
+  const awaitingPayment = isUpcoming && !isSessionPaid(session);
+  const status = awaitingPayment ? 'pending_payment' : displayStatus;
+  const holdExpiresAt = awaitingPayment ? session.booking?.hold_expires_at : null;
+  const holdTime = holdExpiresAt ? formatSessionTime(holdExpiresAt) : null;
   const canJoin = !bookingInactive && canJoinSession(session, session.join_url_student ?? null);
   return {
     id: session.id,
@@ -915,6 +953,8 @@ function mapSessionListRow(session) {
     period,
     durationMinutes: session.duration_min,
     countdown: isUpcoming ? computeCountdown(session.scheduled_at) : null,
+    // "ادفع قبل ..." — بتوقيت الحساب كموعد الجلسة نفسه
+    paymentDeadline: holdTime ? `${formatSessionDate(holdExpiresAt)} ${holdTime.time} ${holdTime.period}` : null,
     joinUrl: session.join_url_student ?? null,
     joinRedirectUrl: session.join_redirect_url ?? null,
     // canJoin لقطة لحظة الجلب فقط — الزر يُحسم وقت الرسم من joinWindow بالساعة الحيّة

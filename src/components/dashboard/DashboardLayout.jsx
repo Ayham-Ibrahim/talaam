@@ -6,6 +6,7 @@ import {
   CalendarClock,
   ChevronLeft,
   ChevronRight,
+  ClipboardList,
   CreditCard,
   FileText,
   HandHeart,
@@ -30,24 +31,29 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { usePendingActions } from "@/hooks/useReschedule";
 import { useNow } from "@/hooks/useNow";
 import { useT } from "@/hooks/useT";
-import { nearestDeadline, timeLeft } from "@/lib/pendingActions";
+import { hasUrgentDeadline, nearestDeadline, timeLeft } from "@/lib/pendingActions";
 import { LocaleOverrideContext } from "@/context/LocaleOverrideContext";
 
 const HOME_PATHS = { student: "/dashboard/student", teacher: "/dashboard/teacher" };
+// صفحة "مطلوب منك" الكاملة — للطالب فقط؛ المعلم يبقى على بطاقة الرئيسية
+const ACTIONS_PATHS = { student: "/dashboard/student/actions" };
+// البند الذي يحمل رقم ما ينتظر المستخدم في القائمة الجانبية
+const PENDING_BADGE_NAV_KEY = { student: "actions", teacher: "sessions" };
 
 /**
  * شريط ثابت أعلى كل صفحات لوحة الطالب/المعلم ما دام شيء ينتظر تصرّفه — يضمن رؤيته حتى لمن
- * دخل مباشرة لصفحة أخرى. يُخفى في الرئيسية نفسها (بطاقة "بانتظار ردك" تعرض التفاصيل هناك).
+ * دخل مباشرة لصفحة أخرى، وينقل الطالب لصفحة "مطلوب منك" (والمعلم للرئيسية). يُخفى حيث
+ * تُعرض القائمة نفسها أصلاً (الرئيسية وصفحة "مطلوب منك").
  */
-function PendingActionsBanner({ data, homePath, isHome }) {
+function PendingActionsBanner({ data, targetPath, hidden, isStudent }) {
   const t = useT();
   const now = useNow();
 
-  if (!data?.count || isHome) return null;
+  if (!data?.count || hidden) return null;
 
   const awaitingCount = data.awaiting_response?.length ?? 0;
   const deadline = nearestDeadline(data);
-  const remaining = deadline ? timeLeft(t, deadline, now) : null;
+  const remaining = deadline ? timeLeft(t, deadline, now, "dashboard.pendingActions.deadlineIn") : null;
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#F5A623]/40 bg-[#FFF8EC] px-4 py-2.5 lg:px-10">
@@ -57,9 +63,11 @@ function PendingActionsBanner({ data, homePath, isHome }) {
           <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#F5A623]" />
         </span>
         <span className="font-bold">
-          {awaitingCount > 0
-            ? t("dashboard.pendingActions.bannerAwaiting").replace("{n}", awaitingCount)
-            : t("dashboard.pendingActions.bannerMakeup").replace("{n}", data.count)}
+          {isStudent
+            ? t("dashboard.pendingActions.bannerAll").replace("{n}", data.count)
+            : awaitingCount > 0
+              ? t("dashboard.pendingActions.bannerAwaiting").replace("{n}", awaitingCount)
+              : t("dashboard.pendingActions.bannerMakeup").replace("{n}", data.count)}
         </span>
         {remaining && (
           <span className={remaining.urgent ? "font-bold text-accent-pink" : "text-[#B7791F]"}>
@@ -68,17 +76,36 @@ function PendingActionsBanner({ data, homePath, isHome }) {
         )}
       </div>
       <NavLink
-        to={homePath}
+        to={targetPath}
         className="rounded-xl bg-[#F5A623] px-4 py-1.5 text-sm font-bold text-white hover:opacity-90"
       >
-        {t("dashboard.pendingActions.bannerAction")}
+        {t(isStudent ? "dashboard.pendingActions.bannerView" : "dashboard.pendingActions.bannerAction")}
       </NavLink>
     </div>
   );
 }
 
+/** رقم ما ينتظر المستخدم على بنده في القائمة — برتقالي، وأحمر حين تنتهي مهلة خلال 3 ساعات */
+function PendingCountBadge({ data }) {
+  const t = useT();
+  const now = useNow();
+  const urgent = hasUrgentDeadline(data, now);
+
+  return (
+    <span
+      className={`flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs font-bold text-white ${
+        urgent ? "bg-accent-pink" : "bg-[#F5A623]"
+      }`}
+      aria-label={t("dashboard.pendingActions.title")}
+    >
+      {data.count}
+    </span>
+  );
+}
+
 const STUDENT_NAV_ITEMS = [
   { key: "home", icon: Home, path: "/dashboard/student", end: true },
+  { key: "actions", icon: ClipboardList, path: "/dashboard/student/actions" },
   { key: "calendar", icon: Calendar, path: "/dashboard/student/calendar" },
   { key: "sessions", icon: FileText, path: "/dashboard/student/sessions" },
   { key: "packages", icon: CreditCard, path: "/dashboard/student/packages" },
@@ -222,13 +249,8 @@ function DashboardLayoutInner({ children }) {
                     }`
                   }
                 >
-                  {item.key === "sessions" && pendingCount > 0 && (
-                    <span
-                      className="flex h-6 min-w-6 items-center justify-center rounded-full bg-accent-pink px-1.5 text-xs font-bold text-white"
-                      aria-label={t("dashboard.pendingActions.title")}
-                    >
-                      {pendingCount}
-                    </span>
+                  {item.key === PENDING_BADGE_NAV_KEY[user?.role] && pendingCount > 0 && (
+                    <PendingCountBadge data={pendingActions} />
                   )}
                   {t(`dashboard.nav.${item.key}`)}
                   <Icon size={22} />
@@ -337,7 +359,13 @@ function DashboardLayoutInner({ children }) {
         </header>
 
         {homePath && (
-          <PendingActionsBanner data={pendingActions} homePath={homePath} isHome={location.pathname === homePath} />
+          <PendingActionsBanner
+            data={pendingActions}
+            targetPath={ACTIONS_PATHS[user?.role] ?? homePath}
+            // الرئيسية تعرض بطاقة "مطلوب منك" وصفحته تعرض القائمة نفسها — لا داعي للشريط فيهما
+            hidden={location.pathname === homePath || location.pathname === ACTIONS_PATHS[user?.role]}
+            isStudent={user?.role === "student"}
+          />
         )}
 
         <main dir="rtl" className="flex-1 overflow-auto px-4 py-6 sm:px-6 lg:px-10 lg:py-8">

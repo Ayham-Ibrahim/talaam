@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { AlertCircle, CreditCard, TicketPercent } from 'lucide-react';
+import { AlertCircle, Clock, CreditCard, TicketPercent } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { ApiErrorList, Avatar } from '@/components/ui';
@@ -10,6 +10,8 @@ import { useApplyEnrollmentCoupon, useCheckoutEnrollment } from '@/hooks/useEnro
 import { formatPrice } from '@/lib/currency';
 import { trackInitiateCheckout } from '@/lib/metaPixel';
 import { useCurrencyStore } from '@/store';
+import { useNow } from '@/hooks/useNow';
+import { timeLeft } from '@/lib/pendingActions';
 import { useT } from '@/hooks/useT';
 
 /** باقات/دورات حالتها pending_payment — الدفع ينقل لـ Stripe مباشرة، والكوبون يُطبَّق من هنا أيضاً */
@@ -51,8 +53,11 @@ export function PendingPaymentsCard({ packages }) {
   );
 }
 
-function PendingPaymentRow({ pkg }) {
+/** صف باقة بانتظار الدفع — يُستخدم أيضاً في قائمة "مطلوب منك" (PendingActionsList) */
+export function PendingPaymentRow({ pkg }) {
   const t = useT();
+  const now = useNow();
+  const deadline = pkg.holdExpiresAt ? timeLeft(t, pkg.holdExpiresAt, now, 'dashboard.pendingActions.paymentTimeLeft') : null;
   const queryClient = useQueryClient();
   const currency = useCurrencyStore((s) => s.currency);
   const [couponCode, setCouponCode] = useState('');
@@ -78,6 +83,7 @@ function PendingPaymentRow({ pkg }) {
           setCouponCode('');
           // السعر الجديد بعد الخصم يأتي من إعادة جلب بيانات اللوحة
           queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.student() });
+          queryClient.invalidateQueries({ queryKey: ['dashboard', 'pending-actions'] });
         },
       },
     );
@@ -105,6 +111,17 @@ function PendingPaymentRow({ pkg }) {
             </div>
           </div>
         </div>
+
+        {deadline && (
+          <span
+            className={`inline-flex items-center gap-1 rounded-pill px-3 py-1 text-xs font-bold ${
+              deadline.urgent ? 'bg-accent-pink/10 text-accent-pink' : 'bg-[#F5A623]/15 text-[#B7791F]'
+            }`}
+          >
+            <Clock size={13} />
+            {deadline.text}
+          </span>
+        )}
 
         <div className="flex items-center gap-3">
           {pkg.price > 0 && (
