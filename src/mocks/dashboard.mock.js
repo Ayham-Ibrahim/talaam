@@ -393,14 +393,18 @@ export function getSessionTypeColor(label) {
 export const SESSION_STATUS_STYLES = {
   upcoming: { bg: '#F0FAFD', color: '#6BCEEE' },
   reschedule_pending: { bg: '#FEF3E2', color: '#B7791F' },
+  pending_payment: { bg: '#FFF8EC', color: '#D48806' },
   attended: { bg: '#F0FDF2', color: '#34C759' },
+  missed: { bg: '#FFF4EC', color: '#E8590C' },
   cancelled: { bg: '#FDF0F0', color: '#FF383C' },
 };
 
 export const SESSION_STATUS_LABEL_KEYS = {
   upcoming: 'dashboard.statusUpcoming',
   reschedule_pending: 'dashboard.statusReschedulePending',
+  pending_payment: 'dashboard.statusPendingPayment',
   attended: 'dashboard.statusAttended',
+  missed: 'dashboard.statusMissed',
   cancelled: 'dashboard.myPackages.statusCancelled',
 };
 

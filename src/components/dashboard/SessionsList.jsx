@@ -62,9 +62,24 @@ function SessionRow({ session, isEven, onReschedule, onShowAttachments, onRespon
         >
           {t(SESSION_STATUS_LABEL_KEYS[status])}
         </span>
+        {session.paymentDeadline && (
+          <div className="mt-1 text-[11px] text-[#B7791F]">
+            {t('dashboard.payBefore')} {session.paymentDeadline}
+          </div>
+        )}
       </td>
       <td className="px-4 py-4 text-center">
         <div className="flex flex-wrap items-center justify-center gap-2">
+          {/* الدفع يتم من بطاقة "باقات بانتظار الدفع" في الرئيسية (PendingPaymentsCard) */}
+          {status === 'pending_payment' && (
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard/student')}
+              className="rounded-xl border border-[#D48806] bg-[#D48806] px-4 py-2 text-xs font-medium text-white hover:opacity-90"
+            >
+              {t('dashboard.completePayment')}
+            </button>
+          )}
           {canJoin && (
             <SessionJoinButton
               session={session}
