@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { BookOpen, CalendarDays, Check, Clock, Gift, GraduationCap, Layers, Sparkles, Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Ban, BookOpen, CalendarDays, Check, CheckCircle2, Clock, CreditCard, Gift, GraduationCap, Hourglass, Layers, Sparkles, Users } from 'lucide-react';
 import { ErrorState, Skeleton } from '@/components/ui';
 import { Drawer } from '@/components/ui/Drawer';
+import { useNow } from '@/hooks/useNow';
 import { useT } from '@/hooks/useT';
 import { useCurrencyStore } from '@/store';
 import { convertPrice } from '@/lib/currency';
-import { formatDate, isPastDate, lastScheduleDate } from '@/lib/formatters';
+import { formatDate, formatDateTime, isPastDate, lastScheduleDate } from '@/lib/formatters';
+import { timeLeft } from '@/lib/pendingActions';
 
 const CURRENCY_SYMBOL = { USD: '$', EUR: '€', GBP: '£', AED: 'د.إ' };
 
@@ -38,6 +41,53 @@ function priceLabel(amountUSD, code) {
  */
 function scheduleDates(schedules) {
   return [...(schedules ?? [])].map((s) => s.date).filter(Boolean).sort();
+}
+
+/** رابط الحجز في لوحة الطالب — نفس معرّف `booking-{id}` الذي تبنيه قائمة باقاتي */
+function bookingDetailsPath(bookingId) {
+  return `/dashboard/student/packages/booking-${bookingId}`;
+}
+
+/**
+ * وضع الطالب مع الباقة كما يعرضه الباك (my_booking / trial_used / campaign_right_used):
+ * awaitingTeacher | awaitingPayment | subscribed | rightUsed | null (يحجز عادياً).
+ * مهلة الدفع التي انقضت أثناء بقاء الصفحة مفتوحة تُعامَل كأن لا حجز — الباك لا يمنعها.
+ */
+function viewerState(pkg, now) {
+  const booking = pkg.myBooking;
+  if (booking?.status === 'pending_teacher_confirmation') return 'awaitingTeacher';
+  if (booking?.status === 'pending_payment') {
+    return booking.holdExpiresAt && new Date(booking.holdExpiresAt).getTime() <= now ? null : 'awaitingPayment';
+  }
+  if (booking) return 'subscribed';
+  if (pkg.trialUsed || pkg.campaignRightUsed) return 'rightUsed';
+  return null;
+}
+
+const STATE_BADGE = {
+  awaitingTeacher: { icon: Hourglass, key: 'teacher.myBooking.awaitingTeacherBadge', color: 'text-[#B45309]' },
+  awaitingPayment: { icon: CreditCard, key: 'teacher.myBooking.awaitingPaymentBadge', color: 'text-primary' },
+  subscribed: { icon: CheckCircle2, key: 'teacher.myBooking.subscribedBadge', color: 'text-success' },
+};
+
+const STATE_CTA = {
+  awaitingTeacher: 'teacher.myBooking.viewRequest',
+  awaitingPayment: 'teacher.myBooking.completePayment',
+  subscribed: 'teacher.myBooking.viewSubscription',
+};
+
+/** سطر التفصيل تحت العنوان — الموعد المطلوب / مهلة الدفع / الجلسات المتبقية */
+function stateDetail(t, state, booking, now) {
+  if (state === 'awaitingTeacher' && booking.requestedAt) {
+    return t('teacher.myBooking.requestedAt').replace('{date}', formatDateTime(booking.requestedAt));
+  }
+  if (state === 'awaitingPayment' && booking.holdExpiresAt) {
+    return timeLeft(t, booking.holdExpiresAt, now, 'dashboard.pendingActions.paymentTimeLeft').text;
+  }
+  if (state === 'subscribed' && booking.sessionsRemaining != null) {
+    return t('teacher.myBooking.sessionsRemaining').replace('{n}', booking.sessionsRemaining);
+  }
+  return null;
 }
 
 /* ─────────────────────────── Details drawer ─────────────────────────── */
@@ -150,10 +200,15 @@ function PackageDetailsDrawer({ pkg, onClose }) {
 
 function PackageCard({ pkg, index, selected, onSelect, onDetails }) {
   const t = useT();
+  const navigate = useNavigate();
+  const now = useNow();
   const currency = useCurrencyStore((s) => s.currency);
   const isGroup = pkg.sessionFormat === 'group';
   const isTrial = pkg.isTrial;
   const isEnded = isGroup && isPastDate(lastScheduleDate(pkg.schedules));
+  const state = viewerState(pkg, now);
+  const badge = STATE_BADGE[state];
+  const detail = badge ? stateDetail(t, state, pkg.myBooking, now) : null;
 
   const capacity = pkg.capacity ?? 0;
   const enrolled = Math.min(pkg.enrolledCount ?? 0, capacity);
@@ -207,6 +262,12 @@ function PackageCard({ pkg, index, selected, onSelect, onDetails }) {
             {t('teacher.trialBadge')}
           </span>
         )}
+        {badge && (
+          <span className={`inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold shadow-md ${badge.color}`}>
+            <badge.icon size={13} />
+            {t(badge.key)}
+          </span>
+        )}
       </div>
 
       {/* Title + subject — no attendee avatars, just the package's own data */}
@@ -215,6 +276,12 @@ function PackageCard({ pkg, index, selected, onSelect, onDetails }) {
         {pkg.subject && <p className="text-sm font-medium text-white/75">{pkg.subject}</p>}
         {isTrial && <p className="mt-1 text-sm font-medium text-white/85">{t('teacher.trialTagline')}</p>}
         {isCampaign && <p className="mt-1 text-sm font-medium text-white/85">{t('campaign.offerTagline')}</p>}
+        {detail && (
+          <p className="mt-1.5 inline-flex w-fit items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-[#1E1E1E]">
+            <Clock size={13} />
+            {detail}
+          </p>
+        )}
       </div>
 
       {/* Sessions / duration line — replaces the reference's "N Files" row */}
@@ -270,15 +337,35 @@ function PackageCard({ pkg, index, selected, onSelect, onDetails }) {
         )}
 
         <div className="flex gap-2">
-          <button
-            type="button"
-            disabled={isEnded}
-            onClick={() => onSelect(pkg)}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-2xl bg-white py-3 text-sm font-semibold text-[#1E1E1E] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {selected && <Check size={15} strokeWidth={3} />}
-            {isGroup ? t('teacher.bookSeat') : isTrial ? t('teacher.trialCta') : t('teacher.choosePackage')}
-          </button>
+          {badge ? (
+            // حجز قائم — بدل زر حجز ينتهي بخطأ "اشتراك قائم"، يأخذه لحجزه في لوحته
+            <button
+              type="button"
+              onClick={() => navigate(bookingDetailsPath(pkg.myBooking.id))}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-2xl bg-white py-3 text-sm font-bold transition-opacity hover:opacity-90 ${badge.color}`}
+            >
+              {t(STATE_CTA[state])}
+            </button>
+          ) : state === 'rightUsed' ? (
+            <button
+              type="button"
+              disabled
+              className="flex flex-1 cursor-not-allowed items-center justify-center gap-1.5 rounded-2xl bg-white/70 px-2 py-3 text-xs font-semibold text-[#1E1E1E]"
+            >
+              <Ban size={14} />
+              {t(pkg.trialUsed ? 'teacher.myBooking.trialUsed' : 'teacher.myBooking.campaignRightUsed')}
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={isEnded}
+              onClick={() => onSelect(pkg)}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-2xl bg-white py-3 text-sm font-semibold text-[#1E1E1E] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {selected && <Check size={15} strokeWidth={3} />}
+              {isGroup ? t('teacher.bookSeat') : isTrial ? t('teacher.trialCta') : t('teacher.choosePackage')}
+            </button>
+          )}
           <button
             type="button"
             onClick={() => onDetails(pkg)}
