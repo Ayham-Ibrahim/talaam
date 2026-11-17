@@ -11,10 +11,11 @@ import { useT } from '@/hooks/useT';
 
 const TABS = ['required', 'mine'];
 
-/** مرحلة طلب أرسله الطالب — من status + رد الطرف الآخر (نفس مراحل RescheduleService) */
-function requestStage(request) {
+/** مرحلة طلب أرسله المستخدم — من status + رد الطرف الآخر (نفس مراحل RescheduleService) */
+function requestStage(request, isTeacher) {
   if (request.status === 'pending') {
-    return request.counterpartyResponse === 'pending' ? 'awaitingTeacher' : 'awaitingAdmin';
+    if (request.counterpartyResponse !== 'pending') return 'awaitingAdmin';
+    return isTeacher ? 'awaitingStudent' : 'awaitingTeacher';
   }
   if (request.status === 'approved_with_alternative') return 'approvedAlternative';
   if (request.status === 'approved') return 'approved';
@@ -26,6 +27,7 @@ function requestStage(request) {
 
 const STAGE_STYLES = {
   awaitingTeacher: 'bg-[#FEF3E2] text-[#B7791F]',
+  awaitingStudent: 'bg-[#FEF3E2] text-[#B7791F]',
   awaitingAdmin: 'bg-[#EDF0F5] text-primary',
   approved: 'bg-success-light text-success',
   approvedAlternative: 'bg-success-light text-success',
@@ -43,8 +45,10 @@ function EmptyBox({ icon: Icon, title }) {
   );
 }
 
-function MyRequestItem({ request, t, tz }) {
-  const stage = requestStage(request);
+function MyRequestItem({ request, t, tz, isTeacher }) {
+  const stage = requestStage(request, isTeacher);
+  // الطرف الآخر: المعلم يرى اسم الطالب، والطالب اسم المعلم
+  const otherParty = isTeacher ? request.studentName : request.teacherName;
   const newTime = request.alternativeScheduledAt ?? request.proposedScheduledAt;
 
   return (
@@ -54,7 +58,7 @@ function MyRequestItem({ request, t, tz }) {
           <div className="text-sm font-bold text-ink">
             {t(`dashboard.actionsPage.requestType.${request.type === 'makeup' ? 'makeup' : 'reschedule'}`)}
           </div>
-          {request.teacherName && <div className="text-xs text-ink-soft">{request.teacherName}</div>}
+          {otherParty && <div className="text-xs text-ink-soft">{otherParty}</div>}
         </div>
         <span className={`rounded-pill px-3 py-1 text-xs font-bold ${STAGE_STYLES[stage] ?? 'bg-line/40 text-ink-soft'}`}>
           {stage ? t(`dashboard.actionsPage.stage.${stage}`) : request.status}
@@ -104,17 +108,17 @@ function MyRequestsTab() {
   return (
     <ul className="flex flex-col gap-3">
       {requests.map((request) => (
-        <MyRequestItem key={request.id} request={request} t={t} tz={user?.timezone} />
+        <MyRequestItem key={request.id} request={request} t={t} tz={user?.timezone} isTeacher={user?.role === 'teacher'} />
       ))}
     </ul>
   );
 }
 
 /**
- * "مطلوب منك" — البيت الدائم لكل ما ينتظر الطالب (دفع، رد على طلب، اقتراح تعويض)،
- * وتبويب "طلباتي" لمتابعة ما أرسله هو. ?tab=mine يفتح التبويب الثاني مباشرة.
+ * "مطلوب منك" للطالب والمعلم — البيت الدائم لكل ما ينتظر المستخدم (دفع للطالب، رد على طلب،
+ * اقتراح تعويض)، وتبويب "طلباتي" لمتابعة ما أرسله هو. ?tab=mine يفتح التبويب الثاني مباشرة.
  */
-export function StudentActionsPage() {
+export function ActionsPage() {
   const t = useT();
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -161,7 +165,11 @@ export function StudentActionsPage() {
           </div>
         ) : (
           <>
-            {requiredCount > 0 && <p className="text-sm text-[#B7791F]">{t('dashboard.pendingActions.hint')}</p>}
+            {requiredCount > 0 && (
+              <p className="text-sm text-[#B7791F]">
+                {t(`dashboard.pendingActions.${user.role === 'teacher' ? 'hintTeacher' : 'hint'}`)}
+              </p>
+            )}
             <PendingActionsList emptyState={<EmptyBox icon={CheckCircle2} title={t('dashboard.actionsPage.requiredEmpty')} />} />
           </>
         )}

@@ -24,6 +24,23 @@ export const TEACHER_SESSION_STATUS_STYLES = {
   no_show_teacher: { label: 'غياب المعلم', bg: '#FDEFF2', color: '#B00852' },
 };
 
+/**
+ * شارات جدول "الجلسات" لدى المعلم — من display_status (الباك اند) مع تفصيل يخص المعلم: من عليه
+ * التصرّف في طلب تغيير الموعد، ودفع الطالب، وسبب عدم الانعقاد (يحدد مستحقه). مفصولة عن
+ * TEACHER_SESSION_STATUS_STYLES (قيم status الخام) التي تستخدمها صفحة التفاصيل ولوحة الأدمن.
+ */
+export const TEACHER_DISPLAY_STATUS_STYLES = {
+  upcoming: { label: 'قادمة', bg: '#F0FAFD', color: '#6BCEEE' },
+  awaiting_payment: { label: 'بانتظار دفع الطالب', bg: '#FFF8EC', color: '#D48806' },
+  reschedule_awaiting_you: { label: 'بانتظار ردك على تغيير الموعد', bg: '#FFF1E6', color: '#E8590C' },
+  reschedule_pending: { label: 'تغيير الموعد بانتظار الرد', bg: '#FDF8F0', color: '#B7791F' },
+  attended: { label: 'منعقدة', bg: '#F0FDF3', color: '#34C759' },
+  missed_student: { label: 'لم تُعقد — غاب الطالب', bg: '#FDEFF2', color: '#B00852' },
+  missed_teacher: { label: 'لم تُعقد — غبت عنها', bg: '#FDF0F0', color: '#FF383C' },
+  missed_unpaid: { label: 'لم تُعقد — اشتراك غير مدفوع', bg: '#F2F2F7', color: '#6B7280' },
+  missed: { label: 'لم تُعقد', bg: '#F2F2F7', color: '#6B7280' },
+};
+
 /** Mirrors ClassSessionResource exactly — the mock/real branches of dashboardService.getTeacherSessions() must agree on shape */
 export const mockTeacherSessions = [
   {

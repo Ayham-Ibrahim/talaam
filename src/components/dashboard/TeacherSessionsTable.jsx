@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
+import { TEACHER_DISPLAY_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
 import { formatDateTime } from '@/lib/formatters';
 import { canJoinSession, canRequestTeacherReschedule, teacherSessionDisplayStatus } from '@/services';
 import { useNow } from '@/hooks/useNow';
@@ -32,7 +32,7 @@ export function TeacherSessionsTable({ sessions, onPostpone, onRespondDone }) {
         </thead>
         <tbody className="divide-y divide-line">
           {sessions.map((session, i) => {
-            const statusStyle = TEACHER_SESSION_STATUS_STYLES[teacherSessionDisplayStatus(session)];
+            const statusStyle = TEACHER_DISPLAY_STATUS_STYLES[teacherSessionDisplayStatus(session)];
             const title = session.booking?.package?.title ?? session.course?.title ?? '—';
             // نفس نافذة الانضمام في الباك اند (قبل الموعد بخمس دقائق حتى نهايته) — كان الزر
             // يظهر دائماً لأي جلسة scheduled ثم يرفضه الباك اند 422 قبل موعدها.
@@ -79,6 +79,12 @@ export function TeacherSessionsTable({ sessions, onPostpone, onRespondDone }) {
                       >
                         {t('dashboard.makeupRequest.button')}
                       </button>
+                    )}
+                    {/* جلسة غبت عنها بلا زر تعويض — السبب مكان الزر (طلب معلّق، جماعية، أُنشئت تعويضيتها) */}
+                    {session.makeup_note && (
+                      <span className="max-w-[180px] text-xs leading-5 text-ink-soft">
+                        {t(`dashboard.makeupRequest.note.${session.makeup_note}`)}
+                      </span>
                     )}
                     <button
                       type="button"

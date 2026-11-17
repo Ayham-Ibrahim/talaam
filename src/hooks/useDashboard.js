@@ -108,10 +108,12 @@ export function useDisableTeacherCourse() {
   });
 }
 
-export function useTeacherSessions() {
+export function useTeacherSessions(params = {}) {
   return useQuery({
-    queryKey: queryKeys.dashboard.teacherSessions(),
-    queryFn: () => dashboardService.getTeacherSessions(),
+    // تحت نفس البادئة teacherSessions() — فكل invalidate قائم عليها يشمل كل الصفحات والفلاتر
+    queryKey: [...queryKeys.dashboard.teacherSessions(), params],
+    queryFn: () => dashboardService.getTeacherSessions(params),
+    keepPreviousData: true,
   });
 }
 

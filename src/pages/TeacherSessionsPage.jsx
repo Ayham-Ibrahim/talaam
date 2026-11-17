@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { TeacherSessionsFilterBar } from '@/components/dashboard/TeacherSessionsFilterBar';
@@ -10,24 +10,45 @@ import { PolicyNotice } from '@/components/common/PolicyNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeacherSessions } from '@/hooks/useDashboard';
 import { useCreateRescheduleRequest } from '@/hooks/useReschedule';
-import { TEACHER_SESSION_STATUS_STYLES } from '@/mocks/teacherDashboard.mock';
-import { teacherSessionDisplayStatus } from '@/services';
 import { useT } from '@/hooks/useT';
 
 const PAGE_SIZE = 10;
-// الافتراضي "قادمة" مرتبة من الأقدم للأحدث — فأقرب جلسة للمعلم أول صف عند الدخول
-const DEFAULT_FILTERS = { status: 'scheduled', date: '', search: '' };
-
-function sortOldestFirst(sessions) {
-  return [...sessions].sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at) || a.id - b.id);
-}
+// الافتراضي "قادمة" — والترتيب من السيرفر الأقرب موعداً أولاً، فأقرب جلسة للمعلم أول صف عند الدخول
+const DEFAULT_FILTERS = { status: 'upcoming', date: '', search: '' };
+// فلاتر متنافية تطابق display_status بالباك اند (ClassSession::DISPLAY_STATUSES) — نفس فلاتر الطالب؛
+// تفصيل السبب (غياب الطالب/غيابك/غير مدفوع) في شارة الصف لا في الفلتر
+const STATUS_FILTER_LABEL_KEYS = {
+  upcoming: 'dashboard.sessionsPage.filterUpcoming',
+  reschedule_pending: 'dashboard.sessionsPage.filterReschedulePending',
+  attended: 'dashboard.sessionsPage.filterAttended',
+  missed: 'dashboard.sessionsPage.filterMissed',
+};
+// القادمة الأقرب أولاً، والسابقة (منعقدة/لم تُعقد) الأحدث أولاً
+const PAST_STATUSES = ['attended', 'missed'];
+const SEARCH_DEBOUNCE_MS = 350;
 
 export function TeacherSessionsPage() {
   const t = useT();
   const { user } = useAuth();
-  const { data: sessions, isLoading, isError, refetch } = useTeacherSessions();
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [page, setPage] = useState(1);
+  // البحث يُرسَل للسيرفر بعد توقف الكتابة — لا طلب مع كل حرف
+  const [search, setSearch] = useState('');
+  useEffect(() => {
+    const timer = setTimeout(() => setSearch(filters.search.trim()), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [filters.search]);
+  const { data: response, isLoading, isError, refetch } = useTeacherSessions({
+    page,
+    perPage: PAGE_SIZE,
+    status: filters.status || undefined,
+    sort: PAST_STATUSES.includes(filters.status) ? 'desc' : 'asc',
+    date: filters.date || undefined,
+    search: search || undefined,
+  });
+  const sessions = response?.data ?? [];
+  const total = response?.meta?.total ?? 0;
+  const totalPages = Math.max(1, response?.meta?.last_page ?? 1);
   const createRescheduleRequest = useCreateRescheduleRequest();
   const [postponingSession, setPostponingSession] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
@@ -49,27 +70,10 @@ export function TeacherSessionsPage() {
     // خيار "جميع الحالات" صريح — الفلتر الافتراضي لم يعد فارغاً، فبدونه لا طريق للعودة لعرض الكل
     () => [
       { value: '', label: t('dashboard.teacherSessions.allStatuses') },
-      ...Object.entries(TEACHER_SESSION_STATUS_STYLES).map(([value, style]) => ({ value, label: style.label })),
+      ...Object.entries(STATUS_FILTER_LABEL_KEYS).map(([value, key]) => ({ value, label: t(key) })),
     ],
     [t]
   );
-
-  const sortedSessions = useMemo(() => (sessions ? sortOldestFirst(sessions) : []), [sessions]);
-
-  const filteredSessions = useMemo(() => {
-    const search = filters.search.trim().toLowerCase();
-    return sortedSessions.filter((session) => {
-      const title = session.booking?.package?.title ?? session.course?.title ?? '';
-      if (filters.status && teacherSessionDisplayStatus(session) !== filters.status) return false;
-      if (filters.date && !session.scheduled_at.startsWith(filters.date)) return false;
-      if (search && !title.toLowerCase().includes(search)) return false;
-      return true;
-    });
-  }, [sortedSessions, filters]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredSessions.length / PAGE_SIZE));
-  const currentPage = Math.min(page, totalPages);
-  const pageSessions = filteredSessions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -98,12 +102,12 @@ export function TeacherSessionsPage() {
               <Skeleton key={i} className="h-16 rounded-2xl" />
             ))}
           </div>
-        ) : filteredSessions.length === 0 ? (
+        ) : sessions.length === 0 ? (
           <EmptyState title={t('dashboard.teacherSessions.empty')} />
         ) : (
           <>
             <TeacherSessionsTable
-              sessions={pageSessions}
+              sessions={sessions}
               onPostpone={(session) => {
                 createRescheduleRequest.reset();
                 setPostponingSession(session);
@@ -114,11 +118,11 @@ export function TeacherSessionsPage() {
               }}
             />
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
+              <Pagination page={page} totalPages={totalPages} onChange={setPage} />
               <span className="text-sm text-ink-soft">
-                {t('dashboard.teacherSessions.showingPrefix')} {(currentPage - 1) * PAGE_SIZE + 1} -{' '}
-                {Math.min(currentPage * PAGE_SIZE, filteredSessions.length)} {t('dashboard.teacherSessions.showingOf')}{' '}
-                {filteredSessions.length} {t('dashboard.teacherSessions.unit')}
+                {t('dashboard.teacherSessions.showingPrefix')} {(page - 1) * PAGE_SIZE + 1} -{' '}
+                {Math.min(page * PAGE_SIZE, total)} {t('dashboard.teacherSessions.showingOf')}{' '}
+                {total} {t('dashboard.teacherSessions.unit')}
               </span>
             </div>
           </>

@@ -39,7 +39,8 @@ export function TeacherDashboardPage() {
             imageSrc="/hero-teacher.webp"
             teal
           />
-          <PendingActionsCard />
+          {/* "مطلوب منك" — ملخص لأقرب 3 مع رابط للصفحة الكاملة */}
+          <PendingActionsCard limit={3} viewAllPath="/dashboard/teacher/actions" />
           <TeacherStatsGrid stats={data.stats} />
           <UpcomingSessionsCard sessions={data.upcomingSessions} />
           <ActivePackagesTable packages={data.activePackages} />
