@@ -503,8 +503,9 @@ export const rescheduleService = {
   },
 
   /**
-   * Everything awaiting the current student/teacher: { count, awaiting_response, makeup_eligible, awaiting_payment }.
-   * awaiting_payment (students only) is mapped to the PendingPaymentRow card shape.
+   * Everything awaiting the current student/teacher: { count, awaiting_response, makeup_eligible, awaiting_payment,
+   * awaiting_confirmation }. awaiting_payment (students) → PendingPaymentRow shape; awaiting_confirmation
+   * (teachers' booking requests) → BookingRequestRow shape.
    */
   async pendingActions() {
     if (config.useMocks) {
@@ -512,7 +513,11 @@ export const rescheduleService = {
       return { count: 0, awaiting_response: [], makeup_eligible: [], awaiting_payment: [] };
     }
     const { data } = await client.get(endpoints.myPendingActions);
-    return { ...data.data, awaiting_payment: (data.data.awaiting_payment ?? []).map(mapAwaitingPayment) };
+    return {
+      ...data.data,
+      awaiting_payment: (data.data.awaiting_payment ?? []).map(mapAwaitingPayment),
+      awaiting_confirmation: (data.data.awaiting_confirmation ?? []).map(mapAwaitingConfirmation),
+    };
   },
 
   /** Requests the current user sent ("طلباتي") — the backend limits non-admins to their own. */
@@ -783,9 +788,24 @@ export function canRequestTeacherReschedule(session) {
   );
 }
 
-/** حالة العرض في جدول المعلم — الباك اند يُبقي status='scheduled' أثناء انتظار طلب التأجيل */
+const TEACHER_MISSED_STATUS = {
+  teacher_absent: 'missed_teacher',
+  student_no_show: 'missed_student',
+  no_paid_attendee: 'missed_unpaid',
+};
+
+/**
+ * شارة الصف في جدول المعلم (مفتاح TEACHER_DISPLAY_STATUS_STYLES) — من display_status الذي يُفلتر
+ * به السيرفر، مع ما يخص المعلم: هل طلب تغيير الموعد بانتظار رده هو، هل دفع الطالب، ولماذا لم تُعقد.
+ */
 export function teacherSessionDisplayStatus(session) {
-  return session.status === 'scheduled' && hasPendingRescheduleRequest(session) ? 'reschedule_pending' : session.status;
+  const status = session.display_status ?? 'upcoming';
+  if (status === 'upcoming' && !isSessionPaid(session)) return 'awaiting_payment';
+  if (status === 'reschedule_pending') {
+    return session.pending_reschedule_request?.awaiting_my_response ? 'reschedule_awaiting_you' : 'reschedule_pending';
+  }
+  if (status === 'missed') return TEACHER_MISSED_STATUS[session.missed_reason] ?? 'missed';
+  return status;
 }
 
 function hasPendingRescheduleRequest(session) {
@@ -819,6 +839,20 @@ function mapAwaitingPayment(item) {
     hasCoupon: Boolean(item.has_coupon),
     isCampaign: Boolean(item.is_campaign),
     holdExpiresAt: item.hold_expires_at,
+  };
+}
+
+/** my-pending-actions awaiting_confirmation item → BookingRequestRow shape (same as bookingService.getPendingRequests) */
+function mapAwaitingConfirmation(item) {
+  return {
+    id: item.id,
+    studentName: item.student_name,
+    studentAvatar: item.student_avatar,
+    packageTitle: item.title,
+    subject: item.subject,
+    requestedSlots: item.requested_slots ?? [],
+    createdAt: item.created_at,
+    deadline: item.deadline,
   };
 }
 
@@ -1460,15 +1494,30 @@ export const dashboardService = {
     return data;
   },
 
-  async getTeacherSessions() {
+  /**
+   * جدول "الجلسات" لدى المعلم — الفلترة (حالة العرض، اليوم، البحث بالعنوان) والترقيم على السيرفر،
+   * بدل جلب أول 300 جلسة وفلترتها محلياً (كانت الأقدم منها تضيع بصمت). { data, meta }
+   */
+  async getTeacherSessions({ page = 1, perPage = 10, status, sort = 'asc', date, search } = {}) {
     if (config.useMocks) {
       await mockDelay(300);
-      return mockTeacherSessions;
+      return { data: mockTeacherSessions, meta: { current_page: 1, last_page: 1, total: mockTeacherSessions.length } };
     }
-    // الصفحة تفلتر وتقسّم محلياً، فتحتاج كل الجلسات (نفس حد الرزنامة) — بالـ 20 الافتراضية
-    // (الأبعد تاريخاً أولاً) لم تكن الجلسات الأقرب تصل للمعلم أصلاً.
-    const { data } = await client.get(endpoints.classSessions.list, { params: { per_page: 300 } });
-    return data.data;
+    // اليوم المختار بتوقيت المتصفح (نفس توقيت عرض المواعيد في الجدول)
+    const dayRange = date
+      ? { from: new Date(`${date}T00:00:00`).toISOString(), to: new Date(`${date}T23:59:59`).toISOString() }
+      : {};
+    const { data } = await client.get(endpoints.classSessions.list, {
+      params: {
+        page,
+        per_page: perPage,
+        sort,
+        ...(status ? { status } : {}),
+        ...(search ? { search } : {}),
+        ...dayRange,
+      },
+    });
+    return { data: data.data, meta: data.meta };
   },
 
   async getTeacherSessionDetails(id) {

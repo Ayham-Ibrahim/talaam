@@ -58,7 +58,11 @@ export function useApproveBookingRequest() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (bookingId) => bookingService.approveBookingRequest(bookingId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bookings'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      // يخرج من "مطلوب منك" (رقم القائمة والشريط)، والموافقة تُنشئ جلسات جديدة
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
   });
 }
 
@@ -66,7 +70,11 @@ export function useRejectBookingRequest() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ bookingId, reason }) => bookingService.rejectBookingRequest(bookingId, reason),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bookings'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      // يخرج من "مطلوب منك" (رقم القائمة والشريط)، والموافقة تُنشئ جلسات جديدة
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
   });
 }
 

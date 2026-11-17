@@ -8,6 +8,8 @@ import { usePendingActions, useRespondRescheduleRequest } from '@/hooks/useResch
 import { formatDateTime } from '@/lib/formatters';
 import { pendingActionItems, timeLeft } from '@/lib/pendingActions';
 import { PendingPaymentRow } from './PendingPaymentsCard';
+import { BookingRequestRow } from './BookingRequestRow';
+import { useApproveBookingRequest, useRejectBookingRequest } from '@/hooks/useBooking';
 import { MakeupRequestModal } from './MakeupRequestModal';
 import { useT } from '@/hooks/useT';
 
@@ -88,11 +90,33 @@ function AwaitingItem({ item, t, tz, now, onDone }) {
   );
 }
 
-function MakeupItem({ session, t, tz, onPropose }) {
+/** طلب حجز بانتظار موافقة المعلم — قبول/رفض مباشرة، مع عدّاد حتى أقرب موعد مطلوب */
+function BookingItem({ request, t, now }) {
+  const approve = useApproveBookingRequest();
+  const reject = useRejectBookingRequest();
+  const deadline = request.deadline ? timeLeft(t, request.deadline, now, 'dashboard.pendingActions.bookingTimeLeft') : null;
+
+  return (
+    <li>
+      <BookingRequestRow
+        request={request}
+        deadline={deadline}
+        isPending={approve.isPending || reject.isPending}
+        error={approve.error ?? reject.error}
+        onApprove={(id) => approve.mutate(id)}
+        onReject={(id, reason) => reject.mutate({ bookingId: id, reason: reason || undefined })}
+      />
+    </li>
+  );
+}
+
+function MakeupItem({ session, t, tz, isTeacher, onPropose }) {
   return (
     <li className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-white p-4">
       <div className="text-right">
-        <div className="text-sm font-bold text-ink">{t('dashboard.pendingActions.makeupEligibleTitle')}</div>
+        <div className="text-sm font-bold text-ink">
+          {t(`dashboard.pendingActions.${isTeacher ? 'makeupEligibleTitleTeacher' : 'makeupEligibleTitle'}`)}
+        </div>
         <div className="text-xs text-ink-soft">
           {[session.title, session.other_party_name].filter(Boolean).join(' — ')}
           {' · '}
@@ -112,7 +136,7 @@ function MakeupItem({ session, t, tz, onPropose }) {
 }
 
 /**
- * قائمة "مطلوب منك" الموحّدة: باقات بانتظار الدفع، طلبات تغيير موعد/موعد تعويضي ينتظر ردك
+ * قائمة "مطلوب منك" الموحّدة: باقات بانتظار الدفع (الطالب)، طلبات حجز بانتظار موافقتك (المعلم)، طلبات تغيير موعد/موعد تعويضي ينتظر ردك
  * (قبول/رفض مباشرة)، وجلسات غاب عنها المعلم يحق اقتراح موعد تعويضي لها — الأقرب انتهاءً أولاً.
  * limit: أول N عنصر فقط (بطاقة الرئيسية)؛ بدونه الكل (صفحة "مطلوب منك").
  */
@@ -147,10 +171,12 @@ export function PendingActionsList({ limit, emptyState = null }) {
               <li key={key} className="rounded-xl border border-[#F5A623]/40">
                 <PendingPaymentRow pkg={item} />
               </li>
+            ) : type === 'booking' ? (
+              <BookingItem key={key} request={item} t={t} now={now} />
             ) : type === 'response' ? (
               <AwaitingItem key={key} item={item} t={t} tz={tz} now={now} onDone={showMessage} />
             ) : (
-              <MakeupItem key={key} session={item} t={t} tz={tz} onPropose={setMakeupSession} />
+              <MakeupItem key={key} session={item} t={t} tz={tz} isTeacher={user?.role === 'teacher'} onPropose={setMakeupSession} />
             ),
           )}
         </ul>
@@ -177,6 +203,7 @@ export function PendingActionsList({ limit, emptyState = null }) {
  */
 export function PendingActionsCard({ limit, viewAllPath }) {
   const t = useT();
+  const { user } = useAuth();
   const { data } = usePendingActions();
   const total = pendingActionItems(data).length;
 
@@ -199,7 +226,9 @@ export function PendingActionsCard({ limit, viewAllPath }) {
               {t('dashboard.pendingActions.title')}
               <span className="rounded-full bg-[#F5A623] px-2 py-0.5 text-xs text-white">{total}</span>
             </h3>
-            <p className="text-sm text-[#B7791F]">{t('dashboard.pendingActions.hint')}</p>
+            <p className="text-sm text-[#B7791F]">
+              {t(`dashboard.pendingActions.${user?.role === 'teacher' ? 'hintTeacher' : 'hint'}`)}
+            </p>
           </div>
         </div>
         {viewAllPath && (

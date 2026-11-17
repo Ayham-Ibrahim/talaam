@@ -4,10 +4,16 @@ export const URGENT_DEADLINE_MS = 3 * 60 * 60 * 1000;
 /**
  * كل ما ينتظر المستخدم في قائمة واحدة "مطلوب منك" — الأقرب انتهاءً أولاً، وما بلا مهلة
  * (جلسة قابلة للتعويض، باقة بلا مهلة دفع) في الآخر:
- * { type: 'payment' | 'response' | 'makeup', key, deadline, item }
+ * { type: 'payment' | 'booking' | 'response' | 'makeup', key, deadline, item }
  */
 export function pendingActionItems(pendingActions) {
   const items = [
+    ...(pendingActions?.awaiting_confirmation ?? []).map((item) => ({
+      type: 'booking',
+      key: `b-${item.id}`,
+      deadline: item.deadline ?? null,
+      item,
+    })),
     ...(pendingActions?.awaiting_payment ?? []).map((item) => ({
       type: 'payment',
       key: `p-${item.id}`,

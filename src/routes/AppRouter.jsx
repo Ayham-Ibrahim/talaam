@@ -52,7 +52,7 @@ import { AdminSettingsPage } from "@/pages/AdminSettingsPage";
 import { CalendarPage } from "@/pages/CalendarPage";
 import { TeacherCalendarPage } from "@/pages/TeacherCalendarPage";
 import { SessionsPage } from "@/pages/SessionsPage";
-import { StudentActionsPage } from "@/pages/StudentActionsPage";
+import { ActionsPage } from "@/pages/ActionsPage";
 import { PackagesPage } from "@/pages/PackagesPage";
 import { PackageDetailsPage } from "@/pages/PackageDetailsPage";
 import { InvoicesPage } from "@/pages/InvoicesPage";
@@ -469,7 +469,7 @@ export function AppRouter() {
           path="/dashboard/student/actions"
           element={
             <ProtectedRoute role="student">
-              <StudentActionsPage />
+              <ActionsPage />
             </ProtectedRoute>
           }
         />
@@ -582,6 +582,14 @@ export function AppRouter() {
           element={
             <ProtectedRoute role="teacher">
               <TeacherCourseDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/teacher/actions"
+          element={
+            <ProtectedRoute role="teacher">
+              <ActionsPage />
             </ProtectedRoute>
           }
         />
