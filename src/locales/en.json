@@ -677,6 +677,18 @@
     "trialTagline": "Meet the teacher before you subscribe",
     "trialOneSession": "1 session",
     "trialCta": "Book your free session",
+    "myBooking": {
+      "awaitingTeacherBadge": "Awaiting teacher approval",
+      "awaitingPaymentBadge": "Awaiting payment",
+      "subscribedBadge": "You're subscribed",
+      "requestedAt": "Requested time: {date}",
+      "sessionsRemaining": "{n} sessions remaining",
+      "viewRequest": "View request",
+      "completePayment": "Complete payment",
+      "viewSubscription": "View my subscription",
+      "trialUsed": "You've used your free session with this teacher",
+      "campaignRightUsed": "You've used your campaign offer"
+    },
     "perSessionLabel": "per session",
     "discount": "Discount",
     "intro": "About the Teacher",

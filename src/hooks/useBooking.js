@@ -43,14 +43,19 @@ export function usePackageBusySlotsForDates(packageId, datesISO) {
 
 /** slots: [{ date: 'YYYY-MM-DD', start_time: 'HH:mm' }, ...] — one entry per session of the package */
 export function useRequestIndividualBooking(packageId) {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ slots, couponCode }) => bookingService.requestIndividualBooking(packageId, slots, couponCode),
+    // بطاقة الباقة في ملف المعلم تعرض الطلب الجديد (my_booking) فوراً
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.teachers.all }),
   });
 }
 
 export function useCreateGroupBooking(packageId) {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (couponCode) => bookingService.createGroupBooking(packageId, couponCode),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.teachers.all }),
   });
 }
 

@@ -72,6 +72,19 @@ export function mapStudentPackage(raw) {
     schedules,
     // منطقة ساعات schedules — نوافذ باقة الحملة تُحوَّل منها لتوقيت المتصفح (BookingWidget)
     scheduleTimezone: raw.schedule_timezone ?? 'UTC',
+    // حجز الطالب القائم على الباقة (طلب/بانتظار الدفع/مشترك) — null للزائر أو بلا حجز قائم
+    myBooking: raw.my_booking
+      ? {
+          id: raw.my_booking.id,
+          status: raw.my_booking.status,
+          holdExpiresAt: raw.my_booking.hold_expires_at,
+          requestedAt: raw.my_booking.requested_at,
+          sessionsRemaining: raw.my_booking.sessions_remaining,
+        }
+      : null,
+    // حقوق "مرة واحدة" مستهلكة — الجلسة المجانية مع هذا المعلم / باقة الحملة
+    trialUsed: !!raw.trial_used,
+    campaignRightUsed: !!raw.campaign_right_used,
   };
 }
 
