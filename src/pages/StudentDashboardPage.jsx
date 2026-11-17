@@ -5,7 +5,6 @@ import { StatsGrid } from "@/components/dashboard/StatsGrid";
 import { UpcomingSessionsCard } from "@/components/dashboard/UpcomingSessionsCard";
 import { PackageWidget } from "@/components/dashboard/PackageWidget";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
-import { PendingPaymentsCard } from "@/components/dashboard/PendingPaymentsCard";
 import { PendingActionsCard } from "@/components/dashboard/PendingActionsCard";
 import { ErrorState, Skeleton } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
@@ -37,8 +36,8 @@ export function StudentDashboardPage() {
             name={user.name.split(" ")[0]}
             sessionsThisWeek={data.stats.upcomingSessionsCount}
           />
-          <PendingActionsCard />
-          <PendingPaymentsCard packages={data.pendingPayments} />
+          {/* "مطلوب منك" (دفع، رد على طلب، تعويض) — ملخص لأقرب 3 مع رابط للصفحة الكاملة */}
+          <PendingActionsCard limit={3} viewAllPath="/dashboard/student/actions" />
           <StatsGrid stats={data.stats} />
           <UpcomingSessionsCard sessions={data.upcomingSessions} />
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_3fr]">

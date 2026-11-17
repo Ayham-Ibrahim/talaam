@@ -1,11 +1,13 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BellRing, CalendarPlus, Clock } from 'lucide-react';
+import { ArrowLeft, BellRing, CalendarPlus, ChevronLeft, Clock } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNow } from '@/hooks/useNow';
 import { usePendingActions, useRespondRescheduleRequest } from '@/hooks/useReschedule';
 import { formatDateTime } from '@/lib/formatters';
-import { timeLeft } from '@/lib/pendingActions';
+import { pendingActionItems, timeLeft } from '@/lib/pendingActions';
+import { PendingPaymentRow } from './PendingPaymentsCard';
 import { MakeupRequestModal } from './MakeupRequestModal';
 import { useT } from '@/hooks/useT';
 
@@ -86,22 +88,45 @@ function AwaitingItem({ item, t, tz, now, onDone }) {
   );
 }
 
+function MakeupItem({ session, t, tz, onPropose }) {
+  return (
+    <li className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-white p-4">
+      <div className="text-right">
+        <div className="text-sm font-bold text-ink">{t('dashboard.pendingActions.makeupEligibleTitle')}</div>
+        <div className="text-xs text-ink-soft">
+          {[session.title, session.other_party_name].filter(Boolean).join(' — ')}
+          {' · '}
+          <span dir="ltr">{formatDateTime(session.scheduled_at, tz)}</span>
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={() => onPropose(session)}
+        className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-primary-hover"
+      >
+        <CalendarPlus size={16} />
+        {t('dashboard.makeupRequest.button')}
+      </button>
+    </li>
+  );
+}
+
 /**
- * "بانتظار ردك" أعلى اللوحة الرئيسية للطالب والمعلم: طلبات تغيير موعد/موعد تعويضي ينتظر
- * ردهما (قبول/رفض مباشرة من هنا)، وجلسات غاب عنها المعلم يحق اقتراح موعد تعويضي لها.
- * لا يظهر إطلاقاً حين لا شيء ينتظر — بنفس أسلوب بطاقة المدفوعات المعلّقة.
+ * قائمة "مطلوب منك" الموحّدة: باقات بانتظار الدفع، طلبات تغيير موعد/موعد تعويضي ينتظر ردك
+ * (قبول/رفض مباشرة)، وجلسات غاب عنها المعلم يحق اقتراح موعد تعويضي لها — الأقرب انتهاءً أولاً.
+ * limit: أول N عنصر فقط (بطاقة الرئيسية)؛ بدونه الكل (صفحة "مطلوب منك").
  */
-export function PendingActionsCard() {
+export function PendingActionsList({ limit, emptyState = null }) {
   const t = useT();
   const { user } = useAuth();
   const now = useNow();
   const { data } = usePendingActions();
   const [makeupSession, setMakeupSession] = useState(null);
   const [message, setMessage] = useState('');
-
-  const awaiting = data?.awaiting_response ?? [];
-  const makeups = data?.makeup_eligible ?? [];
   const tz = user?.timezone;
+
+  const items = pendingActionItems(data);
+  const shown = limit ? items.slice(0, limit) : items;
 
   const showMessage = (msg) => {
     if (!msg) return;
@@ -109,60 +134,27 @@ export function PendingActionsCard() {
     setTimeout(() => setMessage(''), 4000);
   };
 
-  if (!awaiting.length && !makeups.length) {
-    return message ? (
-      <div className="rounded-2xl bg-success-light px-4 py-3 text-sm font-medium text-success">{message}</div>
-    ) : null;
-  }
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl border-2 border-[#F5A623] bg-[#FFF8EC] p-5 shadow-card"
-    >
-      <div className="mb-4 flex items-start gap-3">
-        <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#F5A623] text-white">
-          <span className="absolute inset-0 animate-ping rounded-full bg-[#F5A623] opacity-30" />
-          <BellRing size={22} />
-        </span>
-        <div className="text-right">
-          <h3 className="flex items-center gap-2 font-bold text-ink">
-            {t('dashboard.pendingActions.title')}
-            <span className="rounded-full bg-[#F5A623] px-2 py-0.5 text-xs text-white">{awaiting.length + makeups.length}</span>
-          </h3>
-          <p className="text-sm text-[#B7791F]">{t('dashboard.pendingActions.hint')}</p>
-        </div>
-      </div>
-
+    <>
       {message && <div className="mb-3 rounded-xl bg-success-light px-4 py-2 text-sm font-medium text-success">{message}</div>}
 
-      <ul className="flex flex-col gap-3">
-        {awaiting.map((item) => (
-          <AwaitingItem key={`r-${item.id}`} item={item} t={t} tz={tz} now={now} onDone={showMessage} />
-        ))}
-
-        {makeups.map((session) => (
-          <li key={`m-${session.id}`} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-white p-4">
-            <div className="text-right">
-              <div className="text-sm font-bold text-ink">{t('dashboard.pendingActions.makeupEligibleTitle')}</div>
-              <div className="text-xs text-ink-soft">
-                {[session.title, session.other_party_name].filter(Boolean).join(' — ')}
-                {' · '}
-                <span dir="ltr">{formatDateTime(session.scheduled_at, tz)}</span>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setMakeupSession(session)}
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-primary-hover"
-            >
-              <CalendarPlus size={16} />
-              {t('dashboard.makeupRequest.button')}
-            </button>
-          </li>
-        ))}
-      </ul>
+      {items.length === 0 ? (
+        emptyState
+      ) : (
+        <ul className="flex flex-col gap-3">
+          {shown.map(({ type, key, item }) =>
+            type === 'payment' ? (
+              <li key={key} className="rounded-xl border border-[#F5A623]/40">
+                <PendingPaymentRow pkg={item} />
+              </li>
+            ) : type === 'response' ? (
+              <AwaitingItem key={key} item={item} t={t} tz={tz} now={now} onDone={showMessage} />
+            ) : (
+              <MakeupItem key={key} session={item} t={t} tz={tz} onPropose={setMakeupSession} />
+            ),
+          )}
+        </ul>
+      )}
 
       {makeupSession && (
         <MakeupRequestModal
@@ -175,6 +167,53 @@ export function PendingActionsCard() {
           }}
         />
       )}
+    </>
+  );
+}
+
+/**
+ * بطاقة "مطلوب منك" أعلى اللوحة الرئيسية للطالب والمعلم — لا تظهر إطلاقاً حين لا شيء ينتظر.
+ * viewAllPath + limit (الطالب): ملخص لأهم العناصر مع رابط لصفحة "مطلوب منك" الكاملة.
+ */
+export function PendingActionsCard({ limit, viewAllPath }) {
+  const t = useT();
+  const { data } = usePendingActions();
+  const total = pendingActionItems(data).length;
+
+  if (!total) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-2xl border-2 border-[#F5A623] bg-[#FFF8EC] p-5 shadow-card"
+    >
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#F5A623] text-white">
+            <span className="absolute inset-0 animate-ping rounded-full bg-[#F5A623] opacity-30" />
+            <BellRing size={22} />
+          </span>
+          <div className="text-right">
+            <h3 className="flex items-center gap-2 font-bold text-ink">
+              {t('dashboard.pendingActions.title')}
+              <span className="rounded-full bg-[#F5A623] px-2 py-0.5 text-xs text-white">{total}</span>
+            </h3>
+            <p className="text-sm text-[#B7791F]">{t('dashboard.pendingActions.hint')}</p>
+          </div>
+        </div>
+        {viewAllPath && (
+          <Link
+            to={viewAllPath}
+            className="inline-flex items-center gap-1 rounded-xl border border-[#F5A623] bg-white px-4 py-2 text-sm font-bold text-[#B7791F] hover:bg-[#FFF8EC]"
+          >
+            {t('dashboard.pendingActions.viewAll').replace('{n}', total)}
+            <ChevronLeft size={16} />
+          </Link>
+        )}
+      </div>
+
+      <PendingActionsList limit={limit} />
     </motion.div>
   );
 }

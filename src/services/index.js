@@ -502,13 +502,26 @@ export const rescheduleService = {
     return { request: data.data, message: data.message };
   },
 
-  /** Everything awaiting the current student/teacher: { count, awaiting_response, makeup_eligible }. */
+  /**
+   * Everything awaiting the current student/teacher: { count, awaiting_response, makeup_eligible, awaiting_payment }.
+   * awaiting_payment (students only) is mapped to the PendingPaymentRow card shape.
+   */
   async pendingActions() {
     if (config.useMocks) {
       await mockDelay(200);
-      return { count: 0, awaiting_response: [], makeup_eligible: [] };
+      return { count: 0, awaiting_response: [], makeup_eligible: [], awaiting_payment: [] };
     }
     const { data } = await client.get(endpoints.myPendingActions);
+    return { ...data.data, awaiting_payment: (data.data.awaiting_payment ?? []).map(mapAwaitingPayment) };
+  },
+
+  /** Requests the current user sent ("طلباتي") — the backend limits non-admins to their own. */
+  async myRequests() {
+    if (config.useMocks) {
+      await mockDelay(200);
+      return [];
+    }
+    const { data } = await client.get(endpoints.rescheduleRequests.mine, { params: { per_page: 50 } });
     return data.data;
   },
 
@@ -791,6 +804,22 @@ function pendingRescheduleRequestCreatedAt(session) {
 
   const requests = session.reschedule_requests ?? session.rescheduleRequests ?? [];
   return requests.find((request) => request.status === 'pending')?.created_at ?? null;
+}
+
+/** my-pending-actions awaiting_payment item → PendingPaymentRow shape (same as mapBookingToPackageCard) */
+function mapAwaitingPayment(item) {
+  return {
+    id: `${item.kind}-${item.id}`,
+    teacherName: item.teacher_name,
+    teacherAvatar: item.teacher_avatar,
+    subject: item.subject,
+    packageTitle: item.title,
+    price: Number(item.amount ?? 0),
+    discountAmount: Number(item.discount_amount ?? 0),
+    hasCoupon: Boolean(item.has_coupon),
+    isCampaign: Boolean(item.is_campaign),
+    holdExpiresAt: item.hold_expires_at,
+  };
 }
 
 /** Booking/Enrollment.status → the 3-state vocabulary the invoices UI understands */
