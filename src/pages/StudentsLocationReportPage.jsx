@@ -10,18 +10,24 @@ import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useExportStudentsLocationReport, useStudentsLocationReport, useStudentsLocationStudents } from '@/hooks/useReports';
 import { useTaxonomyList } from '@/hooks/useTaxonomy';
-import { formatNumber, formatPrice } from '@/lib/formatters';
+// تقرير التسويق بأرقام إنجليزية (Latin) — لا بالأرقام العربية الافتراضية لبقية اللوحة
+import { formatLatinNumber as formatNumber, formatPrice } from '@/lib/formatters';
 import { saveBlob } from '@/lib/download';
 import { useT } from '@/hooks/useT';
 
 /**
- * تقرير التسويق: الطلاب حسب الموقع (دولة ← ولاية) × المنهج — StudentsLocationReportService
- * بالباك. لكل شريحة: العدد، من دفع (نسبة التحويل)، من له باقة جارية، والإيراد. الضغط على
- * صف أو خلية يضيّق الفلاتر عليها ويفتح قائمة طلابها، فيُصدَّر منها ملف للتواصل مع الشريحة.
+ * تقرير التسويق: الطلاب حسب الموقع (دولة ← ولاية) × المنهج، وحسب الصف والمادة —
+ * StudentsLocationReportService بالباك. لكل شريحة: العدد، من دفع (نسبة التحويل)، من له باقة
+ * جارية، والإيراد. الضغط على صف أو خلية يضيّق الفلاتر عليها ويفتح قائمة طلابها، فيُصدَّر منها
+ * ملف للتواصل مع الشريحة. مواد الطالب من باقاته المدفوعة — قد يُعد في أكثر من مادة.
  */
-const EMPTY_FILTERS = { countryId: '', regionId: '', curriculumId: '', educationType: '', from: '', to: '' };
-const TABS = ['location', 'curriculum', 'matrix', 'students'];
+const EMPTY_FILTERS = { countryId: '', regionId: '', curriculumId: '', educationType: '', grade: '', subjectId: '', from: '', to: '' };
+const TABS = ['location', 'curriculum', 'grade', 'subject', 'matrix', 'gradeMatrix', 'subjectMatrix', 'students'];
+const EMPTY_MATRIX = { columns: [], rows: [] };
 const EDUCATION_TYPES = ['school', 'university', 'training'];
+const GRADES = Array.from({ length: 12 }, (_, i) => i + 1);
+/** تصنيفات من لا صف له — StudentsLocationReportService::GRADE_BUCKETS بالباك، وتُرسل كقيمة فلتر grade */
+const GRADE_BUCKETS = ['missing', 'university', 'training', 'incomplete'];
 
 const inputClass =
   'w-full rounded-btn border border-line bg-white p-2.5 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20';
@@ -31,6 +37,43 @@ function heatStyle(value, max) {
   if (!value || !max) return undefined;
   const ratio = value / max;
   return { background: `rgba(59, 89, 152, ${0.08 + ratio * 0.62})`, color: ratio > 0.55 ? '#fff' : undefined };
+}
+
+/** مصفوفة الموقع × (منهج/صف/مادة): لون الخلية بنسبتها لأكبر خلية، والضغط عليها يعرض طلابها */
+function MatrixTable({ data, label, patch, hint, emptyTitle, locationColumn, totalColumn, locationLabel, onCellClick }) {
+  const max = Math.max(0, ...data.rows.flatMap((r) => r.counts));
+
+  if (emptyTitle && data.columns.length === 0) return <EmptyState title={emptyTitle} />;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="text-right text-xs text-ink-soft">{hint}</p>
+      <Table minWidth={Math.max(560, 220 + data.columns.length * 120)} columns={[locationColumn, ...data.columns.map(label), totalColumn]}>
+        {data.rows.map((row, i) => (
+          <tr key={`${row.countryId}:${row.regionId}`} className={rowClass(i)}>
+            <td className="whitespace-nowrap px-4 py-3 font-semibold text-ink">{locationLabel(row)}</td>
+            {row.counts.map((count, c) => {
+              const cellPatch = count > 0 ? patch(data.columns[c]) : null;
+              return (
+                <td key={c} className="px-2 py-2 text-center">
+                  <button
+                    type="button"
+                    disabled={!cellPatch}
+                    onClick={() => onCellClick(row, cellPatch)}
+                    style={heatStyle(count, max)}
+                    className="w-full rounded-lg px-2 py-2 text-sm font-semibold text-ink enabled:hover:ring-2 enabled:hover:ring-primary/40 disabled:cursor-default"
+                  >
+                    {count ? formatNumber(count) : '—'}
+                  </button>
+                </td>
+              );
+            })}
+            <td className="px-4 py-3 text-center font-bold text-ink">{formatNumber(row.total)}</td>
+          </tr>
+        ))}
+      </Table>
+    </div>
+  );
 }
 
 export function StudentsLocationReportPage() {
@@ -46,14 +89,37 @@ export function StudentsLocationReportPage() {
   const exportReport = useExportStudentsLocationReport();
   const location = useLocationOptions(filters.countryId, filters.regionId);
   const { data: curricula = [] } = useTaxonomyList('curricula');
+  const { data: subjects = [] } = useTaxonomyList('subjects');
 
   if (!user) return <Navigate to="/login" replace />;
 
   const totals = data?.totals ?? {};
   const byLocation = data?.byLocation ?? [];
   const byCurriculum = data?.byCurriculum ?? [];
-  const matrix = data?.matrix ?? { columns: [], rows: [] };
-  const matrixMax = Math.max(0, ...matrix.rows.flatMap((r) => r.counts));
+  const byGrade = data?.byGrade ?? [];
+  const bySubject = data?.bySubject ?? [];
+  /** لكل مصفوفة: بياناتها، عنوان عمودها، والفلتر الذي يضيّقه الضغط على خلية (null = غير قابلة للضغط) */
+  const matrices = {
+    matrix: {
+      data: data?.matrix ?? EMPTY_MATRIX,
+      label: (c) => curriculumLabel(c.curriculum),
+      patch: (c) => (c.curriculumId ? { curriculumId: c.curriculumId } : null),
+      hint: L('matrixHint'),
+    },
+    gradeMatrix: {
+      data: data?.gradeMatrix ?? EMPTY_MATRIX,
+      label: (c) => gradeLabel(c.grade, c.gradeBucket),
+      patch: (c) => ({ grade: c.grade ?? c.gradeBucket }),
+      hint: L('matrixHint'),
+    },
+    subjectMatrix: {
+      data: data?.subjectMatrix ?? EMPTY_MATRIX,
+      label: (c) => c.subject ?? '—',
+      patch: (c) => ({ subjectId: c.subjectId }),
+      hint: `${L('matrixHint')} — ${L('subjectMatrixHint')}`,
+      emptyTitle: L('emptySubjects'),
+    },
+  };
   const hasFilters = Object.values(filters).some(Boolean);
 
   const setFilter = (key, value) => {
@@ -72,6 +138,8 @@ export function StudentsLocationReportPage() {
   const locationLabel = (row) =>
     row.countryId ? [row.country, row.region].filter(Boolean).join(' · ') : L('unknownLocation');
   const curriculumLabel = (name) => name ?? L('noCurriculum');
+  const gradeLabel = (grade, bucket) =>
+    grade ? `${L('gradePrefix')} ${formatNumber(grade)}` : bucket ? L(`gradeBuckets.${bucket}`) : L('noGrade');
 
   const handleExport = () =>
     exportReport.mutate(filters, { onSuccess: (blob) => saveBlob(blob, 'students-location-report.xlsx') });
@@ -80,11 +148,11 @@ export function StudentsLocationReportPage() {
     <>
       <td className={cell}>{formatNumber(row.students)}</td>
       <td className="px-4 py-3">
-        <ShareBar value={percentOf(row.students, totals.students)} />
+        <ShareBar value={percentOf(row.students, totals.students)} format={formatNumber} />
       </td>
       <td className={cell}>{formatNumber(row.paying)}</td>
       <td className="px-4 py-3">
-        <ShareBar value={row.conversionRate} color="#2E9E6B" />
+        <ShareBar value={row.conversionRate} color="#2E9E6B" format={formatNumber} />
       </td>
       <td className={cell}>{formatNumber(row.running)}</td>
       <td className={cell}>{formatPrice(formatNumber(row.revenue), 'AED')}</td>
@@ -139,6 +207,23 @@ export function StudentsLocationReportPage() {
             value={filters.educationType}
             onChange={(v) => setFilter('educationType', v)}
             options={EDUCATION_TYPES.map((v) => ({ value: v, label: t(`dashboard.adminStudents.educationType.${v}`) }))}
+            placeholder={L('filters.all')}
+          />
+          <SmoothSelect
+            label={L('filters.grade')}
+            value={filters.grade}
+            onChange={(v) => setFilter('grade', v)}
+            options={[
+              ...GRADES.map((g) => ({ value: g, label: gradeLabel(g) })),
+              ...GRADE_BUCKETS.map((b) => ({ value: b, label: gradeLabel(null, b) })),
+            ]}
+            placeholder={L('filters.all')}
+          />
+          <SmoothSelect
+            label={L('filters.subject')}
+            value={filters.subjectId}
+            onChange={(v) => setFilter('subjectId', v)}
+            options={subjects.map((s) => ({ value: s.id, label: s.name_ar }))}
             placeholder={L('filters.all')}
           />
           <label className="flex flex-col gap-1.5 text-right">
@@ -247,38 +332,57 @@ export function StudentsLocationReportPage() {
                   </tr>
                 ))}
               </Table>
-            ) : activeTab === 'matrix' ? (
-              <div className="flex flex-col gap-2">
-                <p className="text-right text-xs text-ink-soft">{L('matrixHint')}</p>
-                <Table
-                  minWidth={Math.max(560, 220 + matrix.columns.length * 120)}
-                  columns={[L('cols.location'), ...matrix.columns.map((c) => curriculumLabel(c.curriculum)), L('cols.total')]}
-                >
-                  {matrix.rows.map((row, i) => (
-                    <tr key={`${row.countryId}:${row.regionId}`} className={rowClass(i)}>
-                      <td className="whitespace-nowrap px-4 py-3 font-semibold text-ink">{locationLabel(row)}</td>
-                      {row.counts.map((count, c) => {
-                        const column = matrix.columns[c];
-                        const clickable = count > 0 && column.curriculumId;
-                        return (
-                          <td key={column.curriculumId ?? 'none'} className="px-2 py-2 text-center">
-                            <button
-                              type="button"
-                              disabled={!clickable}
-                              onClick={() => drillDown({ ...locationPatch(row), curriculumId: column.curriculumId })}
-                              style={heatStyle(count, matrixMax)}
-                              className="w-full rounded-lg px-2 py-2 text-sm font-semibold text-ink enabled:hover:ring-2 enabled:hover:ring-primary/40 disabled:cursor-default"
-                            >
-                              {count ? formatNumber(count) : '—'}
-                            </button>
-                          </td>
-                        );
-                      })}
-                      <td className="px-4 py-3 text-center font-bold text-ink">{formatNumber(row.total)}</td>
-                    </tr>
-                  ))}
-                </Table>
-              </div>
+            ) : activeTab === 'grade' ? (
+              <Table minWidth={860} columns={[L('cols.grade'), ...metricColumns, '']}>
+                {byGrade.map((row, i) => (
+                  <tr key={row.gradeKey} className={rowClass(i)}>
+                    <td className="px-4 py-3 font-semibold text-ink">{gradeLabel(row.grade, row.gradeBucket)}</td>
+                    {metricCells(row)}
+                    <td className="px-4 py-3">
+                      <button
+                        type="button"
+                        onClick={() => drillDown({ grade: row.grade ?? row.gradeBucket })}
+                        className="whitespace-nowrap text-primary hover:opacity-70"
+                      >
+                        {L('viewStudents')}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </Table>
+            ) : activeTab === 'subject' ? (
+              bySubject.length === 0 ? (
+                <EmptyState title={L('emptySubjects')} />
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <p className="text-right text-xs text-ink-soft">{L('subjectHint')}</p>
+                  <Table minWidth={860} columns={[L('cols.subject'), ...metricColumns, '']}>
+                    {bySubject.map((row, i) => (
+                      <tr key={row.subjectId} className={rowClass(i)}>
+                        <td className="px-4 py-3 font-semibold text-ink">{row.subject ?? '—'}</td>
+                        {metricCells(row)}
+                        <td className="px-4 py-3">
+                          <button
+                            type="button"
+                            onClick={() => drillDown({ subjectId: row.subjectId })}
+                            className="whitespace-nowrap text-primary hover:opacity-70"
+                          >
+                            {L('viewStudents')}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </Table>
+                </div>
+              )
+            ) : matrices[activeTab] ? (
+              <MatrixTable
+                {...matrices[activeTab]}
+                locationColumn={L('cols.location')}
+                totalColumn={L('cols.total')}
+                locationLabel={locationLabel}
+                onCellClick={(row, patch) => drillDown({ ...locationPatch(row), ...patch })}
+              />
             ) : students.isError ? (
               <ErrorState onRetry={students.refetch} />
             ) : students.isLoading ? (
@@ -291,8 +395,10 @@ export function StudentsLocationReportPage() {
                   {L('studentsCount')} {formatNumber(students.data.meta?.total ?? 0)} — {L('studentsHint')}
                 </p>
                 <Table
-                  minWidth={1100}
-                  columns={['student', 'phone', 'location', 'curriculum', 'stage', 'registered', 'paying', 'revenue'].map((c) => L(`studentCols.${c}`))}
+                  minWidth={1300}
+                  columns={['student', 'phone', 'location', 'curriculum', 'stage', 'grade', 'subjects', 'registered', 'paying', 'revenue'].map((c) =>
+                    L(`studentCols.${c}`),
+                  )}
                 >
                   {students.data.data.map((s, i) => (
                     <tr key={s.studentId} className={rowClass(i)}>
@@ -308,6 +414,8 @@ export function StudentsLocationReportPage() {
                       <td className={cell}>{s.country ? [s.country, s.region].filter(Boolean).join(' · ') : L('unknownLocation')}</td>
                       <td className={cell}>{s.curriculum ?? '—'}</td>
                       <td className={cell}>{s.stage ?? '—'}</td>
+                      <td className={cell}>{s.grade ? gradeLabel(s.grade) : '—'}</td>
+                      <td className={cell}>{s.subjects?.length ? s.subjects.join('، ') : '—'}</td>
                       <td className={cell}>{s.registeredAt}</td>
                       <td className="px-4 py-3">
                         <span

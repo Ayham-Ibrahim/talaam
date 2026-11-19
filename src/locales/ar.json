@@ -829,6 +829,10 @@
     "teacherInvited": "تمت دعوتك للانضمام كمعلم على منصة تعلّم",
     "studentImported": "تم إنشاء حسابك كطالب على منصة تعلّم",
     "sessionReminder": "لديك جلسة قادمة",
+    "bookingRequestReceived": "طلب حجز جديد من {name} بانتظار موافقتك",
+    "bookingRequestReceivedDeadline": "يُلغى تلقائياً إن لم توافق قبل",
+    "subscriptionEndingSoon": "اشتراك {name} قارب على الانتهاء — بقيت جلسة واحدة",
+    "subscriptionEndingSoonLast": "آخر جلسة:",
     "rescheduleApproved": "تمت الموافقة على طلب تغيير موعد جلستك",
     "rescheduleRejected": "تم رفض طلب تغيير موعد الجلسة من قِبل الإدارة",
     "rescheduleSubmitted": "تم استلام طلب تغيير موعد الجلسة، بانتظار مراجعة الإدارة",
@@ -2688,7 +2692,7 @@
         "mark": "تسجيل حضور",
         "markConfirm": "تسجيل حضور «{name}» في هذه الجلسة؟ سيُحتسب حاضراً في الوقت ويدخل في مستحقات المعلم.",
         "markFailed": "تعذّر تسجيل الحضور، حاول مرة أخرى.",
-        "onlyDuringSession": "تسجيل الحضور متاح أثناء وقت الجلسة فقط"
+        "onlyDuringSession": "تسجيل الحضور متاح من بدء وقت الجلسة"
       },
       "category": {
         "individual": "فردية",
@@ -3075,7 +3079,18 @@
       "emptyStudents": "لا يوجد طلاب ضمن هذه الفلاتر",
       "unknownLocation": "موقع غير محدد",
       "noCurriculum": "بدون منهج",
+      "noGrade": "بدون صف",
+      "gradePrefix": "الصف",
+      "gradeBuckets": {
+        "missing": "مدرسي بدون صف",
+        "university": "جامعي",
+        "training": "تدريب",
+        "incomplete": "ملف غير مكتمل"
+      },
+      "emptySubjects": "لا يوجد طلاب بباقات مدفوعة ضمن هذه الفلاتر",
+      "subjectHint": "المواد من الباقات المدفوعة — الطالب يُعد في كل مادة يدرسها، والإيراد لكل مادة هو ما دُفع لباقاتها فقط",
       "viewStudents": "عرض الطلاب",
+      "subjectMatrixHint": "المواد من الباقات المدفوعة، والطالب يُعد في كل مادة يدرسها، فمجموع الخلايا قد يختلف عن الإجمالي",
       "matrixHint": "كلما غمق اللون زاد عدد الطلاب — اضغط على أي خلية لعرض طلاب تلك الشريحة",
       "studentsCount": "عدد الطلاب:",
       "studentsHint": "التصدير يشمل كل الطلاب ضمن الفلاتر الحالية",
@@ -3086,6 +3101,8 @@
         "region": "الولاية",
         "curriculum": "المنهج",
         "educationType": "نوع التعليم",
+        "grade": "الصف",
+        "subject": "المادة",
         "from": "مسجّل من تاريخ",
         "to": "إلى تاريخ",
         "all": "الكل",
@@ -3104,12 +3121,18 @@
       "tabs": {
         "location": "حسب الموقع",
         "curriculum": "حسب المنهج",
+        "grade": "حسب الصف",
+        "subject": "حسب المادة",
         "matrix": "الموقع × المنهج",
+        "gradeMatrix": "الموقع × الصف",
+        "subjectMatrix": "الموقع × المادة",
         "students": "قائمة الطلاب"
       },
       "cols": {
         "location": "الموقع (الدولة · الولاية)",
         "curriculum": "المنهج",
+        "grade": "الصف",
+        "subject": "المادة",
         "students": "عدد الطلاب",
         "share": "نسبتهم من كل الطلاب",
         "paying": "عدد من دفع",
@@ -3124,6 +3147,8 @@
         "location": "الموقع (الدولة · الولاية)",
         "curriculum": "المنهج",
         "stage": "المرحلة",
+        "grade": "الصف",
+        "subjects": "المواد",
         "registered": "تاريخ التسجيل",
         "paying": "هل دفع؟",
         "revenue": "إجمالي ما دفعه"

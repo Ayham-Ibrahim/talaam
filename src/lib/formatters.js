@@ -15,6 +15,12 @@ export function formatNumber(n) {
   return new Intl.NumberFormat(config.locale).format(n);
 }
 
+/** Same as formatNumber but with Latin digits (1,234.5) — for pages that must show English numerals */
+export function formatLatinNumber(n) {
+  if (n == null) return '';
+  return new Intl.NumberFormat('en-US').format(n);
+}
+
 /** Compact number for stats (+15,000) */
 export function formatCompact(n) {
   if (n == null) return '';

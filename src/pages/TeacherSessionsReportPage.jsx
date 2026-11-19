@@ -5,7 +5,8 @@ import { AdminDashboardLayout } from '@/components/dashboard/admin/AdminDashboar
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeacherSessionsReport, useExportTeacherSessionsReport } from '@/hooks/useReports';
-import { formatPrice, formatNumber } from '@/lib/formatters';
+// أرقام إنجليزية (Latin) في هذا التقرير — لا بالأرقام العربية الافتراضية لبقية اللوحة
+import { formatPrice, formatLatinNumber as formatNumber } from '@/lib/formatters';
 import { saveBlob } from '@/lib/download';
 import { useT } from '@/hooks/useT';
 
