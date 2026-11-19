@@ -55,6 +55,14 @@ function useInvalidateStudent(id) {
   };
 }
 
+export function useAdminUpdateStudentAccount(id) {
+  const invalidate = useInvalidateStudent(id);
+  return useMutation({
+    mutationFn: (payload) => adminStudentsService.updateAccount(id, payload),
+    onSuccess: invalidate,
+  });
+}
+
 export function useAdminUpdateStudentProfile(id) {
   const invalidate = useInvalidateStudent(id);
   return useMutation({

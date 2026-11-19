@@ -21,14 +21,21 @@ export function StatCard({ icon: Icon, label, value, hint, bg, color }) {
   );
 }
 
+/**
+ * محاذاة موحّدة لكل جداول التقارير: العمود الأول (الاسم/الموقع) لليمين، وبقية الأعمدة في المنتصف —
+ * العنوان وخلاياه معاً، فلا تتحدد المحاذاة في كل خلية على حدة.
+ */
 export function Table({ columns, minWidth, children }) {
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
-      <table className="w-full text-sm" style={{ minWidth }}>
+      <table
+        className="w-full text-sm [&_td:first-child]:text-right [&_td]:text-center [&_th:first-child]:text-right [&_th]:text-center"
+        style={{ minWidth }}
+      >
         <thead>
-          <tr className="border-b border-line text-right">
-            {columns.map((col) => (
-              <th key={col} className="whitespace-nowrap px-4 py-3 font-bold text-ink">
+          <tr className="border-b border-line">
+            {columns.map((col, i) => (
+              <th key={i} className="whitespace-nowrap px-4 py-3 font-bold text-ink">
                 {col}
               </th>
             ))}
@@ -43,7 +50,7 @@ export function Table({ columns, minWidth, children }) {
 /** format: منسّق الرقم — formatNumber افتراضياً، وتقرير التسويق يمرّر formatLatinNumber */
 export function ShareBar({ value, color = '#2F80ED', format = formatNumber }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="inline-flex items-center gap-2 align-middle">
       <div className="h-2 w-28 overflow-hidden rounded-full bg-line/60">
         <div className="h-full rounded-full" style={{ width: `${Math.min(value, 100)}%`, background: color }} />
       </div>

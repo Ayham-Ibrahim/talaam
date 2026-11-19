@@ -221,7 +221,7 @@ export function StudentsReportPage() {
                           </Link>
                         </td>
                         <td className="px-4 py-3 text-xs text-ink-soft">
-                          <div dir="ltr" className="text-right">{row.phone ?? '—'}</div>
+                          <div dir="ltr">{row.phone ?? '—'}</div>
                           <div className="text-ink-soft/80">{row.email}</div>
                           {row.guardianPhone && (
                             <div>

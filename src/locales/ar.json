@@ -750,6 +750,8 @@
   },
   "booking": {
     "title": "احجز جلستك",
+    "howToBookVideo": "شاهد فيديو: كيف تحجز جلستك؟",
+    "howToPayVideo": "شاهد فيديو: كيف تدفع؟",
     "selectedPackage": "الباقة المختارة",
     "subjectLabel": "المادة",
     "chooseDate": "اختر التاريخ",
@@ -2285,6 +2287,16 @@
     "adminStudentDetail": {
       "back": "العودة لقائمة الطلاب",
       "notFound": "تعذّر العثور على هذا الطالب",
+      "editAccount": "تعديل البيانات",
+      "editAccountTitle": "تعديل بيانات الطالب",
+      "nameLabel": "الاسم",
+      "emailLabel": "البريد الإلكتروني",
+      "phoneLabel": "رقم الهاتف",
+      "siblingNoEmail": "حساب أخ — يدخل ببريد الحساب الأساسي، فلا بريد خاص به",
+      "nameRequired": "الاسم مطلوب",
+      "emailRequired": "البريد الإلكتروني مطلوب",
+      "save": "حفظ",
+      "saving": "جارٍ الحفظ…",
       "profileEditor": {
         "title": "الملف الأكاديمي (نيابة عن الطالب)",
         "subtitle": "عدّل بياناته الأكاديمية كما لو كان هو من يعدّلها — نفس الحقول التي يملأها بنفسه",
@@ -3078,6 +3090,7 @@
       "empty": "لا يوجد طلاب ضمن هذه الفلاتر",
       "emptyStudents": "لا يوجد طلاب ضمن هذه الفلاتر",
       "unknownLocation": "موقع غير محدد",
+      "noRegion": "بدون ولاية",
       "noCurriculum": "بدون منهج",
       "noGrade": "بدون صف",
       "gradePrefix": "الصف",
