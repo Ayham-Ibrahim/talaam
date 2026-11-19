@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Navigate, useParams, Link } from "react-router-dom";
-import { ArrowRight, KeyRound } from "lucide-react";
+import { ArrowRight, KeyRound, Pencil } from "lucide-react";
 import { AdminDashboardLayout } from "@/components/dashboard/admin/AdminDashboardLayout";
 import { AdminStudentProfileEditor } from "@/components/dashboard/admin/AdminStudentProfileEditor";
 import { ChangeStudentPasswordModal } from "@/components/dashboard/admin/ChangeStudentPasswordModal";
+import { EditStudentAccountModal } from "@/components/dashboard/admin/EditStudentAccountModal";
 import { Avatar, ErrorState, Skeleton } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminStudentDetail } from "@/hooks/useAdminStudents";
@@ -24,6 +25,7 @@ export function AdminStudentDetailPage() {
     refetch,
   } = useAdminStudentDetail(id);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showAccountModal, setShowAccountModal] = useState(false);
 
   if (!user) return <Navigate to="/login" replace />;
 
@@ -67,18 +69,36 @@ export function AdminStudentDetailPage() {
                 )}
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setShowPasswordModal(true)}
-              className="flex items-center gap-1.5 rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary-light"
-            >
-              <KeyRound size={16} />
-              {t("dashboard.adminStudents.changePassword")}
-            </button>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowAccountModal(true)}
+                className="flex items-center gap-1.5 rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary-light"
+              >
+                <Pencil size={16} />
+                {t("dashboard.adminStudentDetail.editAccount")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowPasswordModal(true)}
+                className="flex items-center gap-1.5 rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary-light"
+              >
+                <KeyRound size={16} />
+                {t("dashboard.adminStudents.changePassword")}
+              </button>
+            </div>
           </div>
 
           <AdminStudentProfileEditor studentId={id} student={student} />
         </div>
+      )}
+
+      {showAccountModal && student && (
+        <EditStudentAccountModal
+          studentId={id}
+          student={student}
+          onClose={() => setShowAccountModal(false)}
+        />
       )}
 
       {showPasswordModal && student && (

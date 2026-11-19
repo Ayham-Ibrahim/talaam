@@ -86,6 +86,16 @@ export const adminStudentsService = {
     return data;
   },
 
+  /** الأدمن يعدّل اسم/بريد/هاتف الطالب (StudentController::updateAccount) — حساب الأخ بلا بريد فلا يُرسَل له */
+  async updateAccount(id, payload) {
+    if (config.useMocks) {
+      await mockDelay(300);
+      return payload;
+    }
+    const { data } = await client.put(endpoints.students.updateAccount(id), payload);
+    return data.data;
+  },
+
   /** الأدمن يضع كلمة مرور جديدة مباشرة — بلا حاجة لمعرفة القديمة، تُرسَل للطالب بالبريد (StudentService::resetPasswordByAdmin) */
   async resetPassword(studentId, password) {
     if (config.useMocks) {

@@ -181,6 +181,7 @@ export const endpoints = {
     exportColumns: '/students/export/columns',
     detail: (id) => `/students/${id}`,
     update: (id) => `/students/${id}`,
+    updateAccount: (id) => `/students/${id}/account`,
     resetPassword: (id) => `/students/${id}/password`,
     avatar: (id) => `/students/${id}/avatar`,
   },
