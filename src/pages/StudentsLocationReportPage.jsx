@@ -28,6 +28,8 @@ const EDUCATION_TYPES = ['school', 'university', 'training'];
 const GRADES = Array.from({ length: 12 }, (_, i) => i + 1);
 /** تصنيفات من لا صف له — StudentsLocationReportService::GRADE_BUCKETS بالباك، وتُرسل كقيمة فلتر grade */
 const GRADE_BUCKETS = ['missing', 'university', 'training', 'incomplete'];
+/** قيمة فلتر الدولة/الولاية لمن لم يحددها — StudentsLocationReportService::NO_LOCATION بالباك */
+const NO_LOCATION = 'none';
 
 const inputClass =
   'w-full rounded-btn border border-line bg-white p-2.5 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20';
@@ -55,7 +57,7 @@ function MatrixTable({ data, label, patch, hint, emptyTitle, locationColumn, tot
             {row.counts.map((count, c) => {
               const cellPatch = count > 0 ? patch(data.columns[c]) : null;
               return (
-                <td key={c} className="px-2 py-2 text-center">
+                <td key={c} className="px-2 py-2">
                   <button
                     type="button"
                     disabled={!cellPatch}
@@ -68,7 +70,7 @@ function MatrixTable({ data, label, patch, hint, emptyTitle, locationColumn, tot
                 </td>
               );
             })}
-            <td className="px-4 py-3 text-center font-bold text-ink">{formatNumber(row.total)}</td>
+            <td className="px-4 py-3 font-bold text-ink">{formatNumber(row.total)}</td>
           </tr>
         ))}
       </Table>
@@ -87,7 +89,7 @@ export function StudentsLocationReportPage() {
   const { data, isLoading, isError, refetch, isFetching } = useStudentsLocationReport(filters);
   const students = useStudentsLocationStudents(filters, page, activeTab === 'students');
   const exportReport = useExportStudentsLocationReport();
-  const location = useLocationOptions(filters.countryId, filters.regionId);
+  const location = useLocationOptions(filters.countryId === NO_LOCATION ? '' : filters.countryId, filters.regionId);
   const { data: curricula = [] } = useTaxonomyList('curricula');
   const { data: subjects = [] } = useTaxonomyList('subjects');
 
@@ -121,6 +123,7 @@ export function StudentsLocationReportPage() {
     },
   };
   const hasFilters = Object.values(filters).some(Boolean);
+  const hasCountry = filters.countryId && filters.countryId !== NO_LOCATION;
 
   const setFilter = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value, ...(key === 'countryId' ? { regionId: '' } : {}) }));
@@ -133,7 +136,8 @@ export function StudentsLocationReportPage() {
     setPage(1);
     setActiveTab('students');
   };
-  const locationPatch = (row) => ({ countryId: row.countryId ?? '', regionId: row.regionId ?? '' });
+  const locationPatch = (row) =>
+    row.countryId ? { countryId: row.countryId, regionId: row.regionId ?? NO_LOCATION } : { countryId: NO_LOCATION, regionId: '' };
 
   const locationLabel = (row) =>
     row.countryId ? [row.country, row.region].filter(Boolean).join(' · ') : L('unknownLocation');
@@ -185,15 +189,15 @@ export function StudentsLocationReportPage() {
             label={L('filters.country')}
             value={filters.countryId}
             onChange={(v) => setFilter('countryId', v)}
-            options={location.countryOptions}
+            options={[...location.countryOptions, { value: NO_LOCATION, label: L('unknownLocation') }]}
             placeholder={L('filters.all')}
           />
           <SmoothSelect
             label={L('filters.region')}
             value={filters.regionId}
             onChange={(v) => setFilter('regionId', v)}
-            options={location.regionOptions}
-            placeholder={filters.countryId ? L('filters.all') : L('filters.pickCountryFirst')}
+            options={hasCountry ? [...location.regionOptions, { value: NO_LOCATION, label: L('noRegion') }] : []}
+            placeholder={hasCountry ? L('filters.all') : L('filters.pickCountryFirst')}
           />
           <SmoothSelect
             label={L('filters.curriculum')}
@@ -402,7 +406,7 @@ export function StudentsLocationReportPage() {
                 >
                   {students.data.data.map((s, i) => (
                     <tr key={s.studentId} className={rowClass(i)}>
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-4 py-3">
                         <div className="font-semibold text-ink">{s.name}</div>
                         <div className="text-xs text-ink-soft" dir="ltr">
                           {s.email}

@@ -3078,6 +3078,7 @@
       "empty": "لا يوجد طلاب ضمن هذه الفلاتر",
       "emptyStudents": "لا يوجد طلاب ضمن هذه الفلاتر",
       "unknownLocation": "موقع غير محدد",
+      "noRegion": "بدون ولاية",
       "noCurriculum": "بدون منهج",
       "noGrade": "بدون صف",
       "gradePrefix": "الصف",
