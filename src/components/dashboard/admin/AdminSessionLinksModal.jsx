@@ -6,20 +6,25 @@ import { useAdminMarkAttendance } from '@/hooks/useAdminSessions';
 import { useNow } from '@/hooks/useNow';
 import { useT } from '@/hooks/useT';
 
-/** يطابق SessionService::EARLY_JOIN_MINUTES — نافذة تسجيل الحضور هي نافذة الانضمام نفسها */
+/** يطابق SessionService::EARLY_JOIN_MINUTES — تسجيل الحضور يُفتح مع نافذة الانضمام */
 const EARLY_JOIN_MINUTES = 5;
 
-/** نفس شرط SessionJoinLogService::recordByAdmin: جلسة قادمة، من قبل موعدها بخمس دقائق حتى نهايتها */
-function isDuringSession(session, nowMs) {
+/**
+ * نفس شرط SessionJoinLogService::recordByAdmin: جلسة مجدولة من قبل موعدها بخمس دقائق فصاعداً (أثناءها
+ * أو بعد انتهائها)، أو مكتملة — فيُعاد حسم نتيجتها. الباك يرفض المكتملة التي أُدرجت في كشف مستحقات
+ * أو لها تعويضية/طلب معلّق، ورسالته تظهر للأدمن.
+ */
+function canMarkAttendance(session, nowMs) {
+  if (session.status === 'completed') return true;
   const startsAt = new Date(session.scheduledAt).getTime();
   if (session.status !== 'scheduled' || !Number.isFinite(startsAt)) return false;
-  return nowMs >= startsAt - EARLY_JOIN_MINUTES * 60_000 && nowMs <= startsAt + (session.durationMin ?? 0) * 60_000;
+  return nowMs >= startsAt - EARLY_JOIN_MINUTES * 60_000;
 }
 
 function AttendanceSection({ session }) {
   const t = useT();
   const markAttendance = useAdminMarkAttendance();
-  const canMark = isDuringSession(session, useNow());
+  const canMark = canMarkAttendance(session, useNow());
 
   const rows = [
     {
@@ -128,7 +133,7 @@ function LinkRow({ label, url }) {
   );
 }
 
-/** روابط BBB المباشرة للجلسة (معلم/طالب) — للنسخ وإرسالها يدوياً، وتسجيل حضورهما يدوياً أثناء الجلسة */
+/** روابط BBB المباشرة للجلسة (معلم/طالب) — للنسخ وإرسالها يدوياً، وتسجيل حضورهما يدوياً أثناء الجلسة أو بعدها */
 export function AdminSessionLinksModal({ session, onClose }) {
   const t = useT();
 
