@@ -40,13 +40,14 @@ export function Table({ columns, minWidth, children }) {
   );
 }
 
-export function ShareBar({ value, color = '#2F80ED' }) {
+/** format: منسّق الرقم — formatNumber افتراضياً، وتقرير التسويق يمرّر formatLatinNumber */
+export function ShareBar({ value, color = '#2F80ED', format = formatNumber }) {
   return (
     <div className="flex items-center gap-2">
       <div className="h-2 w-28 overflow-hidden rounded-full bg-line/60">
         <div className="h-full rounded-full" style={{ width: `${Math.min(value, 100)}%`, background: color }} />
       </div>
-      <span className="text-xs font-semibold text-ink">{formatNumber(value)}%</span>
+      <span className="text-xs font-semibold text-ink">{format(value)}%</span>
     </div>
   );
 }

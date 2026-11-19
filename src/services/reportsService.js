@@ -4,12 +4,14 @@ import { endpoints } from '@/api/endpoints';
 
 /** تقارير مالية مشتركة بين الأدمن والمحاسب (Gate: view-finance-reports). */
 /** فلاتر الواجهة (camelCase) → باراميترات تقرير الموقع؛ الفارغ لا يُرسَل */
-function locationReportParams({ countryId, regionId, curriculumId, educationType, from, to } = {}) {
+function locationReportParams({ countryId, regionId, curriculumId, educationType, grade, subjectId, from, to } = {}) {
   return {
     country_id: countryId || undefined,
     region_id: regionId || undefined,
     curriculum_id: curriculumId || undefined,
     education_type: educationType || undefined,
+    grade: grade || undefined,
+    subject_id: subjectId || undefined,
     from: from || undefined,
     to: to || undefined,
   };
