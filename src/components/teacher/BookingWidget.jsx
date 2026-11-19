@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { AlertTriangle, CalendarDays, CheckCircle2, Clock, Mail, Pencil, Trash2 } from 'lucide-react';
+import { AlertTriangle, CalendarDays, CheckCircle2, Clock, Mail, Pencil, PlayCircle, Trash2 } from 'lucide-react';
 import { Button, ApiErrorList } from '@/components/ui';
 import { AvailabilityCalendar, FULL_DAY_SLOT_TIMES } from '@/components/teacher/AvailabilityCalendar';
 import { PolicyNotice } from '@/components/common/PolicyNotice';
+import { YoutubeModal } from '@/components/common/YoutubeModal';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useRequestIndividualBooking,
@@ -27,6 +28,10 @@ import { trackInitiateCheckout } from '@/lib/metaPixel';
 function formatTime(t) {
   return t ? t.slice(0, 5) : t;
 }
+
+/** فيديوهات تعليمية تشرح للطالب خطوات الحجز ثم الدفع */
+const BOOKING_GUIDE_YOUTUBE_ID = 'QisG0PTxDQk';
+const PAYMENT_GUIDE_YOUTUBE_ID = 'zk7tosDYaLU';
 
 function formatHHmmLocal(date) {
   return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
@@ -89,6 +94,7 @@ export function BookingWidget({ selectedPackage, bare = false }) {
   // كود خصم اختياري يُبلَّغ به الطالب خارج المنصة — يُرسَل مع طلب الحجز، والتحقق
   // الفعلي من صلاحيته (باقة/انتهاء/استنفاد) يتم بالكامل على الباك اند عند الإرسال.
   const [couponCode, setCouponCode] = useState('');
+  const [guideVideoId, setGuideVideoId] = useState(null);
 
   const requestIndividual = useRequestIndividualBooking(selectedPackage?.id);
   const createGroup = useCreateGroupBooking(selectedPackage?.id);
@@ -355,6 +361,24 @@ export function BookingWidget({ selectedPackage, bare = false }) {
   return (
     <div className={bare ? 'flex flex-col gap-5' : 'flex h-fit flex-col gap-5 rounded-card bg-white p-5 shadow-card lg:sticky lg:top-24'}>
       {!bare && <h2 className="text-start font-bold text-ink">{t('booking.title')}</h2>}
+
+      <div className="flex flex-col gap-2">
+        {[
+          { id: BOOKING_GUIDE_YOUTUBE_ID, label: t('booking.howToBookVideo') },
+          { id: PAYMENT_GUIDE_YOUTUBE_ID, label: t('booking.howToPayVideo') },
+        ].map((video) => (
+          <button
+            key={video.id}
+            type="button"
+            onClick={() => setGuideVideoId(video.id)}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary/5 px-3 py-2.5 text-sm font-bold text-primary hover:bg-primary/10"
+          >
+            <PlayCircle size={18} />
+            {video.label}
+          </button>
+        ))}
+      </div>
+      <YoutubeModal youtubeId={guideVideoId} onClose={() => setGuideVideoId(null)} />
 
       {/* Selected package */}
       <div>

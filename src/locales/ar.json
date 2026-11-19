@@ -750,6 +750,8 @@
   },
   "booking": {
     "title": "احجز جلستك",
+    "howToBookVideo": "شاهد فيديو: كيف تحجز جلستك؟",
+    "howToPayVideo": "شاهد فيديو: كيف تدفع؟",
     "selectedPackage": "الباقة المختارة",
     "subjectLabel": "المادة",
     "chooseDate": "اختر التاريخ",
