@@ -831,6 +831,8 @@
     "sessionReminder": "لديك جلسة قادمة",
     "bookingRequestReceived": "طلب حجز جديد من {name} بانتظار موافقتك",
     "bookingRequestReceivedDeadline": "يُلغى تلقائياً إن لم توافق قبل",
+    "subscriptionEndingSoon": "اشتراك {name} قارب على الانتهاء — بقيت جلسة واحدة",
+    "subscriptionEndingSoonLast": "آخر جلسة:",
     "rescheduleApproved": "تمت الموافقة على طلب تغيير موعد جلستك",
     "rescheduleRejected": "تم رفض طلب تغيير موعد الجلسة من قِبل الإدارة",
     "rescheduleSubmitted": "تم استلام طلب تغيير موعد الجلسة، بانتظار مراجعة الإدارة",

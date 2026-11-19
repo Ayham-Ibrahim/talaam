@@ -41,6 +41,14 @@ function notificationContent(t, notification, role) {
       return { title: t('notifications.studentImported'), body: null };
     case 'SessionReminder':
       return { title: t('notifications.sessionReminder'), body: formatDateTime(data.scheduled_at) };
+    case 'SubscriptionEndingSoon':
+      return {
+        title: t('notifications.subscriptionEndingSoon').replace('{name}', data.studentName),
+        body: [data.packageTitle, data.teacherName, `${t('notifications.subscriptionEndingSoonLast')} ${formatDateTime(data.lastSessionAt)}`]
+          .filter(Boolean)
+          .join(' — '),
+        link: `/dashboard/admin/students/${data.studentId}`,
+      };
     case 'BookingRequestReceived':
       return {
         title: t('notifications.bookingRequestReceived').replace('{name}', data.studentName),
