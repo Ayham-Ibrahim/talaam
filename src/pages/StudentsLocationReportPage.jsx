@@ -26,6 +26,8 @@ const TABS = ['location', 'curriculum', 'grade', 'subject', 'matrix', 'gradeMatr
 const EMPTY_MATRIX = { columns: [], rows: [] };
 const EDUCATION_TYPES = ['school', 'university', 'training'];
 const GRADES = Array.from({ length: 12 }, (_, i) => i + 1);
+/** تصنيفات من لا صف له — StudentsLocationReportService::GRADE_BUCKETS بالباك، وتُرسل كقيمة فلتر grade */
+const GRADE_BUCKETS = ['missing', 'university', 'training', 'incomplete'];
 
 const inputClass =
   'w-full rounded-btn border border-line bg-white p-2.5 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20';
@@ -106,8 +108,8 @@ export function StudentsLocationReportPage() {
     },
     gradeMatrix: {
       data: data?.gradeMatrix ?? EMPTY_MATRIX,
-      label: (c) => gradeLabel(c.grade),
-      patch: (c) => (c.grade ? { grade: c.grade } : null),
+      label: (c) => gradeLabel(c.grade, c.gradeBucket),
+      patch: (c) => ({ grade: c.grade ?? c.gradeBucket }),
       hint: L('matrixHint'),
     },
     subjectMatrix: {
@@ -136,7 +138,8 @@ export function StudentsLocationReportPage() {
   const locationLabel = (row) =>
     row.countryId ? [row.country, row.region].filter(Boolean).join(' · ') : L('unknownLocation');
   const curriculumLabel = (name) => name ?? L('noCurriculum');
-  const gradeLabel = (grade) => (grade ? `${L('gradePrefix')} ${formatNumber(grade)}` : L('noGrade'));
+  const gradeLabel = (grade, bucket) =>
+    grade ? `${L('gradePrefix')} ${formatNumber(grade)}` : bucket ? L(`gradeBuckets.${bucket}`) : L('noGrade');
 
   const handleExport = () =>
     exportReport.mutate(filters, { onSuccess: (blob) => saveBlob(blob, 'students-location-report.xlsx') });
@@ -210,7 +213,10 @@ export function StudentsLocationReportPage() {
             label={L('filters.grade')}
             value={filters.grade}
             onChange={(v) => setFilter('grade', v)}
-            options={GRADES.map((g) => ({ value: g, label: gradeLabel(g) }))}
+            options={[
+              ...GRADES.map((g) => ({ value: g, label: gradeLabel(g) })),
+              ...GRADE_BUCKETS.map((b) => ({ value: b, label: gradeLabel(null, b) })),
+            ]}
             placeholder={L('filters.all')}
           />
           <SmoothSelect
@@ -329,15 +335,17 @@ export function StudentsLocationReportPage() {
             ) : activeTab === 'grade' ? (
               <Table minWidth={860} columns={[L('cols.grade'), ...metricColumns, '']}>
                 {byGrade.map((row, i) => (
-                  <tr key={row.grade ?? 'none'} className={rowClass(i)}>
-                    <td className="px-4 py-3 font-semibold text-ink">{gradeLabel(row.grade)}</td>
+                  <tr key={row.gradeKey} className={rowClass(i)}>
+                    <td className="px-4 py-3 font-semibold text-ink">{gradeLabel(row.grade, row.gradeBucket)}</td>
                     {metricCells(row)}
                     <td className="px-4 py-3">
-                      {row.grade && (
-                        <button type="button" onClick={() => drillDown({ grade: row.grade })} className="whitespace-nowrap text-primary hover:opacity-70">
-                          {L('viewStudents')}
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => drillDown({ grade: row.grade ?? row.gradeBucket })}
+                        className="whitespace-nowrap text-primary hover:opacity-70"
+                      >
+                        {L('viewStudents')}
+                      </button>
                     </td>
                   </tr>
                 ))}
