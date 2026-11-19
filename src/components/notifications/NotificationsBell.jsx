@@ -41,6 +41,12 @@ function notificationContent(t, notification, role) {
       return { title: t('notifications.studentImported'), body: null };
     case 'SessionReminder':
       return { title: t('notifications.sessionReminder'), body: formatDateTime(data.scheduled_at) };
+    case 'BookingRequestReceived':
+      return {
+        title: t('notifications.bookingRequestReceived').replace('{name}', data.studentName),
+        body: [data.packageTitle, `${t('notifications.bookingRequestReceivedDeadline')} ${formatDateTime(data.deadline)}`].join(' — '),
+        link: '/dashboard/teacher/booking-requests',
+      };
     case 'SessionQualityRatingRequested':
       return { title: t('notifications.sessionQualityRequested'), body: t('notifications.sessionQualityRequestedHint'), link: data.link };
     case 'SessionQualityRatingLinkSent':

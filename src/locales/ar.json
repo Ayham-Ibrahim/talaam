@@ -829,6 +829,8 @@
     "teacherInvited": "تمت دعوتك للانضمام كمعلم على منصة تعلّم",
     "studentImported": "تم إنشاء حسابك كطالب على منصة تعلّم",
     "sessionReminder": "لديك جلسة قادمة",
+    "bookingRequestReceived": "طلب حجز جديد من {name} بانتظار موافقتك",
+    "bookingRequestReceivedDeadline": "يُلغى تلقائياً إن لم توافق قبل",
     "rescheduleApproved": "تمت الموافقة على طلب تغيير موعد جلستك",
     "rescheduleRejected": "تم رفض طلب تغيير موعد الجلسة من قِبل الإدارة",
     "rescheduleSubmitted": "تم استلام طلب تغيير موعد الجلسة، بانتظار مراجعة الإدارة",
