@@ -47,6 +47,13 @@ client.interceptors.response.use(
       }
     }
 
+    // التوكن المحفوظ لم يعد صالحاً عند السيرفر (حُذف بتسجيل خروج من جهاز آخر أو تعطيل
+    // الحساب مثلاً) — نمسح الجلسة القديمة ونوجّه لصفحة الدخول بدل عرض "حدث خطأ ما"
+    if (error.response?.status === 401 && useAuthStore.getState().token) {
+      useAuthStore.getState().logout();
+      if (window.location.pathname !== '/login') window.location.replace('/login');
+    }
+
     const normalized = {
       status: error.response?.status ?? 0,
       message: data?.message || error.message || 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى',
