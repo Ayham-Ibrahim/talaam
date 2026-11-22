@@ -8,8 +8,7 @@ import { PolicyNotice } from '@/components/common/PolicyNotice';
 import { useApplyBookingCoupon, useCheckoutBooking } from '@/hooks/useBooking';
 import { useApplyEnrollmentCoupon, useCheckoutEnrollment } from '@/hooks/useEnrollment';
 import { formatPrice } from '@/lib/currency';
-import { trackInitiateCheckout } from '@/lib/metaPixel';
-import { gtmBeginCheckout } from '@/lib/gtm';
+import { useCheckoutRedirect } from '@/hooks/useCheckoutRedirect';
 import { useCurrencyStore } from '@/store';
 import { useNow } from '@/hooks/useNow';
 import { timeLeft } from '@/lib/pendingActions';
@@ -62,6 +61,7 @@ export function PendingPaymentRow({ pkg }) {
   const queryClient = useQueryClient();
   const currency = useCurrencyStore((s) => s.currency);
   const [couponCode, setCouponCode] = useState('');
+  const { isRedirecting, goToCheckout } = useCheckoutRedirect();
 
   // id بصيغة booking-12 / enrollment-12 — نفس منطق صفحة تفاصيل الباقة
   const [kind, rawId] = String(pkg.id).split('-');
@@ -94,10 +94,7 @@ export function PendingPaymentRow({ pkg }) {
     checkout.mutate(rawId, {
       onSuccess: (result) => {
         if (!result?.checkout_url) return;
-        const checkoutEvent = { value: pkg.price, target: pkg.id, contentCategory: kind };
-        trackInitiateCheckout(checkoutEvent);
-        gtmBeginCheckout(checkoutEvent);
-        window.location.href = result.checkout_url;
+        goToCheckout({ value: pkg.price, target: pkg.id, contentCategory: kind }, result.checkout_url);
       },
     });
   };
@@ -140,12 +137,12 @@ export function PendingPaymentRow({ pkg }) {
           )}
           <button
             type="button"
-            disabled={checkout.isPending}
+            disabled={checkout.isPending || isRedirecting}
             onClick={handlePayNow}
             className="flex items-center gap-1.5 rounded-xl bg-[#F5A623] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#E0951A] disabled:opacity-50"
           >
             <CreditCard size={16} />
-            {checkout.isPending ? t('dashboard.myPackages.processingPayment') : t('dashboard.myPackages.payNow')}
+            {checkout.isPending || isRedirecting ? t('dashboard.myPackages.processingPayment') : t('dashboard.myPackages.payNow')}
           </button>
         </div>
       </div>

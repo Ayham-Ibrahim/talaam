@@ -12,6 +12,8 @@ import { useAuthStore } from '@/store';
  * معطّل بالكامل (لا تحميل للسكربت ولا أي push) ما دام VITE_GTM_ID فارغاً، مثل البكسل.
  */
 const ONCE_PREFIX = 'gtm_sent:';
+// أقصى انتظار قبل التحويل لـ Stripe — عادةً يرسل GTM الحدث بأقل من نصف ثانية
+const CHECKOUT_WAIT_MS = 1000;
 
 export const isGtmEnabled = Boolean(config.gtmId);
 
@@ -47,9 +49,9 @@ export function initGtm() {
 }
 
 /** أحداث التجارة بصيغة GA4 القياسية — ecommerce: null أولاً حتى لا يرث الحدث items حدثٍ سابق */
-function pushEcommerce(event, ecommerce) {
+function pushEcommerce(event, ecommerce, extra = {}) {
   push({ ecommerce: null });
-  push({ event, ecommerce: { currency: config.defaultCurrency, ...ecommerce } });
+  push({ event, ecommerce: { currency: config.defaultCurrency, ...ecommerce }, ...extra });
 }
 
 function item({ id, name, category, price }) {
@@ -81,13 +83,34 @@ export function gtmViewItem({ contentId, contentName, contentCategory, value }) 
   });
 }
 
-/** قبل التحويل لـ Stripe — يقابل InitiateCheckout، وtarget بصيغة الباك (booking-12 ...) */
-export function gtmBeginCheckout({ value, target, contentCategory }) {
-  if (!isGtmEnabled || !target || !once(`checkout_${target}`)) return;
-  pushEcommerce('begin_checkout', {
-    value: Number(value) || 0,
-    items: [item({ id: target, category: contentCategory, price: value })],
-  });
+/**
+ * قبل التحويل لـ Stripe — يقابل InitiateCheckout، وtarget بصيغة الباك (booking-12 ...).
+ * onDone = التحويل نفسه: يُؤجَّل حتى يرسل GTM الحدث، وإلا تقطعه مغادرة الصفحة (لا نسخة
+ * سيرفر تعوّضه كما في Meta). المهلة من عندنا لا eventTimeout وحده، لأن مانع الإعلانات إن
+ * حجب GTM فلن يُستدعى eventCallback ولا تعمل مهلته — والدفع لا يتعطل بسبب التتبع أبداً.
+ */
+export function gtmBeginCheckout({ value, target, contentCategory }, onDone) {
+  if (!isGtmEnabled || !target || !once(`checkout_${target}`)) {
+    onDone();
+    return;
+  }
+
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    onDone();
+  };
+
+  pushEcommerce(
+    'begin_checkout',
+    {
+      value: Number(value) || 0,
+      items: [item({ id: target, category: contentCategory, price: value })],
+    },
+    { eventCallback: finish, eventTimeout: CHECKOUT_WAIT_MS },
+  );
+  window.setTimeout(finish, CHECKOUT_WAIT_MS);
 }
 
 /** تسجيل طالب جديد — يقابل CompleteRegistration */

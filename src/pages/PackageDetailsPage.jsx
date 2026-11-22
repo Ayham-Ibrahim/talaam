@@ -15,8 +15,7 @@ import { useApplyEnrollmentCoupon, useCheckoutEnrollment } from '@/hooks/useEnro
 import { formatPrice } from '@/lib/currency';
 import { useCurrencyStore } from '@/store';
 import { useT } from '@/hooks/useT';
-import { trackInitiateCheckout } from '@/lib/metaPixel';
-import { gtmBeginCheckout } from '@/lib/gtm';
+import { useCheckoutRedirect } from '@/hooks/useCheckoutRedirect';
 
 export function PackageDetailsPage() {
   const t = useT();
@@ -29,6 +28,7 @@ export function PackageDetailsPage() {
   const applyEnrollmentCoupon = useApplyEnrollmentCoupon();
   const currency = useCurrencyStore((s) => s.currency);
   const [couponCode, setCouponCode] = useState('');
+  const { isRedirecting, goToCheckout } = useCheckoutRedirect();
 
   if (!user) return <Navigate to="/login" replace />;
 
@@ -60,10 +60,7 @@ export function PackageDetailsPage() {
       onSuccess: (result) => {
         if (!result?.checkout_url) return;
         // السعر هنا بعد الكوبون (amount_paid) — id بصيغة booking-12 / enrollment-12
-        const checkoutEvent = { value: data?.package?.price, target: id, contentCategory: kind };
-        trackInitiateCheckout(checkoutEvent);
-        gtmBeginCheckout(checkoutEvent);
-        window.location.href = result.checkout_url;
+        goToCheckout({ value: data?.package?.price, target: id, contentCategory: kind }, result.checkout_url);
       },
     });
   };
@@ -122,11 +119,11 @@ export function PackageDetailsPage() {
               </span>
               <button
                 type="button"
-                disabled={checkout.isPending}
+                disabled={checkout.isPending || isRedirecting}
                 onClick={handlePayNow}
                 className="rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
               >
-                {checkout.isPending ? t('dashboard.myPackages.processingPayment') : t('dashboard.myPackages.payNow')}
+                {checkout.isPending || isRedirecting ? t('dashboard.myPackages.processingPayment') : t('dashboard.myPackages.payNow')}
               </button>
               <PolicyNotice policySlug="student-policy" className="w-full bg-white/70">
                 {t('policyNotice.payment')}
