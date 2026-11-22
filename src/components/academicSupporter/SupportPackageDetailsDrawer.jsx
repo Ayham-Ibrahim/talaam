@@ -7,6 +7,7 @@ import { convertPrice } from '@/lib/currency';
 import { usePurchaseSupportPackage } from '@/hooks/useAcademicSupporterBrowse';
 import { useT } from '@/hooks/useT';
 import { trackInitiateCheckout } from '@/lib/metaPixel';
+import { gtmBeginCheckout } from '@/lib/gtm';
 
 const CURRENCY_SYMBOL = { USD: '$', EUR: '€', GBP: '£', AED: 'د.إ' };
 
@@ -33,11 +34,13 @@ export function SupportPackageDetailsDrawer({ supportPackage, onClose }) {
       {
         onSuccess: (data) => {
           if (!data?.checkout_url) return;
-          trackInitiateCheckout({
+          const checkout = {
             value: data.purchase?.amount,
             target: data.purchase?.id && `support-package-purchase-${data.purchase.id}`,
             contentCategory: 'support_package_purchase',
-          });
+          };
+          trackInitiateCheckout(checkout);
+          gtmBeginCheckout(checkout);
           window.location.href = data.checkout_url;
         },
       },

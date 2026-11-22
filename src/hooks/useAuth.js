@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '@/services/authService';
 import { useAuthStore } from '@/store';
 import { trackMetaEvent } from '@/lib/metaPixel';
+import { gtmSignUp } from '@/lib/gtm';
 
 /** Current session — components read auth state through this, never the store directly */
 export function useAuth() {
@@ -22,6 +23,7 @@ export function useRegisterStudent() {
       login({ user: data.user, token: data.token }, true);
       // نفس event_id الذي يرسله السيرفر (Conversions API) — Meta تُبقي حدثاً واحداً
       trackMetaEvent('CompleteRegistration', { content_name: 'student', status: true }, `registration_${data.user.id}`);
+      gtmSignUp();
     },
   });
 }

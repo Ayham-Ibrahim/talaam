@@ -9,6 +9,7 @@ import { useApplyBookingCoupon, useCheckoutBooking } from '@/hooks/useBooking';
 import { useApplyEnrollmentCoupon, useCheckoutEnrollment } from '@/hooks/useEnrollment';
 import { formatPrice } from '@/lib/currency';
 import { trackInitiateCheckout } from '@/lib/metaPixel';
+import { gtmBeginCheckout } from '@/lib/gtm';
 import { useCurrencyStore } from '@/store';
 import { useNow } from '@/hooks/useNow';
 import { timeLeft } from '@/lib/pendingActions';
@@ -93,7 +94,9 @@ export function PendingPaymentRow({ pkg }) {
     checkout.mutate(rawId, {
       onSuccess: (result) => {
         if (!result?.checkout_url) return;
-        trackInitiateCheckout({ value: pkg.price, target: pkg.id, contentCategory: kind });
+        const checkoutEvent = { value: pkg.price, target: pkg.id, contentCategory: kind };
+        trackInitiateCheckout(checkoutEvent);
+        gtmBeginCheckout(checkoutEvent);
         window.location.href = result.checkout_url;
       },
     });
