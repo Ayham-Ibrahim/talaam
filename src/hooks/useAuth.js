@@ -1,4 +1,5 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '@/services/authService';
 import { useAuthStore } from '@/store';
@@ -11,6 +12,38 @@ export function useAuth() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const updateUser = useAuthStore((s) => s.updateUser);
   return { user, isAuthenticated, updateUser };
+}
+
+/**
+ * user المخزَّن يُلتقط مرة واحدة عند الدخول — أي تعديل يتم من خارج هذا الجهاز (الأدمن
+ * يغيّر المنطقة الزمنية أو الاسم، أو المستخدم نفسه من جهاز آخر) لا يصل إليه أبداً، فتُعرَض
+ * مثلاً أوقات الجلسات بمنطقة قديمة. نجلب /auth/me عند فتح التطبيق وعند العودة إليه وندمجه
+ * فوق النسخة المخزّنة. المفتاح يحمل id المستخدم كي لا تُدمج استجابة حساب سابق (تبديل أخ).
+ *
+ * قوائم الجلسات تُنسَّق أوقاتها نصاً لحظة الجلب (accountTimeZone في services) وتُخزَّن هكذا
+ * في الكاش، فتغيّر المنطقة وحده لا يعيد عرضها — نُبطل الاستعلامات عند تغيّرها فتُجلب بالمنطقة الجديدة.
+ */
+export function useSyncCurrentUser() {
+  const queryClient = useQueryClient();
+  const userId = useAuthStore((s) => s.user?.id);
+  const updateUser = useAuthStore((s) => s.updateUser);
+  const { data } = useQuery({
+    queryKey: ['me', userId],
+    queryFn: () => authService.me(),
+    enabled: userId != null,
+    refetchOnWindowFocus: true,
+    retry: false,
+  });
+
+  useEffect(() => {
+    const current = useAuthStore.getState().user;
+    if (!data || data.id !== current?.id) return;
+    const timezoneChanged = data.timezone !== current.timezone;
+    updateUser(data);
+    if (timezoneChanged) {
+      queryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] !== 'me' });
+    }
+  }, [data, updateUser, queryClient]);
 }
 
 /** الباك اند يُنشئ الحساب ويُعيد توكناً صالحاً فوراً (نفس شكل استجابة login) — دخول تلقائي بلا خطوة تسجيل دخول منفصلة بعد التسجيل */

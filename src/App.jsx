@@ -7,6 +7,7 @@ import { ElfsightChat } from "@/components/common/ElfsightChat";
 import { CursorLight } from "@/motion/ambient/AmbientEngine";
 import { useEffect, useState } from "react";
 import { useLocaleStore } from "@/store";
+import { useSyncCurrentUser } from "@/hooks/useAuth";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 const queryClient = new QueryClient({
@@ -18,6 +19,11 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+function CurrentUserSync() {
+  useSyncCurrentUser();
+  return null;
+}
 
 export default function App() {
   const [introFinished, setIntroFinished] = useState(() => {
@@ -63,6 +69,7 @@ export default function App() {
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <DefaultSeo />
+        <CurrentUserSync />
         <CursorLight />
         {!introFinished && (
           <LogoIntro onComplete={() => setIntroFinished(true)} />
