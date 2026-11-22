@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { campaignService } from '@/services/campaignService';
 import { useAuthStore } from '@/store';
 import { trackMetaEvent } from '@/lib/metaPixel';
+import { gtmSignUp } from '@/lib/gtm';
 
 export function useCampaign(slug) {
   return useQuery({
@@ -24,6 +25,7 @@ export function useRegisterCampaign(slug) {
       // باقات صفحات المعلمين المخزّنة للزائر لا تشمل باقات الحملة
       queryClient.invalidateQueries({ queryKey: ['teachers'] });
       trackMetaEvent('CompleteRegistration', { content_name: 'campaign', status: true }, `registration_${data.user.id}`);
+      gtmSignUp();
     },
   });
 }

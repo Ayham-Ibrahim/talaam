@@ -15,5 +15,7 @@ export const config = {
   // وsitemap.xml. راجع SEO_IMPLEMENTATION.md.
   // Meta Pixel — فارغ = التتبع معطّل بالكامل (راجع src/lib/metaPixel.js)
   metaPixelId: import.meta.env.VITE_META_PIXEL_ID || '',
+  // Google Tag Manager (GA4 + Google Ads) — فارغ = معطّل بالكامل (راجع src/lib/gtm.js)
+  gtmId: import.meta.env.VITE_GTM_ID || '',
   siteUrl: (import.meta.env.VITE_SITE_URL || 'https://t3allem.com').replace(/\/$/, ''),
 };

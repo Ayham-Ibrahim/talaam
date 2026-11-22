@@ -30,6 +30,7 @@ import { useMyReviews, useCreateTeacherReview } from '@/hooks/useMyReviews';
 import { useT } from '@/hooks/useT';
 import { useProfileT } from '@/hooks/useProfileT';
 import { trackViewContent } from '@/lib/metaPixel';
+import { gtmViewItem } from '@/lib/gtm';
 
 
 /** عنوان ووصف Meta من بيانات المعلم الحقيقية فقط — مادة/مدينة/منهج/لغات/خبرة، لا نص عام مكرر لكل معلم */
@@ -139,18 +140,22 @@ export function TeacherProfilePage() {
 
   useEffect(() => {
     if (!teacher || !isTrackedVisitor) return;
-    trackViewContent({ contentId: `teacher-${teacher.id}`, contentName: teacher.name, contentCategory: 'teacher' });
+    const content = { contentId: `teacher-${teacher.id}`, contentName: teacher.name, contentCategory: 'teacher' };
+    trackViewContent(content);
+    gtmViewItem(content);
   }, [teacher?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // الدورة بلا صفحة مستقلة — تُعرض في Drawer عند اختيارها، فاختيارها هو "مشاهدتها"
   useEffect(() => {
     if (!selectedCourse || !isTrackedVisitor) return;
-    trackViewContent({
+    const content = {
       contentId: `course-${selectedCourse.id}`,
       contentName: selectedCourse.title,
       contentCategory: 'course',
       value: selectedCourse.price,
-    });
+    };
+    trackViewContent(content);
+    gtmViewItem(content);
   }, [selectedCourse?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (teacherLoading) {
