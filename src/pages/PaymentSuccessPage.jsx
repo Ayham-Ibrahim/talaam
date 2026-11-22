@@ -10,6 +10,7 @@ import { useSupportPackagePurchaseDetail } from '@/hooks/useAcademicSupporterBro
 import { useT } from '@/hooks/useT';
 import { config } from '@/config/env';
 import { trackMetaEventOnce } from '@/lib/metaPixel';
+import { gtmPurchase } from '@/lib/gtm';
 
 /**
  * Stripe redirects here after a successful checkout. The booking itself is
@@ -68,6 +69,7 @@ export function PaymentSuccessPage() {
       },
       `purchase_${target}`,
     );
+    gtmPurchase({ value: paidAmount, target, contentCategory: kind });
   }, [bookingStatus, target]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

@@ -23,6 +23,7 @@ import { formatDate, isPastDate, lastScheduleDate } from '@/lib/formatters';
 import { rangesOverlap, findOwnConflict } from '@/lib/scheduleConflict';
 import { fitsCampaignWindows } from '@/lib/campaignWindows';
 import { trackInitiateCheckout } from '@/lib/metaPixel';
+import { gtmBeginCheckout } from '@/lib/gtm';
 
 /** Backend TIME columns serialize as "H:i:s" — trim to "H:i" for display */
 function formatTime(t) {
@@ -264,11 +265,13 @@ export function BookingWidget({ selectedPackage, bare = false }) {
 
   const redirectToCheckout = (data) => {
     if (!data?.checkout_url) return;
-    trackInitiateCheckout({
+    const checkoutEvent = {
       value: data.booking?.amount_paid,
       target: data.booking?.id && `booking-${data.booking.id}`,
       contentCategory: 'booking',
-    });
+    };
+    trackInitiateCheckout(checkoutEvent);
+    gtmBeginCheckout(checkoutEvent);
     window.location.href = data.checkout_url;
   };
 

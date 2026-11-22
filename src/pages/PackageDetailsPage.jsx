@@ -16,6 +16,7 @@ import { formatPrice } from '@/lib/currency';
 import { useCurrencyStore } from '@/store';
 import { useT } from '@/hooks/useT';
 import { trackInitiateCheckout } from '@/lib/metaPixel';
+import { gtmBeginCheckout } from '@/lib/gtm';
 
 export function PackageDetailsPage() {
   const t = useT();
@@ -59,7 +60,9 @@ export function PackageDetailsPage() {
       onSuccess: (result) => {
         if (!result?.checkout_url) return;
         // السعر هنا بعد الكوبون (amount_paid) — id بصيغة booking-12 / enrollment-12
-        trackInitiateCheckout({ value: data?.package?.price, target: id, contentCategory: kind });
+        const checkoutEvent = { value: data?.package?.price, target: id, contentCategory: kind };
+        trackInitiateCheckout(checkoutEvent);
+        gtmBeginCheckout(checkoutEvent);
         window.location.href = result.checkout_url;
       },
     });

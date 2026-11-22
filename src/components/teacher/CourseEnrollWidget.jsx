@@ -13,6 +13,7 @@ import { formatDate, isPastDate } from '@/lib/formatters';
 import { findRecurringConflict } from '@/lib/scheduleConflict';
 import { enrollmentDetailsPath } from '@/components/teacher/CoursesSection';
 import { trackInitiateCheckout } from '@/lib/metaPixel';
+import { gtmBeginCheckout } from '@/lib/gtm';
 
 function formatTime(t) {
   return t ? t.slice(0, 5) : t;
@@ -91,11 +92,13 @@ export function CourseEnrollWidget({ selectedCourse, bare = false }) {
     createEnrollment.mutate(couponCode.trim() || undefined, {
       onSuccess: (data) => {
         if (!data?.checkout_url) return;
-        trackInitiateCheckout({
+        const checkout = {
           value: data.enrollment?.amount_paid,
           target: data.enrollment?.id && `enrollment-${data.enrollment.id}`,
           contentCategory: 'enrollment',
-        });
+        };
+        trackInitiateCheckout(checkout);
+        gtmBeginCheckout(checkout);
         window.location.href = data.checkout_url;
       },
     });
