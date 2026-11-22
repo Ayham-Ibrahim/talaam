@@ -6,8 +6,7 @@ import { useCurrencyStore } from '@/store';
 import { convertPrice } from '@/lib/currency';
 import { usePurchaseSupportPackage } from '@/hooks/useAcademicSupporterBrowse';
 import { useT } from '@/hooks/useT';
-import { trackInitiateCheckout } from '@/lib/metaPixel';
-import { gtmBeginCheckout } from '@/lib/gtm';
+import { useCheckoutRedirect } from '@/hooks/useCheckoutRedirect';
 
 const CURRENCY_SYMBOL = { USD: '$', EUR: '€', GBP: '£', AED: 'د.إ' };
 
@@ -26,6 +25,8 @@ export function SupportPackageDetailsDrawer({ supportPackage, onClose }) {
   const currency = useCurrencyStore((s) => s.currency);
   const [couponCode, setCouponCode] = useState('');
   const purchase = usePurchaseSupportPackage();
+  const { isRedirecting, goToCheckout } = useCheckoutRedirect();
+  const isPaying = purchase.isPending || isRedirecting;
 
   const handlePay = () => {
     if (!supportPackage) return;
@@ -34,14 +35,14 @@ export function SupportPackageDetailsDrawer({ supportPackage, onClose }) {
       {
         onSuccess: (data) => {
           if (!data?.checkout_url) return;
-          const checkout = {
-            value: data.purchase?.amount,
-            target: data.purchase?.id && `support-package-purchase-${data.purchase.id}`,
-            contentCategory: 'support_package_purchase',
-          };
-          trackInitiateCheckout(checkout);
-          gtmBeginCheckout(checkout);
-          window.location.href = data.checkout_url;
+          goToCheckout(
+            {
+              value: data.purchase?.amount,
+              target: data.purchase?.id && `support-package-purchase-${data.purchase.id}`,
+              contentCategory: 'support_package_purchase',
+            },
+            data.checkout_url,
+          );
         },
       },
     );
@@ -94,11 +95,11 @@ export function SupportPackageDetailsDrawer({ supportPackage, onClose }) {
 
           <button
             type="button"
-            disabled={purchase.isPending}
+            disabled={isPaying}
             onClick={handlePay}
             className="rounded-2xl bg-primary py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {purchase.isPending ? t('academicSupporter.supportPackages.subscribing') : t('academicSupporter.supportPackages.payNow')}
+            {isPaying ? t('academicSupporter.supportPackages.subscribing') : t('academicSupporter.supportPackages.payNow')}
           </button>
         </div>
       )}

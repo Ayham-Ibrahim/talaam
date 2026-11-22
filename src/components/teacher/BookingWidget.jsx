@@ -22,8 +22,7 @@ import { formatPrice } from '@/lib/currency';
 import { formatDate, isPastDate, lastScheduleDate } from '@/lib/formatters';
 import { rangesOverlap, findOwnConflict } from '@/lib/scheduleConflict';
 import { fitsCampaignWindows } from '@/lib/campaignWindows';
-import { trackInitiateCheckout } from '@/lib/metaPixel';
-import { gtmBeginCheckout } from '@/lib/gtm';
+import { useCheckoutRedirect } from '@/hooks/useCheckoutRedirect';
 
 /** Backend TIME columns serialize as "H:i:s" — trim to "H:i" for display */
 function formatTime(t) {
@@ -257,22 +256,28 @@ export function BookingWidget({ selectedPackage, bare = false }) {
   // `selectedPackage` shouldn't be submittable either.
   const canSubmitGroup =
     Boolean(selectedPackage) && schedules.length > 0 && !isPastDate(lastScheduleDate(schedules)) && teacherConflictId === null;
+  const { isRedirecting, goToCheckout } = useCheckoutRedirect();
   const isPending =
-    requestIndividual.isPending || createGroup.isPending || checkout.isPending || sendGuestCode.isPending || bookGuestTrial.isPending;
+    requestIndividual.isPending ||
+    createGroup.isPending ||
+    checkout.isPending ||
+    sendGuestCode.isPending ||
+    bookGuestTrial.isPending ||
+    isRedirecting;
   const isSuccess = requestIndividual.isSuccess || createGroup.isSuccess || bookGuestTrial.isSuccess;
   const canSubmitGuest = allSlotsFilled && guestIdentityValid && (!guestCodeSent || /^\d{6}$/.test(guest.code));
   const submitError = requestIndividual.error ?? createGroup.error ?? checkout.error ?? bookGuestTrial.error ?? sendGuestCode.error;
 
   const redirectToCheckout = (data) => {
     if (!data?.checkout_url) return;
-    const checkoutEvent = {
-      value: data.booking?.amount_paid,
-      target: data.booking?.id && `booking-${data.booking.id}`,
-      contentCategory: 'booking',
-    };
-    trackInitiateCheckout(checkoutEvent);
-    gtmBeginCheckout(checkoutEvent);
-    window.location.href = data.checkout_url;
+    goToCheckout(
+      {
+        value: data.booking?.amount_paid,
+        target: data.booking?.id && `booking-${data.booking.id}`,
+        contentCategory: 'booking',
+      },
+      data.checkout_url,
+    );
   };
 
   const handlePrevMonth = () => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1));
