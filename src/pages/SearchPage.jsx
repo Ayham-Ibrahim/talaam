@@ -72,8 +72,14 @@ export function SearchPage() {
   const maxPrice = useDebouncedValue(values.maxPrice, PRICE_DEBOUNCE_MS);
 
   // المواد/المراحل تُجلَب حسب نوع التعليم المختار كي لا تُعرض مواد جامعية
-  // ضمن "مدرسي" مثلاً.
-  const { data: meta } = useFilters(values.level ?? undefined);
+  // ضمن "مدرسي" مثلاً. "الصف" مدرسي حصراً ويظهر حتى بلا نوع مختار صراحة
+  // (انظر showGrade بـ SearchFilters، وgrades بالباك اند توجد فقط لـschool/null) —
+  // فإن اختير صف بلا نوع نفترض "مدرسي" ضمنياً عند جلب meta، وإلا بقيت قائمة
+  // المواد تشمل الجامعي والدورات رغم اختيار صف مدرسي (الفلتر لازم يكون
+  // تراكمياً لا مستقلاً). المرحلة (stage) لا تُستخدَم بهذا الاستنتاج لأنها
+  // تخص مدرسي وجامعي معاً (عمود education_type خاصها)، فلا نفترض نوعاً منها.
+  const effectiveLevel = values.level ?? (values.grade ? "school" : undefined);
+  const { data: meta } = useFilters(effectiveLevel);
 
   const filters = useMemo(
     () => ({

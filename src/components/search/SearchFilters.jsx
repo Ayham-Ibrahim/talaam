@@ -77,10 +77,12 @@ export function SearchFilters({ meta, value, onChange, onReset, onDone, resultsC
   const t = useT();
   const typeLabels = t('search.categories');
 
-  // الصف مدرسي فقط — يظهر أيضاً قبل اختيار أي نوع لأن معظم البحث مدرسي
+  // الصف/المرحلة/المنهاج مفاهيم مدرسية بحتة (لا توجد مراحل university بالبيانات،
+  // والمناهج كلها مدرسية: وطني/بريطاني/أمريكي/IGCSE/A-Level) — تظهر أيضاً قبل
+  // اختيار أي نوع لأن معظم البحث مدرسي، لكن تختفي صراحة مع جامعي أو دورات.
   const showGrade = !value.level || value.level === 'school';
-  const showStage = value.level !== 'training';
-  const showCurriculum = value.level !== 'training';
+  const showStage = !value.level || value.level === 'school';
+  const showCurriculum = !value.level || value.level === 'school';
 
   // بلا مرحلة مختارة: كل الصفوف. مع مرحلة: صفوف نطاقها فقط — وإن لم يكن لها
   // نطاق بـ stageGrades (مرحلة بلا grade_from/grade_to، أو mocks) نعرض الكل.

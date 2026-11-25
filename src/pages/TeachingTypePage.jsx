@@ -33,6 +33,7 @@ const DEFAULT_FILTERS = {
   subject: null,
   stage: null,
   curriculum: null,
+  major: null,
   courseField: null, // Added courseField for training centers
   language: null,
   minPrice: null,
@@ -58,6 +59,7 @@ export function TeachingTypePage() {
       subject: selected.subject ?? undefined,
       stage: selected.stage ?? undefined,
       curriculum: selected.curriculum ?? undefined,
+      major: selected.major ?? undefined,
       courseField: selected.courseField ?? undefined, // Pass courseField to query
       language: selected.language ?? undefined,
       minPrice: selected.minPrice ?? undefined,
@@ -88,8 +90,18 @@ export function TeachingTypePage() {
     enabled: Boolean(hasNextPage) && !isFetchingNextPage && !isLoading,
   });
 
+  // تغيير المرحلة يمسح الصف المختار إلا لو بقي ضمن نطاق المرحلة الجديدة —
+  // نفس منطق SearchPage.jsx (handleChange) تماماً.
   const handleChange = (key, value) =>
-    setSelected((prev) => ({ ...prev, [key]: value }));
+    setSelected((prev) => {
+      if (prev[key] === value) return prev;
+      const next = { ...prev, [key]: value };
+      if (key === "stage") {
+        const stageGrades = value ? meta?.stageGrades?.[value] : null;
+        next.grade = !stageGrades || stageGrades.includes(String(prev.grade)) ? prev.grade : null;
+      }
+      return next;
+    });
   const handleReset = () => {
     setSelected(DEFAULT_FILTERS);
     setFiltersOpen(false);
