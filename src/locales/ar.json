@@ -2260,6 +2260,13 @@
       "allCountries": "كل الدول",
       "allRegions": "كل الولايات",
       "colLocation": "الموقع",
+      "colRegisteredBy": "سُجِّل بواسطة",
+      "registrationSource": {
+        "self": "تسجيل ذاتي",
+        "admin": "الإدارة",
+        "import": "استيراد Excel",
+        "sibling": "أخ"
+      },
       "educationType": {
         "school": "مدرسي",
         "university": "جامعي",
