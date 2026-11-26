@@ -3,6 +3,7 @@ import { client, mockDelay } from '@/api/client';
 import { endpoints } from '@/api/endpoints';
 import { formatDate } from '@/lib/formatters';
 import { getBrowserTimezone } from '@/lib/timezone';
+import { serverNow } from '@/lib/serverClock';
 import { useAuthStore } from '@/store';
 import { TEACHER_TYPE_LABELS } from '@/services/teacherService';
 import {
@@ -678,13 +679,13 @@ export const metaService = {
 const SESSION_TYPE_LABELS = { individual: 'جلسة فردية', group: 'جلسة جماعية', training: 'دورة تدريبية' };
 
 function getSessionTiming(scheduledAt, durationMinutes = 0) {
-  if (!scheduledAt) return { startsAtMs: NaN, endsAtMs: NaN, nowMs: Date.now() };
+  if (!scheduledAt) return { startsAtMs: NaN, endsAtMs: NaN, nowMs: serverNow() };
 
   const startsAtMs = new Date(scheduledAt).getTime();
   const safeDurationMinutes = Number.isFinite(Number(durationMinutes)) ? Number(durationMinutes) : 0;
   const endsAtMs = startsAtMs + safeDurationMinutes * 60 * 1000;
 
-  return { startsAtMs, endsAtMs, nowMs: Date.now() };
+  return { startsAtMs, endsAtMs, nowMs: serverNow() };
 }
 
 /** ClassSession.status → the 3-state vocabulary the student dashboard UI understands */
@@ -759,7 +760,7 @@ function isBeforeSessionStart(session) {
 const EARLY_JOIN_MINUTES = 5;
 
 /** nowMs: مرّر قيمة useNow() من المكوّن ليُعاد الحساب تلقائياً مع مرور الوقت بلا تحديث الصفحة */
-export function canJoinSession(session, joinUrl, nowMs = Date.now()) {
+export function canJoinSession(session, joinUrl, nowMs = serverNow()) {
   if (!joinUrl) return false;
   if (['completed', 'cancelled', 'no_show_student', 'no_show_teacher'].includes(session.status)) {
     return false;
@@ -780,7 +781,7 @@ function joinWindow(session) {
   return { status: session.status, scheduled_at: session.scheduled_at, duration_min: session.duration_min };
 }
 
-export function isSessionRowJoinable(row, nowMs = Date.now()) {
+export function isSessionRowJoinable(row, nowMs = serverNow()) {
   if (!row.joinWindow) return Boolean(row.joinUrl);
   return canJoinSession(row.joinWindow, row.joinUrl, nowMs);
 }
@@ -947,7 +948,7 @@ function formatSessionDate(scheduledAt, timeZone = accountTimeZone()) {
 /** null once the moment has passed — countdown widgets only make sense for the future */
 function computeCountdown(scheduledAt) {
   if (!scheduledAt) return null;
-  const diffMs = new Date(scheduledAt) - new Date();
+  const diffMs = new Date(scheduledAt) - serverNow();
   if (diffMs <= 0) return null;
   const totalMinutes = Math.floor(diffMs / 60000);
   return {

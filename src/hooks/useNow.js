@@ -1,21 +1,25 @@
 import { useSyncExternalStore } from 'react';
+import { onServerClockChange, serverNow } from '@/lib/serverClock';
 
 /**
  * ساعة مشتركة لكل المكوّنات التي تعرض شيئاً يتغيّر بمرور الوقت فقط (زر "انضمام" الذي يظهر
  * قبل الموعد بخمس دقائق ويختفي بنهايته) — بلا أي طلب للسيرفر. مؤقّت واحد لكل التطبيق
  * يعمل فقط ما دام هناك مكوّن مشترك، ويُحدَّث فوراً عند العودة للتبويب لأن المتصفح
- * يُبطئ المؤقّتات في التبويبات المخفية.
+ * يُبطئ المؤقّتات في التبويبات المخفية. القيمة بساعة السيرفر (serverNow) لا ساعة الجهاز،
+ * وتُحدَّث فوراً حين يُكتشف فرق بينهما.
  */
 const TICK_MS = 30_000;
 
-let now = Date.now();
+let now = serverNow();
 let timer = null;
 const listeners = new Set();
 
 function tick() {
-  now = Date.now();
+  now = serverNow();
   listeners.forEach((listener) => listener());
 }
+
+onServerClockChange(tick);
 
 function onVisibilityChange() {
   if (document.visibilityState === 'visible') tick();
@@ -24,7 +28,7 @@ function onVisibilityChange() {
 function subscribe(listener) {
   listeners.add(listener);
   if (listeners.size === 1) {
-    now = Date.now();
+    now = serverNow();
     timer = setInterval(tick, TICK_MS);
     document.addEventListener('visibilitychange', onVisibilityChange);
   }

@@ -2,6 +2,7 @@ import axios from 'axios';
 import { config } from '@/config/env';
 import { useAuthStore } from '@/store';
 import { getMetaRequestHeaders } from '@/lib/metaPixel';
+import { syncServerClock } from '@/lib/serverClock';
 
 /**
  * Central Axios instance.
@@ -23,15 +24,26 @@ client.interceptors.request.use(
     const token = getAuthToken();
     if (token) req.headers.Authorization = `Bearer ${token}`;
     Object.assign(req.headers, getMetaRequestHeaders());
+    req.startedAt = Date.now();
     return req;
   },
   (error) => Promise.reject(error)
 );
 
+/** ترويسة Date (مكشوفة عبر CORS في الباك) → فرق ساعة الجهاز عن السيرفر، راجع serverClock.js */
+function trackServerClock(response) {
+  if (response) syncServerClock(response.headers?.date, response.config?.startedAt, Date.now());
+}
+
 // Response interceptor — normalize errors into a predictable shape
 client.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    trackServerClock(res);
+    return res;
+  },
   async (error) => {
+    trackServerClock(error.response);
+
     let data = error.response?.data;
 
     // طلبات التنزيل (الفواتير مثلاً) تُرسَل بـ responseType:'blob' — فأي خطأ

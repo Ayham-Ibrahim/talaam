@@ -98,29 +98,43 @@ export function breadcrumbJsonLd(items) {
 }
 
 /**
- * Person + AggregateRating لملف معلم عام — كل حقل هنا من بيانات حقيقية
- * (mapPublicProfile/PublicTeacherResource)، لا رقم هاتف إطلاقاً عمداً (راجع
- * التوثيق: الهاتف محجوب عن كل سطح عام بالتصميم في الفرونت والباك معاً).
+ * Course + AggregateRating لملف معلم عام، والمعلم نفسه Person داخل instructor —
+ * Google لا يقبل aggregateRating على Person (خطأ parent_node في اختبار النتائج
+ * المنسّقة). كل حقل هنا من بيانات حقيقية (mapPublicProfile/PublicTeacherResource)،
+ * لا رقم هاتف إطلاقاً عمداً (راجع التوثيق: الهاتف محجوب عن كل سطح عام بالتصميم
+ * في الفرونت والباك معاً).
  */
 export function teacherJsonLd(teacher) {
+  const url = absoluteUrl(`/teacher/${teacher.id}`);
+  const organization = {
+    '@type': 'EducationalOrganization',
+    name: 'TAALAM',
+    url: config.siteUrl,
+  };
+
   const data = {
     '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: teacher.name,
-    url: absoluteUrl(`/teacher/${teacher.id}`),
+    '@type': 'Course',
+    name: `دروس خصوصية مع ${teacher.name}`,
+    url,
     image: teacher.avatar || undefined,
-    description: teacher.bio || undefined,
-    jobTitle: teacher.typeLabel || 'معلم',
-    worksFor: {
-      '@type': 'EducationalOrganization',
-      name: 'TAALAM',
-      url: config.siteUrl,
+    description: teacher.bio || `دروس خصوصية مع ${teacher.name} على منصة TAALAM`,
+    inLanguage: (teacher.languages ?? []).map((l) => l.code).filter(Boolean),
+    about: [...(teacher.subjects ?? []), ...(teacher.curricula ?? [])].filter(Boolean),
+    provider: organization,
+    instructor: {
+      '@type': 'Person',
+      name: teacher.name,
+      url,
+      image: teacher.avatar || undefined,
+      jobTitle: teacher.typeLabel || 'معلم',
+      worksFor: organization,
+      knowsLanguage: (teacher.languages ?? []).map((l) => l.label).filter(Boolean),
+      knowsAbout: [...(teacher.subjects ?? []), ...(teacher.curricula ?? [])].filter(Boolean),
+      address: teacher.city
+        ? { '@type': 'PostalAddress', addressLocality: teacher.city, addressCountry: 'AE' }
+        : undefined,
     },
-    knowsLanguage: (teacher.languages ?? []).map((l) => l.label).filter(Boolean),
-    knowsAbout: [...(teacher.subjects ?? []), ...(teacher.curricula ?? [])].filter(Boolean),
-    address: teacher.city
-      ? { '@type': 'PostalAddress', addressLocality: teacher.city, addressCountry: 'AE' }
-      : undefined,
   };
 
   if (teacher.reviewsCount > 0) {
