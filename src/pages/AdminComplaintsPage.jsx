@@ -130,31 +130,33 @@ export function AdminComplaintsPage() {
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            <SmoothSelect
-              className="max-w-xs"
-              value={rescheduleStatus}
-              onChange={setRescheduleStatus}
-              placeholder={t("dashboard.adminComplaints.allStatuses")}
-              options={[
-                {
-                  value: "",
-                  label: t("dashboard.adminComplaints.allStatuses"),
-                },
-                ...Object.entries(RESCHEDULE_STATUS_STYLES).map(
-                  ([value, style]) => ({ value, label: style.label }),
-                ),
-              ]}
-            />
-            <SmoothSelect
-              className="max-w-xs"
-              value={rescheduleStage}
-              onChange={setRescheduleStage}
-              placeholder={t("dashboard.adminReschedule.stages.all")}
-              options={["", "needs_admin", "awaiting_counterparty"].map((value) => ({
-                value,
-                label: t(`dashboard.adminReschedule.stages.${value || "all"}`),
-              }))}
-            />
+            <div className="flex flex-wrap items-center gap-4">
+              <SmoothSelect
+                className="max-w-xs flex-1"
+                value={rescheduleStatus}
+                onChange={setRescheduleStatus}
+                placeholder={t("dashboard.adminComplaints.allStatuses")}
+                options={[
+                  {
+                    value: "",
+                    label: t("dashboard.adminComplaints.allStatuses"),
+                  },
+                  ...Object.entries(RESCHEDULE_STATUS_STYLES).map(
+                    ([value, style]) => ({ value, label: style.label }),
+                  ),
+                ]}
+              />
+              <SmoothSelect
+                className="max-w-xs flex-1"
+                value={rescheduleStage}
+                onChange={setRescheduleStage}
+                placeholder={t("dashboard.adminReschedule.stages.all")}
+                options={["", "needs_admin", "awaiting_counterparty"].map((value) => ({
+                  value,
+                  label: t(`dashboard.adminReschedule.stages.${value || "all"}`),
+                }))}
+              />
+            </div>
 
             {rescheduleQuery.isError ? (
               <ErrorState onRetry={rescheduleQuery.refetch} />

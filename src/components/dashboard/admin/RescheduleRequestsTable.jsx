@@ -73,7 +73,7 @@ export function RescheduleRequestsTable({ requests, onView, onApprove, onApprove
               </td>
               <td className="px-4 py-4 text-right">
                 {r.hoursBeforeSession != null ? (
-                  <span className="rounded-pill bg-[#F2F2F7] px-3 py-1 text-xs font-bold text-ink-soft">
+                  <span className="inline-flex items-center whitespace-nowrap rounded-pill bg-[#F2F2F7] px-3 py-1 text-xs font-bold text-ink-soft">
                     {r.hoursBeforeSession} {t('dashboard.adminReschedule.detailsModal.hours')}
                   </span>
                 ) : (

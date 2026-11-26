@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { UploadCloud, Check, FileText, UserCog, Camera, Trash2 } from 'lucide-react';
+import { UploadCloud, Check, FileText, UserCog, Camera, Trash2, AlertTriangle } from 'lucide-react';
 import { SmoothSelect } from '@/components/dashboard/SmoothSelect';
 import { MultiSelectChips } from '@/components/dashboard/MultiSelectChips';
 import { TagChipsInput } from '@/components/dashboard/TagChipsInput';
@@ -41,8 +41,22 @@ const TEACHING_METHOD_SUGGESTIONS = [
 ];
 const EXAM_PREP_SUGGESTIONS = ['SAT', 'ACT', 'IB', 'IGCSE', 'GCSE', 'A-Level', 'AP', 'TOEFL', 'IELTS', 'EmSAT'];
 
+const TEACHER_TYPE_LABELS = {
+  school: 'مدرسي',
+  university: 'جامعي',
+  training_center: 'مركز تدريب',
+};
+const TEACHER_TYPE_OPTIONS = Object.entries(TEACHER_TYPE_LABELS).map(([value, label]) => ({ value, label }));
+// نفس الحقول التي يمسحها/يُلزمها الباك اند بحسب النوع — راجع TeacherService::updateProfile و UpdateTeacherProfileRequest
+const TYPE_SPECIFIC_FIELD_KEYS = {
+  school: ['curriculum_ids'],
+  university: ['major_ids'],
+  training_center: ['display_name_en', 'commercial_register'],
+};
+
 const PROFILE_FIELD_LABELS = {
   name: 'الاسم',
+  teacher_type: 'نوع المعلم',
   bio: 'نبذة عن المعلم',
   teaching_philosophy_quote: 'مقولة عن فلسفته في التدريس',
   teaching_philosophy_text: 'فلسفته في التدريس',
@@ -60,6 +74,15 @@ const PROFILE_FIELD_LABELS = {
   commercial_register: 'السجل التجاري',
 };
 const profileErrorLabel = (path) => PROFILE_FIELD_LABELS[path.replace(/\.\d+$/, '')] ?? path;
+
+/** شارة مؤقتة بجانب ليبل الحقل — تظهر فقط للحقول الخاصة بالنوع الجديد بعد تبديله، تختفي بعد الحفظ (typeChanged يعود false) */
+function NewFieldBadge({ t }) {
+  return (
+    <span className="rounded-pill bg-[#FFF6E5] px-2 py-0.5 text-[10px] font-bold text-[#B7791F]">
+      {t('dashboard.adminTeacherDetail.profileEditor.newFieldBadge')}
+    </span>
+  );
+}
 
 /**
  * يتيح للأدمن إكمال ملف معلم لم يُكمله بنفسه بعد (دُعي أو استُورد ولم يدخل
@@ -83,8 +106,6 @@ const profileErrorLabel = (path) => PROFILE_FIELD_LABELS[path.replace(/\.\d+$/, 
  */
 export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
   const t = useT();
-  const isTrainingCenter = teacher.type === 'training_center';
-  const isUniversity = teacher.type === 'university';
   const rawStatus = teacher.rawStatus;
 
   // كان مقصوراً سابقاً على invited/active_unverified فقط (إكمال ملف لم يُكمله
@@ -116,6 +137,7 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
 
   const [form, setForm] = useState({
     name: '',
+    teacher_type: teacher.type,
     bio: '',
     teaching_philosophy_quote: '',
     teaching_philosophy_text: '',
@@ -144,10 +166,27 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
   const { data: languages = [] } = useTaxonomyList('languages');
   const { data: majors = [] } = useTaxonomyList('majors');
 
+  // مشتقة من النوع المختار بالنموذج (form.teacher_type) لا نوع المعلم المحفوظ فعلياً
+  // (teacher.type) — كي تتغيّر الحقول الظاهرة فوراً لحظة تبديل الأدمن القيمة، قبل
+  // الحفظ، بدل انتظار استجابة الخادم.
+  const isTrainingCenter = form.teacher_type === 'training_center';
+  const isUniversity = form.teacher_type === 'university';
+  const isSchool = form.teacher_type === 'school';
+  const typeChanged = form.teacher_type !== teacher.type;
+  // حقول النوع الجديد التي يلزم تعبئتها — نفس الحقول التي يمسحها الباك اند تلقائياً
+  // للنوع القديم (TeacherService::updateProfile: المناهج للمدرسي فقط، التخصصات
+  // للجامعي فقط)، أو إلزامية أصلاً لمركز التدريب (UpdateTeacherProfileRequest).
+  const newTypeFieldLabels = (TYPE_SPECIFIC_FIELD_KEYS[form.teacher_type] ?? [])
+    .map((key) => PROFILE_FIELD_LABELS[key])
+    .join('، ');
+  // شارة "حقل جديد" بجانب ليبل الحقل نفسه — فقط للحقول الخاصة بالنوع الجديد المختار الآن وطالما لم يُحفظ بعد
+  const isNewField = (key) => typeChanged && (TYPE_SPECIFIC_FIELD_KEYS[form.teacher_type] ?? []).includes(key);
+
   useEffect(() => {
     if (teacher && !hydrated) {
       setForm({
         name: teacher.name ?? '',
+        teacher_type: teacher.type,
         bio: teacher.bio ?? '',
         teaching_philosophy_quote: teacher.teachingPhilosophyQuote ?? '',
         teaching_philosophy_text: teacher.teachingPhilosophyText ?? '',
@@ -204,6 +243,9 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
   const handleSaveProfile = () => {
     updateProfile.mutate(
       {
+        // الصفحة بأكملها للأدمن حصراً (AdminTeacherDetailPage) — الباك اند يتجاهل هذا
+        // الحقل بصمت لو أُرسل من غير الأدمن، لكنه هنا دوماً مسموح.
+        teacher_type: form.teacher_type,
         name: form.name.trim() || null,
         bio: form.bio || null,
         // المدرس الجامعي بلا قسم "فلسفتي في التدريس" — لا يُرسَل (تبقى أي قيمة قديمة كما هي)
@@ -218,8 +260,8 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
         experience_years: form.experience_years || null,
         city: form.city || null,
         subject_ids: form.subject_ids,
-        curriculum_ids: form.curriculum_ids,
         language_ids: form.language_ids,
+        ...(isSchool ? { curriculum_ids: form.curriculum_ids } : {}),
         ...(isUniversity ? { major_ids: form.major_ids } : {}),
         teaching_methods: form.teaching_methods,
         exam_prep: form.exam_prep,
@@ -328,6 +370,21 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
               />
             </label>
 
+            <SmoothSelect
+              label={t('dashboard.adminTeacherDetail.profileEditor.teacherTypeLabel')}
+              value={form.teacher_type}
+              onChange={(v) => setForm((prev) => ({ ...prev, teacher_type: v }))}
+              options={TEACHER_TYPE_OPTIONS}
+            />
+            {typeChanged && (
+              <div className="flex items-start gap-2 rounded-xl bg-[#FFF6E5] px-4 py-3 text-xs font-medium text-[#B7791F]">
+                <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+                <span>
+                  {t('dashboard.adminTeacherDetail.profileEditor.typeChangeWarning').replace('{fields}', newTypeFieldLabels)}
+                </span>
+              </div>
+            )}
+
             <label className="flex flex-col gap-1.5">
               <span className="text-sm font-semibold text-ink">{t('dashboard.adminTeacherDetail.profileEditor.bioLabel')}</span>
               <textarea
@@ -414,7 +471,12 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
 
             {isUniversity && (
               <MultiSelectChips
-                label={t('dashboard.adminTeacherDetail.profileEditor.majorsLabel')}
+                label={
+                  <span className="flex items-center gap-2">
+                    {t('dashboard.adminTeacherDetail.profileEditor.majorsLabel')}
+                    {isNewField('major_ids') && <NewFieldBadge t={t} />}
+                  </span>
+                }
                 values={form.major_ids}
                 onChange={(v) => setForm((prev) => ({ ...prev, major_ids: v }))}
                 options={majors.map((m) => ({ value: m.id, label: m.name_ar }))}
@@ -430,14 +492,21 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
               placeholder="—"
               max={30}
             />
-            <MultiSelectChips
-              label={t('dashboard.adminTeacherDetail.profileEditor.curriculumLabel')}
-              values={form.curriculum_ids}
-              onChange={(v) => setForm((prev) => ({ ...prev, curriculum_ids: v }))}
-              options={curricula.map((c) => ({ value: c.id, label: c.name_ar }))}
-              placeholder="—"
-              max={20}
-            />
+            {isSchool && (
+              <MultiSelectChips
+                label={
+                  <span className="flex items-center gap-2">
+                    {t('dashboard.adminTeacherDetail.profileEditor.curriculumLabel')}
+                    {isNewField('curriculum_ids') && <NewFieldBadge t={t} />}
+                  </span>
+                }
+                values={form.curriculum_ids}
+                onChange={(v) => setForm((prev) => ({ ...prev, curriculum_ids: v }))}
+                options={curricula.map((c) => ({ value: c.id, label: c.name_ar }))}
+                placeholder="—"
+                max={20}
+              />
+            )}
             <MultiSelectChips
               label={t('dashboard.adminTeacherDetail.profileEditor.languagesLabel')}
               values={form.language_ids}
@@ -465,8 +534,9 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
             {isTrainingCenter && (
               <>
                 <label className="flex flex-col gap-1.5">
-                  <span className="text-sm font-semibold text-ink">
+                  <span className="flex items-center gap-2 text-sm font-semibold text-ink">
                     {t('dashboard.adminTeacherDetail.profileEditor.displayNameEnLabel')}
+                    {isNewField('display_name_en') && <NewFieldBadge t={t} />}
                   </span>
                   <input
                     type="text"
@@ -490,8 +560,9 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
                   )}
                 </label>
                 <label className="flex flex-col gap-1.5">
-                  <span className="text-sm font-semibold text-ink">
+                  <span className="flex items-center gap-2 text-sm font-semibold text-ink">
                     {t('dashboard.adminTeacherDetail.profileEditor.commercialRegisterLabel')}
+                    {isNewField('commercial_register') && <NewFieldBadge t={t} />}
                   </span>
                   <input
                     type="text"
