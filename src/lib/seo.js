@@ -28,7 +28,7 @@ export function organizationJsonLd(contact = {}) {
     url: config.siteUrl,
     logo: absoluteUrl('/logo.png'),
     image: absoluteUrl('/logo.png'),
-    telephone: '+971529426077',
+    telephone: '+971505374076',
     email,
     // نص حر بدل PostalAddress مُجزَّأ عمداً: العنوان حقل واحد قابل للتعديل من
     // لوحة الأدمن، وschema.org يقبل Organization.address كنص مباشرة.
@@ -37,11 +37,11 @@ export function organizationJsonLd(contact = {}) {
       '@type': 'Country',
       name: 'United Arab Emirates',
     },
-    // قناتان منفصلتان لنفس الرقم (اتصال/واتساب) — نفس التمييز الظاهر بالفوتر حرفياً
+    // قناتان منفصلتان (اتصال/واتساب) لكل منهما رقمها — نفس التمييز الظاهر بالفوتر حرفياً
     contactPoint: [
       {
         '@type': 'ContactPoint',
-        telephone: '+971529426077',
+        telephone: '+971505374076',
         contactType: 'customer service',
         areaServed: 'AE',
         availableLanguage: ['Arabic', 'English'],
