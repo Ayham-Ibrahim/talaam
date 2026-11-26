@@ -43,7 +43,7 @@ export function RescheduleRequestsTable({ requests, onView, onApprove, onApprove
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminReschedule.colOriginal')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminReschedule.colProposed')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminReschedule.colCreated')}</th>
-            <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminReschedule.colWindow')}</th>
+            <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminReschedule.colHoursBefore')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminComplaints.colStatus')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminComplaints.colActions')}</th>
           </tr>
@@ -72,13 +72,13 @@ export function RescheduleRequestsTable({ requests, onView, onApprove, onApprove
                 {renderDateTime(r.createdAt, r.studentTimezone)}
               </td>
               <td className="px-4 py-4 text-right">
-                <span
-                  className={`rounded-pill px-3 py-1 text-xs font-bold ${
-                    r.withinFreeWindow ? 'bg-success-light text-success' : 'bg-[#F2F2F7] text-ink-soft'
-                  }`}
-                >
-                  {t(r.withinFreeWindow ? 'dashboard.adminReschedule.withinWindow' : 'dashboard.adminReschedule.outsideWindow')}
-                </span>
+                {r.hoursBeforeSession != null ? (
+                  <span className="rounded-pill bg-[#F2F2F7] px-3 py-1 text-xs font-bold text-ink-soft">
+                    {r.hoursBeforeSession} {t('dashboard.adminReschedule.detailsModal.hours')}
+                  </span>
+                ) : (
+                  <span className="text-ink-soft">—</span>
+                )}
               </td>
               <td className="px-4 py-4 text-right">
                 <RescheduleStatusBadge status={r.status} />
