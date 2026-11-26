@@ -13,6 +13,23 @@ function EducationTypeBadge({ type }) {
   return <span className="text-ink-soft">{t(`dashboard.adminStudents.educationType.${type}`)}</span>;
 }
 
+function RegisteredBy({ source, createdBy }) {
+  const t = useT();
+  const isSelf = source === 'self';
+  return (
+    <div className="text-right">
+      <span
+        className={`inline-flex items-center rounded-pill px-3 py-1 text-xs font-bold ${
+          isSelf ? 'bg-primary/10 text-primary' : 'bg-accent-purple/10 text-accent-purple'
+        }`}
+      >
+        {t(`dashboard.adminStudents.registrationSource.${source}`)}
+      </span>
+      {!isSelf && createdBy && <div className="mt-1 text-xs text-ink-soft">{createdBy}</div>}
+    </div>
+  );
+}
+
 function ActiveBadge({ isActive }) {
   const t = useT();
   return (
@@ -33,13 +50,14 @@ export function AdminStudentsTable({ students }) {
 
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
-      <table className="w-full min-w-[920px] text-sm">
+      <table className="w-full min-w-[1040px] text-sm">
         <thead>
           <tr className="border-b border-line">
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminStudents.colStudent')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminStudents.colPhone')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminStudents.colEducationType')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminStudents.colLocation')}</th>
+            <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminStudents.colRegisteredBy')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminStudents.colStatus')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminStudents.colJoined')}</th>
             <th className="px-4 py-4 text-right font-bold text-ink">{t('dashboard.adminStudents.colActions')}</th>
@@ -67,6 +85,9 @@ export function AdminStudentsTable({ students }) {
               </td>
               <td className="px-4 py-4 text-right text-ink-soft">
                 {[student.country, student.region].filter(Boolean).join(' · ') || '—'}
+              </td>
+              <td className="px-4 py-4 text-right">
+                <RegisteredBy source={student.registrationSource} createdBy={student.createdBy} />
               </td>
               <td className="px-4 py-4 text-right">
                 <ActiveBadge isActive={student.isActive} />

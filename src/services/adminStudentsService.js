@@ -17,6 +17,8 @@ function mapStudentRow(row) {
     country: row.country ?? null,
     region: row.region ?? null,
     imported: row.imported ?? false,
+    registrationSource: row.registration_source ?? 'self',
+    createdBy: row.created_by ?? null,
     createdAt: row.created_at ?? row.createdAt ?? null,
   };
 }
