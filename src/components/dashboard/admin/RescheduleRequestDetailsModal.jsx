@@ -121,10 +121,6 @@ export function RescheduleRequestDetailsModal({ request: listRow, onClose }) {
               label={k('hoursBefore')}
               value={r.hoursBeforeSession != null ? `${r.hoursBeforeSession} ${k('hours')}` : null}
             />
-            <InfoRow
-              label={t('dashboard.adminReschedule.colWindow')}
-              value={t(r.withinFreeWindow ? 'dashboard.adminReschedule.withinWindow' : 'dashboard.adminReschedule.outsideWindow')}
-            />
             <InfoRow label={k('slaDue')} value={dt(r.slaDueAt)} ltr />
           </Section>
 

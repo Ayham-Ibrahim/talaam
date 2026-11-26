@@ -50,7 +50,7 @@ function mapRescheduleRequest(request) {
     // يُستخدَم لعرض كل تواريخ هذا الطلب بتوقيت الطالب لا بتوقيت متصفح من يشاهد
     // الجدول (كان هذا الخطأ سابقاً: يظهر بتوقيت الأدمن المحلي).
     studentTimezone: request.studentTimezone ?? request.student_timezone ?? null,
-    withinFreeWindow: request.withinFreeWindow ?? request.within_free_window ?? false,
+    hoursBeforeSession: request.hoursBeforeSession ?? request.hours_before_session ?? null,
     createdAt: request.createdAt ?? request.created_at ?? null,
     rejectionReason: request.rejectionReason ?? request.rejection_reason ?? null,
     reviewedAt: request.reviewedAt ?? request.reviewed_at ?? null,
