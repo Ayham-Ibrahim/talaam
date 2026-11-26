@@ -5,13 +5,8 @@
  * margin at approval time, student price + platform revenue are derived).
  */
 
-/**
- * `submitted` kept for the mock branch's own legacy status value; real listings
- * use `pending_approval` (+ `draft`/`full`, per Package/Course status enum).
- */
 export const LISTING_STATUS_STYLES = {
   draft: { label: 'مسودة', bg: '#F2F2F7', color: '#6B7280' },
-  submitted: { label: 'بانتظار المراجعة', bg: '#FEF3E2', color: '#B7791F' },
   pending_approval: { label: 'بانتظار المراجعة', bg: '#FEF3E2', color: '#B7791F' },
   active: { label: 'نشطة', bg: '#E3F5EC', color: '#2E9E6B' },
   full: { label: 'مكتملة العدد', bg: '#E3F1FD', color: '#2F80ED' },
@@ -49,7 +44,7 @@ let mockAdminListings = [
     capacity: 1,
     sessionsCount: 8,
     submittedAt: '2026-07-19',
-    status: 'submitted',
+    status: 'pending_approval',
     marginPercent: null,
     studentPrice: null,
     platformRevenue: null,
@@ -69,7 +64,7 @@ let mockAdminListings = [
     capacity: 6,
     sessionsCount: 10,
     submittedAt: '2026-07-21',
-    status: 'submitted',
+    status: 'pending_approval',
     marginPercent: null,
     studentPrice: null,
     platformRevenue: null,
@@ -129,7 +124,7 @@ let mockAdminListings = [
     capacity: null,
     sessionsCount: 20,
     submittedAt: '2026-07-20',
-    status: 'submitted',
+    status: 'pending_approval',
     marginPercent: null,
     studentPrice: null,
     platformRevenue: null,
@@ -149,7 +144,7 @@ let mockAdminListings = [
     capacity: null,
     sessionsCount: 15,
     submittedAt: '2026-07-22',
-    status: 'submitted',
+    status: 'pending_approval',
     marginPercent: null,
     studentPrice: null,
     platformRevenue: null,
@@ -228,7 +223,7 @@ export function updateMockListing(id, patch) {
 }
 
 export function getPendingListingsCount() {
-  return mockAdminListings.filter((l) => l.status === 'submitted').length;
+  return mockAdminListings.filter((l) => l.status === 'pending_approval').length;
 }
 
 export { mockAdminListings };
