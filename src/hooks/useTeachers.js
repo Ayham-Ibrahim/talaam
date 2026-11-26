@@ -25,6 +25,18 @@ export function useInfiniteTeachers(filters = {}) {
     queryFn: ({ pageParam }) => teacherService.getTeachers({ ...filters, page: pageParam, perPage: RESULTS_PER_PAGE }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => (lastPage.currentPage < lastPage.lastPage ? lastPage.currentPage + 1 : undefined),
+    // Offset pagination can repeat a teacher across pages if the ranking shifts
+    // between fetches (new review, newly verified teacher) — keep first occurrence only.
+    select: (data) => {
+      const seen = new Set();
+      return {
+        ...data,
+        pages: data.pages.map((page) => ({
+          ...page,
+          data: page.data.filter((teacher) => !seen.has(teacher.id) && seen.add(teacher.id)),
+        })),
+      };
+    },
   });
 }
 
