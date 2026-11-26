@@ -1,3 +1,5 @@
+import { serverNow } from '@/lib/serverClock';
+
 /** ألوان شارة الحضور — مشتركة بين لوحة الأدمن وتفاصيل الجلسة لدى المعلم */
 export const ATTENDANCE_STYLES = {
   joined: { bg: '#F0FDF3', color: '#34C759' },
@@ -15,6 +17,6 @@ export const NO_ATTENDANCE_STATUSES = ['cancelled', 'suspended'];
 export function attendanceState(scheduledAt, durationMin, log) {
   if (log) return 'joined';
   const startsAt = scheduledAt ? new Date(scheduledAt).getTime() : NaN;
-  if (!Number.isFinite(startsAt) || Date.now() < startsAt) return null;
-  return Date.now() > startsAt + (durationMin ?? 0) * 60_000 ? 'notJoined' : 'notJoinedYet';
+  if (!Number.isFinite(startsAt) || serverNow() < startsAt) return null;
+  return serverNow() > startsAt + (durationMin ?? 0) * 60_000 ? 'notJoined' : 'notJoinedYet';
 }
