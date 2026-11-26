@@ -73,7 +73,7 @@ export function RescheduleRequestsTable({ requests, onView, onApprove, onApprove
               </td>
               <td className="px-4 py-4 text-right">
                 <span
-                  className={`rounded-pill px-3 py-1 text-xs font-bold ${
+                  className={`inline-flex items-center whitespace-nowrap rounded-pill px-3 py-1 text-xs font-bold ${
                     r.withinFreeWindow ? 'bg-success-light text-success' : 'bg-[#F2F2F7] text-ink-soft'
                   }`}
                 >
