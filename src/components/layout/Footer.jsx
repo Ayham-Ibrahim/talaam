@@ -7,9 +7,11 @@ import { useT } from "@/hooks/useT";
 import { SplitWords } from "@/motion/scroll/SplitWords";
 import { LEGAL_PAGES } from "@/lib/legalPages";
 
-// رقم الهاتف/واتساب الرسمي الوحيد — يُستخدَم للعرض وللرابطين (tel:/wa.me) معاً.
-const PHONE_DISPLAY = "+971 52 942 6077";
-const PHONE_DIGITS = "971529426077"; // بلا + ولا فراغات — الصيغة التي يتطلبها wa.me
+// رقم الاتصال (tel:) ورقم الواتساب (wa.me) رقمان منفصلان.
+const PHONE_DISPLAY = "+971 50 537 4076";
+const PHONE_DIGITS = "971505374076";
+const WHATSAPP_DISPLAY = "+971 52 942 6077";
+const WHATSAPP_DIGITS = "971529426077"; // بلا + ولا فراغات — الصيغة التي يتطلبها wa.me
 // احتياط قبل اكتمال جلب الإعداد أو عند فشل الطلب — المصدر الحقيقي هو إعدادات الأدمن (contact_email)
 const EMAIL_FALLBACK = "taalam@t3allem.com";
 
@@ -134,13 +136,13 @@ export function Footer() {
               <li className="flex items-center gap-2">
                 <WhatsAppIcon size={15} />
                 <a
-                  href={`https://wa.me/${PHONE_DIGITS}`}
+                  href={`https://wa.me/${WHATSAPP_DIGITS}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   dir="ltr"
                   className="hover:text-ink transition-colors"
                 >
-                  {PHONE_DISPLAY}
+                  {WHATSAPP_DISPLAY}
                 </a>
               </li>
             </ul>
