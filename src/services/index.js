@@ -194,6 +194,48 @@ export const availabilityService = {
     await client.delete(endpoints.teachers.availabilitySlot(teacherId, slotId));
     return true;
   },
+
+  /** نوافذ ساعات اختيارية ليوم مفعَّل أعلاه — يوم بلا أي نافذة يبقى متاحاً طوال اليوم (الافتراضي) */
+  async getTimesByTeacher(teacherId) {
+    if (config.useMocks) {
+      await mockDelay();
+      return [];
+    }
+    const { data } = await client.get(endpoints.teachers.availabilityTimes(teacherId));
+    return data.data.map((time) => ({
+      id: time.id,
+      dayOfWeek: time.day_of_week,
+      startTime: time.start_time.slice(0, 5),
+      endTime: time.end_time.slice(0, 5),
+    }));
+  },
+
+  async addTime(teacherId, { dayOfWeek, startTime, endTime }) {
+    if (config.useMocks) {
+      await mockDelay();
+      return { id: Math.floor(Math.random() * 100000), dayOfWeek, startTime, endTime };
+    }
+    const { data } = await client.post(endpoints.teachers.availabilityTimes(teacherId), {
+      day_of_week: dayOfWeek,
+      start_time: startTime,
+      end_time: endTime,
+    });
+    return {
+      id: data.data.id,
+      dayOfWeek: data.data.day_of_week,
+      startTime: data.data.start_time.slice(0, 5),
+      endTime: data.data.end_time.slice(0, 5),
+    };
+  },
+
+  async removeTime(teacherId, timeId) {
+    if (config.useMocks) {
+      await mockDelay();
+      return true;
+    }
+    await client.delete(endpoints.teachers.availabilityTime(teacherId, timeId));
+    return true;
+  },
 };
 
 export const reviewService = {

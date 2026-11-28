@@ -295,7 +295,12 @@ export function TeacherProfilePage() {
       )}
       {!isCenter && (
         <Drawer open={Boolean(selectedPackage)} onClose={() => setSelectedPackageId(null)} title={t('booking.title')}>
-          <BookingWidget selectedPackage={selectedPackage} bare />
+          <BookingWidget
+            selectedPackage={selectedPackage}
+            teacherAvailabilityTimes={teacher.availabilityTimes}
+            teacherTimezone={teacher.timezone}
+            bare
+          />
         </Drawer>
       )}
 

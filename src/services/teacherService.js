@@ -71,6 +71,7 @@ function mapPublicProfile(raw) {
     id: raw.id,
     name: raw.user?.name,
     avatar: raw.user?.avatar_path,
+    timezone: raw.user?.timezone,
     isVerified: raw.status === 'verified',
     type: raw.teacher_type,
     typeLabel: TEACHER_TYPE_LABELS[raw.teacher_type] ?? raw.teacher_type,
@@ -112,6 +113,13 @@ function mapPublicProfile(raw) {
     introYoutubeId: raw.intro_youtube_id ?? null,
     videos: (raw.videos ?? []).map((v) => ({ id: v.id, youtubeId: v.youtube_id, title: v.title })),
     faqs: (raw.faqs ?? []).map((f) => ({ id: f.id, question: f.question, answer: f.answer })),
+    // نوافذ ساعات التوفّر الأسبوعية (TeacherAvailabilityTime) — مجمَّعة حسب اليوم، يوم بلا نوافذ يعني متاح طوال اليوم.
+    // raw.availability_times بشكل الموديل الخام (لا PublicTeacherResource) حين يشاهد الأدمن/المعلم نفسه ملفه
+    // العام عبر نفس هذا المسار — صفوف مسطّحة بلا d.slots، فـ(d.slots ?? []) تحمي من كسر الصفحة حينها.
+    availabilityTimes: (raw.availability_times ?? []).map((d) => ({
+      dayOfWeek: d.day_of_week,
+      slots: (d.slots ?? []).map((s) => ({ start: s.start, end: s.end })),
+    })),
   };
 }
 

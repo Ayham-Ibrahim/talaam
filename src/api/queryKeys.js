@@ -19,6 +19,7 @@ export const queryKeys = {
     supportPackages: (id) => ['teachers', id, 'support-packages'],
     reviews: (id) => ['teachers', id, 'reviews'],
     availabilitySlots: (id) => ['teachers', id, 'availability-slots'],
+    availabilityTimes: (id) => ['teachers', id, 'availability-times'],
     ratingSummary: (id) => ['teachers', id, 'rating-summary'],
   },
   meta: {

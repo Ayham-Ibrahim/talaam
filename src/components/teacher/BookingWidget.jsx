@@ -21,7 +21,7 @@ import { useCurrencyStore } from '@/store';
 import { formatPrice } from '@/lib/currency';
 import { formatDate, isPastDate, lastScheduleDate } from '@/lib/formatters';
 import { rangesOverlap, findOwnConflict } from '@/lib/scheduleConflict';
-import { fitsCampaignWindows } from '@/lib/campaignWindows';
+import { fitsCampaignWindows, fitsTeacherAvailabilityHours } from '@/lib/campaignWindows';
 import { useCheckoutRedirect } from '@/hooks/useCheckoutRedirect';
 
 /** Backend TIME columns serialize as "H:i:s" — trim to "H:i" for display */
@@ -72,7 +72,7 @@ function toISODate(date) {
  * باقة الحملة: نوافذ (يوم + ساعات) حددها الأدمن — لا تُعرض إلا الأوقات داخلها، ولا موافقة
  *   للمعلم: الحجز يُثبَّت فوراً ويُحوَّل الطالب للدفع مباشرة.
  */
-export function BookingWidget({ selectedPackage, bare = false }) {
+export function BookingWidget({ selectedPackage, bare = false, teacherAvailabilityTimes = [], teacherTimezone = 'UTC' }) {
   const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
@@ -177,6 +177,13 @@ export function BookingWidget({ selectedPackage, bare = false }) {
     [durationMinutes, schedules, scheduleTimezone],
   );
 
+  // ساعات توفّر المعلم الأسبوعية — فقط للباقة الفردية العادية (لا حملة، لها نوافذها
+  // الخاصة أعلاه، ولا جماعية، موعدها ثابت أصلاً بلا اختيار وقت من الطالب).
+  const fitsTeacherHours = useCallback(
+    (start) => fitsTeacherAvailabilityHours(start, durationMinutes, teacherAvailabilityTimes, teacherTimezone),
+    [durationMinutes, teacherAvailabilityTimes, teacherTimezone],
+  );
+
   // باقة الحملة: النافذة بمنطقة الباقة قد تقع في يوم أسبوع آخر بتوقيت المتصفح — اليوم
   // متاح إن وُجد فيه وقت واحد على الأقل داخل نافذة. مخزَّن لكل تاريخ (يُستدعى لكل خلية).
   const isCampaignDateAllowed = useMemo(() => {
@@ -205,13 +212,14 @@ export function BookingWidget({ selectedPackage, bare = false }) {
       const start = new Date(selectedDate);
       start.setHours(h, m, 0, 0);
       if (isCampaign && !fitsWindows(start)) return 'hidden';
+      if (!isCampaign && !isGroup && !fitsTeacherHours(start)) return 'hidden';
       if (start.getTime() <= Date.now()) return 'past';
       const end = new Date(start.getTime() + durationMinutes * 60000);
       if (busySlots?.some((slot) => rangesOverlap(start, end, slot.start, slot.end))) return 'busy';
       if (findOwnConflict(myUpcomingSessions, start, end)) return 'own';
       return 'available';
     },
-    [selectedDate, durationMinutes, busySlots, myUpcomingSessions, isCampaign, fitsWindows],
+    [selectedDate, durationMinutes, busySlots, myUpcomingSessions, isCampaign, isGroup, fitsWindows, fitsTeacherHours],
   );
 
   // Group packages have no per-date picker (the teacher's fixed dates are

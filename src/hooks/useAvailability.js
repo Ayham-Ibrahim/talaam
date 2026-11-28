@@ -25,3 +25,27 @@ export function useRemoveAvailabilityDay(teacherId) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.teachers.availabilitySlots(teacherId) }),
   });
 }
+
+export function useAvailabilityTimes(teacherId) {
+  return useQuery({
+    queryKey: queryKeys.teachers.availabilityTimes(teacherId),
+    queryFn: () => availabilityService.getTimesByTeacher(teacherId),
+    enabled: !!teacherId,
+  });
+}
+
+export function useAddAvailabilityTime(teacherId) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => availabilityService.addTime(teacherId, payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.teachers.availabilityTimes(teacherId) }),
+  });
+}
+
+export function useRemoveAvailabilityTime(teacherId) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (timeId) => availabilityService.removeTime(teacherId, timeId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.teachers.availabilityTimes(teacherId) }),
+  });
+}

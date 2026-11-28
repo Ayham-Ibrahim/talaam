@@ -39,3 +39,18 @@ export function fitsCampaignWindows(start, durationMinutes, windows, timeZone) {
       end <= (w.end_time ? timeToMinutes(w.end_time) : 24 * 60),
   );
 }
+
+/**
+ * ساعات توفّر المعلم الأسبوعية (teacher.availabilityTimes، راجع teacherService.js) — اختيارية
+ * صراحة: يوم بلا أي نافذة يبقى متاحاً طوال اليوم (الافتراضي)، بخلاف نوافذ الحملة أعلاه التي
+ * تستبعد أي يوم بلا نافذة خاصة فيه. نفس فحص الباك (BookingService::assertSlotsWithinTeacherAvailabilityHours).
+ */
+export function fitsTeacherAvailabilityHours(start, durationMinutes, availabilityTimes, timeZone) {
+  const { weekday, minutes } = zonedParts(start, timeZone);
+  const end = minutes + durationMinutes;
+
+  const dayEntry = (availabilityTimes ?? []).find((d) => Number(d.dayOfWeek) === weekday);
+  if (!dayEntry) return true;
+
+  return dayEntry.slots.some((s) => minutes >= timeToMinutes(s.start) && end <= timeToMinutes(s.end));
+}

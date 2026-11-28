@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Camera, CalendarCheck, Globe, Video, HelpCircle, Trash2, UserRound } from 'lucide-react';
+import { Camera, CalendarCheck, Clock, Globe, Video, HelpCircle, Trash2, UserRound, X } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { TimezoneField } from '@/components/dashboard/TimezoneField';
 import { TeacherVideosEditor } from '@/components/teacher/TeacherVideosEditor';
@@ -10,7 +10,14 @@ import { ApiErrorList, Avatar, ErrorState, Skeleton } from '@/components/ui';
 import { ImageCropModal } from '@/components/ui/ImageCropModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useUpdateProfile, useUploadAvatar, useDeleteAvatar } from '@/hooks/useProfile';
-import { useAvailabilityDays, useAddAvailabilityDay, useRemoveAvailabilityDay } from '@/hooks/useAvailability';
+import {
+  useAvailabilityDays,
+  useAddAvailabilityDay,
+  useRemoveAvailabilityDay,
+  useAvailabilityTimes,
+  useAddAvailabilityTime,
+  useRemoveAvailabilityTime,
+} from '@/hooks/useAvailability';
 import {
   useMyTeacher,
   useUpdateMyTeacherProfile,
@@ -41,6 +48,10 @@ export function TeacherSettingsPage() {
   const { data: days, isLoading, isError, refetch } = useAvailabilityDays(isTrainingCenter ? undefined : teacherId);
   const addDay = useAddAvailabilityDay(teacherId);
   const removeDay = useRemoveAvailabilityDay(teacherId);
+  const { data: availabilityTimes, isLoading: timesLoading } = useAvailabilityTimes(isTrainingCenter ? undefined : teacherId);
+  const addTime = useAddAvailabilityTime(teacherId);
+  const removeTime = useRemoveAvailabilityTime(teacherId);
+  const [newTime, setNewTime] = useState({ dayOfWeek: '', startTime: '', endTime: '' });
   const updateProfile = useUpdateProfile();
   const uploadAvatar = useUploadAvatar();
   const deleteAvatar = useDeleteAvatar();
@@ -102,6 +113,14 @@ export function TeacherSettingsPage() {
       timezone: timezoneForm.timezone || null,
       timezone_auto: timezoneForm.timezoneAuto,
     });
+  };
+
+  const handleAddTime = () => {
+    if (!newTime.dayOfWeek || !newTime.startTime || !newTime.endTime) return;
+    addTime.mutate(
+      { dayOfWeek: Number(newTime.dayOfWeek), startTime: newTime.startTime, endTime: newTime.endTime },
+      { onSuccess: () => setNewTime({ dayOfWeek: '', startTime: '', endTime: '' }) },
+    );
   };
 
   return (
@@ -226,6 +245,91 @@ export function TeacherSettingsPage() {
                   </button>
                 );
               })}
+            </div>
+          )}
+
+          {!isLoading && !isError && (
+            <div className="mt-6 border-t border-line pt-5">
+              <h3 className="flex items-center gap-2 text-sm font-bold text-ink">
+                <Clock size={16} className="text-primary" />
+                {t('dashboard.availability.hoursTitle')}
+              </h3>
+              <p className="mt-1 text-xs text-ink-soft">{t('dashboard.availability.hoursHint')}</p>
+
+              {timesLoading ? (
+                <div className="mt-3 flex flex-col gap-2">
+                  <Skeleton className="h-10 rounded-xl" />
+                  <Skeleton className="h-10 rounded-xl" />
+                </div>
+              ) : (
+                <div className="mt-3 flex flex-col gap-2">
+                  {(availabilityTimes ?? []).length === 0 ? (
+                    <p className="text-xs text-ink-soft">{t('dashboard.availability.noHoursSet')}</p>
+                  ) : (
+                    availabilityTimes.map((time) => (
+                      <div key={time.id} className="flex items-center justify-between rounded-xl bg-canvas px-4 py-2.5 text-sm">
+                        <span className="font-bold text-ink">{weekdays[time.dayOfWeek]}</span>
+                        <span dir="ltr" className="text-ink-soft">{time.startTime} – {time.endTime}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeTime.mutate(time.id)}
+                          disabled={removeTime.isPending}
+                          className="text-accent-pink hover:opacity-70 disabled:opacity-50"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {(days ?? []).length > 0 && (
+                <div className="mt-4 flex flex-wrap items-end gap-2">
+                  <label className="flex flex-col gap-1 text-xs font-semibold text-ink-soft">
+                    {t('dashboard.availability.dayLabel')}
+                    <select
+                      value={newTime.dayOfWeek}
+                      onChange={(e) => setNewTime((prev) => ({ ...prev, dayOfWeek: e.target.value }))}
+                      className="rounded-btn border border-line bg-white p-2 text-sm text-ink"
+                    >
+                      <option value="">—</option>
+                      {days.map((d) => (
+                        <option key={d.dayOfWeek} value={d.dayOfWeek}>
+                          {weekdays[d.dayOfWeek]}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="flex flex-col gap-1 text-xs font-semibold text-ink-soft">
+                    {t('dashboard.availability.fromLabel')}
+                    <input
+                      type="time"
+                      value={newTime.startTime}
+                      onChange={(e) => setNewTime((prev) => ({ ...prev, startTime: e.target.value }))}
+                      className="rounded-btn border border-line bg-white p-2 text-sm text-ink"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1 text-xs font-semibold text-ink-soft">
+                    {t('dashboard.availability.toLabel')}
+                    <input
+                      type="time"
+                      value={newTime.endTime}
+                      onChange={(e) => setNewTime((prev) => ({ ...prev, endTime: e.target.value }))}
+                      className="rounded-btn border border-line bg-white p-2 text-sm text-ink"
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleAddTime}
+                    disabled={addTime.isPending || !newTime.dayOfWeek || !newTime.startTime || !newTime.endTime}
+                    className="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                  >
+                    {t('dashboard.availability.addHoursButton')}
+                  </button>
+                </div>
+              )}
+              {addTime.isError && <ApiErrorList error={addTime.error} labelFor={() => null} className="mt-2 text-xs" />}
             </div>
           )}
         </div>
