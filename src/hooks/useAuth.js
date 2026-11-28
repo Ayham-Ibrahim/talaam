@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '@/services/authService';
+import { disconnectEcho } from '@/lib/echo';
 import { useAuthStore } from '@/store';
 import { trackMetaEvent } from '@/lib/metaPixel';
 import { gtmSignUp } from '@/lib/gtm';
@@ -104,6 +105,7 @@ export function useLogout() {
     // ProtectedRoute وحدها — التوجيه فوري ومحدَّد. أي فتح لاحق لصفحة محمية
     // يعيد ProtectedRoute توجيهه إلى /login لأن isAuthenticated أصبح false.
     onSettled: () => {
+      disconnectEcho();
       clearSession();
       queryClient.clear();
       navigate('/', { replace: true });

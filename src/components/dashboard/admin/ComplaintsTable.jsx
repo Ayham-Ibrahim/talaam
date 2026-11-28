@@ -1,10 +1,10 @@
-import { ArrowUpCircle, CheckCircle2, Eye } from 'lucide-react';
+import { ArrowUpCircle, CheckCircle2, Eye, MessagesSquare } from 'lucide-react';
 import { ComplaintStatusBadge } from './ComplaintStatusBadge';
 import { RESOLUTION_TYPE_LABELS } from '@/mocks/adminComplaints.mock';
 import { formatDate } from '@/lib/formatters';
 import { useT } from '@/hooks/useT';
 
-export function ComplaintsTable({ complaints, onResolve, onEscalate, onView, isActing }) {
+export function ComplaintsTable({ complaints, onResolve, onEscalate, onView, onViewConversation, isActing }) {
   const t = useT();
 
   return (
@@ -49,6 +49,17 @@ export function ComplaintsTable({ complaints, onResolve, onEscalate, onView, isA
                   >
                     <Eye size={16} />
                   </button>
+                  {/* اطلاع الأدمن على المحادثة حصراً من شكوى مرتبطة بها (إبلاغ من داخلها) */}
+                  {c.conversation_id && onViewConversation && (
+                    <button
+                      type="button"
+                      onClick={() => onViewConversation(c)}
+                      title={t('chat.admin.viewConversation')}
+                      className="flex items-center gap-1.5 text-sm font-medium text-primary hover:opacity-70"
+                    >
+                      <MessagesSquare size={16} />
+                    </button>
+                  )}
                   {c.status !== 'resolved' && (
                     <>
                       <button

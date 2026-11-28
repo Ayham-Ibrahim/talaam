@@ -76,13 +76,16 @@ import { AcademicSupporterProfilePage } from "@/pages/AcademicSupporterProfilePa
 import { CampaignRegisterPage } from "@/pages/CampaignRegisterPage";
 import { CampaignOffersPage } from "@/pages/CampaignOffersPage";
 import { AdminCampaignsPage } from "@/pages/AdminCampaignsPage";
+import { MessagesPage } from "@/pages/MessagesPage";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { MetaPixelPageViews } from "@/components/analytics/MetaPixelPageViews";
+import { ChatRealtimeBridge } from "@/components/chat/ChatRealtimeBridge";
 
 export function AppRouter() {
   return (
     <BrowserRouter>
       <MetaPixelPageViews />
+      <ChatRealtimeBridge />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/search" element={<SearchPage />} />
@@ -561,6 +564,18 @@ export function AppRouter() {
             </ProtectedRoute>
           }
         />
+        {/* المحادثات — مسار واحد لأطراف المحادثة الثلاثة (CHAT_ROLES في useChat.js) */}
+        {["/dashboard/messages", "/dashboard/messages/:conversationId"].map((path) => (
+          <Route
+            key={path}
+            path={path}
+            element={
+              <ProtectedRoute role={["student", "teacher", "academic_support"]}>
+                <MessagesPage />
+              </ProtectedRoute>
+            }
+          />
+        ))}
         <Route
           path="/dashboard/teacher/calendar"
           element={

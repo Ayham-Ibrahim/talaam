@@ -4,6 +4,7 @@ import { Avatar, EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { formatPrice, formatDate } from '@/lib/formatters';
 import { useAuth } from '@/hooks/useAuth';
 import { useMySupporterPurchases } from '@/hooks/useSupporterAccount';
+import { MessageButton } from '@/components/chat/MessageButton';
 import { useT } from '@/hooks/useT';
 
 const STATUS_STYLES = {
@@ -46,6 +47,7 @@ export function SupporterStudentsPage() {
                   <th className="px-4 py-4 text-right font-bold text-ink">{t('academicSupporter.students.colAmount')}</th>
                   <th className="px-4 py-4 text-right font-bold text-ink">{t('academicSupporter.students.colStatus')}</th>
                   <th className="px-4 py-4 text-right font-bold text-ink">{t('academicSupporter.students.colDate')}</th>
+                  <th className="px-4 py-4" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
@@ -71,6 +73,9 @@ export function SupporterStudentsPage() {
                         </span>
                       </td>
                       <td className="px-4 py-4 text-right text-ink-soft">{formatDate(purchase.confirmed_at ?? purchase.created_at)}</td>
+                      <td className="px-4 py-4 text-center">
+                        {purchase.confirmed_at && <MessageButton userId={purchase.student?.user?.id} />}
+                      </td>
                     </tr>
                   );
                 })}
