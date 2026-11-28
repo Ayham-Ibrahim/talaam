@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { formatPrice, formatDate } from '@/lib/formatters';
+import { MessageButton } from '@/components/chat/MessageButton';
 import { useT } from '@/hooks/useT';
 
 const STATUS_STYLES = {
@@ -16,38 +17,46 @@ export function SupportPackagePurchaseCard({ purchase }) {
   const subjects = supportPackage?.subjects ?? [];
 
   return (
-    <Link
-      to={`/dashboard/student/academic-support/${purchase.academic_supporter_id}`}
-      className="flex w-full flex-col gap-4 rounded-2xl border border-line bg-white p-5 shadow-card transition-shadow hover:shadow-lift"
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="text-right">
-          <div className="font-bold text-ink">{supportPackage?.title || '—'}</div>
-          <div className="text-sm text-ink-soft">
-            {purchase.academic_supporter?.user?.name}
-            {' — '}
-            {t(`dashboard.teacherSupportPackages.tier${supportPackage?.tier === 'premium' ? 'Premium' : 'Basic'}`)}
+    <div className="flex w-full flex-col gap-3 rounded-2xl border border-line bg-white p-5 shadow-card transition-shadow hover:shadow-lift">
+      <Link
+        to={`/dashboard/student/academic-support/${purchase.academic_supporter_id}`}
+        className="flex w-full flex-col gap-4"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="text-right">
+            <div className="font-bold text-ink">{supportPackage?.title || '—'}</div>
+            <div className="text-sm text-ink-soft">
+              {purchase.academic_supporter?.user?.name}
+              {' — '}
+              {t(`dashboard.teacherSupportPackages.tier${supportPackage?.tier === 'premium' ? 'Premium' : 'Basic'}`)}
+            </div>
           </div>
+          <span className="rounded-pill px-3 py-1 text-xs font-bold" style={{ backgroundColor: style.bg, color: style.color }}>
+            {t(`academicSupporter.students.status.${purchase.status}`)}
+          </span>
         </div>
-        <span className="rounded-pill px-3 py-1 text-xs font-bold" style={{ backgroundColor: style.bg, color: style.color }}>
-          {t(`academicSupporter.students.status.${purchase.status}`)}
-        </span>
-      </div>
 
-      {subjects.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          {subjects.map((s) => (
-            <span key={s.id} className="rounded-lg bg-[#F2F2F7] px-4 py-2 text-xs font-semibold text-ink-soft">
-              {s.name_ar}
-            </span>
-          ))}
+        {subjects.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            {subjects.map((s) => (
+              <span key={s.id} className="rounded-lg bg-[#F2F2F7] px-4 py-2 text-xs font-semibold text-ink-soft">
+                {s.name_ar}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-sm text-ink-soft">{formatDate(purchase.confirmed_at ?? purchase.created_at)}</span>
+          <span className="font-semibold text-price">{formatPrice(purchase.amount, purchase.currency)}</span>
+        </div>
+      </Link>
+      {/* خارج الرابط: زر داخل <a> غير صالح، والنقر عليه كان سيفتح صفحة الداعم */}
+      {purchase.confirmed_at && (
+        <div className="flex justify-end border-t border-line/60 pt-3">
+          <MessageButton userId={purchase.academic_supporter?.user?.id} />
         </div>
       )}
-
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-sm text-ink-soft">{formatDate(purchase.confirmed_at ?? purchase.created_at)}</span>
-        <span className="font-semibold text-price">{formatPrice(purchase.amount, purchase.currency)}</span>
-      </div>
-    </Link>
+    </div>
   );
 }

@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { ApiErrorList } from '@/components/ui';
 import { PolicyNotice } from '@/components/common/PolicyNotice';
 import { useAuth } from '@/hooks/useAuth';
+import { useRescheduleMinHoursAhead } from '@/hooks/useReschedule';
 import { useT } from '@/hooks/useT';
 import { zonedWallTimeToUtcIso } from '@/lib/zonedDateTime';
 
@@ -34,6 +35,7 @@ export function RescheduleRequestModal({ isPending, error, currentScheduledAt, o
   const [time, setTime] = useState('');
   const [reason, setReason] = useState('');
   const [touched, setTouched] = useState(false);
+  const minHoursAhead = useRescheduleMinHoursAhead();
 
   // بتوقيت المستخدم الحالي نفسه (من أرسل الطلب، طالباً كان أو معلماً) — لا
   // بتوقيت UTC ولا بأي منطقة أخرى، وإلا يُحفَظ موعد مُزاح فعلياً بفارق التوقيت
@@ -42,6 +44,8 @@ export function RescheduleRequestModal({ isPending, error, currentScheduledAt, o
   const proposedAtMs = proposedScheduledAt ? new Date(proposedScheduledAt).getTime() : NaN;
   const missingDateTime = !isAbsenceReport && (!date || !time);
   const invalidPastDateTime = !isAbsenceReport && !missingDateTime && (!Number.isFinite(proposedAtMs) || proposedAtMs <= Date.now());
+  const tooSoonDateTime = !isAbsenceReport && !missingDateTime && !invalidPastDateTime
+    && proposedAtMs < Date.now() + minHoursAhead * 60 * 60 * 1000;
   // بلا موعد مقترح (تبليغ غياب) السبب إلزامي دائماً — لا شيء آخر يشرح الطلب للأدمن
   const reasonIsRequired = isAbsenceReport || isReasonRequired(currentScheduledAt);
   const missingReason = reasonIsRequired && reason.trim() === '';
@@ -49,10 +53,11 @@ export function RescheduleRequestModal({ isPending, error, currentScheduledAt, o
   const proposedDateTimeError =
     (touched && missingDateTime && t('dashboard.rescheduleModal.dateTimeRequired')) ||
     (touched && invalidPastDateTime && t('dashboard.rescheduleModal.dateTimeFuture')) ||
+    (touched && tooSoonDateTime && t('dashboard.rescheduleModal.dateTimeMinAhead').replace('{hours}', minHoursAhead)) ||
     getFirstFieldError(error, 'proposed_scheduled_at');
   const reasonError = (touched && missingReason && t('dashboard.rescheduleModal.reasonRequired')) || getFirstFieldError(error, 'reason');
   const showApiSummary = error && !proposedDateTimeError && !reasonError;
-  const isValid = !missingDateTime && !invalidPastDateTime && !missingReason;
+  const isValid = !missingDateTime && !invalidPastDateTime && !tooSoonDateTime && !missingReason;
 
   const rescheduleFieldLabel = (path) => {
     if (path === 'proposed_scheduled_at') return t('dashboard.rescheduleModal.dateTimeLabel');

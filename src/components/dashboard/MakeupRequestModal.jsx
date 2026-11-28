@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 import { ApiErrorList } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
-import { useCreateMakeupRequest } from '@/hooks/useReschedule';
+import { useCreateMakeupRequest, useRescheduleMinHoursAhead } from '@/hooks/useReschedule';
 import { formatDateTime } from '@/lib/formatters';
 import { zonedWallTimeToUtcIso } from '@/lib/zonedDateTime';
 import { useT } from '@/hooks/useT';
@@ -20,20 +20,22 @@ export function MakeupRequestModal({ sessionId, missedScheduledAt, onClose, onDo
   const [time, setTime] = useState('');
   const [reason, setReason] = useState('');
   const [touched, setTouched] = useState(false);
+  const minHoursAhead = useRescheduleMinHoursAhead();
 
   const proposedScheduledAt = zonedWallTimeToUtcIso(date, time, user?.timezone);
   const proposedAtMs = proposedScheduledAt ? new Date(proposedScheduledAt).getTime() : NaN;
-  const dateTimeError = touched
-    ? !date || !time
-      ? t('dashboard.rescheduleModal.dateTimeRequired')
-      : !Number.isFinite(proposedAtMs) || proposedAtMs <= Date.now()
-        ? t('dashboard.rescheduleModal.dateTimeFuture')
-        : null
-    : null;
+  const validationError = !date || !time
+    ? t('dashboard.rescheduleModal.dateTimeRequired')
+    : !Number.isFinite(proposedAtMs) || proposedAtMs <= Date.now()
+      ? t('dashboard.rescheduleModal.dateTimeFuture')
+      : proposedAtMs < Date.now() + minHoursAhead * 60 * 60 * 1000
+        ? t('dashboard.rescheduleModal.dateTimeMinAhead').replace('{hours}', minHoursAhead)
+        : null;
+  const dateTimeError = touched ? validationError : null;
 
   const handleConfirm = () => {
     setTouched(true);
-    if (!date || !time || !Number.isFinite(proposedAtMs) || proposedAtMs <= Date.now()) return;
+    if (validationError) return;
     createRequest.mutate(
       { sessionId, proposedScheduledAt, reason: reason.trim() },
       { onSuccess: (result) => onDone?.(result?.message) },

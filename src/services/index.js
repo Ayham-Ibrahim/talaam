@@ -38,6 +38,7 @@ import {
   mockTeacherStudents,
 } from '@/mocks/teacherDashboard.mock';
 import { mockTeacherCoursesList, createMockTeacherCourse, submitMockTeacherCourse } from '@/mocks/teacherCourses.mock';
+import { hasConfirmedRelation } from '@/lib/chatCache';
 
 /** "H:i" or "H:i:s" pair → whole minutes. No fixed duration field exists anymore — every package's session length is derived from its own schedule. */
 function minutesBetween(startTime, endTime) {
@@ -502,6 +503,15 @@ export const rescheduleService = {
       reason: reason || null,
     });
     return { request: data.data, message: data.message };
+  },
+
+  /** Limits on the proposed time, from admin settings: { min_hours_ahead }. */
+  async policy() {
+    if (config.useMocks) {
+      return { min_hours_ahead: 2 };
+    }
+    const { data } = await client.get(endpoints.reschedulePolicy);
+    return data.data;
   },
 
   /**
@@ -1141,6 +1151,7 @@ function mapBookingToPackageCard(booking) {
     type: pkg?.session_format ?? 'individual',
     teacherName: booking.teacher?.user?.name ?? null,
     teacherAvatar: booking.teacher?.user?.avatar_path ?? null,
+    teacherUserId: booking.teacher?.user?.id ?? null,
     subject: pkg?.subject?.name_ar ?? null,
     packageTitle: pkg?.title ?? null,
     description: pkg?.description ?? null,
@@ -1176,6 +1187,7 @@ function mapEnrollmentToPackageCard(enrollment, courseSessions = []) {
     type: 'course',
     teacherName: enrollment.teacher?.user?.name ?? null,
     teacherAvatar: enrollment.teacher?.user?.avatar_path ?? null,
+    teacherUserId: enrollment.teacher?.user?.id ?? null,
     // الدورة تُصنَّف بمجالها لا بمادة (المادة اختيارية ونادراً ما تُحدَّد)
     subject: course?.course_field?.name_ar ?? course?.subject?.name_ar ?? null,
     packageTitle: course?.title ?? null,
@@ -1208,6 +1220,7 @@ function mapBookingToInvoice(booking) {
     issueDate: formatDate(booking.created_at),
     teacherName: booking.teacher?.user?.name ?? null,
     teacherAvatar: booking.teacher?.user?.avatar_path ?? null,
+    teacherUserId: booking.teacher?.user?.id ?? null,
     subject: pkg?.subject?.name_ar ?? null,
     paymentMethod: booking.is_manual ? 'يدوي' : 'Stripe',
     amount: Number(booking.amount_paid ?? 0),
@@ -1228,6 +1241,7 @@ function mapEnrollmentToInvoice(enrollment) {
     issueDate: formatDate(enrollment.created_at),
     teacherName: enrollment.teacher?.user?.name ?? null,
     teacherAvatar: enrollment.teacher?.user?.avatar_path ?? null,
+    teacherUserId: enrollment.teacher?.user?.id ?? null,
     subject: course?.subject?.name_ar ?? null,
     paymentMethod: enrollment.is_manual ? 'يدوي' : 'Stripe',
     amount: Number(enrollment.amount_paid ?? 0),
@@ -1575,12 +1589,19 @@ export const dashboardService = {
 
     const byStudentId = new Map();
     const registerRecord = (record, isCourse) => {
-      if (byStudentId.has(record.student_id)) return;
+      // زر "مراسلة" فقط لمن له علاقة مؤكدة (المحادثة تُفتح عند التأكيد) — أي سجل مؤكد للطالب يكفي
+      const confirmedUserId = hasConfirmedRelation(record.status) ? (record.student?.user?.id ?? null) : null;
+      if (byStudentId.has(record.student_id)) {
+        const existing = byStudentId.get(record.student_id);
+        if (!existing.userId && confirmedUserId) existing.userId = confirmedUserId;
+        return;
+      }
       const nextSession = nextSessionByStudentId.get(record.student_id);
       const nextScheduled = nextSession?.scheduled_at ? new Date(nextSession.scheduled_at) : null;
       byStudentId.set(record.student_id, {
         id: record.student_id,
         studentName: record.student?.user?.name ?? null,
+        userId: confirmedUserId,
         packageTitle: isCourse ? (record.course?.title ?? null) : (record.package?.title ?? null),
         subject: isCourse ? (record.course?.subject?.name_ar ?? null) : (record.package?.subject?.name_ar ?? null),
         type: isCourse ? 'training' : (record.package?.session_format ?? null),

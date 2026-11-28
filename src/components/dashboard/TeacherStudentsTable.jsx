@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { TEACHER_SESSION_TYPE_STYLES } from '@/mocks/teacherDashboard.mock';
+import { MessageButton } from '@/components/chat/MessageButton';
 import { useT } from '@/hooks/useT';
 
 export function TeacherStudentsTable({ students }) {
@@ -37,13 +38,16 @@ export function TeacherStudentsTable({ students }) {
                 </td>
                 <td className="px-4 py-4 text-center font-semibold text-ink">{student.time}</td>
                 <td className="px-4 py-4 text-center">
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/dashboard/teacher/students/${student.id}`)}
-                    className="rounded-xl border border-primary bg-[#EDF0F5] px-4 py-2 text-xs font-medium text-primary hover:bg-primary/10"
-                  >
-                    {t('dashboard.teacherStudents.details')}
-                  </button>
+                  <div className="flex items-start justify-center gap-2">
+                    <MessageButton userId={student.userId} />
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/dashboard/teacher/students/${student.id}`)}
+                      className="rounded-xl border border-primary bg-[#EDF0F5] px-4 py-2 text-xs font-medium text-primary hover:bg-primary/10"
+                    >
+                      {t('dashboard.teacherStudents.details')}
+                    </button>
+                  </div>
                 </td>
               </tr>
             );

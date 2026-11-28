@@ -30,6 +30,12 @@ function notificationContent(t, notification, role) {
           .join(' — '),
         link: sessionPathFor(role, data.sessionId),
       };
+    case 'NewChatMessage':
+      return {
+        title: t('chat.toastFrom').replace('{name}', data.senderName ?? ''),
+        body: data.preview,
+        link: `/dashboard/messages/${data.conversationId}`,
+      };
     case 'TeacherVerificationReviewed':
       return {
         title: data.approved ? t('notifications.teacherApproved') : t('notifications.teacherRejected'),
