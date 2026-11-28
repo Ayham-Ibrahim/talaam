@@ -53,6 +53,15 @@ const TYPE_SPECIFIC_FIELD_KEYS = {
   university: ['major_ids'],
   training_center: ['display_name_en', 'commercial_register'],
 };
+// القيمة الفارغة لكل حقل خاص بنوع — تُستخدم لتفريغ حقول النوع القديم فوراً بالنموذج
+// عند تبديل النوع، فلا تبقى قيمه السابقة ظاهرة زوراً لنوع لم تعد تخصه (تطابق مسح الباك
+// اند لها عند الحفظ في TeacherService::updateProfile).
+const TYPE_SPECIFIC_FIELD_DEFAULTS = {
+  curriculum_ids: [],
+  major_ids: [],
+  display_name_en: '',
+  commercial_register: '',
+};
 
 const PROFILE_FIELD_LABELS = {
   name: 'الاسم',
@@ -373,7 +382,13 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
             <SmoothSelect
               label={t('dashboard.adminTeacherDetail.profileEditor.teacherTypeLabel')}
               value={form.teacher_type}
-              onChange={(v) => setForm((prev) => ({ ...prev, teacher_type: v }))}
+              onChange={(v) => {
+                const keptKeys = TYPE_SPECIFIC_FIELD_KEYS[v] ?? [];
+                const resetFields = Object.fromEntries(
+                  Object.entries(TYPE_SPECIFIC_FIELD_DEFAULTS).filter(([key]) => !keptKeys.includes(key)),
+                );
+                setForm((prev) => ({ ...prev, ...resetFields, teacher_type: v }));
+              }}
               options={TEACHER_TYPE_OPTIONS}
             />
             {typeChanged && (
