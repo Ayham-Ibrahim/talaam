@@ -87,7 +87,8 @@
   .split-word,
   .reveal-item,
   .step-card,
-  .cta-float {
+  .cta-float,
+  .arrow-nudge {
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;
@@ -97,4 +98,17 @@
 /* Active step highlight (uses existing project colors) */
 .step-card.step-active {
   filter: drop-shadow(0 0 14px rgba(75, 104, 152, 0.35));
+}
+
+/* "View all packages" arrow — subtle horizontal nudge to draw the eye, RTL-aware (moves toward reading direction) */
+.arrow-nudge {
+  animation: arrow-nudge 1.4s ease-in-out infinite;
+}
+@keyframes arrow-nudge {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-4px);
+  }
 }

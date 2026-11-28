@@ -9,6 +9,7 @@ import { HowItWorksPage } from "@/pages/HowItWorksPage";
 import { ContactPage } from "@/pages/ContactPage";
 import { FavoritesPage } from "@/pages/FavoritesPage";
 import { TeacherProfilePage } from "@/pages/TeacherProfilePage";
+import { TeacherAllPackagesPage } from "@/pages/TeacherAllPackagesPage";
 import { PaymentSuccessPage } from "@/pages/PaymentSuccessPage";
 import { PaymentCancelPage } from "@/pages/PaymentCancelPage";
 import { LoginPage } from "@/pages/LoginPage";
@@ -99,6 +100,7 @@ export function AppRouter() {
         ))}
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/teacher/:id" element={<TeacherProfilePage />} />
+        <Route path="/teacher/:id/packages" element={<TeacherAllPackagesPage />} />
         <Route path="/payments/success" element={<PaymentSuccessPage />} />
         <Route path="/payments/cancel" element={<PaymentCancelPage />} />
         <Route path="/login" element={<LoginPage />} />

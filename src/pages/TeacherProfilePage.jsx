@@ -231,6 +231,7 @@ export function TeacherProfilePage() {
             refetch={refetchPackages}
             selectedPackageId={selectedPackageId}
             onSelect={(pkg) => setSelectedPackageId(pkg.id)}
+            teacherId={id}
           />
         )}
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Ban, BookOpen, CalendarDays, Check, CheckCircle2, Clock, CreditCard, Gift, GraduationCap, Hourglass, Layers, Sparkles, Users } from 'lucide-react';
-import { ErrorState, Skeleton } from '@/components/ui';
+import { ArrowRight, Ban, BookOpen, CalendarDays, Check, CheckCircle2, Clock, CreditCard, Gift, GraduationCap, Hourglass, Layers, Search, Sparkles, Users } from 'lucide-react';
+import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { Drawer } from '@/components/ui/Drawer';
 import { useNow } from '@/hooks/useNow';
 import { useT } from '@/hooks/useT';
@@ -300,6 +300,23 @@ function PackageCard({ pkg, index, selected, onSelect, onDetails }) {
         )}
       </div>
 
+      {/* المرحلة التدريسية والصفوف الموجّهة لها الباقة — تظهر على الكارت نفسه لا بالتفاصيل فقط */}
+      {(pkg.stages?.length > 0 || pkg.grades?.length > 0) && (
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm font-medium text-white/90">
+          {pkg.stages?.length > 0 && (
+            <span className="inline-flex items-center gap-1.5">
+              <GraduationCap size={15} />
+              {pkg.stages.join('، ')}
+            </span>
+          )}
+          {pkg.grades?.length > 0 && (
+            <span className="inline-flex items-center gap-1.5">
+              {t('teacher.gradePrefix')} {[...pkg.grades].sort((a, b) => a - b).join('، ')}
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Group seats — replaces the reference's "Teacher: Name" line with real, varying data */}
       {isGroup && capacity > 0 && (
         <div className="mt-3">
@@ -379,22 +396,175 @@ function PackageCard({ pkg, index, selected, onSelect, onDetails }) {
   );
 }
 
+/**
+ * الباقة المجانية بلا مادة أصلاً (subject_id محظور لها عمداً، راجع ValidatesTrialPackage) —
+ * فتُعرض كبانر عريض بعرض القسم كاملاً فوق كل شيء، بهوية بصرية مميزة كونها الدافع الأول
+ * لتجربة المعلم، لا كباقة عادية ضمن الشبكة.
+ */
+function TrialBanner({ pkg, selected, onSelect, onDetails }) {
+  const t = useT();
+  const navigate = useNavigate();
+  const now = useNow();
+  const state = viewerState(pkg, now);
+  const badge = STATE_BADGE[state];
+  const detail = badge ? stateDetail(t, state, pkg.myBooking, now) : null;
+
+  return (
+    <div
+      style={{ background: TRIAL_GRADIENT }}
+      className={`relative flex flex-col items-stretch gap-5 overflow-hidden rounded-2xl p-6 text-start shadow-[0_6px_20px_rgba(0,0,0,0.15)] sm:flex-row sm:items-center sm:justify-between ${
+        selected ? 'ring-4 ring-white/80' : 'ring-2 ring-[#FCD34D] shadow-[0_8px_28px_rgba(16,185,129,0.45)]'
+      }`}
+    >
+      <Gift
+        size={190}
+        strokeWidth={1.1}
+        className="pointer-events-none absolute -bottom-10 -left-10 -rotate-12 text-white/10"
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10 flex flex-1 flex-col gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[#FCD34D] px-3 py-1.5 text-xs font-bold text-[#78350F] shadow-md">
+            <Sparkles size={13} />
+            {t('teacher.trialRibbon')}
+          </span>
+          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#34C759]">
+            <Gift size={13} />
+            {t('teacher.trialBadge')}
+          </span>
+          {badge && (
+            <span className={`inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold shadow-md ${badge.color}`}>
+              <badge.icon size={13} />
+              {t(badge.key)}
+            </span>
+          )}
+        </div>
+        <h4 className="text-xl font-bold text-white">{pkg.title}</h4>
+        <p className="text-sm font-medium text-white/85">{t('teacher.trialTagline')}</p>
+        {detail && (
+          <p className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-[#1E1E1E]">
+            <Clock size={13} />
+            {detail}
+          </p>
+        )}
+      </div>
+
+      <div className="relative z-10 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:min-w-[260px]">
+        <span className="inline-flex items-center justify-center gap-2 text-2xl font-bold leading-none text-white">
+          <Gift size={22} />
+          {t('teacher.freePackage')}
+        </span>
+        <div className="flex gap-2">
+          {badge ? (
+            <button
+              type="button"
+              onClick={() => navigate(bookingDetailsPath(pkg.myBooking.id))}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-2xl bg-white py-3 text-sm font-bold transition-opacity hover:opacity-90 ${badge.color}`}
+            >
+              {t(STATE_CTA[state])}
+            </button>
+          ) : state === 'rightUsed' ? (
+            <button
+              type="button"
+              disabled
+              className="flex flex-1 cursor-not-allowed items-center justify-center gap-1.5 rounded-2xl bg-white/70 px-2 py-3 text-xs font-semibold text-[#1E1E1E]"
+            >
+              <Ban size={14} />
+              {t('teacher.myBooking.trialUsed')}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onSelect(pkg)}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-2xl bg-white py-3 text-sm font-semibold text-[#1E1E1E] transition-opacity hover:opacity-90"
+            >
+              {selected && <Check size={15} strokeWidth={3} />}
+              {t('teacher.trialCta')}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => onDetails(pkg)}
+            className="flex-1 rounded-2xl border border-white/60 py-3 text-sm text-white transition-colors hover:bg-white/10"
+          >
+            {t('teacher.viewDetails')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * تاغات الفلترة — مستخرجة من بيانات باقات هذا المعلم فعلياً (المادة/المرحلة/المنهج)
+ * لا قائمة ثابتة، فتبقى ذات صلة بما يُدرّسه هذا المعلم تحديداً بلا خيارات عشوائية.
+ */
+function collectFilterTags(packages) {
+  const seen = new Set();
+  const tags = [];
+  const add = (label) => {
+    if (label && !seen.has(label)) {
+      seen.add(label);
+      tags.push(label);
+    }
+  };
+  for (const pkg of packages) {
+    add(pkg.subject);
+    (pkg.curricula ?? []).forEach(add);
+  }
+  return tags;
+}
+
+const PACKAGES_PAGE_SIZE = 6;
+
 /* ───────────────────────────── Section ───────────────────────────── */
 
-export function PackagesSection({ packages, isLoading, isError, refetch, selectedPackageId, onSelect }) {
+export function PackagesSection({ packages, isLoading, isError, refetch, selectedPackageId, onSelect, teacherId, showAll = false }) {
   const t = useT();
+  const navigate = useNavigate();
   const [detailsPkg, setDetailsPkg] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTag, setActiveTag] = useState(null);
+  const [expanded, setExpanded] = useState(false);
 
-  // الجلسة التعريفية المجانية أولاً ثم عروض الحملة — بلا أثر على ترتيب الباقات المدفوعة العادية بينها
-  const rank = (p) => (p.isTrial ? 2 : p.isCampaign ? 1 : 0);
-  const sortedPackages = [...(packages ?? [])].sort((a, b) => rank(b) - rank(a));
-  const trialCount = sortedPackages.filter((p) => p.isTrial || p.isCampaign).length;
+  const trialPackages = (packages ?? []).filter((p) => p.isTrial);
+  const regularPackages = (packages ?? []).filter((p) => !p.isTrial);
+
+  // عروض الحملة أولاً — بلا أثر على ترتيب الباقات العادية بينها
+  const rank = (p) => (p.isCampaign ? 1 : 0);
+  const sortedPackages = [...regularPackages].sort((a, b) => rank(b) - rank(a));
+
+  const filterTags = collectFilterTags(sortedPackages);
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filteredPackages = sortedPackages.filter((pkg) => {
+    const matchesTag =
+      !activeTag ||
+      pkg.subject === activeTag ||
+      (pkg.stages ?? []).includes(activeTag) ||
+      (pkg.curricula ?? []).includes(activeTag);
+    const matchesQuery =
+      !normalizedQuery ||
+      pkg.title?.toLowerCase().includes(normalizedQuery) ||
+      pkg.subject?.toLowerCase().includes(normalizedQuery);
+    return matchesTag && matchesQuery;
+  });
+  const visiblePackages = showAll || expanded ? filteredPackages : filteredPackages.slice(0, PACKAGES_PAGE_SIZE);
+  const showViewAllTag = !showAll && Boolean(teacherId);
+
+  const selectTag = (tag) => {
+    setActiveTag((prev) => (prev === tag ? null : tag));
+    setExpanded(false);
+  };
 
   if (!isLoading && !isError && packages.length === 0) return null;
 
   return (
     <div className="mt-8">
-      <h3 className="mb-3 text-start text-lg font-bold text-[#1E1E1E]">{t('teacher.packages')}</h3>
+      <div className="mb-3 text-start">
+        <h3 className="text-lg font-bold text-[#1E1E1E]">{t('teacher.packages')}</h3>
+        <p className="mt-1 text-sm text-ink-soft">{t('teacher.packagesSubtitle')}</p>
+      </div>
 
       {isError ? (
         <ErrorState onRetry={refetch} />
@@ -405,17 +575,95 @@ export function PackagesSection({ packages, isLoading, isError, refetch, selecte
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {sortedPackages.map((pkg, i) => (
-            <PackageCard
+        <div className="flex flex-col gap-5">
+          {trialPackages.map((pkg) => (
+            <TrialBanner
               key={pkg.id}
               pkg={pkg}
-              index={i - trialCount}
               selected={pkg.id === selectedPackageId}
               onSelect={onSelect}
               onDetails={setDetailsPkg}
             />
           ))}
+
+          {regularPackages.length > 0 && (
+            <>
+              <div className="flex flex-col gap-3">
+                <div className="relative">
+                  <Search size={18} className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-ink-soft" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setExpanded(false);
+                    }}
+                    placeholder={t('teacher.packagesSearchPlaceholder')}
+                    className="w-full rounded-btn border border-line bg-white py-2.5 pe-10 ps-4 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+
+                {(showViewAllTag || filterTags.length > 0) && (
+                  <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    {showViewAllTag && (
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/teacher/${teacherId}/packages`)}
+                        className="inline-flex shrink-0 items-center gap-1.5 rounded-pill bg-primary px-4 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-90"
+                      >
+                        <ArrowRight size={14} />
+                        {t('teacher.packagesViewAll')}
+                      </button>
+                    )}
+                    {filterTags.map((tag) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => selectTag(tag)}
+                        className={`shrink-0 rounded-pill px-4 py-1.5 text-xs font-bold transition-colors ${
+                          activeTag === tag
+                            ? 'bg-primary text-white'
+                            : 'border border-line bg-white text-ink-soft hover:bg-canvas'
+                        }`}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {filteredPackages.length === 0 ? (
+                <EmptyState title={t('teacher.packagesNoMatch')} />
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {visiblePackages.map((pkg, i) => (
+                      <PackageCard
+                        key={pkg.id}
+                        pkg={pkg}
+                        index={i}
+                        selected={pkg.id === selectedPackageId}
+                        onSelect={onSelect}
+                        onDetails={setDetailsPkg}
+                      />
+                    ))}
+                  </div>
+
+                  {!showAll && !expanded && filteredPackages.length > PACKAGES_PAGE_SIZE && (
+                    <button
+                      type="button"
+                      onClick={() => setExpanded(true)}
+                      className="mx-auto inline-flex items-center gap-2 rounded-2xl border border-line bg-white px-6 py-3 text-sm font-bold text-ink transition-colors hover:bg-canvas"
+                    >
+                      {t('teacher.packagesViewAll')}
+                      <ArrowRight size={16} className="arrow-nudge" />
+                    </button>
+                  )}
+                </>
+              )}
+            </>
+          )}
         </div>
       )}
 

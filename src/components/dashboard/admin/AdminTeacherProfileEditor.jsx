@@ -65,6 +65,7 @@ const TYPE_SPECIFIC_FIELD_DEFAULTS = {
 
 const PROFILE_FIELD_LABELS = {
   name: 'الاسم',
+  email: 'البريد الإلكتروني',
   teacher_type: 'نوع المعلم',
   bio: 'نبذة عن المعلم',
   teaching_philosophy_quote: 'مقولة عن فلسفته في التدريس',
@@ -146,6 +147,7 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
 
   const [form, setForm] = useState({
     name: '',
+    email: '',
     teacher_type: teacher.type,
     bio: '',
     teaching_philosophy_quote: '',
@@ -195,6 +197,7 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
     if (teacher && !hydrated) {
       setForm({
         name: teacher.name ?? '',
+        email: teacher.email ?? '',
         teacher_type: teacher.type,
         bio: teacher.bio ?? '',
         teaching_philosophy_quote: teacher.teachingPhilosophyQuote ?? '',
@@ -256,6 +259,9 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
         // الحقل بصمت لو أُرسل من غير الأدمن، لكنه هنا دوماً مسموح.
         teacher_type: form.teacher_type,
         name: form.name.trim() || null,
+        // بريد الدخول — حقل حساس، يُرسَل فقط بقيمته الفعلية بلا احتمال null (خلافاً
+        // لباقي الحقول الاختيارية أعلاه)، فالباك اند يرفض تحديثه إلى قيمة فارغة أصلاً.
+        email: form.email.trim(),
         bio: form.bio || null,
         // المدرس الجامعي بلا قسم "فلسفتي في التدريس" — لا يُرسَل (تبقى أي قيمة قديمة كما هي)
         ...(isUniversity
@@ -376,6 +382,18 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
                 value={form.name}
                 onChange={patch('name')}
                 className="w-full rounded-btn border border-line bg-white p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5">
+              <span className="text-sm font-semibold text-ink">{t('dashboard.adminTeacherDetail.profileEditor.emailLabel')}</span>
+              <input
+                type="email"
+                dir="ltr"
+                maxLength={150}
+                value={form.email}
+                onChange={patch('email')}
+                className="w-full rounded-btn border border-line bg-white p-3 text-end text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </label>
 
@@ -593,7 +611,7 @@ export function AdminTeacherProfileEditor({ teacherId, teacher, documents }) {
 
           <button
             type="button"
-            disabled={updateProfile.isPending || !form.name.trim()}
+            disabled={updateProfile.isPending || !form.name.trim() || !form.email.trim()}
             onClick={handleSaveProfile}
             className="mt-4 w-full rounded-xl border-2 border-primary py-3 text-sm font-medium text-primary transition-opacity hover:opacity-80 disabled:opacity-50"
           >
