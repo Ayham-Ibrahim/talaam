@@ -11,6 +11,9 @@ import { useT } from '@/hooks/useT';
 function CounterpartyStage({ request, t }) {
   const response = request.counterpartyResponse;
   if (!response) return null;
+  // قرار الأدمن لا يمسّ counterpartyResponse — فيبقى pending إن قرر قبل رد الطرف الآخر،
+  // و"بانتظار رده" حينها لم تعد صحيحة
+  if (response === 'pending' && request.status !== 'pending') return null;
 
   const otherParty = t(`dashboard.adminReschedule.otherParty.${request.requesterRole === 'student' ? 'teacher' : 'student'}`);
   const color = response === 'pending' ? 'text-[#FF8D28]' : response === 'accepted' ? 'text-success' : 'text-accent-pink';

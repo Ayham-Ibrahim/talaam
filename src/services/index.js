@@ -504,6 +504,15 @@ export const rescheduleService = {
     return { request: data.data, message: data.message };
   },
 
+  /** Limits on the proposed time, from admin settings: { min_hours_ahead }. */
+  async policy() {
+    if (config.useMocks) {
+      return { min_hours_ahead: 2 };
+    }
+    const { data } = await client.get(endpoints.reschedulePolicy);
+    return data.data;
+  },
+
   /**
    * Proposes a time for the makeup session of a missed session (teacher absent). Same
    * path as a reschedule: the other party accepts (makeup created) or the admin decides.

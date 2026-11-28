@@ -165,6 +165,8 @@ export const endpoints = {
   },
   // كل ما ينتظر تصرّف الطالب/المعلم (طلبات بانتظار رده + جلسات قابلة للتعويض)
   myPendingActions: '/my-pending-actions',
+  // قيود اختيار الموعد المقترح من الإعدادات (min_hours_ahead)
+  reschedulePolicy: '/reschedule-policy',
   rescheduleRequests: {
     // لغير الأدمن: طلباته هو فقط ("طلباتي")
     mine: '/reschedule-requests',
