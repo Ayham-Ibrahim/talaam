@@ -54,6 +54,19 @@ export const endpoints = {
     toggleTeacher: (id) => `/favorites/teachers/${id}`,
     toggleCourse: (id) => `/favorites/courses/${id}`,
   },
+  chat: {
+    conversations: '/conversations',
+    conversation: (id) => `/conversations/${id}`,
+    messages: (id) => `/conversations/${id}/messages`,
+    markRead: (id) => `/conversations/${id}/read`,
+    presence: (id) => `/conversations/${id}/presence`,
+    message: (id) => `/messages/${id}`,
+    report: (id) => `/messages/${id}/report`,
+    unreadCount: '/chat/unread-count',
+    adminComplaintConversation: (complaintId) => `/admin/complaints/${complaintId}/conversation`,
+    adminBlock: (id) => `/admin/conversations/${id}/block`,
+    adminUnblock: (id) => `/admin/conversations/${id}/unblock`,
+  },
   notifications: {
     list: '/notifications',
     unreadCount: '/notifications/unread-count',
@@ -165,6 +178,8 @@ export const endpoints = {
   },
   // كل ما ينتظر تصرّف الطالب/المعلم (طلبات بانتظار رده + جلسات قابلة للتعويض)
   myPendingActions: '/my-pending-actions',
+  // قيود اختيار الموعد المقترح من الإعدادات (min_hours_ahead)
+  reschedulePolicy: '/reschedule-policy',
   rescheduleRequests: {
     // لغير الأدمن: طلباته هو فقط ("طلباتي")
     mine: '/reschedule-requests',

@@ -9,6 +9,7 @@ import { RescheduleRequestsTable } from "@/components/dashboard/admin/Reschedule
 import { RescheduleRequestDetailsModal } from "@/components/dashboard/admin/RescheduleRequestDetailsModal";
 import { ApproveRescheduleModal } from "@/components/dashboard/admin/ApproveRescheduleModal";
 import { ReasonModal } from "@/components/dashboard/admin/ReasonModal";
+import { AdminConversationModal } from "@/components/chat/AdminConversationModal";
 import { EmptyState, ErrorState, Skeleton } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -125,6 +126,9 @@ export function AdminComplaintsPage() {
                 onView={(complaint) =>
                   setModal({ type: "viewComplaint", complaint })
                 }
+                onViewConversation={(complaint) =>
+                  setModal({ type: "viewConversation", complaint })
+                }
               />
             )}
           </div>
@@ -195,6 +199,13 @@ export function AdminComplaintsPage() {
 
       {modal?.type === "viewComplaint" && (
         <ComplaintDetailsModal
+          complaint={modal.complaint}
+          onClose={closeModal}
+        />
+      )}
+
+      {modal?.type === "viewConversation" && (
+        <AdminConversationModal
           complaint={modal.complaint}
           onClose={closeModal}
         />

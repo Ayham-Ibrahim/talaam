@@ -65,6 +65,7 @@ const COMPLAINT_CATEGORY_LABELS = {
   payment_issue: 'مشكلة في الدفع',
   schedule_issue: 'مشكلة في الموعد/الجدول',
   other: 'أخرى',
+  chat_report: 'إبلاغ من المحادثة',
 };
 
 /**
@@ -98,7 +99,8 @@ function mapComplaint(complaint) {
 
   return {
     ...complaint,
-    studentName: complaint.student?.user?.name ?? null,
+    // الداعم المستقل يبلّغ بلا student/teacher — اسمه من filer (filed_by_user_id)
+    studentName: complaint.student?.user?.name ?? (complaint.teacher ? null : complaint.filer?.name ?? null),
     teacherName: complaint.teacher?.user?.name ?? complaint.booking?.teacher?.user?.name ?? complaint.session?.teacher?.user?.name ?? null,
     subjectName: bookingPackage?.subject?.name_ar ?? COMPLAINT_CATEGORY_LABELS[complaint.category] ?? complaint.category,
     categoryLabel: COMPLAINT_CATEGORY_LABELS[complaint.category] ?? complaint.category,

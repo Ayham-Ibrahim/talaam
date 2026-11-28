@@ -22,10 +22,13 @@ import {
   Menu,
   X,
   Globe,
+  MessageCircle,
 } from "lucide-react";
 import { Logo } from "@/components/layout/Logo";
 import { Avatar } from "@/components/ui";
 import { NotificationsBell } from "@/components/notifications/NotificationsBell";
+import { ChatHeaderButton } from "@/components/chat/ChatHeaderButton";
+import { useChatUnreadCount } from "@/hooks/useChat";
 import { useAuth, useLogout } from "@/hooks/useAuth";
 import { useFavorites } from "@/hooks/useFavorites";
 import { usePendingActions } from "@/hooks/useReschedule";
@@ -102,6 +105,7 @@ const STUDENT_NAV_ITEMS = [
   { key: "calendar", icon: Calendar, path: "/dashboard/student/calendar" },
   { key: "sessions", icon: FileText, path: "/dashboard/student/sessions" },
   { key: "packages", icon: CreditCard, path: "/dashboard/student/packages" },
+  { key: "messages", icon: MessageCircle, path: "/dashboard/messages" },
   { key: "campaignOffers", icon: Sparkles, path: "/campaign-offers", campaignOnly: true },
   { key: "academicSupport", icon: HandHeart, path: "/dashboard/student/academic-support", universityOnly: true },
   { key: "invoices", icon: FileText, path: "/dashboard/student/invoices" },
@@ -114,6 +118,7 @@ const SUPPORTER_NAV_ITEMS = [
   { key: "supporterProfile", icon: UserRound, path: "/dashboard/supporter", end: true },
   { key: "supporterPackages", icon: CreditCard, path: "/dashboard/supporter/packages" },
   { key: "supporterStudents", icon: Users, path: "/dashboard/supporter/students" },
+  { key: "messages", icon: MessageCircle, path: "/dashboard/messages" },
 ];
 
 const TEACHER_NAV_ITEMS = [
@@ -130,6 +135,7 @@ const TEACHER_NAV_ITEMS = [
   },
   { key: "sessions", icon: FileText, path: "/dashboard/teacher/sessions" },
   { key: "students", icon: UserRound, path: "/dashboard/teacher/students" },
+  { key: "messages", icon: MessageCircle, path: "/dashboard/messages" },
   { key: "privacyPolicy", icon: ShieldCheck, path: "/privacy-policy" },
   { key: "settings", icon: Settings, path: "/dashboard/teacher/settings" },
 ];
@@ -155,6 +161,7 @@ function DashboardLayoutInner({ children }) {
   const homePath = HOME_PATHS[user?.role];
   const { data: pendingActions } = usePendingActions(Boolean(homePath));
   const pendingCount = pendingActions?.count ?? 0;
+  const { data: chatUnreadCount } = useChatUnreadCount();
 
   // Close sidebar on path change
   useEffect(() => {
@@ -246,6 +253,11 @@ function DashboardLayoutInner({ children }) {
                   {item.key === "actions" && pendingCount > 0 && (
                     <PendingCountBadge data={pendingActions} />
                   )}
+                  {item.key === "messages" && !!chatUnreadCount && (
+                    <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-accent-pink px-1.5 text-xs font-bold text-white">
+                      {chatUnreadCount > 99 ? "99+" : chatUnreadCount}
+                    </span>
+                  )}
                   {t(`dashboard.nav.${item.key}`)}
                   <Icon size={22} />
                 </NavLink>
@@ -323,6 +335,7 @@ function DashboardLayoutInner({ children }) {
               buttonClassName="relative hidden h-10 w-10 items-center justify-center rounded-full hover:bg-line/40 sm:flex"
               iconClassName="text-[#2D2D2D]"
             />
+            <ChatHeaderButton />
             <NavLink
               to="/favorites"
               className="relative hidden h-10 w-10 items-center justify-center rounded-full hover:bg-line/40 sm:flex"
@@ -347,7 +360,7 @@ function DashboardLayoutInner({ children }) {
               aria-label="القائمة"
             >
               <Menu size={20} />
-              {pendingCount > 0 && <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full bg-accent-pink" />}
+              {(pendingCount > 0 || !!chatUnreadCount) && <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full bg-accent-pink" />}
             </button>
           </div>
         </header>

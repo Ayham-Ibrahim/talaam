@@ -1,5 +1,7 @@
 import { Crown } from 'lucide-react';
 import { Avatar } from '@/components/ui';
+import { MessageButton } from '@/components/chat/MessageButton';
+import { hasConfirmedRelation } from '@/lib/chatCache';
 import { useT } from '@/hooks/useT';
 
 export function PackageDetailSummary({ pkg }) {
@@ -20,6 +22,7 @@ export function PackageDetailSummary({ pkg }) {
           </div>
           <Avatar name={pkg.teacherName} src={pkg.teacherAvatar} size="sm" className="!h-[54px] !w-[54px]" />
         </div>
+        {hasConfirmedRelation(pkg.status) && <MessageButton userId={pkg.teacherUserId} />}
       </div>
 
       {/* Description (fills remaining width, to the left) */}

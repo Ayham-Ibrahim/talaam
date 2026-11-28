@@ -78,6 +78,19 @@ export function useMyRescheduleRequests(enabled = true) {
   });
 }
 
+/**
+ * أقل مهلة بالساعات بين الآن والموعد المقترح (إعداد reschedule_min_hours_ahead) — لنافذتي
+ * تغيير الموعد والتعويضية. 0 حتى يصل الرد: الباك يفرض القيد على أي حال.
+ */
+export function useRescheduleMinHoursAhead() {
+  const { data } = useQuery({
+    queryKey: ['reschedule-policy'],
+    queryFn: () => rescheduleService.policy(),
+    staleTime: 5 * 60_000,
+  });
+  return Number(data?.min_hours_ahead) || 0;
+}
+
 /** اقتراح موعد جلسة تعويضية (غياب المعلم) — يُرسل للطرف الآخر */
 export function useCreateMakeupRequest() {
   const queryClient = useQueryClient();

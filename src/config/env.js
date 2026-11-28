@@ -18,4 +18,12 @@ export const config = {
   // Google Tag Manager (GA4 + Google Ads) — فارغ = معطّل بالكامل (راجع src/lib/gtm.js)
   gtmId: import.meta.env.VITE_GTM_ID || '',
   siteUrl: (import.meta.env.VITE_SITE_URL || 'https://t3allem.com').replace(/\/$/, ''),
+  // المحادثة اللحظية (Laravel Reverb) — مفتاح فارغ = WebSocket معطّل، والمحادثة تعمل
+  // عبر HTTP مع استطلاع دوري (راجع src/lib/echo.js)
+  reverb: {
+    key: import.meta.env.VITE_REVERB_APP_KEY || '',
+    host: import.meta.env.VITE_REVERB_HOST || 'localhost',
+    port: Number(import.meta.env.VITE_REVERB_PORT || 8080),
+    scheme: import.meta.env.VITE_REVERB_SCHEME || 'http',
+  },
 };

@@ -49,6 +49,16 @@ export const queryKeys = {
     myProfile: (id) => ['students', 'my-profile', id],
   },
   sessionAttachments: (sessionId) => ['session-attachments', String(sessionId)],
+  chat: {
+    // بادئة كل قوائم المحادثات (بكل نصوص البحث) — للإبطال والتحديث الجماعي
+    conversationsAll: () => ['chat', 'conversations'],
+    conversations: (search = '') => ['chat', 'conversations', search],
+    conversation: (id) => ['chat', 'conversation', String(id)],
+    messages: (id) => ['chat', 'messages', String(id)],
+    presence: (id) => ['chat', 'presence', String(id)],
+    unreadCount: () => ['chat', 'unread-count'],
+    adminConversation: (complaintId) => ['chat', 'admin', String(complaintId)],
+  },
   notifications: {
     list: () => ['notifications', 'list'],
     unreadCount: () => ['notifications', 'unread-count'],
